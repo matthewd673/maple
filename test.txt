@@ -1,0 +1,19 @@
+using System;
+
+namespace maple
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.Clear();
+            Printer.printLine("maple", ConsoleColor.Yellow);
+            Printer.drawHeader("maple", ConsoleColor.Yellow);
+
+            //load file
+            FileManager fileManager;
+            if(args.Length > 0)
+            {
+                fileManager = new FileManager(args[0]);
+                fileManager.PrintFileLines();
+            }
