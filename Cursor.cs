@@ -4,79 +4,69 @@ namespace maple
 {
     class Cursor
     {
-        public int x, y;
+        //public int x, y;
+        int docX, docY;
+        int screenX, screenY;
 
-        public static int minX = 0;
-        public static int minY = 0;
-        public static int maxX = 0;
-        public static int maxY = 0;
-        
+        static int minScreenX, minScreenY;
+        static int maxScreenX, maxScreenY;
+
+        /*
+        public static int offsetX = 0;
+        public static int offsetY = 1;
+        */
+
         public Cursor(int x, int y)
         {
-            this.x = x;
-            this.y = y;
+            this.docX = x;
+            this.docY = y;
 
             CalculateCursorBounds();
         }
-
-        public void AcceptInput()
-        {
-            ConsoleKeyInfo keyInfo = Console.ReadKey();
-
-            /*
-            switch(keyInfo.Key)
-            {
-                case ConsoleKey.RightArrow:
-                    x++;
-                    ApplyCursorPosition();
-                    break;
-                case ConsoleKey.LeftArrow:
-                    x--;
-                    ApplyCursorPosition();
-                    break;
-                case ConsoleKey.UpArrow:
-                    y--;
-                    ApplyCursorPosition();
-                    break;
-                case ConsoleKey.DownArrow:
-                    y++;
-                    ApplyCursorPosition();
-                    break;
-            }
-            */
-
-        } 
         
         public void CalculateCursorBounds()
         {
-            maxX = Console.BufferWidth - 1;
-            maxY = Console.BufferHeight - 1;
+            maxScreenX = Console.BufferWidth - 1;
+            maxScreenY = Console.BufferHeight - 1;
         }
 
-        public void MoveLeft() { MoveCursor(x - 1, y); }
-        public void MoveRight() { MoveCursor(x + 1, y); }
-        public void MoveUp() { MoveCursor(x, y - 1); }
-        public void MoveDown() { MoveCursor(x, y + 1); }
+        public void MoveLeft() { MoveCursor(docX - 1, docY); }
+        public void MoveRight() { MoveCursor(docX + 1, docY); }
+        public void MoveUp() { MoveCursor(docX, docY - 1); }
+        public void MoveDown() { MoveCursor(docX, docY + 1); }
 
-        public void SetPosition(int x, int y) { MoveCursor(x, y); }
+        public void SetDocPosition(int x, int y) { MoveCursor(docX, docY); }
 
-        void MoveCursor(int tX, int tY)
+        //public void UnsafeSetPosition(int x, int y) { UnsafeMoveCursor(x, y); }
+
+        public int GetDocumentX() { return docX; }
+        public int GetDocumentY() { return docY; }
+
+        public void MoveCursor(int tX, int tY)
         {
-            x = tX;
-            y = tY;
+            docX = tX;
+            docY = tY;
 
-            //keep x and y within safe range
-            if(x < minX)
-                x = minX;
-            if(y < minY)
-                y = minY;
-            if(x > maxX)
-                x = maxX;
-            if(y > maxY)
-                y = maxY;
+            screenX = docX;
+            screenY = docY + 1;
+
+            //keep screen x, y in safe range
+            if(screenX < minScreenX)
+                screenX = minScreenX;
+            if(screenX > maxScreenX)
+                screenX = maxScreenX;
+            if(screenY < minScreenY)
+                screenY = minScreenY;
+            if(screenY > maxScreenY)
+                screenY = maxScreenX;
 
             //move cursor pos
-            Console.SetCursorPosition(x, y);
+            Console.SetCursorPosition(screenX, screenY);
+        }
+
+        public void ForceMoveCursor(int tX, int tY)
+        {
+            Console.SetCursorPosition(tX, tY);
         }
 
     }

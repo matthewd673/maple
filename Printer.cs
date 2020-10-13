@@ -20,7 +20,7 @@ namespace maple
 
         public static void DrawHeader(String message, ConsoleColor foregroundColor = ConsoleColor.Black, ConsoleColor backgroundColor = ConsoleColor.Gray)
         {
-            printerCursor.SetPosition(0, 0);
+            printerCursor.ForceMoveCursor(0, 0);
             Console.BackgroundColor = backgroundColor;
             Console.ForegroundColor = foregroundColor;
             Console.WriteLine(message);

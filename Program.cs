@@ -6,34 +6,38 @@ namespace maple
     {
 
         static Cursor cursor;
-        static FileManager fileManager;
+        static Document document;
 
         public static String userText = "";
 
         static void Main(string[] args)
         {
             PrepareWindow();
-            Printer.DrawHeader("maple", backgroundColor: ConsoleColor.Yellow);
-
-            //load file
-            /*
-            if(args.Length > 0)
-            {
-                fileManager = new FileManager(args[0]);
-                fileManager.PrintFileLines();
-            }
-            */
-
+            
             //create cursor
             cursor = new Cursor(0, 0);
 
+            Printer.DrawHeader("maple", backgroundColor: ConsoleColor.Yellow);
+
+            //load file
+            if(args.Length > 0)
+            {
+                document = new Document(args[0]);
+                document.PrintFileLines();
+                cursor.MoveCursor(cursor.GetDocumentX(), cursor.GetDocumentY());
+            }
+
             while(true)
             {
-                InputManager.AcceptInput(Console.ReadKey());
+                Input.AcceptInput(Console.ReadKey());
 
                 Console.Clear();
-                Printer.DrawHeader("maple", backgroundColor: ConsoleColor.Yellow);
-                Printer.PrintLine(userText, ConsoleColor.Blue);
+                Printer.DrawHeader("maple (" + cursor.GetDocumentX() + ", " + cursor.GetDocumentY() + ")", backgroundColor: ConsoleColor.Yellow);
+                //Printer.PrintLine(userText, ConsoleColor.Blue);
+                document.PrintFileLines();
+
+                //reset to user cursor position
+                cursor.MoveCursor(cursor.GetDocumentX(), cursor.GetDocumentY());
             }
         }
 
@@ -48,9 +52,9 @@ namespace maple
             return cursor;
         }
 
-        public static FileManager GetFileManager()
+        public static Document GetDocument()
         {
-            return fileManager;
+            return document;
         }
 
     }
