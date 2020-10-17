@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 
 namespace maple
@@ -7,17 +9,18 @@ namespace maple
     {
 
         String filepath;
-        String[] fileLines;
+        List<String> fileLines;
 
         public Document(String filepath)
         {
+            fileLines = new List<String>();
             LoadDocument(filepath);
         }
 
         public void LoadDocument(String filepath)
         {
             this.filepath = filepath;
-            fileLines = File.ReadAllLines(filepath);
+            fileLines = File.ReadAllLines(filepath).ToList<String>();
         }
 
         public void PrintFileLines()
@@ -30,7 +33,7 @@ namespace maple
 
         public String GetLine(int index)
         {
-            if(index >= 0 && index < fileLines.Length)
+            if(index >= 0 && index < fileLines.Count)
                 return fileLines[index];
             else
                 return "";
@@ -38,13 +41,13 @@ namespace maple
 
         public void SetLine(int index, String text)
         {
-            if(index >= 0 && index < fileLines.Length)
+            if(index >= 0 && index < fileLines.Count)
                 fileLines[index] = text;
         }
 
         public bool AddTextAtPosition(int x, int y, String text)
         {
-            if(x < 0 || y < 0 || y > fileLines.Length)
+            if(x < 0 || y < 0 || y > fileLines.Count)
                 return false;
             
             String currentLine = GetLine(y);
@@ -62,7 +65,7 @@ namespace maple
 
         public bool RemoveTextAtPosition(int x, int y)
         {
-            if(x < 0 || y < 0 || y > fileLines.Length)
+            if(x < 0 || y < 0 || y > fileLines.Count)
                 return false;
 
             String currentLine = GetLine(y);
@@ -74,6 +77,24 @@ namespace maple
             
             SetLine(y, currentLine);
 
+            return true;
+        }
+
+        public bool AddLine(int index)
+        {
+            if(index < 0 || index > fileLines.Count)
+                return false;
+            
+            fileLines.Insert(index, "");
+            return true;
+        }
+        
+        public bool RemoveLine(int index)
+        {
+            if(index < 0 || index > fileLines.Count - 1)
+                return false;
+
+            fileLines.RemoveAt(index);
             return true;
         }
 
@@ -93,9 +114,14 @@ namespace maple
                 return source;
         }
 
+        public int GetMaxLine()
+        {
+            return fileLines.Count - 1;
+        }
+
         public int GetLineLength(int line)
         {
-            if(line < fileLines.Length)
+            if(line < fileLines.Count)
                 return fileLines[line].Length;
             else
                 return 0;

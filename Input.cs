@@ -10,6 +10,7 @@ namespace maple
 
             switch(keyInfo.Key)
             {
+                //MOVEMENT
                 case ConsoleKey.UpArrow:
                     Program.GetCursor().MoveUp();
                     break;
@@ -22,6 +23,8 @@ namespace maple
                 case ConsoleKey.RightArrow:
                     Program.GetCursor().MoveRight();
                     break;
+                
+                //LINE MANIPULATION
                 case ConsoleKey.Backspace:
                     bool backspaceTriggered = Program.GetDocument().RemoveTextAtPosition(
                         Program.GetCursor().GetDocumentX() - 1,
@@ -33,6 +36,15 @@ namespace maple
                 case ConsoleKey.Delete:
                     Program.GetDocument().RemoveTextAtPosition(Program.GetCursor().GetDocumentX(), Program.GetCursor().GetDocumentY());
                     break;
+                case ConsoleKey.Enter:
+                    Program.GetDocument().AddLine(Program.GetCursor().GetDocumentY());
+                    Program.GetCursor().MoveDown();
+                    break;
+                case ConsoleKey.Escape:
+                    Commands.ToggleInputTarget();
+                    break;
+
+                //TYPING
                 default:                    
                     String typed = keyInfo.KeyChar.ToString();
 

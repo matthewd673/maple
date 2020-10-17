@@ -36,8 +36,13 @@ namespace maple
                 //Printer.PrintLine(userText, ConsoleColor.Blue);
                 document.PrintFileLines();
 
+                if(Commands.IsCommandInput())
+                    Printer.DrawFooter(": ", foregroundColor: ConsoleColor.Yellow, backgroundColor: ConsoleColor.Black);
+                else
+                    Printer.DrawFooter(": ", backgroundColor: ConsoleColor.Yellow);
+
                 //reset to user cursor position
-                cursor.MoveCursor(cursor.GetDocumentX(), cursor.GetDocumentY());
+                cursor.MoveCursor(cursor.GetDocumentX(), cursor.GetDocumentY());                
             }
         }
 

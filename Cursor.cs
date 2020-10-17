@@ -8,8 +8,11 @@ namespace maple
         int docX, docY;
         int screenX, screenY;
 
-        static int minScreenX, minScreenY;
-        static int maxScreenX, maxScreenY;
+        public static int minScreenX, minScreenY;
+        public static int maxScreenX, maxScreenY;
+
+        static int contentOffsetX = 0;
+        static int contentOffsetY = 1;
 
         /*
         public static int offsetX = 0;
@@ -42,13 +45,28 @@ namespace maple
         public int GetDocumentX() { return docX; }
         public int GetDocumentY() { return docY; }
 
+        public void LockToDocConstraints()
+        {
+            if(docY < 0)
+                docY = 0;
+            if(docY > Program.GetDocument().GetMaxLine())
+                docY = Program.GetDocument().GetMaxLine();
+
+            if(docX < 0)
+                docX = 0;
+            if(docX > Program.GetDocument().GetLineLength(docY))
+                docX = Program.GetDocument().GetLineLength(docY);
+        }
+
         public void MoveCursor(int tX, int tY)
         {
             docX = tX;
             docY = tY;
 
-            screenX = docX;
-            screenY = docY + 1;
+            LockToDocConstraints();
+
+            screenX = docX + contentOffsetX;
+            screenY = docY + contentOffsetY;
 
             //keep screen x, y in safe range
             if(screenX < minScreenX)
