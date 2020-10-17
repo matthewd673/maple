@@ -5,7 +5,8 @@ namespace maple
     class Program
     {
 
-        static Cursor cursor;
+        static Cursor docCursor;
+        static Cursor cmdCursor;
         static Document document;
 
         public static String userText = "";
@@ -15,7 +16,12 @@ namespace maple
             PrepareWindow();
             
             //create cursor
-            cursor = new Cursor(0, 0);
+            docCursor = new Cursor(0, 0);
+            cmdCursor = new Cursor(0, 0);
+
+            cmdCursor.contentOffsetX = 2;
+            cmdCursor.contentOffsetY = Cursor.maxScreenY;
+            Console.Title = cmdCursor.contentOffsetX + " " + cmdCursor.contentOffsetY;
 
             Printer.DrawHeader("maple", backgroundColor: ConsoleColor.Yellow);
 
@@ -24,7 +30,7 @@ namespace maple
             {
                 document = new Document(args[0]);
                 document.PrintFileLines();
-                cursor.MoveCursor(cursor.GetDocumentX(), cursor.GetDocumentY());
+                docCursor.MoveCursor(docCursor.GetDocumentX(), docCursor.GetDocumentY());
             }
 
             while(true)
@@ -32,17 +38,20 @@ namespace maple
                 Input.AcceptInput(Console.ReadKey());
 
                 Console.Clear();
-                Printer.DrawHeader("maple (" + cursor.GetDocumentX() + ", " + cursor.GetDocumentY() + ")", backgroundColor: ConsoleColor.Yellow);
+                Printer.DrawHeader("maple (" + docCursor.GetDocumentX() + ", " + docCursor.GetDocumentY() + ")", backgroundColor: ConsoleColor.Yellow);
                 //Printer.PrintLine(userText, ConsoleColor.Blue);
                 document.PrintFileLines();
 
-                if(Commands.IsCommandInput())
-                    Printer.DrawFooter(": ", foregroundColor: ConsoleColor.Yellow, backgroundColor: ConsoleColor.Black);
-                else
-                    Printer.DrawFooter(": ", backgroundColor: ConsoleColor.Yellow);
+                if(Input.GetInputTarget() == Input.InputTarget.Document)
+                    Printer.DrawFooter("(esc) : \"save\"", foregroundColor: ConsoleColor.Yellow, backgroundColor: ConsoleColor.Black);
+                else if(Input.GetInputTarget() == Input.InputTarget.Command)
+                    Printer.DrawFooter(": " + CommandLine.GetText(), backgroundColor: ConsoleColor.Yellow);
 
                 //reset to user cursor position
-                cursor.MoveCursor(cursor.GetDocumentX(), cursor.GetDocumentY());                
+                if(Input.GetInputTarget() == Input.InputTarget.Document)
+                    docCursor.MoveCursor(docCursor.GetDocumentX(), docCursor.GetDocumentY());
+                else if(Input.GetInputTarget() == Input.InputTarget.Command)
+                    cmdCursor.ForceDocumentPosition(cmdCursor.GetDocumentX(), cmdCursor.GetDocumentY());
             }
         }
 
@@ -54,7 +63,12 @@ namespace maple
 
         public static Cursor GetCursor()
         {
-            return cursor;
+            if(Input.GetInputTarget() == Input.InputTarget.Document)
+                return docCursor;
+            else if(Input.GetInputTarget() == Input.InputTarget.Command)
+                return cmdCursor;
+            
+            return docCursor;
         }
 
         public static Document GetDocument()

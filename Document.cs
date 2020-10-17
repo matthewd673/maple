@@ -23,6 +23,11 @@ namespace maple
             fileLines = File.ReadAllLines(filepath).ToList<String>();
         }
 
+        public void SaveDocument()
+        {
+            File.WriteAllLines(filepath, fileLines);
+        }
+
         public void PrintFileLines()
         {
             foreach(String s in fileLines)

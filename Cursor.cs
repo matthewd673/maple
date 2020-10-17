@@ -4,15 +4,14 @@ namespace maple
 {
     class Cursor
     {
-        //public int x, y;
         int docX, docY;
         int screenX, screenY;
 
         public static int minScreenX, minScreenY;
         public static int maxScreenX, maxScreenY;
 
-        static int contentOffsetX = 0;
-        static int contentOffsetY = 1;
+        public int contentOffsetX = 0;
+        public int contentOffsetY = 1;
 
         /*
         public static int offsetX = 0;
@@ -58,6 +57,19 @@ namespace maple
                 docX = Program.GetDocument().GetLineLength(docY);
         }
 
+        public void LockToScreenConstraints()
+        {
+            //keep screen x, y in safe range
+            if(screenX < minScreenX)
+                screenX = minScreenX;
+            if(screenX > maxScreenX)
+                screenX = maxScreenX;
+            if(screenY < minScreenY)
+                screenY = minScreenY;
+            if(screenY > maxScreenY)
+                screenY = maxScreenX;
+        }
+
         public void MoveCursor(int tX, int tY)
         {
             docX = tX;
@@ -68,17 +80,22 @@ namespace maple
             screenX = docX + contentOffsetX;
             screenY = docY + contentOffsetY;
 
-            //keep screen x, y in safe range
-            if(screenX < minScreenX)
-                screenX = minScreenX;
-            if(screenX > maxScreenX)
-                screenX = maxScreenX;
-            if(screenY < minScreenY)
-                screenY = minScreenY;
-            if(screenY > maxScreenY)
-                screenY = maxScreenX;
+            LockToScreenConstraints();
 
             //move cursor pos
+            Console.SetCursorPosition(screenX, screenY);
+        }
+
+        public void ForceDocumentPosition(int x, int y)
+        {
+            docX = x;
+            docY = y;
+
+            screenX = docX + contentOffsetX;
+            screenY = docY + contentOffsetY;
+
+            LockToScreenConstraints();
+
             Console.SetCursorPosition(screenX, screenY);
         }
 
