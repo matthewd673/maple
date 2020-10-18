@@ -94,7 +94,11 @@ namespace maple
 
                 //COMMANDS
                 case ConsoleKey.Enter:
-                    CommandLine.ExecuteCommand();
+                    CommandLine.ExecuteInput();
+                    break;
+                case ConsoleKey.Escape:
+                    CommandLine.ClearInput();
+                    ToggleInputTarget();
                     break;
                 
                 //TYPING

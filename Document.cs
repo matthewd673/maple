@@ -20,12 +20,27 @@ namespace maple
         public void LoadDocument(String filepath)
         {
             this.filepath = filepath;
-            fileLines = File.ReadAllLines(filepath).ToList<String>();
+            if(File.Exists(filepath))
+            {
+                fileLines = File.ReadAllLines(filepath).ToList<String>();
+                if(fileLines.Count == 0)
+                    fileLines.Add("");
+            }
+            else
+            {
+                File.Create(filepath);
+                fileLines = new List<String>() { "" };
+            }
         }
 
         public void SaveDocument()
         {
             File.WriteAllLines(filepath, fileLines);
+        }
+
+        public String GetFilePath()
+        {
+            return filepath;
         }
 
         public void PrintFileLines()

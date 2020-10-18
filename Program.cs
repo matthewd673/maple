@@ -39,13 +39,20 @@ namespace maple
 
                 Console.Clear();
                 Printer.DrawHeader("maple (" + docCursor.GetDocumentX() + ", " + docCursor.GetDocumentY() + ")", backgroundColor: ConsoleColor.Yellow);
-                //Printer.PrintLine(userText, ConsoleColor.Blue);
                 document.PrintFileLines();
 
-                if(Input.GetInputTarget() == Input.InputTarget.Document)
-                    Printer.DrawFooter("(esc) : \"save\"", foregroundColor: ConsoleColor.Yellow, backgroundColor: ConsoleColor.Black);
-                else if(Input.GetInputTarget() == Input.InputTarget.Command)
-                    Printer.DrawFooter(": " + CommandLine.GetText(), backgroundColor: ConsoleColor.Yellow);
+                //render footer
+                if(!CommandLine.HasOutput())
+                {
+                    if(Input.GetInputTarget() == Input.InputTarget.Document)
+                        Printer.DrawFooter("[esc]", foregroundColor: ConsoleColor.Yellow, backgroundColor: ConsoleColor.Black);
+                    else if(Input.GetInputTarget() == Input.InputTarget.Command)
+                        Printer.DrawFooter(": " + CommandLine.GetText(), backgroundColor: ConsoleColor.Yellow);
+                }
+                else
+                {
+                    Printer.DrawFooter("[esc]: " + CommandLine.GetOutput(), foregroundColor: ConsoleColor.Yellow, backgroundColor: ConsoleColor.Black);
+                }
 
                 //reset to user cursor position
                 if(Input.GetInputTarget() == Input.InputTarget.Document)
@@ -74,6 +81,15 @@ namespace maple
         public static Document GetDocument()
         {
             return document;
+        }
+
+        public static void Close()
+        {
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("maple session: " + GetDocument().GetFilePath());
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Environment.Exit(0);
         }
 
     }
