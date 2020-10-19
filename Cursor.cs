@@ -32,17 +32,46 @@ namespace maple
             maxScreenY = Console.BufferHeight - 1;
         }
 
-        public void MoveLeft() { MoveCursor(docX - 1, docY); }
-        public void MoveRight() { MoveCursor(docX + 1, docY); }
+        public void MoveLeft()
+        {
+            if(docX > 0) //can move back
+                MoveCursor(docX - 1, docY);
+            else
+            {
+                if(docY > 0)
+                {
+                    MoveUp();
+                    MoveCursor(Program.GetDocument().GetLineLength(docY), docY);
+                }
+            }
+        }
+        public void MoveRight()
+        {
+            if(docX < Program.GetDocument().GetLineLength(docY)) //can move forward
+                MoveCursor(docX + 1, docY);
+            else
+            {
+                if(docY < Program.GetDocument().GetMaxLine())
+                {
+                    MoveDown();
+                    MoveCursor(0, docY);
+                }
+            }
+        }
         public void MoveUp() { MoveCursor(docX, docY - 1); }
         public void MoveDown() { MoveCursor(docX, docY + 1); }
 
-        public void SetDocPosition(int x, int y) { MoveCursor(docX, docY); }
+        public void SetDocPosition(int x, int y)
+        {
+            docX = x;
+            docY = y;
+            MoveCursor(docX, docY);
+        }
 
         //public void UnsafeSetPosition(int x, int y) { UnsafeMoveCursor(x, y); }
 
-        public int GetDocumentX() { return docX; }
-        public int GetDocumentY() { return docY; }
+        public int GetDocX() { return docX; }
+        public int GetDocY() { return docY; }
 
         public void LockToDocConstraints()
         {

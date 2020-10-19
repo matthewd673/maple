@@ -3,18 +3,24 @@ using System;
 namespace maple
 {
     class Program
-
     {
+
+        static Cursor docCursor;
+        static Cursor cmdCursor;
+        static Document document;
+
+        public static String userText = "";
+
         static void Main(string[] args)
         {
-            Console.Clear();
-            Printer.printLine("maple", ConsoleColor.Yellow);
-            Printer.drawHeader("maple", ConsoleColor.Yellow);
+            PrepareWindow();
+            
+            //create cursor
+            docCursor = new Cursor(0, 0);
+            cmdCursor = new Cursor(0, 0);
 
-            //load file
-            FileManager fileManager;
-            if(args.Length > 0)
-            {
-                fileManager = new FileManager(args[0]);
-                fileManager.PrintFileLines();
-            }
+            cmdCursor.contentOffsetX = 2;
+            cmdCursor.contentOffsetY = Cursor.maxScreenY;
+            Console.Title = cmdCursor.contentOffsetX + " " + cmdCursor.contentOffsetY;
+
+            Printer.DrawHeader("maple", backgroundColor: ConsoleColor.Yellow);

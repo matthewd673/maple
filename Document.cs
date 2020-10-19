@@ -47,7 +47,17 @@ namespace maple
         {
             foreach(String s in fileLines)
             {
+                /* SYNTAX HIGHLIGHTING (SLOW!)
+                foreach(String w in s.Split(" "))
+                {
+                    ConsoleColor wordColor = ConsoleColor.Gray;
+                    if(w == "static")
+                        wordColor = ConsoleColor.Yellow;
+                    Printer.PrintWord(w + " ", foregroundColor: wordColor);
+                }
+                */
                 Printer.PrintLine(s);
+                //Console.WriteLine();
             }
         }
 

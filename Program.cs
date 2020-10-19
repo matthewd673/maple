@@ -21,7 +21,6 @@ namespace maple
 
             cmdCursor.contentOffsetX = 2;
             cmdCursor.contentOffsetY = Cursor.maxScreenY;
-            Console.Title = cmdCursor.contentOffsetX + " " + cmdCursor.contentOffsetY;
 
             Printer.DrawHeader("maple", backgroundColor: ConsoleColor.Yellow);
 
@@ -30,7 +29,7 @@ namespace maple
             {
                 document = new Document(args[0]);
                 document.PrintFileLines();
-                docCursor.MoveCursor(docCursor.GetDocumentX(), docCursor.GetDocumentY());
+                docCursor.MoveCursor(docCursor.GetDocX(), docCursor.GetDocY());
             }
 
             while(true)
@@ -38,7 +37,7 @@ namespace maple
                 Input.AcceptInput(Console.ReadKey());
 
                 Console.Clear();
-                Printer.DrawHeader("maple (" + docCursor.GetDocumentX() + ", " + docCursor.GetDocumentY() + ")", backgroundColor: ConsoleColor.Yellow);
+                Printer.DrawHeader("maple (" + docCursor.GetDocX() + ", " + docCursor.GetDocY() + ")", backgroundColor: ConsoleColor.Yellow);
                 document.PrintFileLines();
 
                 //render footer
@@ -56,9 +55,9 @@ namespace maple
 
                 //reset to user cursor position
                 if(Input.GetInputTarget() == Input.InputTarget.Document)
-                    docCursor.MoveCursor(docCursor.GetDocumentX(), docCursor.GetDocumentY());
+                    docCursor.MoveCursor(docCursor.GetDocX(), docCursor.GetDocY());
                 else if(Input.GetInputTarget() == Input.InputTarget.Command)
-                    cmdCursor.ForceDocumentPosition(cmdCursor.GetDocumentX(), cmdCursor.GetDocumentY());
+                    cmdCursor.ForceDocumentPosition(cmdCursor.GetDocX(), cmdCursor.GetDocY());
             }
         }
 
@@ -87,7 +86,7 @@ namespace maple
         {
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("maple session: " + GetDocument().GetFilePath());
+            Console.WriteLine("maple session ({0})", GetDocument().GetFilePath());
             Console.ForegroundColor = ConsoleColor.Gray;
             Environment.Exit(0);
         }

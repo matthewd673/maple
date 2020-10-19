@@ -10,6 +10,14 @@ namespace maple
 
         static Cursor printerCursor = new Cursor(0, 0);
 
+        public static void PrintWord(String word, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
+        {
+            Console.ForegroundColor = foregroundColor;
+            Console.BackgroundColor = backgroundColor;
+            Console.Write(word);
+            ResetColors();
+        }
+
         public static void PrintLine(String message, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
         {
             Console.ForegroundColor = foregroundColor;

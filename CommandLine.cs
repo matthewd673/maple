@@ -19,6 +19,20 @@ namespace maple
             return true;
         }
 
+        public static bool RemoveText(int pos)
+        {
+            if(pos < 0 || pos > inputText.Length - 1)
+                return false;
+            
+            inputText = inputText.Remove(pos, 1);
+            return true;
+        }
+
+        public static bool IsSafeCursorX(int x)
+        {
+            return (x >= 0 && x < inputText.Length);
+        }
+
         public static String GetText() { return inputText; }
 
         public static bool HasOutput() { return hasOutput; }
@@ -40,6 +54,7 @@ namespace maple
         public static void ClearInput()
         {
             inputText = "";
+            Program.GetCursor().ForceDocumentPosition(0, 0);
         }
 
         public static void ExecuteInput()
