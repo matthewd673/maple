@@ -64,16 +64,26 @@ namespace maple
                             Program.GetCursor().SetDocPosition(previousLineMaxX, Program.GetCursor().GetDocY() - 1); //move cursor to preceding line
                         }
                     }
+
+                    Program.TriggerContentRedraw();
                     break;
                 case ConsoleKey.Delete:
                     Program.GetDocument().RemoveTextAtPosition(Program.GetCursor().GetDocX(), Program.GetCursor().GetDocY());
+                    Program.TriggerContentRedraw();
                     break;
                 case ConsoleKey.Enter:
                     Program.GetDocument().AddLine(Program.GetCursor().GetDocY() + 1); //add new line
-                    String followingText = Program.GetDocument().GetLine(Program.GetCursor().GetDocY()).Substring(Program.GetCursor().GetDocX()); //get text following cursor (on current line)
+
+                    String followingTextLine = Program.GetDocument().GetLine(Program.GetCursor().GetDocY());
+                    String followingText = followingTextLine.Substring(Program.GetCursor().GetDocX()); //get text following cursor (on current line)
+
                     Program.GetDocument().AddTextAtPosition(0, Program.GetCursor().GetDocY() + 1, followingText); //add following text to new line
-                    Program.GetDocument().SetLine(Program.GetCursor().GetDocY(), Program.GetDocument().GetLine(Program.GetCursor().GetDocY()).Remove(Program.GetCursor().GetDocX())); //remove following text on current line
+
+                    if(Program.GetCursor().GetDocX() < followingTextLine.Length)
+                        Program.GetDocument().SetLine(Program.GetCursor().GetDocY(), followingTextLine.Remove(Program.GetCursor().GetDocX())); //remove following text on current line
+                    
                     Program.GetCursor().SetDocPosition(0, Program.GetCursor().GetDocY() + 1); //move cursor to beginning of new line
+                    Program.TriggerContentRedraw();
                     break;
                 case ConsoleKey.Escape:
                     ToggleInputTarget();
@@ -161,7 +171,16 @@ namespace maple
         public static void ToggleInputTarget()
         {
             if(currentTarget == InputTarget.Document)
-                currentTarget = InputTarget.Command;
+            {
+                //check if there is command output to be cleared
+                if(CommandLine.GetOutput() != "")
+                    CommandLine.ClearOutput(); //there is output, clear it
+                else
+                {
+                    currentTarget = InputTarget.Command; //there is no output, toggle
+                    Program.GetCursor().ForceDocumentPosition(0, 0); //reset cursor position
+                }
+            }
             else if(currentTarget == InputTarget.Command)
                 currentTarget = InputTarget.Document;
         }

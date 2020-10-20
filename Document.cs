@@ -45,6 +45,7 @@ namespace maple
 
         public void PrintFileLines()
         {
+            //set initial cursor position
             foreach(String s in fileLines)
             {
                 /* SYNTAX HIGHLIGHTING (SLOW!)

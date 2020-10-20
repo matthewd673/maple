@@ -11,7 +11,7 @@ namespace maple
         public static int maxScreenX, maxScreenY;
 
         public int contentOffsetX = 0;
-        public int contentOffsetY = 1;
+        public int contentOffsetY = 0;
 
         /*
         public static int offsetX = 0;
@@ -113,6 +113,11 @@ namespace maple
 
             //move cursor pos
             Console.SetCursorPosition(screenX, screenY);
+        }
+
+        public void MoveCursor()
+        {
+            MoveCursor(docX, docY);
         }
 
         public void ForceDocumentPosition(int x, int y)
