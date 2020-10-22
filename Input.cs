@@ -63,13 +63,16 @@ namespace maple
                             Program.GetDocument().RemoveLine(Program.GetCursor().GetDocY()); //remove current line
                             Program.GetCursor().SetDocPosition(previousLineMaxX, Program.GetCursor().GetDocY() - 1); //move cursor to preceding line
                         }
+                        //update all lines below
+                        for(int i = Program.GetCursor().GetDocY(); i < Program.GetDocument().GetMaxLine(); i++)
+                            Program.RefreshLine(i);
                     }
 
-                    Program.TriggerContentRedraw();
+                    Program.RefreshLine(Program.GetCursor().GetDocY());
                     break;
                 case ConsoleKey.Delete:
                     Program.GetDocument().RemoveTextAtPosition(Program.GetCursor().GetDocX(), Program.GetCursor().GetDocY());
-                    Program.TriggerContentRedraw();
+                    Program.RefreshLine(Program.GetCursor().GetDocY());
                     break;
                 case ConsoleKey.Enter:
                     Program.GetDocument().AddLine(Program.GetCursor().GetDocY() + 1); //add new line
@@ -83,7 +86,11 @@ namespace maple
                         Program.GetDocument().SetLine(Program.GetCursor().GetDocY(), followingTextLine.Remove(Program.GetCursor().GetDocX())); //remove following text on current line
                     
                     Program.GetCursor().SetDocPosition(0, Program.GetCursor().GetDocY() + 1); //move cursor to beginning of new line
-                    Program.TriggerContentRedraw();
+                    Program.RefreshLine(Program.GetCursor().GetDocY());
+
+                    //update all lines below
+                        for(int i = Program.GetCursor().GetDocY() - 1; i < Program.GetDocument().GetMaxLine(); i++)
+                            Program.RefreshLine(i);
                     break;
                 case ConsoleKey.Escape:
                     ToggleInputTarget();
@@ -101,7 +108,10 @@ namespace maple
                     bool addedText = Program.GetDocument().AddTextAtPosition(Program.GetCursor().GetDocX(), Program.GetCursor().GetDocY(), typed);
                     
                     if(addedText)
+                    {
                         Program.GetCursor().MoveRight();
+                        Program.RefreshLine(Program.GetCursor().GetDocY());
+                    }
 
                     break;
             }

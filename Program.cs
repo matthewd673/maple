@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace maple
 {
@@ -9,9 +10,7 @@ namespace maple
         static Cursor cmdCursor;
         static Document document;
 
-        public static String userText = "";
-
-        static bool redrawNext;
+        static List<int> refreshedLines = new List<int>();
 
         static void Main(string[] args)
         {
@@ -23,8 +22,6 @@ namespace maple
 
             cmdCursor.contentOffsetX = 7;
             cmdCursor.contentOffsetY = Cursor.maxScreenY;
-
-            //Printer.DrawHeader("maple", backgroundColor: ConsoleColor.Yellow);
 
             //load file
             if(args.Length > 0)
@@ -45,16 +42,17 @@ namespace maple
                 RenderFooter();
 
                 //set actual cursor position
-                docCursor.MoveCursor();
+                GetCursor().MoveCursor();
 
                 //accept input
                 Input.AcceptInput(Console.ReadKey());
-                
-                if(redrawNext)
+
+                //redraw lines that have changed
+                foreach(int lineIndex in refreshedLines)
                 {
-                    Console.Clear();
-                    document.PrintFileLines();
+                    document.PrintLine(lineIndex);
                 }
+                refreshedLines.Clear(); //clear for next time
 
                 //render footer
                 RenderFooter();
@@ -64,10 +62,6 @@ namespace maple
                     docCursor.MoveCursor(docCursor.GetDocX(), docCursor.GetDocY());
                 else if(Input.GetInputTarget() == Input.InputTarget.Command)
                     cmdCursor.ForceDocumentPosition(cmdCursor.GetDocX(), cmdCursor.GetDocY());
-
-                
-            //reset redraw flag
-            redrawNext = false;
             }
 
         }
@@ -103,9 +97,9 @@ namespace maple
             Environment.Exit(0);
         }
 
-        public static void TriggerContentRedraw()
+        public static void RefreshLine(int lineIndex)
         {
-            redrawNext = true;
+            refreshedLines.Add(lineIndex);
         }
 
         public static void RenderFooter()

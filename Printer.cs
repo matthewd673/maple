@@ -11,7 +11,6 @@ namespace maple
         static Cursor printerCursor = new Cursor(0, 0);
 
         static String clearString = " ";
-
         public static void Resize()
         {
             clearString = new string(' ', Console.WindowWidth);
@@ -23,6 +22,11 @@ namespace maple
             Console.BackgroundColor = backgroundColor;
             Console.Write(word);
             ResetColors();
+        }
+
+        public static void MoveCursor(int x, int y)
+        {
+            printerCursor.ForceMoveCursor(x, y);
         }
 
         public static void PrintLine(String message, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)

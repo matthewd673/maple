@@ -9,11 +9,11 @@ namespace maple
     {
 
         String filepath;
-        List<String> fileLines;
+        List<Line> fileLines;
 
         public Document(String filepath)
         {
-            fileLines = new List<String>();
+            fileLines = new List<Line>();
             LoadDocument(filepath);
         }
 
@@ -22,20 +22,28 @@ namespace maple
             this.filepath = filepath;
             if(File.Exists(filepath))
             {
-                fileLines = File.ReadAllLines(filepath).ToList<String>();
+                List<String> fileLinesText = File.ReadAllLines(filepath).ToList<String>();
+                
+                foreach(String s in fileLinesText)
+                {
+                    List<Token> lineTokens = Line.GenerateTokensFromString(s);
+                    fileLines.Add(new Line(lineTokens));
+                }
+
                 if(fileLines.Count == 0)
-                    fileLines.Add("");
+                    fileLines.Add(new Line(new List<Token>()));
             }
             else
             {
-                File.Create(filepath);
-                fileLines = new List<String>() { "" };
+                Printer.PrintLine("Creating new files is not supported at this time", ConsoleColor.Blue);
+                //File.Create(filepath);
+                //fileLines = new List<String>() { "" };
             }
         }
 
         public void SaveDocument()
         {
-            File.WriteAllLines(filepath, fileLines);
+            //File.WriteAllLines(filepath, fileLines);
         }
 
         public String GetFilePath()
@@ -46,26 +54,39 @@ namespace maple
         public void PrintFileLines()
         {
             //set initial cursor position
-            foreach(String s in fileLines)
+            foreach(Line l in fileLines)
             {
-                /* SYNTAX HIGHLIGHTING (SLOW!)
-                foreach(String w in s.Split(" "))
+                foreach(Token t in l.GetTokens())
                 {
-                    ConsoleColor wordColor = ConsoleColor.Gray;
-                    if(w == "static")
-                        wordColor = ConsoleColor.Yellow;
-                    Printer.PrintWord(w + " ", foregroundColor: wordColor);
+                    Printer.PrintWord(t.GetText() + " ", foregroundColor: t.GetColor());
                 }
-                */
-                Printer.PrintLine(s);
-                //Console.WriteLine();
+                //Printer.PrintLine(s);
+                Console.WriteLine();
+            }
+        }
+
+        public void PrintLine(int lineIndex)
+        {
+            //don't, if out of range
+            if(lineIndex < 0 || lineIndex > fileLines.Count - 1)
+                return;
+
+            Line l = fileLines[lineIndex];
+            
+            //clear line on screen
+            Printer.ClearLine(lineIndex);
+            Printer.MoveCursor(0, lineIndex);
+            //print all tokens in line
+            foreach(Token t in l.GetTokens())
+            {
+                Printer.PrintWord(t.GetText() + " ", foregroundColor: t.GetColor());
             }
         }
 
         public String GetLine(int index)
         {
             if(index >= 0 && index < fileLines.Count)
-                return fileLines[index];
+                return fileLines[index].GetContent();
             else
                 return "";
         }
@@ -73,7 +94,7 @@ namespace maple
         public void SetLine(int index, String text)
         {
             if(index >= 0 && index < fileLines.Count)
-                fileLines[index] = text;
+                fileLines[index].SetContent(text);
         }
 
         public bool AddTextAtPosition(int x, int y, String text)
@@ -116,7 +137,7 @@ namespace maple
             if(index < 0 || index > fileLines.Count)
                 return false;
             
-            fileLines.Insert(index, "");
+            fileLines.Insert(index, new Line(new List<Token>()));
             return true;
         }
         
@@ -153,7 +174,7 @@ namespace maple
         public int GetLineLength(int line)
         {
             if(line < fileLines.Count)
-                return fileLines[line].Length;
+                return fileLines[line].GetContent().Length;
             else
                 return 0;
         }
