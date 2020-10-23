@@ -50,7 +50,10 @@ namespace maple
                 //redraw lines that have changed
                 foreach(int lineIndex in refreshedLines)
                 {
-                    document.PrintLine(lineIndex);
+                    if(lineIndex <= document.GetMaxLine())
+                        document.PrintLine(lineIndex);
+                    else
+                        Printer.ClearLine(lineIndex);
                 }
                 refreshedLines.Clear(); //clear for next time
 

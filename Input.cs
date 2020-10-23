@@ -64,7 +64,7 @@ namespace maple
                             Program.GetCursor().SetDocPosition(previousLineMaxX, Program.GetCursor().GetDocY() - 1); //move cursor to preceding line
                         }
                         //update all lines below
-                        for(int i = Program.GetCursor().GetDocY(); i < Program.GetDocument().GetMaxLine(); i++)
+                        for(int i = Program.GetCursor().GetDocY(); i <= Program.GetDocument().GetMaxLine() + 1; i++) //+1 so that the old line is cleared
                             Program.RefreshLine(i);
                     }
 
@@ -89,7 +89,7 @@ namespace maple
                     Program.RefreshLine(Program.GetCursor().GetDocY());
 
                     //update all lines below
-                        for(int i = Program.GetCursor().GetDocY() - 1; i < Program.GetDocument().GetMaxLine(); i++)
+                        for(int i = Program.GetCursor().GetDocY() - 1; i <= Program.GetDocument().GetMaxLine(); i++)
                             Program.RefreshLine(i);
                     break;
                 case ConsoleKey.Escape:
