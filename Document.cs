@@ -26,12 +26,12 @@ namespace maple
                 
                 foreach(String s in fileLinesText)
                 {
-                    List<Token> lineTokens = Line.GenerateTokensFromString(s);
-                    fileLines.Add(new Line(lineTokens));
+                    //List<Token> lineTokens = Line.GenerateTokensFromString(s);
+                    fileLines.Add(new Line(s));
                 }
 
                 if(fileLines.Count == 0)
-                    fileLines.Add(new Line(new List<Token>()));
+                    fileLines.Add(new Line(""));
             }
             else
             {
@@ -53,6 +53,11 @@ namespace maple
 
         public void PrintFileLines()
         {
+
+            for(int i = 0; i < fileLines.Count; i++)
+                PrintLine(i);
+
+            /*
             //set initial cursor position
             foreach(Line l in fileLines)
             {
@@ -63,6 +68,7 @@ namespace maple
                 //Printer.PrintLine(s);
                 Console.WriteLine();
             }
+            */
         }
 
         public void PrintLine(int lineIndex)
@@ -89,6 +95,14 @@ namespace maple
                 return fileLines[index].GetContent();
             else
                 return "";
+        }
+
+        public List<String> GetAllLines()
+        {
+            List<String> lines = new List<String>();
+            foreach(Line l in fileLines)
+                lines.Add(l.GetContent());
+            return lines;
         }
 
         public void SetLine(int index, String text)
@@ -137,7 +151,7 @@ namespace maple
             if(index < 0 || index > fileLines.Count)
                 return false;
             
-            fileLines.Insert(index, new Line(new List<Token>()));
+            fileLines.Insert(index, new Line(""));
             return true;
         }
         

@@ -12,11 +12,6 @@ namespace maple
         {
             this.text = text;
             this.color = color;
-
-            //TEST
-            if(text == "static")
-                this.color = ConsoleColor.Yellow;
-
         }
 
         public String GetText()

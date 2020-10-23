@@ -23,6 +23,10 @@ namespace maple
             cmdCursor.contentOffsetX = 7;
             cmdCursor.contentOffsetY = Cursor.maxScreenY;
 
+            //prepare styler
+            Styler.LoadMapleTheme();
+            Styler.LoadTheme("themes/cs.txt");
+
             //load file
             if(args.Length > 0)
             {
@@ -32,7 +36,7 @@ namespace maple
             }
 
             //render initial footer
-            Printer.DrawFooter("maple", foregroundColor: ConsoleColor.Yellow, backgroundColor: ConsoleColor.Black);
+            Printer.DrawFooter("maple", foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
             //reset to initial position
             docCursor.MoveCursor(docCursor.GetDocX(), docCursor.GetDocY());
 
@@ -94,9 +98,9 @@ namespace maple
         public static void Close()
         {
             Console.Clear();
-            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor = Styler.accentColor;
             Console.WriteLine("maple session ({0})", GetDocument().GetFilePath());
-            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.ForegroundColor = Styler.textColor;
             Environment.Exit(0);
         }
 
@@ -113,12 +117,12 @@ namespace maple
             if(!CommandLine.HasOutput())
             {
                 if(Input.GetInputTarget() == Input.InputTarget.Document) //render default footer
-                    Printer.DrawFooter(defaultFooterContent, foregroundColor: ConsoleColor.Yellow, backgroundColor: ConsoleColor.Black);
+                    Printer.DrawFooter(defaultFooterContent, foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
                 else if(Input.GetInputTarget() == Input.InputTarget.Command) //render input footer
-                    Printer.DrawFooter("maple: " + CommandLine.GetText(), backgroundColor: ConsoleColor.Yellow);
+                    Printer.DrawFooter("maple: " + CommandLine.GetText(), backgroundColor: Styler.accentColor);
             }
             else //render output footer
-                Printer.DrawFooter("maple \"" + CommandLine.GetOutput() + "\"", foregroundColor: ConsoleColor.Yellow, backgroundColor: ConsoleColor.Black);
+                Printer.DrawFooter("maple \"" + CommandLine.GetOutput() + "\"", foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
         }
 
     }

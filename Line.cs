@@ -10,9 +10,9 @@ namespace maple
         List<Token> tokens = new List<Token>();
         String lineContent = "";
 
-        public Line(List<Token> tokens)
+        public Line(String text)
         {
-            this.tokens = tokens;
+            tokens = GenerateTokensFromString(text);
             UpdateContentFromTokens();
         }
 
@@ -20,7 +20,12 @@ namespace maple
         {
             List<Token> tokens = new List<Token>();
             foreach(String s in strings)
-                tokens.Add(new Token(s, ConsoleColor.Gray));
+            {
+                ConsoleColor tokenColor = Styler.textColor;
+                if(Styler.IsTerm(s))
+                    tokenColor = Styler.highlightColor;
+                tokens.Add(new Token(s, tokenColor));
+            }
             return tokens;
         }
 
