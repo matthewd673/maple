@@ -1,3 +1,4 @@
 text:gray
 accent:yellow
 highlight:yellow
+error:red

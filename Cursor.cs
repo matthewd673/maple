@@ -4,8 +4,8 @@ namespace maple
 {
     class Cursor
     {
-        int docX, docY;
-        int screenX, screenY;
+        public int dX, dY;
+        public int sX, sY;
 
         public static int minScreenX, minScreenY;
         public static int maxScreenX, maxScreenY;
@@ -20,8 +20,8 @@ namespace maple
 
         public Cursor(int x, int y)
         {
-            this.docX = x;
-            this.docY = y;
+            this.dX = x;
+            this.dY = y;
 
             CalculateCursorBounds();
         }
@@ -34,103 +34,119 @@ namespace maple
 
         public void MoveLeft()
         {
-            if(docX > 0) //can move back
-                MoveCursor(docX - 1, docY);
+            if(dX > 0) //can move back
+                MoveCursor(dX - 1, dY);
             else
             {
-                if(docY > 0)
+                if(dY > 0)
                 {
                     MoveUp();
-                    MoveCursor(Program.GetDocument().GetLineLength(docY), docY);
+                    MoveCursor(Program.GetDocument().GetLineLength(dY), dY);
                 }
             }
         }
         public void MoveRight()
         {
-            if(docX < Program.GetDocument().GetLineLength(docY)) //can move forward
-                MoveCursor(docX + 1, docY);
+            if(dX < Program.GetDocument().GetLineLength(dY)) //can move forward
+                MoveCursor(dX + 1, dY);
             else
             {
-                if(docY < Program.GetDocument().GetMaxLine())
+                if(dY < Program.GetDocument().GetMaxLine())
                 {
                     MoveDown();
-                    MoveCursor(0, docY);
+                    MoveCursor(0, dY);
                 }
             }
         }
-        public void MoveUp() { MoveCursor(docX, docY - 1); }
-        public void MoveDown() { MoveCursor(docX, docY + 1); }
+        public void MoveUp()
+        {
+            if(sY == 0 && Program.GetDocument().GetScrollY() > 0)
+            {
+                Program.GetDocument().ScrollUp();
+                Console.Clear();
+                Program.GetDocument().PrintFileLines();
+            }
+            else
+                MoveCursor(dX, dY - 1);
+        }
+
+        public void MoveDown()
+        {
+            if(sY == maxScreenY - 1)
+            {
+                Program.GetDocument().ScrollDown();
+                Console.Clear();
+                Program.GetDocument().PrintFileLines();
+            }
+            else
+                MoveCursor(dX, dY + 1);
+        }
 
         public void SetDocPosition(int x, int y)
         {
-            docX = x;
-            docY = y;
-            MoveCursor(docX, docY);
+            dX = x;
+            dY = y;
+            MoveCursor(dX, dY);
         }
-
-        //public void UnsafeSetPosition(int x, int y) { UnsafeMoveCursor(x, y); }
-
-        public int GetDocX() { return docX; }
-        public int GetDocY() { return docY; }
 
         public void LockToDocConstraints()
         {
-            if(docY < 0)
-                docY = 0;
-            if(docY > Program.GetDocument().GetMaxLine())
-                docY = Program.GetDocument().GetMaxLine();
+            if(dY < 0)
+                dY = 0;
+            if(dY > Program.GetDocument().GetMaxLine())
+                dY = Program.GetDocument().GetMaxLine();
 
-            if(docX < 0)
-                docX = 0;
-            if(docX > Program.GetDocument().GetLineLength(docY))
-                docX = Program.GetDocument().GetLineLength(docY);
+            if(dX < 0)
+                dX = 0;
+            if(dX > Program.GetDocument().GetLineLength(dY))
+                dX = Program.GetDocument().GetLineLength(dY);
         }
 
         public void LockToScreenConstraints()
         {
             //keep screen x, y in safe range
-            if(screenX < minScreenX)
-                screenX = minScreenX;
-            if(screenX > maxScreenX)
-                screenX = maxScreenX;
-            if(screenY < minScreenY)
-                screenY = minScreenY;
-            if(screenY > maxScreenY)
-                screenY = maxScreenX;
+            if(sX < minScreenX)
+                sX = minScreenX;
+            if(sX > maxScreenX)
+                sX = maxScreenX;
+            if(sY < minScreenY)
+                sY = minScreenY;
+            if(sY > maxScreenY)
+                sY = maxScreenX;
         }
 
         public void MoveCursor(int tX, int tY)
         {
-            docX = tX;
-            docY = tY;
+            dX = tX;
+            dY = tY;
 
             LockToDocConstraints();
 
-            screenX = docX + contentOffsetX;
-            screenY = docY + contentOffsetY;
+            sX = dX + contentOffsetX;
+            sY = dY + contentOffsetY - Program.GetDocument().GetScrollY();
 
             LockToScreenConstraints();
 
             //move cursor pos
-            Console.SetCursorPosition(screenX, screenY);
+            Console.SetCursorPosition(sX, sY);
         }
 
         public void MoveCursor()
         {
-            MoveCursor(docX, docY);
+            MoveCursor(dX, dY);
         }
 
         public void ForceDocumentPosition(int x, int y)
         {
-            docX = x;
-            docY = y;
+            dX = x;
+            dY = y;
 
-            screenX = docX + contentOffsetX;
-            screenY = docY + contentOffsetY;
+            sX = dX + contentOffsetX;
+            sY = dY + contentOffsetY - Program.GetDocument().GetScrollY();
 
             LockToScreenConstraints();
 
-            Console.SetCursorPosition(screenX, screenY);
+            Console.SetCursorPosition(sX, sY);
         }
 
         public void ForceMoveCursor(int tX, int tY)

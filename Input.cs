@@ -44,52 +44,52 @@ namespace maple
                 
                 //LINE MANIPULATION
                 case ConsoleKey.Backspace:
-                    if(Program.GetCursor().GetDocX() > 0) //not at the beginning of the line
+                    if(Program.GetCursor().dX > 0) //not at the beginning of the line
                     {
                         bool backspaceTriggered = Program.GetDocument().RemoveTextAtPosition(
-                            Program.GetCursor().GetDocX() - 1,
-                            Program.GetCursor().GetDocY());
+                            Program.GetCursor().dX - 1,
+                            Program.GetCursor().dY);
 
                         if(backspaceTriggered)
                             Program.GetCursor().MoveLeft();
                     }
                     else //at beginning of line, append current line to previous
                     {
-                        if(Program.GetCursor().GetDocY() > 0)
+                        if(Program.GetCursor().dY > 0)
                         {
-                            String currentLineContent = Program.GetDocument().GetLine(Program.GetCursor().GetDocY()); //get remaining content on current line
-                            int previousLineMaxX = Program.GetDocument().GetLineLength(Program.GetCursor().GetDocY() - 1); //get max position on preceding line
-                            Program.GetDocument().AddTextAtPosition(previousLineMaxX, Program.GetCursor().GetDocY() - 1, currentLineContent); //add remaining text to previous line
-                            Program.GetDocument().RemoveLine(Program.GetCursor().GetDocY()); //remove current line
-                            Program.GetCursor().SetDocPosition(previousLineMaxX, Program.GetCursor().GetDocY() - 1); //move cursor to preceding line
+                            String currentLineContent = Program.GetDocument().GetLine(Program.GetCursor().dY); //get remaining content on current line
+                            int previousLineMaxX = Program.GetDocument().GetLineLength(Program.GetCursor().dY - 1); //get max position on preceding line
+                            Program.GetDocument().AddTextAtPosition(previousLineMaxX, Program.GetCursor().dY - 1, currentLineContent); //add remaining text to previous line
+                            Program.GetDocument().RemoveLine(Program.GetCursor().dY); //remove current line
+                            Program.GetCursor().SetDocPosition(previousLineMaxX, Program.GetCursor().dY - 1); //move cursor to preceding line
                         }
                         //update all lines below
-                        for(int i = Program.GetCursor().GetDocY(); i <= Program.GetDocument().GetMaxLine() + 1; i++) //+1 so that the old line is cleared
+                        for(int i = Program.GetCursor().sY; i <= Cursor.maxScreenY - 1; i++) //+1 so that the old line is cleared
                             Program.RefreshLine(i);
                     }
 
-                    Program.RefreshLine(Program.GetCursor().GetDocY());
+                    Program.RefreshLine(Program.GetCursor().dY);
                     break;
                 case ConsoleKey.Delete:
-                    Program.GetDocument().RemoveTextAtPosition(Program.GetCursor().GetDocX(), Program.GetCursor().GetDocY());
-                    Program.RefreshLine(Program.GetCursor().GetDocY());
+                    Program.GetDocument().RemoveTextAtPosition(Program.GetCursor().dX, Program.GetCursor().dY);
+                    Program.RefreshLine(Program.GetCursor().sY);
                     break;
                 case ConsoleKey.Enter:
-                    Program.GetDocument().AddLine(Program.GetCursor().GetDocY() + 1); //add new line
+                    Program.GetDocument().AddLine(Program.GetCursor().dY + 1); //add new line
 
-                    String followingTextLine = Program.GetDocument().GetLine(Program.GetCursor().GetDocY());
-                    String followingText = followingTextLine.Substring(Program.GetCursor().GetDocX()); //get text following cursor (on current line)
+                    String followingTextLine = Program.GetDocument().GetLine(Program.GetCursor().dY);
+                    String followingText = followingTextLine.Substring(Program.GetCursor().dX); //get text following cursor (on current line)
 
-                    Program.GetDocument().AddTextAtPosition(0, Program.GetCursor().GetDocY() + 1, followingText); //add following text to new line
+                    Program.GetDocument().AddTextAtPosition(0, Program.GetCursor().dY + 1, followingText); //add following text to new line
 
-                    if(Program.GetCursor().GetDocX() < followingTextLine.Length)
-                        Program.GetDocument().SetLine(Program.GetCursor().GetDocY(), followingTextLine.Remove(Program.GetCursor().GetDocX())); //remove following text on current line
+                    if(Program.GetCursor().dX < followingTextLine.Length)
+                        Program.GetDocument().SetLine(Program.GetCursor().dY, followingTextLine.Remove(Program.GetCursor().dX)); //remove following text on current line
                     
-                    Program.GetCursor().SetDocPosition(0, Program.GetCursor().GetDocY() + 1); //move cursor to beginning of new line
-                    Program.RefreshLine(Program.GetCursor().GetDocY());
+                    Program.GetCursor().SetDocPosition(0, Program.GetCursor().dY + 1); //move cursor to beginning of new line
+                    Program.RefreshLine(Program.GetCursor().sY);
 
                     //update all lines below
-                        for(int i = Program.GetCursor().GetDocY() - 1; i <= Program.GetDocument().GetMaxLine(); i++)
+                        for(int i = Program.GetCursor().sY - 1; i <= Cursor.maxScreenY - 1; i++)
                             Program.RefreshLine(i);
                     break;
                 case ConsoleKey.Escape:
@@ -105,12 +105,12 @@ namespace maple
                     if(!r.Match(typed).Success)
                         break;
 
-                    bool addedText = Program.GetDocument().AddTextAtPosition(Program.GetCursor().GetDocX(), Program.GetCursor().GetDocY(), typed);
+                    bool addedText = Program.GetDocument().AddTextAtPosition(Program.GetCursor().dX, Program.GetCursor().dY, typed);
                     
                     if(addedText)
                     {
                         Program.GetCursor().MoveRight();
-                        Program.RefreshLine(Program.GetCursor().GetDocY());
+                        Program.RefreshLine(Program.GetCursor().dY);
                     }
 
                     break;
@@ -123,25 +123,25 @@ namespace maple
             {
                 //MOVEMENT
                 case ConsoleKey.LeftArrow:
-                    int newLeftX = Program.GetCursor().GetDocX() - 1;
+                    int newLeftX = Program.GetCursor().dX - 1;
                     if(CommandLine.IsSafeCursorX(newLeftX))
                         Program.GetCursor().ForceDocumentPosition(newLeftX, 0);
                     break;
                 case ConsoleKey.RightArrow:
-                    int newRightX = Program.GetCursor().GetDocX() + 1;
+                    int newRightX = Program.GetCursor().dX + 1;
                     if(CommandLine.IsSafeCursorX(newRightX))
                         Program.GetCursor().ForceDocumentPosition(newRightX, 0);
                     break;
 
                 //LINE MANIPULATION
                 case ConsoleKey.Backspace:
-                    bool backspaceTriggered = CommandLine.RemoveText(Program.GetCursor().GetDocX() - 1);
+                    bool backspaceTriggered = CommandLine.RemoveText(Program.GetCursor().dX - 1);
                     
                     if(backspaceTriggered)
-                        Program.GetCursor().ForceDocumentPosition(Program.GetCursor().GetDocX() - 1, 0);
+                        Program.GetCursor().ForceDocumentPosition(Program.GetCursor().dX - 1, 0);
                     break;
                 case ConsoleKey.Delete:
-                    CommandLine.RemoveText(Program.GetCursor().GetDocX());
+                    CommandLine.RemoveText(Program.GetCursor().dX);
                     break;
 
                 //COMMANDS
@@ -164,7 +164,7 @@ namespace maple
 
                     //bool addedText = Program.GetDocument().AddTextAtPosition(Program.GetCursor().GetDocumentX(), Program.GetCursor().GetDocumentY(), typed);
                     
-                    bool addedText = CommandLine.AddText(Program.GetCursor().GetDocX(), typed);
+                    bool addedText = CommandLine.AddText(Program.GetCursor().dX, typed);
 
                     if(addedText)
                         Program.GetCursor().MoveRight();

@@ -11,17 +11,30 @@ namespace maple
         String filepath;
         List<Line> fileLines;
 
-        public Document(String filepath)
+        int scrollIncrement = 0;
+        int scrollY = 0;
+
+        public Document(String filepath, bool loadStyleInfo = false)
         {
             fileLines = new List<Line>();
-            LoadDocument(filepath);
+            LoadDocument(filepath, loadStyleInfo);
+            CalculateScrollIncrement();
         }
 
-        public void LoadDocument(String filepath)
+        public void LoadDocument(String filepath, bool loadStyleInfo = false)
         {
             this.filepath = filepath;
             if(File.Exists(filepath))
             {
+
+                if(loadStyleInfo)
+                {
+                    String fileExtension = Path.GetExtension(filepath).Remove(0, 1);
+
+                    if(File.Exists("themes/" + fileExtension + ".txt"))
+                        Styler.LoadTheme("themes/" + fileExtension + ".txt");
+                }
+
                 List<String> fileLinesText = File.ReadAllLines(filepath).ToList<String>();
                 
                 foreach(String s in fileLinesText)
@@ -35,7 +48,7 @@ namespace maple
             }
             else
             {
-                Printer.PrintLine("Creating new files is not supported at this time", ConsoleColor.Blue);
+                Printer.PrintLine("Creating new files is not supported at this time", Styler.errorColor);
                 //File.Create(filepath);
                 //fileLines = new List<String>() { "" };
             }
@@ -43,7 +56,10 @@ namespace maple
 
         public void SaveDocument()
         {
-            //File.WriteAllLines(filepath, fileLines);
+            List<String> allLines = new List<String>();
+            foreach(Line l in fileLines)
+                allLines.Add(l.GetContent());
+            File.WriteAllLines(filepath, allLines);
         }
 
         public String GetFilePath()
@@ -53,22 +69,8 @@ namespace maple
 
         public void PrintFileLines()
         {
-
-            for(int i = 0; i < fileLines.Count; i++)
+            for(int i = scrollY; i < Cursor.maxScreenY + scrollY; i++)
                 PrintLine(i);
-
-            /*
-            //set initial cursor position
-            foreach(Line l in fileLines)
-            {
-                foreach(Token t in l.GetTokens())
-                {
-                    Printer.PrintWord(t.GetText() + " ", foregroundColor: t.GetColor());
-                }
-                //Printer.PrintLine(s);
-                Console.WriteLine();
-            }
-            */
         }
 
         public void PrintLine(int lineIndex)
@@ -80,13 +82,32 @@ namespace maple
             Line l = fileLines[lineIndex];
             
             //clear line on screen
-            Printer.ClearLine(lineIndex);
-            Printer.MoveCursor(0, lineIndex);
+            Printer.ClearLine(lineIndex - scrollY);
+            Printer.MoveCursor(0, lineIndex - scrollY);
             //print all tokens in line
             foreach(Token t in l.GetTokens())
             {
                 Printer.PrintWord(t.GetText() + " ", foregroundColor: t.GetColor());
             }
+        }
+
+        public void ScrollUp()
+        {
+            scrollY -= scrollIncrement;
+            if(scrollY < 0)
+                scrollY = 0;
+        }
+
+        public void ScrollDown()
+        {
+            scrollY += scrollIncrement;
+        }
+
+        public int GetScrollY() { return scrollY; }
+
+        public void CalculateScrollIncrement()
+        {
+            scrollIncrement = (Cursor.maxScreenY - 1) / 2;
         }
 
         public String GetLine(int index)

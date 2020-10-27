@@ -25,25 +25,24 @@ namespace maple
 
             //prepare styler
             Styler.LoadMapleTheme();
-            Styler.LoadTheme("themes/cs.txt");
 
             //load file
             if(args.Length > 0)
             {
-                document = new Document(args[0]);
+                document = new Document(args[0], loadStyleInfo: true);
                 document.PrintFileLines();
-                docCursor.MoveCursor(docCursor.GetDocX(), docCursor.GetDocY());
+                docCursor.MoveCursor(docCursor.dX, docCursor.dY);
             }
 
             //render initial footer
             Printer.DrawFooter("maple", foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
             //reset to initial position
-            docCursor.MoveCursor(docCursor.GetDocX(), docCursor.GetDocY());
+            docCursor.MoveCursor(docCursor.dX, docCursor.dY);
 
             while(true)
             {
                 //render initial footer
-                RenderFooter();
+                PrintFooter();
 
                 //set actual cursor position
                 GetCursor().MoveCursor();
@@ -52,23 +51,16 @@ namespace maple
                 Input.AcceptInput(Console.ReadKey());
 
                 //redraw lines that have changed
-                foreach(int lineIndex in refreshedLines)
-                {
-                    if(lineIndex <= document.GetMaxLine())
-                        document.PrintLine(lineIndex);
-                    else
-                        Printer.ClearLine(lineIndex);
-                }
-                refreshedLines.Clear(); //clear for next time
+                RedrawLines();
 
                 //render footer
-                RenderFooter();
+                PrintFooter();
 
                 //reset to user cursor position
                 if(Input.GetInputTarget() == Input.InputTarget.Document)
-                    docCursor.MoveCursor(docCursor.GetDocX(), docCursor.GetDocY());
+                    docCursor.MoveCursor(docCursor.dX, docCursor.dY);
                 else if(Input.GetInputTarget() == Input.InputTarget.Command)
-                    cmdCursor.ForceDocumentPosition(cmdCursor.GetDocX(), cmdCursor.GetDocY());
+                    cmdCursor.ForceDocumentPosition(cmdCursor.dX, cmdCursor.dY);
             }
 
         }
@@ -109,10 +101,23 @@ namespace maple
             refreshedLines.Add(lineIndex);
         }
 
-        public static void RenderFooter()
+        public static void RedrawLines()
+        {
+            //redraw lines that have changed
+            foreach(int lineIndex in refreshedLines)
+            {
+                if(lineIndex <= document.GetMaxLine())
+                    document.PrintLine(lineIndex);
+                else
+                    Printer.ClearLine(lineIndex);
+            }
+            refreshedLines.Clear(); //clear for next time
+        }
+
+        public static void PrintFooter()
         {
             //generate footer string
-            String defaultFooterContent = "maple (" + docCursor.GetDocX() + ", " + docCursor.GetDocY() + ") - " + document.GetFilePath();
+            String defaultFooterContent = "maple (" + docCursor.dX + ", " + docCursor.dY + ") - " + document.GetFilePath();
 
             if(!CommandLine.HasOutput())
             {
@@ -122,7 +127,7 @@ namespace maple
                     Printer.DrawFooter("maple: " + CommandLine.GetText(), backgroundColor: Styler.accentColor);
             }
             else //render output footer
-                Printer.DrawFooter("maple \"" + CommandLine.GetOutput() + "\"", foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
+                Printer.DrawFooter("maple: \"" + CommandLine.GetOutput() + "\"", foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
         }
 
     }

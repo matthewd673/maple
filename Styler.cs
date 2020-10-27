@@ -10,6 +10,7 @@ namespace maple
         public static ConsoleColor textColor = ConsoleColor.Gray;
         public static ConsoleColor accentColor = ConsoleColor.Red;
         public static ConsoleColor highlightColor = ConsoleColor.Yellow;
+        public static ConsoleColor errorColor = ConsoleColor.Red;
 
         static List<String> terms = new List<String>();
 
@@ -39,6 +40,9 @@ namespace maple
                         break;
                     case "highlight":
                         highlightColor = ColorFromText(keyVal[1]);
+                        break;
+                    case "error":
+                        errorColor = ColorFromText(keyVal[1]);
                         break;
                 }
             }

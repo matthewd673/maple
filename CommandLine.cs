@@ -74,13 +74,16 @@ namespace maple
             if(inputText == "close")
                 CloseCommand();
 
+            if(inputText == "mtheme")
+                MthemeCommand();
+
             inputText = "";
             Input.ToggleInputTarget();
         }
 
         static void HelpCommand()
         {
-            SetOutput("save | close");
+            SetOutput("save | close | mtheme");
         }
 
         static void SaveCommand()
@@ -92,6 +95,19 @@ namespace maple
         static void CloseCommand()
         {
             Program.Close();
+        }
+
+        static void MthemeCommand()
+        {
+            Styler.LoadMapleTheme();
+
+            //refresh all lines
+            Console.Clear();
+            Program.GetDocument().PrintFileLines();
+
+            SetOutput("Refreshed maple theme");
+            Program.PrintFooter(); //since console was just cleared
+
         }
 
     }
