@@ -124,10 +124,10 @@ namespace maple
                 if(Input.GetInputTarget() == Input.InputTarget.Document) //render default footer
                     Printer.DrawFooter(defaultFooterContent, foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
                 else if(Input.GetInputTarget() == Input.InputTarget.Command) //render input footer
-                    Printer.DrawFooter("maple: " + CommandLine.GetText(), backgroundColor: Styler.accentColor);
+                    Printer.DrawFooter("maple: " + CommandLine.GetText(), backgroundColor: Styler.cmdinColor);
             }
             else //render output footer
-                Printer.DrawFooter("maple: \"" + CommandLine.GetOutput() + "\"", foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
+                Printer.DrawFooter("maple: \"" + CommandLine.GetOutput() + "\"", foregroundColor: Styler.cmdoutColor, backgroundColor: ConsoleColor.Black);
         }
 
     }

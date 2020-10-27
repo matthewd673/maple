@@ -11,6 +11,8 @@ namespace maple
         public static ConsoleColor accentColor = ConsoleColor.Red;
         public static ConsoleColor highlightColor = ConsoleColor.Yellow;
         public static ConsoleColor errorColor = ConsoleColor.Red;
+        public static ConsoleColor cmdinColor = ConsoleColor.Yellow;
+        public static ConsoleColor cmdoutColor = ConsoleColor.Cyan;
 
         static List<String> terms = new List<String>();
 
@@ -43,6 +45,12 @@ namespace maple
                         break;
                     case "error":
                         errorColor = ColorFromText(keyVal[1]);
+                        break;
+                    case "cmdin":
+                        cmdinColor = ColorFromText(keyVal[1]);
+                        break;
+                    case "cmdout":
+                        cmdoutColor = ColorFromText(keyVal[1]);
                         break;
                 }
             }
