@@ -13,6 +13,7 @@ namespace maple
         public static ConsoleColor errorColor = ConsoleColor.Red;
         public static ConsoleColor cmdinColor = ConsoleColor.Yellow;
         public static ConsoleColor cmdoutColor = ConsoleColor.Cyan;
+        public static ConsoleColor gutterColor = ConsoleColor.DarkGray;
 
         static List<String> terms = new List<String>();
 
@@ -52,6 +53,9 @@ namespace maple
                     case "cmdout":
                         cmdoutColor = ColorFromText(keyVal[1]);
                         break;
+                    case "gutter":
+                        gutterColor = ColorFromText(keyVal[1]);
+                        break;
                 }
             }
         }
@@ -74,7 +78,7 @@ namespace maple
                     return ConsoleColor.DarkMagenta;
                 case "darkyellow":
                     return ConsoleColor.DarkYellow;
-                case "darkwhite":
+                case "darkgray":
                     return ConsoleColor.DarkGray;
                 case "gray":
                     return ConsoleColor.Gray;

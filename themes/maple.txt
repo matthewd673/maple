@@ -4,3 +4,4 @@ highlight:yellow
 error:red
 cmdin:yellow
 cmdout:cyan
+gutter:darkgray

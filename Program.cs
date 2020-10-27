@@ -30,6 +30,7 @@ namespace maple
             if(args.Length > 0)
             {
                 document = new Document(args[0], loadStyleInfo: true);
+                document.CalculateGutterWidth();
                 document.PrintFileLines();
                 docCursor.MoveCursor(docCursor.dX, docCursor.dY);
             }
@@ -79,6 +80,11 @@ namespace maple
             else if(Input.GetInputTarget() == Input.InputTarget.Command)
                 return cmdCursor;
             
+            return docCursor;
+        }
+
+        public static Cursor GetDocumentCursor()
+        {
             return docCursor;
         }
 

@@ -14,6 +14,9 @@ namespace maple
         int scrollIncrement = 0;
         int scrollY = 0;
 
+        int gutterWidth = 0;
+        int gutterPadding = 2;
+
         public Document(String filepath, bool loadStyleInfo = false)
         {
             fileLines = new List<Line>();
@@ -76,7 +79,7 @@ namespace maple
         public void PrintLine(int lineIndex)
         {
             //don't, if out of range
-            if(lineIndex < 0 || lineIndex > fileLines.Count - 1)
+            if(lineIndex < 0 || lineIndex > fileLines.Count - 1 || lineIndex - scrollY < 0 || lineIndex - scrollY > Cursor.maxScreenY - 1)
                 return;
 
             Line l = fileLines[lineIndex];
@@ -84,11 +87,26 @@ namespace maple
             //clear line on screen
             Printer.ClearLine(lineIndex - scrollY);
             Printer.MoveCursor(0, lineIndex - scrollY);
+
+            //build gutter content & print gutter
+            String gutterContent = BuildGutter(lineIndex);
+            Printer.PrintWord(gutterContent, foregroundColor: Styler.gutterColor);
+
             //print all tokens in line
             foreach(Token t in l.GetTokens())
             {
                 Printer.PrintWord(t.GetText() + " ", foregroundColor: t.GetColor());
             }
+        }
+
+        String BuildGutter(int lineIndex)
+        {
+            String gutterContent = lineIndex.ToString();
+            while(gutterContent.Length < gutterWidth - gutterPadding)
+                gutterContent = "0" + gutterContent;
+            while(gutterContent.Length < gutterWidth)
+                gutterContent += " ";
+            return gutterContent;
         }
 
         public void ScrollUp()
@@ -108,6 +126,13 @@ namespace maple
         public void CalculateScrollIncrement()
         {
             scrollIncrement = (Cursor.maxScreenY - 1) / 2;
+        }
+
+        public void CalculateGutterWidth()
+        {
+            gutterWidth = fileLines.Count.ToString().Length + gutterPadding;
+            Program.GetDocumentCursor().contentOffsetX = gutterWidth;
+            Program.GetDocumentCursor().MoveCursor();
         }
 
         public String GetLine(int index)
@@ -173,6 +198,7 @@ namespace maple
                 return false;
             
             fileLines.Insert(index, new Line(""));
+            CalculateGutterWidth();
             return true;
         }
         
@@ -182,6 +208,7 @@ namespace maple
                 return false;
 
             fileLines.RemoveAt(index);
+            CalculateGutterWidth();
             return true;
         }
 

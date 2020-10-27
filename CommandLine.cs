@@ -67,12 +67,12 @@ namespace maple
 
             if(inputText == "help")
                 HelpCommand();
-
-            if(inputText == "save")
+            else if(inputText == "save")
                 SaveCommand();
-
-            if(inputText == "close")
+            else if(inputText == "close")
                 CloseCommand();
+            else
+                UnknownCommand();
 
             inputText = "";
             Input.ToggleInputTarget();
@@ -92,6 +92,11 @@ namespace maple
         static void CloseCommand()
         {
             Program.Close();
+        }
+
+        static void UnknownCommand()
+        {
+            SetOutput("Unknown command");
         }
 
     }
