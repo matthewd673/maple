@@ -11,6 +11,7 @@ namespace maple
         static Document document;
 
         static List<int> refreshedLines = new List<int>();
+        static bool fullClearNext = false;
 
         static void Main(string[] args)
         {
@@ -52,6 +53,11 @@ namespace maple
                 Input.AcceptInput(Console.ReadKey());
 
                 //redraw lines that have changed
+                if(fullClearNext)
+                {
+                    Console.Clear();
+                    fullClearNext = false;
+                }
                 RedrawLines();
 
                 //render footer
@@ -107,6 +113,13 @@ namespace maple
             refreshedLines.Add(lineIndex);
         }
 
+        public static void RefreshAllLines()
+        {
+            for(int i = 0; i < document.GetMaxLine() + 1; i++)
+                refreshedLines.Add(i);
+            fullClearNext = true;
+        }
+
         public static void RedrawLines()
         {
             //redraw lines that have changed
@@ -115,7 +128,7 @@ namespace maple
                 if(lineIndex <= document.GetMaxLine())
                     document.PrintLine(lineIndex);
                 else
-                    Printer.ClearLine(lineIndex);
+                    Printer.ClearLine(lineIndex - document.GetScrollY());
             }
             refreshedLines.Clear(); //clear for next time
         }

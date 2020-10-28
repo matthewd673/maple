@@ -51,9 +51,8 @@ namespace maple
             }
             else
             {
-                Printer.PrintLine("Creating new files is not supported at this time", Styler.errorColor);
-                //File.Create(filepath);
-                //fileLines = new List<String>() { "" };
+                File.Create(filepath);
+                fileLines = new List<Line>() { new Line("") };
             }
         }
 
@@ -94,14 +93,12 @@ namespace maple
 
             //print all tokens in line
             foreach(Token t in l.GetTokens())
-            {
                 Printer.PrintWord(t.GetText() + " ", foregroundColor: t.GetColor());
-            }
         }
 
         String BuildGutter(int lineIndex)
         {
-            String gutterContent = lineIndex.ToString();
+            String gutterContent = (lineIndex + 1).ToString();
             while(gutterContent.Length < gutterWidth - gutterPadding)
                 gutterContent = "0" + gutterContent;
             while(gutterContent.Length < gutterWidth)
@@ -130,8 +127,13 @@ namespace maple
 
         public void CalculateGutterWidth()
         {
+            int oldGutterWidth = gutterWidth;
             gutterWidth = fileLines.Count.ToString().Length + gutterPadding;
             Program.GetDocumentCursor().contentOffsetX = gutterWidth;
+
+            if(gutterWidth != oldGutterWidth)
+                Program.RefreshAllLines();
+
             Program.GetDocumentCursor().MoveCursor();
         }
 

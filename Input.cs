@@ -55,24 +55,56 @@ namespace maple
                     }
                     else //at beginning of line, append current line to previous
                     {
+                        
+                        bool backspaceScrolledUp = false;
                         if(Program.GetCursor().dY > 0)
                         {
                             String currentLineContent = Program.GetDocument().GetLine(Program.GetCursor().dY); //get remaining content on current line
                             int previousLineMaxX = Program.GetDocument().GetLineLength(Program.GetCursor().dY - 1); //get max position on preceding line
-                            Program.GetDocument().AddTextAtPosition(previousLineMaxX, Program.GetCursor().dY - 1, currentLineContent); //add remaining text to previous line
+                            String combinedLineContent = Program.GetDocument().GetLine(Program.GetCursor().dY - 1) + currentLineContent; //combine content
+                            Program.GetDocument().SetLine(Program.GetCursor().dY - 1, combinedLineContent); //set previous line to combined content
                             Program.GetDocument().RemoveLine(Program.GetCursor().dY); //remove current line
-                            Program.GetCursor().SetDocPosition(previousLineMaxX, Program.GetCursor().dY - 1); //move cursor to preceding line
+
+                            Program.GetCursor().SetDocPosition(Program.GetCursor().dX, Program.GetCursor().dY - 1);
+
+                            //scroll up if necessary
+                            if(Program.GetCursor().sY == 0)
+                            {
+                                Program.GetDocument().ScrollUp();
+                                backspaceScrolledUp = true;
+                            }
+
+                            Program.GetCursor().SetDocPosition(previousLineMaxX, Program.GetCursor().dY); //move cursor to preceding line
                         }
                         //update all lines below
-                        for(int i = Program.GetCursor().sY; i <= Cursor.maxScreenY - 1; i++) //+1 so that the old line is cleared
-                            Program.RefreshLine(i);
+                        if(!backspaceScrolledUp)
+                        {
+                            for(int i = Program.GetCursor().dY; i <= Program.GetDocument().GetMaxLine() + 1; i++) //+1 so that the old line is cleared
+                                Program.RefreshLine(i);
+                        }
+                        else
+                            Program.RefreshAllLines();
                     }
 
                     Program.RefreshLine(Program.GetCursor().dY);
                     break;
                 case ConsoleKey.Delete:
-                    Program.GetDocument().RemoveTextAtPosition(Program.GetCursor().dX, Program.GetCursor().dY);
-                    Program.RefreshLine(Program.GetCursor().sY);
+                    if(Program.GetCursor().dX == Program.GetDocument().GetLineLength(Program.GetCursor().dY)) //deleting at end of line
+                    {
+                        if(Program.GetCursor().dY < Program.GetDocument().GetMaxLine()) //there is a following line to append
+                        {
+                            String followingLineText = Program.GetDocument().GetLine(Program.GetCursor().dY + 1); //get following line content
+                            Program.GetDocument().SetLine(Program.GetCursor().dY, Program.GetDocument().GetLine(Program.GetCursor().dY) + followingLineText); //append to current
+                            Program.GetDocument().RemoveLine(Program.GetCursor().dY + 1); //remove next line
+                            for(int i = Program.GetCursor().dY; i < Program.GetDocument().GetMaxLine() + 1; i++)
+                                Program.RefreshLine(i);
+                        }
+                    }
+                    else
+                    {
+                        Program.GetDocument().RemoveTextAtPosition(Program.GetCursor().dX, Program.GetCursor().dY); //remove next character
+                        Program.RefreshLine(Program.GetCursor().dY); //update line
+                    }
                     break;
                 case ConsoleKey.Enter:
                     Program.GetDocument().AddLine(Program.GetCursor().dY + 1); //add new line
@@ -85,12 +117,25 @@ namespace maple
                     if(Program.GetCursor().dX < followingTextLine.Length)
                         Program.GetDocument().SetLine(Program.GetCursor().dY, followingTextLine.Remove(Program.GetCursor().dX)); //remove following text on current line
                     
+                    //scroll down if necessary
+                    bool enterScrolledDown = false;
+                    if(Program.GetCursor().sY >= Cursor.maxScreenY - 1)
+                    {
+                        Program.GetDocument().ScrollDown();
+                        enterScrolledDown = true;
+                    }
+
                     Program.GetCursor().SetDocPosition(0, Program.GetCursor().dY + 1); //move cursor to beginning of new line
                     Program.RefreshLine(Program.GetCursor().sY);
 
                     //update all lines below
-                        for(int i = Program.GetCursor().sY - 1; i <= Cursor.maxScreenY - 1; i++)
+                    if(!enterScrolledDown)
+                    {
+                        for(int i = Program.GetCursor().dY - 1; i <= Program.GetDocument().GetMaxLine(); i++)
                             Program.RefreshLine(i);
+                    }
+                    else
+                        Program.RefreshAllLines();
                     break;
                 case ConsoleKey.Escape:
                     ToggleInputTarget();
