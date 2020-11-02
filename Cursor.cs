@@ -13,93 +13,25 @@ namespace maple
         public int contentOffsetX = 0;
         public int contentOffsetY = 0;
 
-        /*
-        public static int offsetX = 0;
-        public static int offsetY = 1;
-        */
-
-        public Cursor(int x, int y)
+        public Cursor(int dX, int dY)
         {
-            this.dX = x;
-            this.dY = y;
+            this.dX = dX;
+            this.dY = dY;
 
             CalculateCursorBounds();
         }
         
-        public void CalculateCursorBounds()
+        public static void CalculateCursorBounds()
         {
             maxScreenX = Console.BufferWidth - 1;
             maxScreenY = Console.BufferHeight - 1;
-        }
-
-        public void MoveLeft()
-        {
-            if(dX > 0) //can move back
-                MoveCursor(dX - 1, dY);
-            else
-            {
-                if(dY > 0)
-                {
-                    MoveUp();
-                    MoveCursor(Program.GetDocument().GetLineLength(dY), dY);
-                }
-            }
-        }
-        public void MoveRight()
-        {
-            if(dX < Program.GetDocument().GetLineLength(dY)) //can move forward
-                MoveCursor(dX + 1, dY);
-            else
-            {
-                if(dY < Program.GetDocument().GetMaxLine())
-                {
-                    MoveDown();
-                    MoveCursor(0, dY);
-                }
-            }
-        }
-        public void MoveUp()
-        {
-            if(sY == 0 && Program.GetDocument().GetScrollY() > 0)
-            {
-                Program.GetDocument().ScrollUp();
-                Console.Clear();
-                Program.GetDocument().PrintFileLines();
-            }
-            else
-                MoveCursor(dX, dY - 1);
-        }
-
-        public void MoveDown()
-        {
-            if(sY == maxScreenY - 1)
-            {
-                Program.GetDocument().ScrollDown();
-                Console.Clear();
-                Program.GetDocument().PrintFileLines();
-            }
-            else
-                MoveCursor(dX, dY + 1);
         }
 
         public void SetDocPosition(int x, int y)
         {
             dX = x;
             dY = y;
-            MoveCursor(dX, dY);
-        }
-
-        public void LockToDocConstraints()
-        {
-            if(dY < 0)
-                dY = 0;
-            if(dY > Program.GetDocument().GetMaxLine())
-                dY = Program.GetDocument().GetMaxLine();
-
-            if(dX < 0)
-                dX = 0;
-            if(dX > Program.GetDocument().GetLineLength(dY))
-                dX = Program.GetDocument().GetLineLength(dY);
+            Move(dX, dY);
         }
 
         public void LockToScreenConstraints()
@@ -115,43 +47,23 @@ namespace maple
                 sY = maxScreenX;
         }
 
-        public void MoveCursor(int tX, int tY)
+        public void Move(int tX, int tY, bool constrainToScreen = true)
         {
             dX = tX;
             dY = tY;
 
-            LockToDocConstraints();
-
             sX = dX + contentOffsetX;
-            sY = dY + contentOffsetY - Program.GetDocument().GetScrollY();
+            sY = dY + contentOffsetY;
 
-            LockToScreenConstraints();
-
-            //move cursor pos
-            Console.SetCursorPosition(sX, sY);
-        }
-
-        public void MoveCursor()
-        {
-            MoveCursor(dX, dY);
-        }
-
-        public void ForceDocumentPosition(int x, int y)
-        {
-            dX = x;
-            dY = y;
-
-            sX = dX + contentOffsetX;
-            sY = dY + contentOffsetY - Program.GetDocument().GetScrollY();
-
-            LockToScreenConstraints();
+            if(constrainToScreen)
+                LockToScreenConstraints();
 
             Console.SetCursorPosition(sX, sY);
         }
 
-        public void ForceMoveCursor(int tX, int tY)
+        public void ApplyPosition()
         {
-            Console.SetCursorPosition(tX, tY);
+            Console.SetCursorPosition(sX, sY);
         }
 
     }

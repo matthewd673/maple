@@ -6,7 +6,7 @@ namespace maple
     class Program
     {
 
-        static Cursor docCursor;
+        static DocumentCursor docCursor;
         static Cursor cmdCursor;
         static Document document;
 
@@ -18,7 +18,7 @@ namespace maple
             PrepareWindow();
             
             //create cursor
-            docCursor = new Cursor(0, 0);
+            //docCursor = new Cursor(0, 0);
             cmdCursor = new Cursor(0, 0);
 
             cmdCursor.contentOffsetX = 7;
@@ -27,27 +27,42 @@ namespace maple
             //prepare styler
             Styler.LoadMapleTheme();
 
+            //handle input
             //load file
             if(args.Length > 0)
             {
                 document = new Document(args[0], loadStyleInfo: true);
-                document.CalculateGutterWidth();
-                document.PrintFileLines();
-                docCursor.MoveCursor(docCursor.dX, docCursor.dY);
             }
+            else //no argument provided
+            {
+                Printer.PrintLine("maple - terminal text editor | github.com/matthewd673/maple", Styler.accentColor);
+                Printer.PrintLine("No arguments provided: maple [filename] to begin editing", Styler.errorColor);
+                return;
+            }
+        
+            docCursor = new DocumentCursor(document, 0, 0);
+            docCursor.Move(0, 0);
+            docCursor.ApplyPosition();
+
+            document.CalculateGutterWidth();
 
             //render initial footer
             Printer.DrawFooter("maple", foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
             //reset to initial position
-            docCursor.MoveCursor(docCursor.dX, docCursor.dY);
+            docCursor.Move(docCursor.dX, docCursor.dY);
 
+
+            RedrawLines();
+            RefreshAllLines();
+
+            //primary loop
             while(true)
             {
                 //render initial footer
                 PrintFooter();
 
                 //set actual cursor position
-                GetCursor().MoveCursor();
+                GetActiveCursor().ApplyPosition();
 
                 //accept input
                 Input.AcceptInput(Console.ReadKey());
@@ -63,13 +78,12 @@ namespace maple
                 //render footer
                 PrintFooter();
 
-                //reset to user cursor position
+                //apply user cursor position
                 if(Input.GetInputTarget() == Input.InputTarget.Document)
-                    docCursor.MoveCursor(docCursor.dX, docCursor.dY);
+                    docCursor.Move(docCursor.dX, docCursor.dY);
                 else if(Input.GetInputTarget() == Input.InputTarget.Command)
-                    cmdCursor.ForceDocumentPosition(cmdCursor.dX, cmdCursor.dY);
+                    cmdCursor.Move(cmdCursor.dX, cmdCursor.dY);
             }
-
         }
 
         static void PrepareWindow()
@@ -79,7 +93,7 @@ namespace maple
             Printer.Resize();
         }
 
-        public static Cursor GetCursor()
+        public static Cursor GetActiveCursor()
         {
             if(Input.GetInputTarget() == Input.InputTarget.Document)
                 return docCursor;
@@ -89,21 +103,15 @@ namespace maple
             return docCursor;
         }
 
-        public static Cursor GetDocumentCursor()
-        {
-            return docCursor;
-        }
+        public static DocumentCursor GetDocCursor() { return docCursor; }
 
-        public static Document GetDocument()
-        {
-            return document;
-        }
+        public static Cursor GetCommandCursor() { return cmdCursor; }
 
         public static void Close()
         {
             Console.Clear();
             Console.ForegroundColor = Styler.accentColor;
-            Console.WriteLine("maple session ({0})", GetDocument().GetFilePath());
+            Console.WriteLine("maple session ({0})", document.GetFilePath());
             Console.ForegroundColor = Styler.textColor;
             Environment.Exit(0);
         }
@@ -136,7 +144,7 @@ namespace maple
         public static void PrintFooter()
         {
             //generate footer string
-            String defaultFooterContent = "maple (" + docCursor.dX + ", " + docCursor.dY + ") - " + document.GetFilePath();
+            String defaultFooterContent = "maple (" + (docCursor.dX + 1) + ", " + (docCursor.dY + 1) + ") - " + document.GetFilePath();
 
             if(!CommandLine.HasOutput())
             {

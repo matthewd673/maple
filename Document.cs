@@ -51,7 +51,7 @@ namespace maple
             }
             else
             {
-                File.Create(filepath);
+                File.Create(filepath).Close();
                 fileLines = new List<Line>() { new Line("") };
             }
         }
@@ -129,12 +129,12 @@ namespace maple
         {
             int oldGutterWidth = gutterWidth;
             gutterWidth = fileLines.Count.ToString().Length + gutterPadding;
-            Program.GetDocumentCursor().contentOffsetX = gutterWidth;
+            Program.GetDocCursor().contentOffsetX = gutterWidth;
 
             if(gutterWidth != oldGutterWidth)
                 Program.RefreshAllLines();
 
-            Program.GetDocumentCursor().MoveCursor();
+            Program.GetDocCursor().ApplyPosition();
         }
 
         public String GetLine(int index)

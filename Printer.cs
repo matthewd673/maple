@@ -26,7 +26,7 @@ namespace maple
 
         public static void MoveCursor(int x, int y)
         {
-            printerCursor.ForceMoveCursor(x, y);
+            printerCursor.Move(x, y);
         }
 
         public static void PrintLine(String message, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
@@ -40,7 +40,7 @@ namespace maple
         public static void DrawHeader(String content, ConsoleColor foregroundColor = ConsoleColor.Black, ConsoleColor backgroundColor = ConsoleColor.Gray, int offsetTop = 0)
         {
             ClearLine(offsetTop);
-            printerCursor.ForceMoveCursor(0, offsetTop);
+            printerCursor.Move(0, offsetTop);
             Console.BackgroundColor = backgroundColor;
             Console.ForegroundColor = foregroundColor;
             Console.WriteLine(content);
@@ -50,7 +50,7 @@ namespace maple
         public static void DrawFooter(String content, ConsoleColor foregroundColor = ConsoleColor.Black, ConsoleColor backgroundColor = ConsoleColor.Gray, int offsetBottom = 0)
         {
             ClearLine(Cursor.maxScreenY - offsetBottom);
-            printerCursor.ForceMoveCursor(0, Cursor.maxScreenY - offsetBottom);
+            printerCursor.Move(0, Cursor.maxScreenY - offsetBottom);
             Console.BackgroundColor = backgroundColor;
             Console.ForegroundColor = foregroundColor;
             Console.Write(content);

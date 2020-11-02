@@ -14,7 +14,7 @@ namespace maple
         static void Main(string[] args)
         {
             PrepareWindow();
-            
+ 
             //create cursor
             docCursor = new Cursor(0, 0);
             cmdCursor = new Cursor(0, 0);

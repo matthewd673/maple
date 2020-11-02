@@ -54,7 +54,7 @@ namespace maple
         public static void ClearInput()
         {
             inputText = "";
-            Program.GetCursor().ForceDocumentPosition(0, 0);
+            Program.GetCommandCursor().Move(0, 0);
         }
 
         public static void ExecuteInput()
@@ -67,6 +67,8 @@ namespace maple
 
             if(inputText == "help")
                 HelpCommand();
+            else if(inputText == "about")
+                AboutCommand();
             else if(inputText == "save")
                 SaveCommand();
             else if(inputText == "close")
@@ -83,10 +85,15 @@ namespace maple
             SetOutput("save | close");
         }
 
+        static void AboutCommand()
+        {
+            SetOutput("terminal text editor - github.com/matthewd673/maple");
+        }
+
         static void SaveCommand()
         {
-            Program.GetDocument().SaveDocument();
-            SetOutput("Working file saved to " + Program.GetDocument().GetFilePath());
+            Program.GetDocCursor().GetDocument().SaveDocument();
+            SetOutput("Working file saved to " + Program.GetDocCursor().GetDocument().GetFilePath());
         }
 
         static void CloseCommand()
