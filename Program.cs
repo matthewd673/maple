@@ -18,7 +18,6 @@ namespace maple
             PrepareWindow();
             
             //create cursor
-            //docCursor = new Cursor(0, 0);
             cmdCursor = new Cursor(0, 0);
 
             cmdCursor.contentOffsetX = 7;
@@ -36,7 +35,7 @@ namespace maple
             else //no argument provided
             {
                 Printer.PrintLine("maple - terminal text editor | github.com/matthewd673/maple", Styler.accentColor);
-                Printer.PrintLine("No arguments provided: maple [filename] to begin editing", Styler.errorColor);
+                Printer.PrintLine("No arguments provided: 'maple [filename]' to begin editing", Styler.errorColor);
                 return;
             }
         
@@ -48,42 +47,20 @@ namespace maple
 
             //render initial footer
             Printer.DrawFooter("maple", foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
-            //reset to initial position
-            docCursor.Move(docCursor.dX, docCursor.dY);
+            docCursor.Move(docCursor.dX, docCursor.dY); //reset to original position
 
-
+            //prep for initial full-draw
             RedrawLines();
             RefreshAllLines();
 
-            //primary loop
+            //full-draw all lines for initial render
+            Console.Clear();
+            RedrawLines();
+            fullClearNext = false;
+
+            //begin input loop
             while(true)
-            {
-                //render initial footer
-                PrintFooter();
-
-                //set actual cursor position
-                GetActiveCursor().ApplyPosition();
-
-                //accept input
-                Input.AcceptInput(Console.ReadKey());
-
-                //redraw lines that have changed
-                if(fullClearNext)
-                {
-                    Console.Clear();
-                    fullClearNext = false;
-                }
-                RedrawLines();
-
-                //render footer
-                PrintFooter();
-
-                //apply user cursor position
-                if(Input.GetInputTarget() == Input.InputTarget.Document)
-                    docCursor.Move(docCursor.dX, docCursor.dY);
-                else if(Input.GetInputTarget() == Input.InputTarget.Command)
-                    cmdCursor.Move(cmdCursor.dX, cmdCursor.dY);
-            }
+                InputLoop();
         }
 
         static void PrepareWindow()
@@ -91,6 +68,37 @@ namespace maple
             Console.Clear();
             Console.Title = "maple";
             Printer.Resize();
+        }
+
+        static void InputLoop()
+        {
+            //render footer
+            PrintFooter();
+
+            //set actual cursor position
+            GetActiveCursor().ApplyPosition();
+
+            //accept input
+            Input.AcceptInput(Console.ReadKey());
+
+            //redraw lines that have changed
+            if(fullClearNext)
+            {
+                Console.Clear();
+                RedrawLines();
+                fullClearNext = false; //don't do it again until told
+            }
+            else
+                RedrawLines();
+
+            //render footer again
+            PrintFooter();
+
+            //apply user cursor position
+            if(Input.GetInputTarget() == Input.InputTarget.Document)
+                docCursor.Move(docCursor.dX, docCursor.dY);
+            else if(Input.GetInputTarget() == Input.InputTarget.Command)
+                cmdCursor.Move(cmdCursor.dX, cmdCursor.dY);
         }
 
         public static Cursor GetActiveCursor()

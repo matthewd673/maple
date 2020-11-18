@@ -65,6 +65,13 @@ namespace maple
                 Move(dX, dY + 1);
         }
 
+        public void SetDocPosition(int tX, int tY)
+        {
+            dX = tX;
+            dY = tY;
+            Move(dX, dY);
+        }
+
         public void LockToDocConstraints()
         {
             if(dY < 0)

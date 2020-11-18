@@ -27,12 +27,14 @@ namespace maple
             maxScreenY = Console.BufferHeight - 1;
         }
 
+        /*
         public void SetDocPosition(int x, int y)
         {
             dX = x;
             dY = y;
             Move(dX, dY);
         }
+        */
 
         public void LockToScreenConstraints()
         {
