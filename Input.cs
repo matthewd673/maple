@@ -27,7 +27,7 @@ namespace maple
         static void AcceptDocumentInput(ConsoleKeyInfo keyInfo)
         {
 
-            DocumentCursor docCursor = Program.GetDocCursor();
+            DocumentCursor docCursor = Editor.GetDocCursor();
             Document doc = docCursor.GetDocument();
 
             switch(keyInfo.Key)
@@ -84,13 +84,13 @@ namespace maple
                         if(!backspaceScrolledUp)
                         {
                             for(int i = docCursor.dY; i <= doc.GetMaxLine() + 1; i++) //+1 so that the old line is cleared
-                                Program.RefreshLine(i);
+                                Editor.RefreshLine(i);
                         }
                         else
-                            Program.RefreshAllLines();
+                            Editor.RefreshAllLines();
                     }
 
-                    Program.RefreshLine(docCursor.dY);
+                    Editor.RefreshLine(docCursor.dY);
                     break;
                 case ConsoleKey.Delete:
                     if(docCursor.dX == doc.GetLineLength(docCursor.dY)) //deleting at end of line
@@ -101,13 +101,13 @@ namespace maple
                             doc.SetLine(docCursor.dY, doc.GetLine(docCursor.dY) + followingLineText); //append to current
                             doc.RemoveLine(docCursor.dY + 1); //remove next line
                             for(int i = docCursor.dY; i < doc.GetMaxLine() + 1; i++)
-                                Program.RefreshLine(i);
+                                Editor.RefreshLine(i);
                         }
                     }
                     else
                     {
                         doc.RemoveTextAtPosition(docCursor.dX, docCursor.dY); //remove next character
-                        Program.RefreshLine(docCursor.dY); //update line
+                        Editor.RefreshLine(docCursor.dY); //update line
                     }
                     break;
                 case ConsoleKey.Enter:
@@ -130,16 +130,16 @@ namespace maple
                     }
 
                     docCursor.SetDocPosition(0, docCursor.dY + 1); //move cursor to beginning of new line
-                    Program.RefreshLine(docCursor.sY);
+                    Editor.RefreshLine(docCursor.sY);
 
                     //update all lines below
                     if(!enterScrolledDown)
                     {
                         for(int i = docCursor.dY - 1; i <= doc.GetMaxLine(); i++)
-                            Program.RefreshLine(i);
+                            Editor.RefreshLine(i);
                     }
                     else
-                        Program.RefreshAllLines();
+                        Editor.RefreshAllLines();
                     break;
                 case ConsoleKey.Escape:
                     ToggleInputTarget();
@@ -159,7 +159,7 @@ namespace maple
                     if(addedText)
                     {
                         docCursor.MoveRight();
-                        Program.RefreshLine(docCursor.dY);
+                        Editor.RefreshLine(docCursor.dY);
                     }
 
                     break;
@@ -169,7 +169,7 @@ namespace maple
         static void AcceptCommandInput(ConsoleKeyInfo keyInfo)
         {
 
-            Cursor cmdCursor = Program.GetCommandCursor();
+            Cursor cmdCursor = Editor.GetCommandCursor();
 
             switch(keyInfo.Key)
             {
@@ -214,10 +214,10 @@ namespace maple
                     if(!r.Match(typed).Success)
                         break;
                     
-                    bool addedText = CommandLine.AddText(Program.GetCommandCursor().dX, typed);
+                    bool addedText = CommandLine.AddText(Editor.GetCommandCursor().dX, typed);
 
                     if(addedText)
-                        Program.GetCommandCursor().dX++;
+                        Editor.GetCommandCursor().dX++;
 
                     break;
             }
@@ -238,7 +238,7 @@ namespace maple
                 else
                 {
                     currentTarget = InputTarget.Command; //there is no output, toggle
-                    Program.GetCommandCursor().Move(0, 0); //reset cursor position
+                    Editor.GetCommandCursor().Move(0, 0); //reset cursor position
                 }
             }
             else if(currentTarget == InputTarget.Command)

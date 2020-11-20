@@ -140,7 +140,7 @@ namespace maple
             gutterWidth = fileLines.Count.ToString().Length + gutterPadding;
 
             if(gutterWidth != oldGutterWidth)
-                Program.RefreshAllLines();
+                Editor.RefreshAllLines();
 
             return gutterWidth;
         }

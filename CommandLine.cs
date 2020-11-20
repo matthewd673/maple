@@ -53,7 +53,7 @@ namespace maple
         public static void ClearInput()
         {
             inputText = "";
-            Program.GetCommandCursor().Move(0, 0);
+            Editor.GetCommandCursor().Move(0, 0);
         }
 
         public static void ExecuteInput()
@@ -133,8 +133,8 @@ namespace maple
 
         static void SaveCommand(List<String> args, List<String> ops)
         {
-            Program.GetDocCursor().GetDocument().SaveDocument();
-            SetOutput("Working file saved to " + Program.GetDocCursor().GetDocument().GetFilePath(), "save");
+            Editor.GetDocCursor().GetDocument().SaveDocument();
+            SetOutput("Working file saved to " + Editor.GetDocCursor().GetDocument().GetFilePath(), "save");
         }
 
         static void LoadCommand(List<String> args, List<String> ops)
@@ -150,8 +150,8 @@ namespace maple
             if(filepath.StartsWith("\""))
                 filepath = filepath.Trim('\"');
 
-            
-            Program.LoadExternalDocument(filepath);
+            //initialize new editor
+            Editor.Initialize(filepath);
         }
 
         static void CloseCommand()
