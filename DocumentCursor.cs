@@ -7,9 +7,9 @@ namespace maple
 
         Document doc;
 
-        public DocumentCursor(Document doc, int dX, int dY) : base(dX, dY)
+        public DocumentCursor(String filepath, int dX, int dY) : base(dX, dY)
         {
-            this.doc = doc;
+            doc = new Document(filepath, internalDocument: false);
         }
 
         public Document GetDocument() { return doc; }
@@ -100,6 +100,16 @@ namespace maple
                 LockToScreenConstraints();
 
             Console.SetCursorPosition(sX, sY);
+        }
+
+        public void CalculateGutterWidth()
+        {
+            //get gutter width from doc
+            int gutterWidth = doc.CalculateGutterWidth();
+            contentOffsetX = gutterWidth;
+
+            //update position of cursor
+            ApplyPosition();
         }
 
     }

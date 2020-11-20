@@ -17,27 +17,35 @@ namespace maple
         int gutterWidth = 0;
         int gutterPadding = 2;
 
-        public Document(String filepath, bool loadStyleInfo = false)
+        public Document(String filepath, bool internalDocument = false)
         {
             fileLines = new List<Line>();
-            LoadDocument(filepath, loadStyleInfo);
-            CalculateScrollIncrement();
+            LoadDocument(filepath);
+
+            //calculate external document properties (if not interal)
+            if (!internalDocument)
+            {
+                //load theme file if one exists
+                String fileExtension = Path.GetExtension(filepath).Remove(0, 1);
+                if(File.Exists("themes/" + fileExtension + ".txt"))
+                    Styler.LoadTheme("themes/" + fileExtension + ".txt");
+
+                //apply new properties (if not internal)
+                CalculateScrollIncrement();
+                scrollY = 0;
+            }
+
         }
 
-        public void LoadDocument(String filepath, bool loadStyleInfo = false)
+        public void LoadDocument(String filepath)
         {
+            //clear any lines that may have existed from before
+            fileLines.Clear();
+
+            //load new document
             this.filepath = filepath;
             if(File.Exists(filepath))
             {
-
-                if(loadStyleInfo)
-                {
-                    String fileExtension = Path.GetExtension(filepath).Remove(0, 1);
-
-                    if(File.Exists("themes/" + fileExtension + ".txt"))
-                        Styler.LoadTheme("themes/" + fileExtension + ".txt");
-                }
-
                 List<String> fileLinesText = File.ReadAllLines(filepath).ToList<String>();
                 
                 foreach(String s in fileLinesText)
@@ -54,6 +62,7 @@ namespace maple
                 File.Create(filepath).Close();
                 fileLines = new List<Line>() { new Line("") };
             }
+
         }
 
         public void SaveDocument()
@@ -125,16 +134,15 @@ namespace maple
             scrollIncrement = (Cursor.maxScreenY - 1) / 2;
         }
 
-        public void CalculateGutterWidth()
+        public int CalculateGutterWidth()
         {
             int oldGutterWidth = gutterWidth;
             gutterWidth = fileLines.Count.ToString().Length + gutterPadding;
-            Program.GetDocCursor().contentOffsetX = gutterWidth;
 
             if(gutterWidth != oldGutterWidth)
                 Program.RefreshAllLines();
 
-            Program.GetDocCursor().ApplyPosition();
+            return gutterWidth;
         }
 
         public String GetLine(int index)

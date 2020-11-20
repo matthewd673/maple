@@ -22,7 +22,7 @@ namespace maple
             String mapleThemePath = "themes/maple.txt";
             if(File.Exists(mapleThemePath))
             {
-                Document themeDoc = new Document(mapleThemePath);
+                Document themeDoc = new Document(mapleThemePath, internalDocument: true);
                 List<String> lines = themeDoc.GetAllLines();
                 AssignThemeColors(lines);
             }
@@ -108,7 +108,7 @@ namespace maple
 
         public static void LoadTheme(String themePath)
         {
-            Document themeDoc = new Document(themePath);
+            Document themeDoc = new Document(themePath, internalDocument: true);
             List<String> lines = themeDoc.GetAllLines();
             terms = lines;
         }

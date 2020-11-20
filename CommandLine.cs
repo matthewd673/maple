@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace maple
 {
@@ -34,14 +35,12 @@ namespace maple
         }
 
         public static String GetText() { return inputText; }
-
         public static bool HasOutput() { return hasOutput; }
-
         public static String GetOutput() { return outputText; }
 
-        static void SetOutput(String text)
+        static void SetOutput(String text, String speaker)
         {
-            outputText = text;
+            outputText = "[" + speaker + "]: " + text;
             hasOutput = true;
         }
 
@@ -59,41 +58,100 @@ namespace maple
 
         public static void ExecuteInput()
         {
-
-            if(hasOutput) //output is being displayed
-            {
+            if(hasOutput) //output is being displayed, reset for the future
                 ClearOutput();
+
+            String[] commands = inputText.Split(" ");
+
+            bool setPrimaryCommand = false;
+            bool inQuoteBlock = false;
+            String primaryCommand = "";
+            List<String> commandArgs = new List<String>();
+            List<String> commandOps = new List<String>();
+
+            foreach(String s in commands)
+            {
+                //first string is primary command
+                if(!setPrimaryCommand)
+                {
+                    primaryCommand = s;
+                    setPrimaryCommand = true;
+                    continue;
+                }
+
+                //options start with at least one '-'
+                if(s.StartsWith("-"))
+                {
+                    commandOps.Add(s);
+                    continue;
+                }
+
+                //nothing has been triggered, its an argument
+                if(!inQuoteBlock)
+                    commandArgs.Add(s); //append to list if not in quote block
+                else
+                    commandArgs[commandOps.Count - 1] += " " + s; //append to last item if in quote block
+
+                //determine if it starts / ends a quote block
+                char[] commandChars = s.ToCharArray();
+                foreach(char c in commandChars)
+                {
+                    if(c == '\"') //toggle for each quote found
+                        inQuoteBlock = !inQuoteBlock;
+                }
+
             }
 
-            if(inputText == "help")
-                HelpCommand();
-            else if(inputText == "about")
-                AboutCommand();
-            else if(inputText == "save")
-                SaveCommand();
-            else if(inputText == "close")
-                CloseCommand();
-            else
-                UnknownCommand();
+            switch(primaryCommand)
+            {
+                case "help":
+                    HelpCommand();
+                    break;
+                case "save":
+                    SaveCommand(commandArgs, commandOps);
+                    break;
+                case "load":
+                    LoadCommand(commandArgs, commandOps);
+                    break;
+                case "close":
+                    CloseCommand();
+                    break;
+                default:
+                    UnknownCommand();
+                    break;
+            }
 
+            //empty input field and toggle back to editor
             inputText = "";
             Input.ToggleInputTarget();
         }
 
         static void HelpCommand()
         {
-            SetOutput("save | close");
+            SetOutput("save | close", "help");
         }
 
-        static void AboutCommand()
-        {
-            SetOutput("terminal text editor - github.com/matthewd673/maple");
-        }
-
-        static void SaveCommand()
+        static void SaveCommand(List<String> args, List<String> ops)
         {
             Program.GetDocCursor().GetDocument().SaveDocument();
-            SetOutput("Working file saved to " + Program.GetDocCursor().GetDocument().GetFilePath());
+            SetOutput("Working file saved to " + Program.GetDocCursor().GetDocument().GetFilePath(), "save");
+        }
+
+        static void LoadCommand(List<String> args, List<String> ops)
+        {
+            if(args.Count < 1)
+            {
+                SetOutput("No filepath provided", "load");
+                return;
+            }
+
+            String filepath = args[0];
+            //trim quotes if it was in a block
+            if(filepath.StartsWith("\""))
+                filepath = filepath.Trim('\"');
+
+            
+            Program.LoadExternalDocument(filepath);
         }
 
         static void CloseCommand()
@@ -103,7 +161,7 @@ namespace maple
 
         static void UnknownCommand()
         {
-            SetOutput("Unknown command");
+            SetOutput("Unknown command, run 'help'", "error");
         }
 
     }
