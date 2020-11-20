@@ -65,12 +65,12 @@ namespace maple
 
         }
 
-        public void SaveDocument()
+        public void SaveDocument(String savePath)
         {
             List<String> allLines = new List<String>();
             foreach(Line l in fileLines)
                 allLines.Add(l.GetContent());
-            File.WriteAllLines(filepath, allLines);
+            File.WriteAllLines(savePath, allLines);
         }
 
         public String GetFilePath()

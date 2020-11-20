@@ -126,7 +126,7 @@ namespace maple
                     Printer.DrawFooter("maple: " + CommandLine.GetText(), backgroundColor: Styler.cmdinColor);
             }
             else //render output footer
-                Printer.DrawFooter("maple " + CommandLine.GetOutput(), foregroundColor: Styler.cmdoutColor, backgroundColor: ConsoleColor.Black);
+                Printer.DrawFooter(CommandLine.GetOutput(), foregroundColor: Styler.cmdoutColor, backgroundColor: ConsoleColor.Black);
         }
 
     }

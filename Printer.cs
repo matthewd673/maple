@@ -49,7 +49,7 @@ namespace maple
 
         public static void DrawFooter(String content, ConsoleColor foregroundColor = ConsoleColor.Black, ConsoleColor backgroundColor = ConsoleColor.Gray, int offsetBottom = 0)
         {
-            ClearLine(Cursor.maxScreenY - offsetBottom);
+            ClearLine(Cursor.maxScreenY - offsetBottom, backgroundColor);
             printerCursor.Move(0, Cursor.maxScreenY - offsetBottom);
             Console.BackgroundColor = backgroundColor;
             Console.ForegroundColor = foregroundColor;

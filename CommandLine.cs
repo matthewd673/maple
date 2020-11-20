@@ -93,13 +93,25 @@ namespace maple
 
         static void HelpCommand()
         {
-            SetOutput("save | close", "help");
+            SetOutput("close | save | load", "help");
         }
 
         static void SaveCommand(List<String> args, List<String> ops)
         {
-            Editor.GetDocCursor().GetDocument().SaveDocument();
-            SetOutput("Working file saved to " + Editor.GetDocCursor().GetDocument().GetFilePath(), "save");
+
+            String savePath = Editor.GetDocCursor().GetDocument().GetFilePath();
+            if(args.Count > 0)
+                savePath = args[0];
+            savePath = savePath.Trim('\"');
+
+            Editor.GetDocCursor().GetDocument().SaveDocument(savePath);
+
+            String existingPath = Editor.GetDocCursor().GetDocument().GetFilePath();
+
+            if(savePath != existingPath)
+                SetOutput("Copy of file saved to " + savePath, "save");
+            else
+                SetOutput("File saved to " + savePath, "save");
         }
 
         static void LoadCommand(List<String> args, List<String> ops)
