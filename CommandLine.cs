@@ -61,46 +61,11 @@ namespace maple
             if(hasOutput) //output is being displayed, reset for the future
                 ClearOutput();
 
-            String[] commands = inputText.Split(" ");
+            CommandParser.CommandInfo commandInfo = CommandParser.Parse(inputText);
 
-            bool setPrimaryCommand = false;
-            bool inQuoteBlock = false;
-            String primaryCommand = "";
-            List<String> commandArgs = new List<String>();
-            List<String> commandOps = new List<String>();
-
-            foreach(String s in commands)
-            {
-                //first string is primary command
-                if(!setPrimaryCommand)
-                {
-                    primaryCommand = s;
-                    setPrimaryCommand = true;
-                    continue;
-                }
-
-                //options start with at least one '-'
-                if(s.StartsWith("-"))
-                {
-                    commandOps.Add(s);
-                    continue;
-                }
-
-                //nothing has been triggered, its an argument
-                if(!inQuoteBlock)
-                    commandArgs.Add(s); //append to list if not in quote block
-                else
-                    commandArgs[commandOps.Count - 1] += " " + s; //append to last item if in quote block
-
-                //determine if it starts / ends a quote block
-                char[] commandChars = s.ToCharArray();
-                foreach(char c in commandChars)
-                {
-                    if(c == '\"') //toggle for each quote found
-                        inQuoteBlock = !inQuoteBlock;
-                }
-
-            }
+            String primaryCommand = commandInfo.primaryCommand;
+            List<String> commandArgs = commandInfo.args;
+            List<String> commandOps = commandInfo.ops;
 
             switch(primaryCommand)
             {

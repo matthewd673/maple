@@ -20,11 +20,23 @@ namespace maple
             //prepare styler
             Styler.LoadMapleTheme();
 
+            //turn args into string for parser
+            String argString = "";
+            foreach(String s in args)
+                argString += s + " ";
+            argString.Trim(' ');
+
+            CommandParser.CommandInfo runInfo = CommandParser.Parse(
+                argString,
+                defaultPrimaryCommand: "load",
+                combineArgs: true
+                );
+
             //handle input
             //load file
             if(args.Length > 0)
             {
-                Editor.Initialize(args[0]);
+                Editor.Initialize(runInfo.args[0]);
             }
             else //no argument provided
             {

@@ -16,7 +16,9 @@ Execute commands by toggling to command input with the `escape` key.
 
 **`close`:** close maple without saving
 
-**`save`:** save the currently open file
+**`save [filename]`:** save the currently open file *(optional filename for "save-as")*
+
+**`load [filename]`:** load a new file into the editor *(changes to existing file not saved)*
 
 Some commands may display an output upon completion. Clear command output with the `escape` key.
 It is necessary to clear command output before toggling to the command input again.

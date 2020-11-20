@@ -3,5 +3,5 @@ accent:yellow
 highlight:yellow
 error:red
 cmdin:yellow
-cmdout:cyan
+cmdout:blue
 gutter:darkgray
