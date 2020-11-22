@@ -233,10 +233,11 @@ namespace maple
             if(currentTarget == InputTarget.Document)
             {
                 //check if there is command output to be cleared
-                if(CommandLine.GetOutput() != "")
+                if(CommandLine.GetOutput() != "" && !Editor.quickCli)
                     CommandLine.ClearOutput(); //there is output, clear it
                 else
                 {
+                    CommandLine.ClearOutput();
                     currentTarget = InputTarget.Command; //there is no output, toggle
                     Editor.GetCommandCursor().Move(0, 0); //reset cursor position
                 }

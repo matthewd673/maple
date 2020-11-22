@@ -10,13 +10,13 @@ namespace maple
         {
             public String primaryCommand;
             public List<String> args;
-            public List<String> ops;
+            public List<String> switches;
 
-            public CommandInfo(String primaryCommand, List<String> args, List<String> ops)
+            public CommandInfo(String primaryCommand, List<String> args, List<String> switches)
             {
                 this.primaryCommand = primaryCommand;
                 this.args = args;
-                this.ops = ops;
+                this.switches = switches;
             }
         }
 
@@ -31,7 +31,7 @@ namespace maple
             bool inQuoteBlock = false;
             String primaryCommand = defaultPrimaryCommand;
             List<String> commandArgs = new List<String>();
-            List<String> commandOps = new List<String>();
+            List<String> commandSwitches = new List<String>();
 
             foreach(String s in commands)
             {
@@ -43,10 +43,10 @@ namespace maple
                     continue;
                 }
 
-                //options start with at least one '-'
+                //switches start with at least one '-'
                 if(s.StartsWith("-"))
                 {
-                    commandOps.Add(s);
+                    commandSwitches.Add(s);
                     continue;
                 }
 
@@ -71,7 +71,7 @@ namespace maple
 
             }
 
-            return new CommandInfo(primaryCommand, commandArgs, commandOps);
+            return new CommandInfo(primaryCommand, commandArgs, commandSwitches);
 
         }
     }

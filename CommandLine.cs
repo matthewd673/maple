@@ -65,7 +65,7 @@ namespace maple
 
             String primaryCommand = commandInfo.primaryCommand;
             List<String> commandArgs = commandInfo.args;
-            List<String> commandOps = commandInfo.ops;
+            List<String> commandSwitches = commandInfo.switches;
 
             switch(primaryCommand)
             {
@@ -73,13 +73,22 @@ namespace maple
                     HelpCommand();
                     break;
                 case "save":
-                    SaveCommand(commandArgs, commandOps);
+                    SaveCommand(commandArgs, commandSwitches);
                     break;
                 case "load":
-                    LoadCommand(commandArgs, commandOps);
+                    LoadCommand(commandArgs, commandSwitches);
                     break;
                 case "close":
                     CloseCommand();
+                    break;
+                case "cls":
+                    ClearCommand();
+                    break;
+                case "top":
+                    TopCommand();
+                    break;
+                case "bot":
+                    BotCommand();
                     break;
                 default:
                     UnknownCommand();
@@ -96,7 +105,7 @@ namespace maple
             SetOutput("close | save | load", "help");
         }
 
-        static void SaveCommand(List<String> args, List<String> ops)
+        static void SaveCommand(List<String> args, List<String> switches)
         {
 
             String savePath = Editor.GetDocCursor().GetDocument().GetFilePath();
@@ -114,7 +123,7 @@ namespace maple
                 SetOutput("File saved to " + savePath, "save");
         }
 
-        static void LoadCommand(List<String> args, List<String> ops)
+        static void LoadCommand(List<String> args, List<String> switches)
         {
             if(args.Count < 1)
             {
@@ -134,6 +143,21 @@ namespace maple
         static void CloseCommand()
         {
             Program.Close();
+        }
+
+        static void ClearCommand()
+        {
+            ClearOutput();
+        }
+
+        static void TopCommand()
+        {
+            Editor.GetDocCursor().Move(Editor.GetDocCursor().dX, 0);
+        }
+
+        static void BotCommand()
+        {
+            Editor.GetDocCursor().Move(Editor.GetDocCursor().dX, Editor.GetDocCursor().GetDocument().GetMaxLine());
         }
 
         static void UnknownCommand()

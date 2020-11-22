@@ -93,6 +93,22 @@ namespace maple
             if(constrainToDoc)
                 LockToDocConstraints();
 
+            //scroll if set position is outside current viewport
+            bool hasScrolled = false;
+            while (dY - doc.GetScrollY() > maxScreenY)
+            {
+                doc.ScrollDown();
+                hasScrolled = true;
+            }
+            while (dY - doc.GetScrollY() < minScreenY)
+            {
+                doc.ScrollUp();
+                hasScrolled = true;
+            }
+            //refresh all lines if scroll was performed
+            if(hasScrolled)
+                Editor.RefreshAllLines();
+
             sX = dX + contentOffsetX;
             sY = dY + contentOffsetY - doc.GetScrollY();
 

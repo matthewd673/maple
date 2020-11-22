@@ -32,6 +32,16 @@ namespace maple
                 combineArgs: true
                 );
 
+            foreach(String o in runInfo.switches)
+            {
+                switch(o)
+                {
+                    case "--quick-cli":
+                        Editor.quickCli = true;
+                        break;
+                }
+            }
+
             //handle input
             //load file
             if(args.Length > 0)

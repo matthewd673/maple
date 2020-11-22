@@ -10,6 +10,8 @@ namespace maple
         static List<int> refreshedLines = new List<int>();
         static bool fullClearNext = false;
 
+        public static bool quickCli = false;
+
         public static void Initialize(String filename)
         {
             //create cursor

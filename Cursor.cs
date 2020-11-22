@@ -7,7 +7,9 @@ namespace maple
         public int dX, dY;
         public int sX, sY;
 
-        public static int minScreenX, minScreenY;
+        public const int minScreenX = 0;
+        public const int minScreenY = 0;
+        
         public static int maxScreenX, maxScreenY;
 
         public int contentOffsetX = 0;
@@ -26,15 +28,6 @@ namespace maple
             maxScreenX = Console.BufferWidth - 1;
             maxScreenY = Console.BufferHeight - 1;
         }
-
-        /*
-        public void SetDocPosition(int x, int y)
-        {
-            dX = x;
-            dY = y;
-            Move(dX, dY);
-        }
-        */
 
         public void LockToScreenConstraints()
         {
