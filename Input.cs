@@ -144,7 +144,16 @@ namespace maple
                 case ConsoleKey.Escape:
                     ToggleInputTarget();
                     break;
-
+                case ConsoleKey.Tab:
+                    bool tabText = doc.AddTextAtPosition(docCursor.dX, docCursor.dY, "    ");
+                    
+                    if(tabText)
+                    {
+                        for(int i = 0; i < 4; i++)
+                            docCursor.MoveRight();
+                        Editor.RefreshLine(docCursor.dY);
+                    }
+                    break;
                 //TYPING
                 default:                    
                     String typed = keyInfo.KeyChar.ToString();

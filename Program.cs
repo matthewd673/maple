@@ -6,13 +6,6 @@ namespace maple
     class Program
     {
 
-        //static DocumentCursor docCursor;
-        //static Cursor cmdCursor;
-        //static Document document;
-
-        //static List<int> refreshedLines = new List<int>();
-        //static bool fullClearNext = false;
-
         static void Main(string[] args)
         {
             PrepareWindow();
