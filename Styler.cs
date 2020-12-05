@@ -7,6 +7,7 @@ namespace maple
     static class Styler
     {
 
+        //basic colors
         public static ConsoleColor textColor = ConsoleColor.Gray;
         public static ConsoleColor accentColor = ConsoleColor.Red;
         public static ConsoleColor highlightColor = ConsoleColor.Yellow;
@@ -14,6 +15,13 @@ namespace maple
         public static ConsoleColor cmdinColor = ConsoleColor.Yellow;
         public static ConsoleColor cmdoutColor = ConsoleColor.Cyan;
         public static ConsoleColor gutterColor = ConsoleColor.DarkGray;
+
+        //syntax colors
+        public static ConsoleColor numberLiteralColor = ConsoleColor.Magenta;
+        public static ConsoleColor stringLiteralColor = ConsoleColor.Green;
+        public static ConsoleColor variableColor = ConsoleColor.Red;
+        public static ConsoleColor keywordColor = ConsoleColor.Blue;
+        public static ConsoleColor commentColor = ConsoleColor.DarkGray;
 
         static List<String> terms = new List<String>();
 
@@ -55,6 +63,21 @@ namespace maple
                         break;
                     case "gutter":
                         gutterColor = ColorFromText(keyVal[1]);
+                        break;
+                    case "syn_number":
+                        numberLiteralColor = ColorFromText(keyVal[1]);
+                        break;
+                    case "syn_string":
+                        stringLiteralColor = ColorFromText(keyVal[1]);
+                        break;
+                    case "syn_variable":
+                        variableColor = ColorFromText(keyVal[1]);
+                        break;
+                    case "syn_keyword":
+                        keywordColor = ColorFromText(keyVal[1]);
+                        break;
+                    case "syn_comment":
+                        commentColor = ColorFromText(keyVal[1]);
                         break;
                 }
             }

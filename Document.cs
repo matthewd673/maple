@@ -27,6 +27,7 @@ namespace maple
             {
                 //load theme file if one exists
                 String fileExtension = Path.GetExtension(filepath).Remove(0, 1);
+                fileExtension = fileExtension.TrimEnd(); //remove trailing whitespace
                 if(File.Exists("themes/" + fileExtension + ".txt"))
                     Styler.LoadTheme("themes/" + fileExtension + ".txt");
 
@@ -102,7 +103,7 @@ namespace maple
 
             //print all tokens in line
             foreach(Token t in l.GetTokens())
-                Printer.PrintWord(t.GetText() + " ", foregroundColor: t.GetColor());
+                Printer.PrintWord(t.GetText(), foregroundColor: t.GetColor());
         }
 
         String BuildGutter(int lineIndex)

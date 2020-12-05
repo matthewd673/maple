@@ -5,3 +5,9 @@ error:red
 cmdin:yellow
 cmdout:blue
 gutter:darkgray
+
+syn_number:magenta
+syn_string:green
+syn_variable:red
+syn_keyword:blue
+syn_comment:darkgray

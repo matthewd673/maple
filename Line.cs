@@ -7,7 +7,7 @@ namespace maple
     class Line
     {
 
-        List<Token> tokens = new List<Token>();
+        Token[] tokens = new Token[0];
         String lineContent = "";
 
         public Line(String text)
@@ -16,51 +16,21 @@ namespace maple
             UpdateContentFromTokens();
         }
 
-        public static List<Token> GenerateTokensFromString(String[] strings)
+        public static Token[] GenerateTokensFromString(String text)
         {
-            List<Token> tokens = new List<Token>();
-            foreach(String s in strings)
-            {
-                ConsoleColor tokenColor = Styler.textColor;
-                if(Styler.IsTerm(s))
-                    tokenColor = Styler.highlightColor;
-                tokens.Add(new Token(s, tokenColor));
-            }
-            return tokens;
+            return Lexer.Tokenize(text);
         }
 
-        public static List<Token> GenerateTokensFromString(String text)
-        {
-            List<Token> tokens = new List<Token>();
-            String[] words = text.Split(" ");
-            return GenerateTokensFromString(words);
-        }
+        public Token[] GetTokens() { return tokens; }
 
-        public List<Token> GetTokens()
-        {
-            return tokens;
-        }
-
-        public void SetTokens(List<Token> tokens)
-        {
-            this.tokens = tokens;
-            UpdateContentFromTokens();
-        }
-
-        public String GetContent()
-        {
-            return lineContent;
-        }
+        public String GetContent() { return lineContent; }
 
         public void UpdateContentFromTokens()
         {
             String content = "";
-            for(int i = 0; i < tokens.Count; i++)
+            foreach(Token t in tokens)
             {
-                if(i < tokens.Count - 1)
-                    content += tokens[i].GetText() + " ";
-                else
-                    content += tokens[i].GetText();
+                content += t.GetText();
             }
 
             lineContent = content;
