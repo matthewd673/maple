@@ -9,6 +9,10 @@ namespace maple
 
         public static Token[] Tokenize(String text)
         {
+            //skip tokenizing if no highlight
+            if(Settings.noHighlight)
+                return new Token[] { new Token(text, Token.TokenType.Misc) };
+
             List<Token> tokens = new List<Token>();
             char[] characters = text.ToCharArray();
 

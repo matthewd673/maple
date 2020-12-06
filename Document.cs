@@ -105,7 +105,7 @@ namespace maple
             Printer.PrintWord(gutterContent, foregroundColor: Styler.gutterColor);
 
             //print all tokens in line
-            if(!Editor.debugTokens) //ordinary printing:
+            if(!Settings.debugTokens) //ordinary printing:
             {
                 foreach(Token t in l.GetTokens())
                     Printer.PrintWord(t.GetText(), foregroundColor: t.GetColor());
@@ -121,8 +121,6 @@ namespace maple
                     {
                         totalLength = -1;
                         Printer.PrintWord(t.GetText(), foregroundColor: ConsoleColor.Black, backgroundColor: ConsoleColor.Yellow);
-                        Editor.WriteFooterContent(t.GetTokenType().ToString());
-                        Editor.WriteFooterContent(t.GetColor().ToString());
                     }
                     else
                         Printer.PrintWord(t.GetText(), foregroundColor: t.GetColor());

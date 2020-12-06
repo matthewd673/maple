@@ -10,6 +10,9 @@ namespace maple
         {
             PrepareWindow();
 
+            //load settings
+            Settings.LoadSettings();
+
             //prepare styler
             Styler.LoadMapleTheme();
 
@@ -25,15 +28,19 @@ namespace maple
                 combineArgs: true
                 );
 
+            //load settings from switches
             foreach(String sw in runInfo.switches)
             {
                 switch(sw)
                 {
                     case "--quick-cli":
-                        Editor.quickCli = true;
+                        Settings.quickCli = true;
                         break;
                     case "--debug-tokens":
-                        Editor.debugTokens = true;
+                        Settings.debugTokens = true;
+                        break;
+                    case "--no-highlight":
+                        Settings.noHighlight = true;
                         break;
                 }
             }

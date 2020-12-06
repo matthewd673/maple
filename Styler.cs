@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
 
 namespace maple
 {
@@ -9,7 +10,7 @@ namespace maple
 
         //basic colors
         public static ConsoleColor textColor = ConsoleColor.Gray;
-        public static ConsoleColor accentColor = ConsoleColor.Red;
+        public static ConsoleColor accentColor = ConsoleColor.Yellow;
         public static ConsoleColor highlightColor = ConsoleColor.Yellow;
         public static ConsoleColor errorColor = ConsoleColor.Red;
         public static ConsoleColor cmdinColor = ConsoleColor.Yellow;
@@ -29,64 +30,62 @@ namespace maple
 
         public static void LoadMapleTheme()
         {
-            String mapleThemePath = "themes/maple.txt";
+            String mapleThemePath = Settings.themeDirectory + Settings.themeFile;
             if(File.Exists(mapleThemePath))
-            {
-                Document themeDoc = new Document(mapleThemePath, internalDocument: true);
-                List<String> lines = themeDoc.GetAllLines();
-                AssignThemeColors(lines);
-            }
+                AssignThemeColors(mapleThemePath);
+            else
+                Console.Title = mapleThemePath;
         }
 
-        public static void AssignThemeColors(List<String> lines)
+        public static void AssignThemeColors(String themePath)
         {
-            foreach(String l in lines)
+            XmlDocument document = new XmlDocument();
+            document.Load(themePath);
+
+            XmlNodeList colors = document.GetElementsByTagName("color");
+            foreach(XmlNode node in colors)
             {
-                String[] keyVal = l.Split(":");
-                switch(keyVal[0])
+                String category = "";
+                String value = "";
+
+                foreach(XmlAttribute a in node.Attributes)
+                {
+                    if(a.Name.ToLower() != "category")
+                        return;
+                    
+                    category = a.Value.ToLower();
+                }
+                value = node.InnerText.ToLower();
+
+                ConsoleColor color = ColorFromText(value);
+                switch(category)
                 {
                     case "text":
-                        textColor = ColorFromText(keyVal[1]);
-                        break;
+                        textColor = color; break;
                     case "accent":
-                        accentColor = ColorFromText(keyVal[1]);
-                        break;
-                    case "highlight":
-                        highlightColor = ColorFromText(keyVal[1]);
-                        break;
+                        accentColor = color; break;
                     case "error":
-                        errorColor = ColorFromText(keyVal[1]);
-                        break;
-                    case "cmdin":
-                        cmdinColor = ColorFromText(keyVal[1]);
-                        break;
-                    case "cmdout":
-                        cmdoutColor = ColorFromText(keyVal[1]);
-                        break;
+                        errorColor = color; break;
+                    case "commandInput":
+                        cmdinColor = color; break;
+                    case "commandOutput":
+                        cmdoutColor = color; break;
                     case "gutter":
-                        gutterColor = ColorFromText(keyVal[1]);
-                        break;
-                    case "syn_number":
-                        numberLiteralColor = ColorFromText(keyVal[1]);
-                        break;
-                    case "syn_string":
-                        stringLiteralColor = ColorFromText(keyVal[1]);
-                        break;
-                    case "syn_char":
-                        charLiteralColor = ColorFromText(keyVal[1]);
-                        break;
-                    case "syn_variable":
-                        variableColor = ColorFromText(keyVal[1]);
-                        break;
-                    case "syn_keyword":
-                        keywordColor = ColorFromText(keyVal[1]);
-                        break;
-                    case "syn_comment":
-                        commentColor = ColorFromText(keyVal[1]);
-                        break;
-                    case "syn_grouping":
-                        groupingColor = ColorFromText(keyVal[1]);
-                        break;
+                        gutterColor = color; break;
+                    case "numberLiteral":
+                        numberLiteralColor = color; break;
+                    case "stringLiteral":
+                        stringLiteralColor = color; break;
+                    case "characterLiteral":
+                        charLiteralColor = color; break;
+                    case "variable":
+                        variableColor = color; break;
+                    case "keyword":
+                        keywordColor = color; break;
+                    case "comment":
+                        commentColor = color; break;
+                    case "grouping":
+                        groupingColor = color; break;
                 }
             }
         }

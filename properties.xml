@@ -1,0 +1,9 @@
+<xml>
+    <!--Switches-->
+    <property name="quickCli">False</property>
+    <property name="debugTokens">False</property>
+    <property name="noHighlight">False</property>
+    <!--Arguments-->
+    <property name="themeDirectory">themes</property>
+    <property name="themeFile">maple.xml</property>
+</xml>

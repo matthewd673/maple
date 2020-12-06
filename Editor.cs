@@ -9,11 +9,6 @@ namespace maple
         static DocumentCursor docCursor;
         static List<int> refreshedLines = new List<int>();
         static bool fullClearNext = false;
-        static List<String> footerContent = new List<String>();
-
-        //switches
-        public static bool quickCli = false;
-        public static bool debugTokens = false;
 
         public static void Initialize(String filename)
         {
@@ -60,7 +55,7 @@ namespace maple
             Input.AcceptInput(Console.ReadKey());
 
             //force line refresh each time if debugging tokens
-            if(debugTokens)
+            if(Settings.debugTokens)
                 RefreshLine(docCursor.dY);
 
             //redraw lines that have changed
@@ -81,8 +76,6 @@ namespace maple
                 docCursor.Move(docCursor.dX, docCursor.dY);
             else if(Input.GetInputTarget() == Input.InputTarget.Command)
                 cmdCursor.Move(cmdCursor.dX, cmdCursor.dY);
-
-            footerContent.Clear();
         }
 
         public static Cursor GetActiveCursor()
@@ -124,36 +117,17 @@ namespace maple
             refreshedLines.Clear(); //clear for next time
         }
 
-        public static void WriteFooterContent(String content)
-        {
-            footerContent.Add(content);
-        }
-
         public static void PrintFooter()
         {
             //generate footer string
             String defaultFooterContent = "maple (" + (docCursor.dX + 1) + ", " + (docCursor.dY + 1) + ") - " + GetCurrentDoc().GetFilePath();
-
-            if(footerContent.Count > 0)
-            {
-                defaultFooterContent += " [";
-
-                for(int i = 0; i < footerContent.Count; i++)
-                {
-                    defaultFooterContent += footerContent[i];
-                    if(i < footerContent.Count - 1)
-                        defaultFooterContent += ", ";
-                }
-
-                defaultFooterContent += " ]";
-            }
 
             if(!CommandLine.HasOutput())
             {
                 if(Input.GetInputTarget() == Input.InputTarget.Document) //render default footer
                     Printer.DrawFooter(defaultFooterContent, foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
                 else if(Input.GetInputTarget() == Input.InputTarget.Command) //render input footer
-                    Printer.DrawFooter("maple: " + CommandLine.GetText(), backgroundColor: Styler.cmdinColor);
+                    Printer.DrawFooter("maple> " + CommandLine.GetText(), foregroundColor: Styler.cmdinColor, backgroundColor: ConsoleColor.Black);
             }
             else //render output footer
                 Printer.DrawFooter(CommandLine.GetOutput(), foregroundColor: Styler.cmdoutColor, backgroundColor: ConsoleColor.Black);

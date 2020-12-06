@@ -1,0 +1,9 @@
+<xml>
+    <!--Highlighting RegEx-->
+    <syntax type="numberLiteral">[0-9]</syntax>
+    <syntax type="alphabetical">[a-zA-Z]</syntax>
+    <syntax type="break">( |;)</syntax>
+    <syntax type="grouping">(\(|\)|\{|\}|\[|\])</syntax>
+    <syntax type="stringMarker">\"</syntax>
+    <syntax type="characterMarker">\'</syntax>
+</xml>

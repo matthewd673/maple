@@ -38,6 +38,11 @@ namespace maple
         public static bool HasOutput() { return hasOutput; }
         public static String GetOutput() { return outputText; }
 
+        public static void SetOutput(String output)
+        {
+            outputText = output;
+        }
+
         static void SetOutput(String text, String speaker)
         {
             outputText = "[" + speaker + "]: " + text;

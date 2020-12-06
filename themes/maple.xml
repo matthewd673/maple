@@ -1,0 +1,17 @@
+<xml>
+    <!--Maple Colors-->
+    <color category="text">Gray</color>
+    <color category="accent">Yellow</color>
+    <color category="error">Red</color>
+    <color category="commandInput">Yellow</color>
+    <color category="commandOutput">Blue</color>
+    <color category="gutter">DarkGray</color>
+    <!--Syntax Colors-->
+    <color category="numberLiteral">Magenta</color>
+    <color category="stringLiteral">Green</color>
+    <color category="charLiteral">Yellow</color>
+    <color category="variable">Red</color>
+    <color category="keyword">Blue</color>
+    <color category="comment">DarkGray</color>
+    <color category="grouping">Gray</color>
+</xml>
