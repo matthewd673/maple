@@ -20,7 +20,6 @@ namespace maple
         public Document(String filepath, bool internalDocument = false)
         {
             fileLines = new List<Line>();
-            LoadDocument(filepath);
 
             //calculate external document properties (if not interal)
             if (!internalDocument)
@@ -29,12 +28,16 @@ namespace maple
                 String fileExtension = Path.GetExtension(filepath).Remove(0, 1);
                 fileExtension = fileExtension.TrimEnd(); //remove trailing whitespace
                 if(File.Exists("themes/" + fileExtension + ".txt"))
+                {
                     Styler.LoadTheme("themes/" + fileExtension + ".txt");
+                }
 
                 //apply new properties (if not internal)
                 CalculateScrollIncrement();
                 scrollY = 0;
             }
+
+            LoadDocument(filepath);
 
         }
 
@@ -102,8 +105,29 @@ namespace maple
             Printer.PrintWord(gutterContent, foregroundColor: Styler.gutterColor);
 
             //print all tokens in line
-            foreach(Token t in l.GetTokens())
-                Printer.PrintWord(t.GetText(), foregroundColor: t.GetColor());
+            if(!Editor.debugTokens) //ordinary printing:
+            {
+                foreach(Token t in l.GetTokens())
+                    Printer.PrintWord(t.GetText(), foregroundColor: t.GetColor());
+            }
+            else //debug printing:
+            {
+                int totalLength = 0;
+                foreach(Token t in l.GetTokens())
+                {
+                    if(totalLength != -1)
+                        totalLength += t.GetText().Length;
+                    if(totalLength > Editor.GetDocCursor().dX && lineIndex == Editor.GetDocCursor().dY)
+                    {
+                        totalLength = -1;
+                        Printer.PrintWord(t.GetText(), foregroundColor: ConsoleColor.Black, backgroundColor: ConsoleColor.Yellow);
+                        Editor.WriteFooterContent(t.GetTokenType().ToString());
+                        Editor.WriteFooterContent(t.GetColor().ToString());
+                    }
+                    else
+                        Printer.PrintWord(t.GetText(), foregroundColor: t.GetColor());
+                }
+            }
         }
 
         String BuildGutter(int lineIndex)

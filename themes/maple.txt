@@ -8,6 +8,8 @@ gutter:darkgray
 
 syn_number:magenta
 syn_string:green
+syn_char:yellow
 syn_variable:red
 syn_keyword:blue
 syn_comment:darkgray
+syn_grouping:white

@@ -15,6 +15,7 @@ namespace maple
             bool firstChar = false;
             bool inComment = false;
             bool inStringLiteral = false;
+            bool inCharLiteral = false;
 
             for(int i = 0; i < characters.Length; i++)
             {
@@ -43,9 +44,21 @@ namespace maple
                 //check if its in a string literal
                 if(inStringLiteral)
                 {
-                    if(Regex.IsMatch(s, "\\\""))
+                    if(Regex.IsMatch(s, "(\\\")"))
                     {
                         inStringLiteral = false;
+                        firstChar = true;
+                    }
+                    tokens[lastI].Append(s);
+                    continue;
+                }
+
+                //check if its in a char literal
+                if(inCharLiteral)
+                {
+                    if(Regex.IsMatch(s, "(\\\')"))
+                    {
+                        inCharLiteral = false;
                         firstChar = true;
                     }
                     tokens[lastI].Append(s);
@@ -56,7 +69,10 @@ namespace maple
                 if(Regex.IsMatch(s, "[0-9]")) //numerals
                 {
                     if(firstChar)
+                    {
                         tokens.Add(new Token(s, Token.TokenType.NumberLiteral));
+                        firstChar = false;
+                    }
                     else
                         tokens[lastI].Append(s);
                     continue;
@@ -65,7 +81,10 @@ namespace maple
                 if(Regex.IsMatch(s, "[a-zA-Z]")) //alpha
                 {
                     if(firstChar)
+                    {
                         tokens.Add(new Token(s, Token.TokenType.Misc));
+                        firstChar = false;
+                    }
                     else
                         tokens[lastI].Append(s);
                     continue;
@@ -80,16 +99,20 @@ namespace maple
                 if(Regex.IsMatch(s, "(\\(|\\)|\\{|\\}|\\[|\\])")) //grouping
                 {
                     tokens.Add(new Token(s, Token.TokenType.Grouping));
+                    tokens.Add(new Token("", Token.TokenType.Break));
                     continue;
                 }
 
-                if(Regex.IsMatch(s, "/")) //potential comment
+                if(Regex.IsMatch(s, "\\/")) //potential comment
                 {
                     if(firstChar)
+                    {
                         tokens.Add(new Token(s, Token.TokenType.Misc));
+                        firstChar = false;
+                    }
                     else
                     {
-                        if(tokens[lastI].GetText().EndsWith("/")) //preceded by a single slash, so comment!
+                        if(tokens[lastI].GetText().Trim() == "/") //preceded by a single slash, so comment!
                         {
                             tokens[lastI].Append(s);
                             tokens[lastI].SetType(Token.TokenType.Comment);
@@ -107,16 +130,22 @@ namespace maple
                         if(firstChar)
                             tokens.Add(new Token(s, Token.TokenType.StringLiteral));
                     }
-                    else
+                    continue;
+                }
+
+                if(Regex.IsMatch(s, "\\\'")) //single quote
+                {
+                    if(!inCharLiteral)
                     {
-                        tokens[lastI].Append(s);
-                        firstChar = true;
+                        inCharLiteral = true;
+                        if(firstChar)
+                            tokens.Add(new Token(s, Token.TokenType.CharLiteral));
                     }
                     continue;
                 }
 
                 //unknown character
-                if(lastI >= 0)
+                if(lastI >= 0 && !firstChar)
                     tokens[lastI].Append(s);
                 else
                     tokens.Add(new Token(s, Token.TokenType.Misc));
@@ -131,7 +160,6 @@ namespace maple
                 String tokenText = tokenArray[i].GetText();
                 if(Styler.IsTerm(tokenText))
                     tokenArray[i] = new Token(tokenText, Token.TokenType.Keyword);
-                Console.Title = tokenText;
             }
 
             //return

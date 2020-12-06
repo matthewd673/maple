@@ -19,9 +19,11 @@ namespace maple
         //syntax colors
         public static ConsoleColor numberLiteralColor = ConsoleColor.Magenta;
         public static ConsoleColor stringLiteralColor = ConsoleColor.Green;
+        public static ConsoleColor charLiteralColor = ConsoleColor.Yellow;
         public static ConsoleColor variableColor = ConsoleColor.Red;
         public static ConsoleColor keywordColor = ConsoleColor.Blue;
         public static ConsoleColor commentColor = ConsoleColor.DarkGray;
+        public static ConsoleColor groupingColor = ConsoleColor.White;
 
         static List<String> terms = new List<String>();
 
@@ -70,6 +72,9 @@ namespace maple
                     case "syn_string":
                         stringLiteralColor = ColorFromText(keyVal[1]);
                         break;
+                    case "syn_char":
+                        charLiteralColor = ColorFromText(keyVal[1]);
+                        break;
                     case "syn_variable":
                         variableColor = ColorFromText(keyVal[1]);
                         break;
@@ -78,6 +83,9 @@ namespace maple
                         break;
                     case "syn_comment":
                         commentColor = ColorFromText(keyVal[1]);
+                        break;
+                    case "syn_grouping":
+                        groupingColor = ColorFromText(keyVal[1]);
                         break;
                 }
             }

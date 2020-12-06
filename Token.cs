@@ -15,6 +15,7 @@ namespace maple
             Function,
             NumberLiteral,
             StringLiteral,
+            CharLiteral,
             Comment,
             Grouping,
         }
@@ -27,7 +28,7 @@ namespace maple
         {
             this.text = text;
             this.tokenType = tokenType;
-            SetColor();
+            ApplyColor();
         }
 
         public String GetText()
@@ -43,9 +44,10 @@ namespace maple
         public void SetType(TokenType tokenType)
         {
             this.tokenType = tokenType;
+            ApplyColor();
         }
 
-        public void SetColor()
+        public void ApplyColor()
         {
             switch(tokenType)
             {
@@ -55,11 +57,17 @@ namespace maple
                 case TokenType.StringLiteral:
                     color = Styler.stringLiteralColor;
                     break;
+                case TokenType.CharLiteral:
+                    color = Styler.charLiteralColor;
+                    break;
                 case TokenType.Keyword:
                     color = Styler.keywordColor;
                     break;
                 case TokenType.Comment:
                     color = Styler.commentColor;
+                    break;
+                case TokenType.Grouping:
+                    color = Styler.groupingColor;
                     break;
                 default:
                     color = Styler.textColor;

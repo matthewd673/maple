@@ -25,12 +25,15 @@ namespace maple
                 combineArgs: true
                 );
 
-            foreach(String o in runInfo.switches)
+            foreach(String sw in runInfo.switches)
             {
-                switch(o)
+                switch(sw)
                 {
                     case "--quick-cli":
                         Editor.quickCli = true;
+                        break;
+                    case "--debug-tokens":
+                        Editor.debugTokens = true;
                         break;
                 }
             }

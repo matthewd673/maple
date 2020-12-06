@@ -50,6 +50,8 @@ When running maple, you can include switches to personalize the editor further
 **`--quick-cli`:** `esc` toggles to command input instantly, even if prevous output wasn't cleared
 *(if you really want to clear the command output, run `cls`)*
 
+**`--debug-tokens`:** enter tokenizer debug mode *(for development only)*
+
 ## Themes
 
 Maple supports simple syntax highlighting for `.cs` files by default.
