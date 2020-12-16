@@ -6,4 +6,5 @@
     <!--Arguments-->
     <property name="themeDirectory">themes</property>
     <property name="themeFile">maple.xml</property>
+    <property name="syntaxDirectory">syntax</property>
 </xml>

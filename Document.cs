@@ -27,10 +27,8 @@ namespace maple
                 //load theme file if one exists
                 String fileExtension = Path.GetExtension(filepath).Remove(0, 1);
                 fileExtension = fileExtension.TrimEnd(); //remove trailing whitespace
-                if(File.Exists("themes/" + fileExtension + ".txt"))
-                {
-                    Styler.LoadTheme("themes/" + fileExtension + ".txt");
-                }
+                if (File.Exists(Settings.syntaxDirectory + fileExtension + ".xml"))
+                    Lexer.LoadSyntax(Settings.syntaxDirectory + fileExtension + ".xml");
 
                 //apply new properties (if not internal)
                 CalculateScrollIncrement();

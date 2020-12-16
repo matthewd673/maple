@@ -27,8 +27,6 @@ namespace maple
         public static ConsoleColor groupingColor = ConsoleColor.White;
         public static ConsoleColor operatorColor = ConsoleColor.Cyan;
 
-        static List<String> terms = new List<String>();
-
         public static void LoadMapleTheme()
         {
             String mapleThemePath = Settings.themeDirectory + Settings.themeFile;
@@ -132,25 +130,6 @@ namespace maple
                 default:
                     return ConsoleColor.Gray;
             }
-        }
-
-        public static void LoadTheme(List<String> termList)
-        {
-            terms = termList;
-        }
-
-        public static void LoadTheme(String themePath)
-        {
-            Document themeDoc = new Document(themePath, internalDocument: true);
-            List<String> lines = themeDoc.GetAllLines();
-            terms = lines;
-        }
-
-        public static bool IsTerm(String word)
-        {
-            if(terms.Contains(word))
-                return true;
-            return false;
         }
 
     }

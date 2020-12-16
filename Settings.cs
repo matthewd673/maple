@@ -16,6 +16,7 @@ namespace maple
 
         public static String themeDirectory = "themes/";
         public static String themeFile = "maple.xml";
+        public static String syntaxDirectory = "syntax/";
 
         public static void LoadSettings()
         {
@@ -58,6 +59,11 @@ namespace maple
                         break;
                     case "themefile":
                         themeFile = value;
+                        break;
+                    case "syntaxdirectory":
+                        syntaxDirectory = value;
+                        if (!syntaxDirectory.EndsWith("/"))
+                            syntaxDirectory += "/";
                         break;
                 }
             }
