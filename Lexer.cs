@@ -126,13 +126,18 @@ namespace maple
                     continue;
                 }
 
+                if(Regex.IsMatch(s, "(\\+|\\-|\\*|\\/|\\%|\\=)"))
+                {
+                    tokens.Add(new Token(s, Token.TokenType.Operator));
+                    continue;
+                }
+
                 if(Regex.IsMatch(s, "\\\"")) //quotes
                 {
                     if(!inStringLiteral)
                     {
                         inStringLiteral = true;
-                        if(firstChar)
-                            tokens.Add(new Token(s, Token.TokenType.StringLiteral));
+                        tokens.Add(new Token(s, Token.TokenType.StringLiteral));
                     }
                     continue;
                 }
@@ -149,7 +154,7 @@ namespace maple
                 }
 
                 //unknown character
-                if(lastI >= 0 && !firstChar)
+                if(lastI >= 0 && !firstChar && tokens[lastI].GetTokenType() == Token.TokenType.Misc)
                     tokens[lastI].Append(s);
                 else
                     tokens.Add(new Token(s, Token.TokenType.Misc));

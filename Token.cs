@@ -18,6 +18,7 @@ namespace maple
             CharLiteral,
             Comment,
             Grouping,
+            Operator,
         }
 
         TokenType tokenType;
@@ -68,6 +69,9 @@ namespace maple
                     break;
                 case TokenType.Grouping:
                     color = Styler.groupingColor;
+                    break;
+                case TokenType.Operator:
+                    color = Styler.operatorColor;
                     break;
                 default:
                     color = Styler.textColor;

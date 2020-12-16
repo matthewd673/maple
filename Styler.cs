@@ -25,6 +25,7 @@ namespace maple
         public static ConsoleColor keywordColor = ConsoleColor.Blue;
         public static ConsoleColor commentColor = ConsoleColor.DarkGray;
         public static ConsoleColor groupingColor = ConsoleColor.White;
+        public static ConsoleColor operatorColor = ConsoleColor.Cyan;
 
         static List<String> terms = new List<String>();
 
@@ -86,6 +87,8 @@ namespace maple
                         commentColor = color; break;
                     case "grouping":
                         groupingColor = color; break;
+                    case "operator":
+                        operatorColor = color; break;
                 }
             }
         }
