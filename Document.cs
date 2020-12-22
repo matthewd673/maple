@@ -11,10 +11,12 @@ namespace maple
         String filepath;
         List<Line> fileLines;
 
-        int scrollIncrement = 0;
+        int scrollYIncrement = 0;
+        int scrollXIncrement = 0;
         int scrollY = 0;
+        int scrollX = 0;
 
-        int gutterWidth = 0;
+        public int gutterWidth = 0;
         int gutterPadding = 2;
 
         public Document(String filepath, bool internalDocument = false)
@@ -33,6 +35,7 @@ namespace maple
                 //apply new properties (if not internal)
                 CalculateScrollIncrement();
                 scrollY = 0;
+                scrollX = 0;
             }
 
             LoadDocument(filepath);
@@ -105,8 +108,41 @@ namespace maple
             //print all tokens in line
             if(!Settings.debugTokens) //ordinary printing:
             {
+                int firstDisplayChar = scrollX;
+                int lineLen = 0;
+
                 foreach(Token t in l.GetTokens())
-                    Printer.PrintWord(t.GetText(), foregroundColor: t.GetColor());
+                {
+                    //print only tokens visible with the current horizontal scroll
+                    int oldLineLen = lineLen;
+                    lineLen += t.GetText().Length;
+                    if(lineLen > scrollX)
+                    {
+                        String printText = t.GetText();
+
+                        int hiddenCharCt = scrollX - oldLineLen;
+                        if(hiddenCharCt > 0)
+                        {
+                            printText = printText.Remove(0, hiddenCharCt);
+                        }
+
+                        Printer.PrintWord(printText, foregroundColor: t.GetColor());
+                    }
+                    else if(lineLen > scrollX + Cursor.maxScreenX)
+                    {
+                        String printText = t.GetText();
+
+                        int hiddenCharCt = lineLen - (scrollX + Cursor.maxScreenX);
+                        if(hiddenCharCt > 0)
+                        {
+                            printText = printText.Remove(printText.Length - 1 - hiddenCharCt, printText.Length);
+                            Printer.PrintWord(printText, foregroundColor: t.GetColor());
+                        }
+                    }
+                }
+                
+                //foreach(Token t in l.GetTokens())
+                //    Printer.PrintWord(t.GetText(), foregroundColor: t.GetColor());
             }
             else //debug printing:
             {
@@ -138,21 +174,36 @@ namespace maple
 
         public void ScrollUp()
         {
-            scrollY -= scrollIncrement;
+            scrollY -= scrollYIncrement;
             if(scrollY < 0)
                 scrollY = 0;
         }
 
         public void ScrollDown()
         {
-            scrollY += scrollIncrement;
+            scrollY += scrollYIncrement;
+        }
+
+        public void ScrollLeft()
+        {
+            scrollX -= scrollXIncrement;
+            if(scrollX < 0)
+                scrollX = 0;
+        }
+
+        public void ScrollRight()
+        {
+            scrollX += scrollXIncrement;
         }
 
         public int GetScrollY() { return scrollY; }
 
+        public int GetScrollX() { return scrollX; }
+
         public void CalculateScrollIncrement()
         {
-            scrollIncrement = (Cursor.maxScreenY - 1) / 2;
+            scrollYIncrement = (Cursor.maxScreenY - 1) / 2;
+            scrollXIncrement = (Cursor.maxScreenX - 1) / 2;
         }
 
         public int CalculateGutterWidth()

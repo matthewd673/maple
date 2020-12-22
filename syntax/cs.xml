@@ -7,7 +7,7 @@
     <syntax type="stringMarker">(\&quot;)</syntax>
     <syntax type="characterMarker">(\&apos;)</syntax>
     <syntax type="commentPrefix">\/</syntax>
-    <syntax type="operator">(\+|\-|\*|\/|\=|\%|\&gt;|\&lt;)</syntax>
+    <syntax type="operator">(\+|\-|\*|\/|\=|\%|\&gt;|\&lt;|\||\&amp;|\!)</syntax>
     <!--Keywords-->
     <keywords>
         <keyword>abstract</keyword>

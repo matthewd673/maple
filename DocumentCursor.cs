@@ -16,19 +16,35 @@ namespace maple
 
         public void MoveLeft()
         {
-            if(dX > 0) //can move back
-                Move(dX - 1, dY);
+            if(sX == 0 && doc.GetScrollX() > 0)
+            {
+                doc.ScrollLeft();
+                Console.Clear();
+                doc.PrintFileLines();
+            }
             else
             {
-                if(dY > 0)
+                if(dX > 0) //can move back
+                    Move(dX - 1, dY);
+                else
                 {
-                    MoveUp();
-                    Move(doc.GetLineLength(dY), dY);
+                    if(dY > 0)
+                    {
+                        MoveUp();
+                        Move(doc.GetLineLength(dY), dY);
+                    }
                 }
             }
         }
         public void MoveRight()
         {
+            if(sY == maxScreenX - 1)
+            {
+                doc.ScrollRight();
+                Console.Clear();
+                doc.PrintFileLines();
+            }
+
             if(dX < doc.GetLineLength(dY)) //can move forward
                 Move(dX + 1, dY);
             else
@@ -47,7 +63,6 @@ namespace maple
                 doc.ScrollUp();
                 Console.Clear();
                 doc.PrintFileLines();
-                //base.Move(dX, dY);
             }
             else
                 Move(dX, dY - 1);
@@ -59,7 +74,6 @@ namespace maple
                 doc.ScrollDown();
                 Console.Clear();
                 doc.PrintFileLines();
-                //base.Move(dX, dY);
             }
             else
                 Move(dX, dY + 1);
@@ -105,11 +119,22 @@ namespace maple
                 doc.ScrollUp();
                 hasScrolled = true;
             }
+            while (dX - doc.GetScrollX() + doc.gutterWidth > maxScreenX)
+            {
+                doc.ScrollRight();
+                Console.Title = "right";
+                hasScrolled = true;
+            }
+            while (dX - doc.GetScrollX() < minScreenX)
+            {
+                doc.ScrollLeft();
+                hasScrolled = true;
+            }
             //refresh all lines if scroll was performed
             if(hasScrolled)
                 Editor.RefreshAllLines();
 
-            sX = dX + contentOffsetX;
+            sX = dX + contentOffsetX - doc.GetScrollX();
             sY = dY + contentOffsetY - doc.GetScrollY();
 
             if(constrainToScreen)

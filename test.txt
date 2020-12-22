@@ -21,6 +21,6 @@ namespace maple
 
             cmdCursor.contentOffsetX = 2;
             cmdCursor.contentOffsetY = Cursor.maxScreenY;
-            Console.Title = cmdCursor.contentOffsetX + " " + cmdCursor.contentOffsetY;
-
+            Console.Title = cmdCursor.contentOffsetX + " " + cmdCursor.contentOffsetY; Console.Title = cmdCursor.contentOffsetX + " " + cmdCursor.contentOffsetY;
+            cmdCursor.contentOffsetX = 2;cmdCursor.contentOffsetX = 2;cmdCursor.contentOffsetX = 2;
             Printer.DrawHeader(maple, backgroundColor: ConsoleColor.Yellow);

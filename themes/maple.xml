@@ -9,7 +9,7 @@
     <!--Syntax Colors-->
     <color category="numberLiteral">Magenta</color>
     <color category="stringLiteral">Green</color>
-    <color category="charLiteral">Yellow</color>
+    <color category="charLiteral">Red</color>
     <color category="variable">Red</color>
     <color category="keyword">Yellow</color>
     <color category="comment">DarkGray</color>

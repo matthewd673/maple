@@ -18,7 +18,7 @@ namespace maple
         public static ConsoleColor gutterColor = ConsoleColor.DarkGray;
 
         //syntax colors
-        public static ConsoleColor numberLiteralColor = ConsoleColor.Magenta;
+        public static ConsoleColor numberLiteralColor = ConsoleColor.Gray;
         public static ConsoleColor stringLiteralColor = ConsoleColor.Green;
         public static ConsoleColor charLiteralColor = ConsoleColor.Yellow;
         public static ConsoleColor variableColor = ConsoleColor.Red;

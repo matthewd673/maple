@@ -95,6 +95,9 @@ namespace maple
                 case "bot":
                     BotCommand();
                     break;
+                case "redraw":
+                    RedrawCommand();
+                    break;
                 default:
                     UnknownCommand();
                     break;
@@ -163,6 +166,14 @@ namespace maple
         static void BotCommand()
         {
             Editor.GetDocCursor().Move(Editor.GetDocCursor().dX, Editor.GetDocCursor().GetDocument().GetMaxLine());
+        }
+
+        static void RedrawCommand()
+        {
+            Cursor.CalculateCursorBounds();
+            Editor.GetDocCursor().GetDocument().CalculateScrollIncrement();
+            Editor.RefreshAllLines();
+            Editor.GetDocCursor().Move(Editor.GetDocCursor().dX, Editor.GetDocCursor().dY);
         }
 
         static void UnknownCommand()
