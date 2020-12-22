@@ -32,8 +32,6 @@ namespace maple
             String mapleThemePath = Settings.themeDirectory + Settings.themeFile;
             if(File.Exists(mapleThemePath))
                 AssignThemeColors(mapleThemePath);
-            else
-                Console.Title = mapleThemePath;
         }
 
         public static void AssignThemeColors(String themePath)
