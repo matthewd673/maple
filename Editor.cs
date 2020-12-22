@@ -132,6 +132,5 @@ namespace maple
             else //render output footer
                 Printer.DrawFooter(CommandLine.GetOutput(), foregroundColor: Styler.cmdoutColor, backgroundColor: ConsoleColor.Black);
         }
-
     }
 }

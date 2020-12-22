@@ -99,6 +99,8 @@ namespace maple
                 //check if it should be treated as first char
                 if(!firstChar && (
                     lastType == Token.TokenType.Break ||
+                    lastType == Token.TokenType.Operator ||
+                    lastType == Token.TokenType.Grouping ||
                     lastI < 0
                     ))
                 {

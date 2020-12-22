@@ -18,14 +18,14 @@ namespace maple
         public static ConsoleColor gutterColor = ConsoleColor.DarkGray;
 
         //syntax colors
-        public static ConsoleColor numberLiteralColor = ConsoleColor.Gray;
+        public static ConsoleColor numberLiteralColor = ConsoleColor.Magenta;
         public static ConsoleColor stringLiteralColor = ConsoleColor.Green;
         public static ConsoleColor charLiteralColor = ConsoleColor.Yellow;
-        public static ConsoleColor variableColor = ConsoleColor.Red;
+        public static ConsoleColor variableColor = ConsoleColor.Gray;
         public static ConsoleColor keywordColor = ConsoleColor.Blue;
         public static ConsoleColor commentColor = ConsoleColor.DarkGray;
         public static ConsoleColor groupingColor = ConsoleColor.White;
-        public static ConsoleColor operatorColor = ConsoleColor.Cyan;
+        public static ConsoleColor operatorColor = ConsoleColor.Red;
 
         public static void LoadMapleTheme()
         {
@@ -65,17 +65,17 @@ namespace maple
                         accentColor = color; break;
                     case "error":
                         errorColor = color; break;
-                    case "commandInput":
+                    case "commandinput":
                         cmdinColor = color; break;
-                    case "commandOutput":
+                    case "commandoutput":
                         cmdoutColor = color; break;
                     case "gutter":
                         gutterColor = color; break;
-                    case "numberLiteral":
+                    case "numberliteral":
                         numberLiteralColor = color; break;
-                    case "stringLiteral":
+                    case "stringliteral":
                         stringLiteralColor = color; break;
-                    case "characterLiteral":
+                    case "characterliteral":
                         charLiteralColor = color; break;
                     case "variable":
                         variableColor = color; break;

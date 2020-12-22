@@ -10,9 +10,9 @@
     <color category="numberLiteral">Magenta</color>
     <color category="stringLiteral">Green</color>
     <color category="charLiteral">Red</color>
-    <color category="variable">Red</color>
+    <color category="variable">Gray</color>
     <color category="keyword">Yellow</color>
     <color category="comment">DarkGray</color>
     <color category="grouping">Gray</color>
-    <color category="operator">Cyan</color>
+    <color category="operator">Red</color>
 </xml>
