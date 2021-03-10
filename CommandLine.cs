@@ -101,6 +101,18 @@ namespace maple
                 default:
                     UnknownCommand();
                     break;
+                case "i":
+                    SelectInCommand();
+                    break;
+                case "selectin":
+                    SelectInCommand();
+                    break;
+                case "o":
+                    SelectOutCommand();
+                    break;
+                case "selectout":
+                    SelectOutCommand();
+                    break;
             }
 
             //empty input field and toggle back to editor
@@ -110,7 +122,7 @@ namespace maple
 
         static void HelpCommand()
         {
-            SetOutput("close | save | load", "help");
+            SetOutput("close | save | load | cls | top | bot", "help");
         }
 
         static void SaveCommand(List<String> args, List<String> switches)
@@ -174,6 +186,18 @@ namespace maple
             Editor.GetDocCursor().GetDocument().CalculateScrollIncrement();
             Editor.RefreshAllLines();
             Editor.GetDocCursor().Move(Editor.GetDocCursor().dX, Editor.GetDocCursor().dY);
+        }
+
+        static void SelectInCommand()
+        {
+            Editor.GetDocCursor().MarkSelectionIn();
+            SetOutput("Selection start at " + Editor.GetDocCursor().dX);
+        }
+
+        static void SelectOutCommand()
+        {
+            Editor.GetDocCursor().MarkSelectionOut();
+            SetOutput("Selection end at " + Editor.GetDocCursor().dY);
         }
 
         static void UnknownCommand()

@@ -6,6 +6,7 @@
     <color category="commandInput">Yellow</color>
     <color category="commandOutput">Blue</color>
     <color category="gutter">DarkGray</color>
+    <color category="selection">Blue</color>
     <!--Syntax Colors-->
     <color category="numberLiteral">Magenta</color>
     <color category="stringLiteral">Green</color>

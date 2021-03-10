@@ -7,6 +7,9 @@ namespace maple
 
         Document doc;
 
+        Point selectIn;
+        Point selectOut;
+
         public DocumentCursor(String filepath, int dX, int dY) : base(dX, dY)
         {
             doc = new Document(filepath, internalDocument: false);
@@ -86,6 +89,34 @@ namespace maple
             Move(dX, dY);
         }
 
+        public void MarkSelectionIn()
+        {
+            selectIn = new Point(dX, dY);
+            ArrangeSelectionPoints();
+        }
+
+        public void MarkSelectionOut()
+        {
+            selectOut = new Point(dX, dY);
+            ArrangeSelectionPoints();
+        }
+
+        public void ArrangeSelectionPoints()
+        {
+            if (selectOut.y < selectIn.y) //flip start and end if end is on a previous line
+            {
+                Point tempIn = selectIn;
+                selectIn = selectOut;
+                selectIn = tempIn;
+            }
+            else if (selectOut.y == selectIn.y && selectOut.x < selectIn.x) //flip start and end if end occurs first on same line
+            {
+                Point tempIn = selectIn;
+                selectIn = selectOut;
+                selectIn = tempIn;
+            }
+        }
+
         public void LockToDocConstraints()
         {
             if(dY < 0)
@@ -122,7 +153,6 @@ namespace maple
             while (dX - doc.GetScrollX() + doc.gutterWidth > maxScreenX)
             {
                 doc.ScrollRight();
-                Console.Title = "right";
                 hasScrolled = true;
             }
             while (dX - doc.GetScrollX() < minScreenX)
