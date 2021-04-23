@@ -126,7 +126,7 @@ namespace maple
         public static void PrintFooter()
         {
             //generate footer string
-            String defaultFooterContent = "maple (" + (docCursor.dX + 1) + ", " + (docCursor.dY + 1) + ") - " + GetCurrentDoc().GetFilePath();
+            //string defaultFooterContent = "maple (" + (docCursor.dX + 1) + ", " + (docCursor.dY + 1) + ") - " + GetCurrentDoc().GetFilePath();
 
             if(!CommandLine.HasOutput())
             {
@@ -134,9 +134,13 @@ namespace maple
                 {
                     //draw piece by piece
                     Printer.ClearFooter(ConsoleColor.Black);
-                    Printer.WriteToFooter(Styler.vanityFooter + " ", 0, Styler.accentColor, ConsoleColor.Black);
-                    Printer.WriteToFooter(GetCurrentDoc().GetFilePath() + " ", -1, Styler.textColor, ConsoleColor.Black);
-                    Printer.WriteToFooter((docCursor.dX + 1) + ", " + (docCursor.dY + 1) + " ", -1, Styler.accentColor, ConsoleColor.Black);
+                    Printer.WriteToFooter(Styler.vanityFooter + " ", 0, Styler.accentColor, ConsoleColor.Black); //write vanity prefix
+                    Printer.WriteToFooter(GetCurrentDoc().GetFilePath().TrimEnd() + " ", -1, Styler.textColor, ConsoleColor.Black); //write doc name
+                    Printer.WriteToFooter((docCursor.dX + 1) + ", " + (docCursor.dY + 1) + " ", -1, Styler.accentColor, ConsoleColor.Black); //writer cursor position
+                    if (GetCurrentDoc().HasSelection()) //write selection bounds (if has selection)
+                        Printer.WriteToFooter((GetCurrentDoc().GetSelectionInX() + 1) + "," + (GetCurrentDoc().GetSelectionInY() + 1) + " - " +
+                            (GetCurrentDoc().GetSelectionOutX() + 1) + "," + (GetCurrentDoc().GetSelectionOutY() + 1) + " ",
+                            -1, Styler.selectionColor, ConsoleColor.Black);
                     //Printer.DrawFooter(defaultFooterContent, foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
                 }
                 else if (Input.GetInputTarget() == Input.InputTarget.Command) //render input footer

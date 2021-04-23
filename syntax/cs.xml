@@ -1,12 +1,12 @@
 <xml>
     <!--Highlighting RegEx-->
-    <syntax type="numberLiteral">[0-9]</syntax>
-    <syntax type="alphabetical">[a-zA-Z]</syntax>
+    <syntax type="numberLiteral">([0-9]+\.?[0-9]*f?)</syntax>
+    <syntax type="alphabetical">([a-zA-Z]+[0-9]*[a-zA-Z]*)</syntax>
     <syntax type="break">( |;)</syntax>
     <syntax type="grouping">(\(|\)|\{|\}|\[|\])</syntax>
-    <syntax type="stringMarker">(\&quot;)</syntax>
-    <syntax type="characterMarker">(\&apos;)</syntax>
-    <syntax type="commentPrefix">\/</syntax>
+    <syntax type="stringLiteral">&quot;.*&quot;</syntax>
+    <syntax type="characterLiteral">&apos;.?&apos;</syntax>
+    <syntax type="comment">(\/\/.*)</syntax>
     <syntax type="operator">(\+|\-|\*|\/|\=|\%|\&gt;|\&lt;|\||\&amp;|\!)</syntax>
     <!--Keywords-->
     <keywords>

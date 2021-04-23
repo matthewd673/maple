@@ -9,18 +9,20 @@ namespace maple
     public static class Lexer
     {
 
-        static String numberLiteralPattern = "";
-        static String alphabeticalPattern = "";
-        static String breakPattern = "";
-        static String groupingPattern = "";
-        static String stringMarkerPattern = "";
-        static String characterMarkerPattern = "";
-        static String commentPrefixPattern = "";
-        static String operatorPattern = "";
+        /*
+        static string numberLiteralPattern = "";
+        static string alphabeticalPattern = "";
+        static string breakPattern = "";
+        static string groupingPattern = "";
+        static string stringMarkerPattern = "";
+        static string characterMarkerPattern = "";
+        static string commentPattern = "";
+        static string operatorPattern = "";
+        */
+        static List<LexerRule> rules = new List<LexerRule>();
+        static List<string> keywords = new List<string>();
 
-        static List<String> keywords = new List<String>();
-
-        public static void LoadSyntax(String syntaxPath)
+        public static void LoadSyntax(string syntaxPath)
         {
             XmlDocument document = new XmlDocument();
 
@@ -36,8 +38,8 @@ namespace maple
             XmlNodeList syntaxRules = document.GetElementsByTagName("syntax");
             foreach (XmlNode node in syntaxRules)
             {
-                String type = "";
-                String value = "";
+                string type = "";
+                string value = "";
                 foreach(XmlAttribute a in node.Attributes)
                 {
                     if(a.Name.ToLower() != "type")
@@ -47,25 +49,7 @@ namespace maple
                 }
                 value = node.InnerText.ToLower();
 
-                switch(type)
-                {
-                    case "numberliteral":
-                        numberLiteralPattern = value; break;
-                    case "alphabetical":
-                        alphabeticalPattern = value; break;
-                    case "break":
-                        breakPattern = value; break;
-                    case "grouping":
-                        groupingPattern = value; break;
-                    case "stringmarker":
-                        stringMarkerPattern = value; break;
-                    case "charactermarker":
-                        characterMarkerPattern = value; break;
-                    case "commentprefix":
-                        commentPrefixPattern = value; break;
-                    case "operator":
-                        operatorPattern = value; break;
-                }
+                rules.Add(new LexerRule(type, value));
             }
 
             //build keyword list
@@ -74,174 +58,71 @@ namespace maple
                 keywords.Add(node.InnerText);
         }
 
-        public static Token[] Tokenize(String text)
+        public static Token[] Tokenize(string text)
         {
-            //skip tokenizing if no highlight
-            if(Settings.noHighlight)
-                return new Token[] { new Token(text, Token.TokenType.Misc) };
-
             List<Token> tokens = new List<Token>();
-            char[] characters = text.ToCharArray();
 
-            bool firstChar = false;
-            bool inComment = false;
-            bool inStringLiteral = false;
-            bool inCharLiteral = false;
-
-            for(int i = 0; i < characters.Length; i++)
+            while (text.Length > 0)
             {
-                String s = characters[i].ToString(); //get current character
-                int lastI = tokens.Count - 1;
-                Token.TokenType lastType = Token.TokenType.Misc;
-                if(lastI >= 0)
-                    lastType = tokens[lastI].GetTokenType();
+                Match nearestMatch = null;
+                string nearestMatchRuleName = "";
 
-                //check if it should be treated as first char
-                if(!firstChar && (
-                    lastType == Token.TokenType.Break ||
-                    lastType == Token.TokenType.Operator ||
-                    lastType == Token.TokenType.Grouping ||
-                    lastI < 0
-                    ))
+                bool foundPerfect = false;
+                for (int i = 0; i < rules.Count; i++)
                 {
-                    firstChar = true;
-                }
+                    LexerRule rule = rules[i];
+                    Match firstMatch = rule.pattern.Match(text);
 
-                //check if its in a comment
-                if(inComment)
-                {
-                    tokens[lastI].Append(s);
-                    continue;
-                }
+                    if (!firstMatch.Success) //no match, keep checking
+                        continue;
 
-                //check if its in a string literal
-                if(inStringLiteral)
-                {
-                    if(Regex.IsMatch(s, stringMarkerPattern))
+                    if (firstMatch.Index == 0) //next token matches - jobs done
                     {
-                        inStringLiteral = false;
-                        firstChar = true;
+                        Token.TokenType tokenType = GetTokenTypeFromRuleName(rule.name);
+                        //if alphabetical, check for keyword
+                        if (rule.name.Equals("alphabetical") && keywords.Contains(firstMatch.Value))
+                            tokenType = Token.TokenType.Keyword;
+
+                        tokens.Add(new Token(firstMatch.Value, tokenType));
+                        text = text.Remove(firstMatch.Index, firstMatch.Value.Length);
+                        foundPerfect = true;
+                        break;
                     }
-                    tokens[lastI].Append(s);
-                    continue;
+
+                    //there is a match, but it isn't at index 0
+                    nearestMatch = firstMatch;
+                    nearestMatchRuleName = rule.name;
                 }
 
-                //check if its in a char literal
-                if(inCharLiteral)
+                //all rules have been checked
+                if (!foundPerfect) //the closest match isn't at 0
                 {
-                    if(Regex.IsMatch(s, characterMarkerPattern))
+                    if (nearestMatch != null) //there is a match somewhere
                     {
-                        inCharLiteral = false;
-                        firstChar = true;
-                    }
-                    tokens[lastI].Append(s);
-                    continue;
-                }
+                        //remove unmatchable text and add "none" token
+                        string unmatchSubstring = text.Substring(0, nearestMatch.Index);
+                        tokens.Add(new Token(unmatchSubstring, Token.TokenType.None));
+                        text = text.Remove(0, nearestMatch.Index);
+                        //eat first matched token
+                        text = text.Remove(0, nearestMatch.Value.Length);
+                        Token.TokenType tokenType = GetTokenTypeFromRuleName(nearestMatchRuleName);
+                        //if alphabetical, check for keyword
+                        if (nearestMatchRuleName.Equals("alphabetical") && keywords.Contains(nearestMatch.Value))
+                            tokenType = Token.TokenType.Keyword;
 
-                //match character
-                if(Regex.IsMatch(s, numberLiteralPattern)) //numerals
-                {
-                    if(firstChar)
+                        tokens.Add(new Token(nearestMatch.Value, tokenType));
+                    }
+                    else //there is no match anywhere
                     {
-                        tokens.Add(new Token(s, Token.TokenType.NumberLiteral));
-                        firstChar = false;
+                        tokens.Add(new Token(text, Token.TokenType.None)); //add rest of text with "none" token
+                        text = ""; //clear text
+                        break;
                     }
-                    else
-                        tokens[lastI].Append(s);
-                    continue;
                 }
-
-                if(Regex.IsMatch(s, alphabeticalPattern)) //alpha
-                {
-                    if(firstChar)
-                    {
-                        tokens.Add(new Token(s, Token.TokenType.Misc));
-                        firstChar = false;
-                    }
-                    else
-                        tokens[lastI].Append(s);
-                    continue;
-                }
-
-                if(Regex.IsMatch(s, breakPattern)) //break
-                {
-                    tokens.Add(new Token(s, Token.TokenType.Break));
-                    continue;
-                }
-
-                if(Regex.IsMatch(s, groupingPattern)) //grouping
-                {
-                    tokens.Add(new Token(s, Token.TokenType.Grouping));
-                    tokens.Add(new Token("", Token.TokenType.Break));
-                    continue;
-                }
-
-                if(Regex.IsMatch(s, commentPrefixPattern)) //potential comment
-                {
-                    if(firstChar)
-                    {
-                        tokens.Add(new Token(s, Token.TokenType.Misc));
-                        firstChar = false;
-                    }
-                    else
-                    {
-                        if(Regex.IsMatch(tokens[lastI].GetText().Trim(), commentPrefixPattern)) //preceded by a single slash, so comment!
-                        {
-                            tokens[lastI].Append(s);
-                            tokens[lastI].SetType(Token.TokenType.Comment);
-                            inComment = true;
-                        }
-                    }
-                    continue;
-                }
-
-                if(Regex.IsMatch(s, operatorPattern)) //operator
-                {
-                    tokens.Add(new Token(s, Token.TokenType.Operator));
-                    continue;
-                }
-
-                if(Regex.IsMatch(s, stringMarkerPattern)) //quotes
-                {
-                    if(!inStringLiteral)
-                    {
-                        inStringLiteral = true;
-                        tokens.Add(new Token(s, Token.TokenType.StringLiteral));
-                    }
-                    continue;
-                }
-
-                if(Regex.IsMatch(s, characterMarkerPattern)) //single quote
-                {
-                    if(!inCharLiteral)
-                    {
-                        inCharLiteral = true;
-                        if(firstChar)
-                            tokens.Add(new Token(s, Token.TokenType.CharLiteral));
-                    }
-                    continue;
-                }
-
-                //unknown character
-                if(lastI >= 0 && !firstChar && tokens[lastI].GetTokenType() == Token.TokenType.Misc)
-                    tokens[lastI].Append(s);
-                else
-                    tokens.Add(new Token(s, Token.TokenType.Misc));
             }
 
-            //convert to array, no more adding/removing
-            Token[] tokenArray = tokens.ToArray();
+            return tokens.ToArray();
 
-            //check misc tokens for keywords
-            for(int i = 0; i < tokenArray.Length; i++)
-            {
-                String tokenText = tokenArray[i].GetText();
-                if(IsKeyword(tokenText))
-                    tokenArray[i] = new Token(tokenText, Token.TokenType.Keyword);
-            }
-
-            //return
-            return tokenArray;
         }
 
         static bool IsKeyword(String term)
@@ -249,6 +130,46 @@ namespace maple
             if(keywords.Contains(term))
                 return true;
             return false;
+        }
+
+        static Token.TokenType GetTokenTypeFromRuleName(string name)
+        {
+            switch (name)
+            {
+                case "numberliteral":
+                    return Token.TokenType.NumberLiteral;
+                case "alphabetical":
+                    return Token.TokenType.Variable;
+                case "break":
+                    return Token.TokenType.Break;
+                case "grouping":
+                    return Token.TokenType.Grouping;
+                case "stringliteral":
+                    return Token.TokenType.StringLiteral;
+                case "characterliteral":
+                    return Token.TokenType.CharLiteral;
+                case "comment":
+                    return Token.TokenType.Comment;
+                case "operator":
+                    return Token.TokenType.Operator;
+                case "keyword":
+                    return Token.TokenType.Keyword;
+                default:
+                    return Token.TokenType.None;
+            }
+        }
+
+        struct LexerRule
+        {
+
+            public string name;
+            public Regex pattern;
+
+            public LexerRule(string name, string pattern)
+            {
+                this.name = name;
+                this.pattern = new Regex(pattern);
+            }
         }
 
     }

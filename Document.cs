@@ -114,8 +114,13 @@ namespace maple
             Printer.PrintWord(gutterContent, foregroundColor: Styler.gutterColor);
 
             bool lineContainsSelection = LineContainsSelection(lineIndex);
-            int lineSelectInX = selectIn.x; //BREAKS ON MULTILINE!
-            int lineSelectOutX = selectOut.x; //BREAKS ON MULTILINE!
+            //find start and end relative to line
+            int lineSelectInX = selectIn.x;
+            if (selectIn.y < lineIndex) //selection starts on previous line...
+                selectIn.x = 0; //...so it starts at 0 on this line
+            int lineSelectOutX = selectOut.x;
+            if (selectOut.y > lineIndex) //selection ends on following line...
+                selectOut.x = l.GetContent().Length; //...so it ends at the end of this line
 
             //print all tokens in line
             if(!Settings.debugTokens) //ordinary printing:
@@ -139,7 +144,7 @@ namespace maple
                     int tHighlightEnd = -1;
                     //calculate start and end of highlight if:
                     //line has highlight, highlight begins before end of word, and highlight ends before beginning of word
-                    if (lineContainsSelection && lineSelectInX <= lineLen && lineSelectOutX >= oldLineLen)
+                    if (lineContainsSelection && lineSelectInX < lineLen && lineSelectOutX > oldLineLen)
                     {
                         tHighlightStart = lineSelectInX - oldLineLen;
                         tHighlightEnd = lineSelectOutX - oldLineLen;
@@ -155,7 +160,7 @@ namespace maple
                     //print only tokens visible with the current horizontal scroll
                     if (lineLen > scrollX) //part of token is hidden to left, trim beginning
                     {
-                        String printText = t.GetText();
+                        string printText = t.GetText();
 
                         int hiddenCharCt = scrollX - oldLineLen;
                         if (hiddenCharCt > 0)
@@ -182,18 +187,13 @@ namespace maple
                             int selectionSubstringStart = tHighlightStart;
                             int selectionSubstringEnd = tHighlightEnd + 1;
 
-                            //with the new highlight bounds, we can create 3 substrings for printing
-                            //VERY GROSS DEBUG:
-                            String selectDebugText = "LINE:" + lineSelectInX + "," + lineSelectOutX + "\nTOKEN: " + tHighlightStart + "," + tHighlightEnd + "\n" + "(0," + tHighlightStart + ")(" + tHighlightStart + "," + selectionSubstringLength + ")(" + tHighlightEnd + "," + (printText.Length - tHighlightEnd) + ")[" + printText + ":" + hiddenCharCt + "]";
-
-                            File.WriteAllText("DEBUGSELECTHIGHLIGHT.txt", selectDebugText);
-                            
-                            String preHighlightText = printText.Substring(0, selectionSubstringStart);
-                            String inHighlightText = printText.Substring(selectionSubstringStart, selectionSubstringLength);
-                            String postHighlightText = printText.Substring(selectionSubstringEnd, printText.Length - selectionSubstringEnd);
+                            //with the new highlight bounds, we can create 3 substrings for printing                            
+                            string preHighlightText = printText.Substring(0, selectionSubstringStart);
+                            string inHighlightText = printText.Substring(selectionSubstringStart, selectionSubstringLength);
+                            string postHighlightText = printText.Substring(selectionSubstringEnd, printText.Length - selectionSubstringEnd);
                             //print 3 substrings with appropriate styling
                             Printer.PrintWord(preHighlightText, foregroundColor: t.GetColor());
-                            Printer.PrintWord(inHighlightText, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.highlightColor);
+                            Printer.PrintWord(inHighlightText, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.selectionColor);
                             Printer.PrintWord(postHighlightText, foregroundColor: t.GetColor());
                         }
                         else //no highlight, do a basic print
@@ -201,7 +201,7 @@ namespace maple
                     }
                     else if(lineLen > scrollX + Cursor.maxScreenX) //part of token is hidden to right, trim end
                     {
-                        String printText = t.GetText();
+                        string printText = t.GetText();
 
                         int hiddenCharCt = lineLen - (scrollX + Cursor.maxScreenX);
                         if(hiddenCharCt > 0)
@@ -476,11 +476,16 @@ namespace maple
             return selectIn.y != selectOut.y;
         }
         
+        public int GetSelectionInX() { return selectIn.x; }
+        public int GetSelectionInY() { return selectIn.y; }
+        public int GetSelectionOutX() { return selectOut.x; }
+        public int GetSelectionOutY() { return selectOut.y; }
+
         /// <summary>
         /// Get the text contained within the current selection bounds.
         /// </summary>
         /// <returns>A String containing the current selection text.</returns>
-        public String GetSelectionText()
+        public string GetSelectionText()
         {
 
             Console.Title = selectIn.x + " , " + selectOut.x;
