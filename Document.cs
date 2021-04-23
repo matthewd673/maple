@@ -8,7 +8,7 @@ namespace maple
     class Document
     {
 
-        String filepath;
+        string filepath;
         List<Line> fileLines;
 
         int scrollYIncrement = 0;
@@ -117,10 +117,14 @@ namespace maple
             //find start and end relative to line
             int lineSelectInX = selectIn.x;
             if (selectIn.y < lineIndex) //selection starts on previous line...
-                selectIn.x = 0; //...so it starts at 0 on this line
+                lineSelectInX = 0; //...so it starts at 0 on this line
             int lineSelectOutX = selectOut.x;
             if (selectOut.y > lineIndex) //selection ends on following line...
-                selectOut.x = l.GetContent().Length; //...so it ends at the end of this line
+                lineSelectOutX = l.GetContent().Length; //...so it ends at the end of this line
+
+            bool fullySelected = false;
+            if (lineContainsSelection && lineSelectInX == 0 && lineSelectOutX >= l.GetContent().Length - 1)
+                fullySelected = true;
 
             //print all tokens in line
             if(!Settings.debugTokens) //ordinary printing:
@@ -140,75 +144,102 @@ namespace maple
                     if (oldLineLen > scrollX + Cursor.maxScreenX)
                         break;
 
-                    int tHighlightStart = -1;
-                    int tHighlightEnd = -1;
+                    int tSelectStart = -1;
+                    int tSelectEnd = -1;
+                    bool tokenHasSelect = false;
                     //calculate start and end of highlight if:
                     //line has highlight, highlight begins before end of word, and highlight ends before beginning of word
-                    if (lineContainsSelection && lineSelectInX < lineLen && lineSelectOutX > oldLineLen)
+                    if (lineContainsSelection && !fullySelected && lineSelectInX < lineLen && lineSelectOutX > oldLineLen)
                     {
-                        tHighlightStart = lineSelectInX - oldLineLen;
-                        tHighlightEnd = lineSelectOutX - oldLineLen;
+                        tSelectStart = lineSelectInX - oldLineLen;
+                        tSelectEnd = lineSelectOutX - oldLineLen;
 
                         //constrain to bounds of token string
-                        if (tHighlightStart < 0)
-                            tHighlightStart = 0;
-                        if (tHighlightEnd >= t.GetText().Length)
-                            tHighlightEnd = t.GetText().Length;
+                        if (tSelectStart < 0)
+                            tSelectStart = 0;
+                        if (tSelectEnd >= t.GetText().Length)
+                            tSelectEnd = t.GetText().Length;
+
+                        tokenHasSelect = true;
 
                     }
 
-                    //print only tokens visible with the current horizontal scroll
+                    string printText = t.GetText();
+
+                    //trim the parts of the token that are hidden by horizontal scroll
                     if (lineLen > scrollX) //part of token is hidden to left, trim beginning
                     {
-                        string printText = t.GetText();
-
                         int hiddenCharCt = scrollX - oldLineLen;
                         if (hiddenCharCt > 0)
                         {
-                            printText = printText.Remove(0, hiddenCharCt);
+                            printText = printText.Remove(0, hiddenCharCt); //trim off hidden
+                            //if token is selected, trim selection bounds as well
+                            if (tokenHasSelect)
+                            {
+                                tSelectStart -= hiddenCharCt;
+                                tSelectEnd -= hiddenCharCt;
+                                //clamp
+                                if (tSelectStart < 0)
+                                    tSelectStart = 0;
+                                if (tSelectEnd < 0)
+                                    tSelectEnd = 0;
+                            }
                         }
-                        else //make sure it doesn't stay negative, for highlighter's sake
+                        else //hiddenCharCt can't be negative, for highlighter's sake
                             hiddenCharCt = 0;
 
-                        if (tHighlightStart != -1 && tHighlightEnd != -1) //has highlight, render accordingly
+                        if (tokenHasSelect) //print selected part with separate styles
                         {
-                            //adjust to bounds of cropped word
-                            tHighlightStart -= hiddenCharCt; //adjust start based on hidden chars and substring
-                            if (tHighlightStart < 0)
-                                tHighlightStart = 0;
-                            tHighlightEnd -= hiddenCharCt + 1; //adjust end based on hidden chars and substring
-                            if (tHighlightEnd < 0)
-                                tHighlightEnd = 0;
-
-                            //set adjusted selection coords for use with Substring()
-                            int selectionSubstringLength = tHighlightEnd - tHighlightStart + 1;
-                            if (selectionSubstringLength < 0)
-                                selectionSubstringLength = 0;
-                            int selectionSubstringStart = tHighlightStart;
-                            int selectionSubstringEnd = tHighlightEnd + 1;
-
-                            //with the new highlight bounds, we can create 3 substrings for printing                            
-                            string preHighlightText = printText.Substring(0, selectionSubstringStart);
-                            string inHighlightText = printText.Substring(selectionSubstringStart, selectionSubstringLength);
-                            string postHighlightText = printText.Substring(selectionSubstringEnd, printText.Length - selectionSubstringEnd);
-                            //print 3 substrings with appropriate styling
-                            Printer.PrintWord(preHighlightText, foregroundColor: t.GetColor());
-                            Printer.PrintWord(inHighlightText, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.selectionColor);
-                            Printer.PrintWord(postHighlightText, foregroundColor: t.GetColor());
+                            int selectLength = tSelectEnd - tSelectStart;
+                            string preSelectSubstring = printText.Substring(0, tSelectStart);
+                            string inSelectSubstring = printText.Substring(tSelectStart, selectLength);
+                            string postSelectSubstring = printText.Substring(tSelectEnd);
+                            Printer.PrintWord(preSelectSubstring, foregroundColor: t.GetColor());
+                            Printer.PrintWord(inSelectSubstring, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.selectionColor);
+                            Printer.PrintWord(postSelectSubstring, foregroundColor: t.GetColor());
                         }
-                        else //no highlight, do a basic print
-                            Printer.PrintWord(printText, foregroundColor: t.GetColor());
+                        else //no precise selection to print
+                        {
+                            if (!fullySelected) //normal print
+                                Printer.PrintWord(printText, foregroundColor: t.GetColor());
+                            else //print fully selected
+                                Printer.PrintWord(printText, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.selectionColor);
+                        }
                     }
-                    else if(lineLen > scrollX + Cursor.maxScreenX) //part of token is hidden to right, trim end
+                    else if (lineLen > scrollX + Cursor.maxScreenX) //part of token is hidden to right, trim end
                     {
-                        string printText = t.GetText();
-
                         int hiddenCharCt = lineLen - (scrollX + Cursor.maxScreenX);
-                        if(hiddenCharCt > 0)
+                        if (hiddenCharCt > 0)
                         {
                             printText = printText.Remove(printText.Length - 1 - hiddenCharCt, printText.Length);
-                            Printer.PrintWord(printText, foregroundColor: t.GetColor());
+
+                            if (tSelectStart > printText.Length)
+                                tSelectStart = printText.Length;
+                            if (tSelectEnd > printText.Length)
+                                tSelectEnd = printText.Length;
+                            if (tSelectStart == tSelectEnd)
+                                tokenHasSelect = false;
+
+                            if (tokenHasSelect)
+                            {
+                                int selectLength = tSelectEnd - tSelectStart;
+                                string preSelectSubstring = printText.Substring(0, tSelectStart);
+                                string inSelectSubstring = printText.Substring(tSelectStart, selectLength);
+                                string postSelectSubstring = printText.Substring(tSelectEnd);
+                                Printer.PrintWord(preSelectSubstring, foregroundColor: t.GetColor());
+                                Printer.PrintWord(inSelectSubstring, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.selectionColor);
+                                Printer.PrintWord(postSelectSubstring, foregroundColor: t.GetColor());
+                            }
+                            else //no precise selection to print
+                            {
+                                if (!fullySelected)
+                                    Printer.PrintWord(printText, foregroundColor: t.GetColor());
+                                else
+                                    Printer.PrintWord(printText, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.selectionColor);
+                            }
                         }
+                        else //can't be negative
+                            hiddenCharCt = 0;
                     }
                 }
             }
@@ -434,18 +465,30 @@ namespace maple
 
         public void ArrangeSelectionPoints()
         {
+
+            if (!HasSelection())
+                return;
+
             if (selectOut.y < selectIn.y) //flip start and end if end is on a previous line
             {
-                Point tempIn = selectIn;
-                selectIn = selectOut;
-                selectIn = tempIn;
+                Point tempIn = new Point(selectIn.x, selectIn.y);
+                selectIn = new Point(selectOut.x, selectOut.y);
+                selectOut = tempIn;
             }
             else if (selectOut.y == selectIn.y && selectOut.x < selectIn.x) //flip start and end if end occurs first on same line
             {
-                Point tempIn = selectIn;
-                selectIn = selectOut;
-                selectIn = tempIn;
+                Point tempIn = new Point(selectIn.x, selectIn.y);
+                selectIn = new Point(selectOut.x, selectOut.y);
+                selectOut = tempIn;
             }
+
+            //selecting a 0-width range causes errors (and why would you want to anyway?)
+            if (selectIn.x == selectOut.x && selectIn.y == selectOut.y)
+            {
+                selectIn = new Point(-1, -1);
+                selectOut = new Point(-1, -1);
+            }
+
         }
         
         /// <summary>
@@ -455,6 +498,16 @@ namespace maple
         public bool HasSelection()
         {
             return selectIn.x != -1 && selectIn.y != -1 && selectOut.x != -1 && selectOut.y != -1;
+        }
+
+        public bool HasSelectionStart()
+        {
+            return selectIn.x != -1 && selectIn.y != -1;
+        }
+
+        public bool HasSelectionEnd()
+        {
+            return selectOut.x != -1 && selectIn.y != -1;
         }
 
         /// <summary>

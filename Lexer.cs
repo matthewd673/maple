@@ -9,19 +9,13 @@ namespace maple
     public static class Lexer
     {
 
-        /*
-        static string numberLiteralPattern = "";
-        static string alphabeticalPattern = "";
-        static string breakPattern = "";
-        static string groupingPattern = "";
-        static string stringMarkerPattern = "";
-        static string characterMarkerPattern = "";
-        static string commentPattern = "";
-        static string operatorPattern = "";
-        */
         static List<LexerRule> rules = new List<LexerRule>();
         static List<string> keywords = new List<string>();
 
+        /// <summary>
+        /// Build a set of lexer rules and keywords from a syntax spec file (XML expected).
+        /// </summary>
+        /// <param name="syntaxPath">The path to the syntax spec file.</param>
         public static void LoadSyntax(string syntaxPath)
         {
             XmlDocument document = new XmlDocument();
@@ -58,6 +52,11 @@ namespace maple
                 keywords.Add(node.InnerText);
         }
 
+        /// <summary>
+        /// Turn a piece of text into a series of <c>Token</c>s according to the given lexer rules.
+        /// </summary>
+        /// <param name="text">The text to be tokenized.</param>
+        /// <returns>An array of <c>Token</c>s</returns>
         public static Token[] Tokenize(string text)
         {
             List<Token> tokens = new List<Token>();
@@ -132,6 +131,11 @@ namespace maple
             return false;
         }
 
+        /// <summary>
+        /// Given the name of <c>LexerRule</c>, find the <c>TokenType</c> that it searches for.
+        /// </summary>
+        /// <param name="name">The name of the rule to check against.</param>
+        /// <returns>The <c>TokenType</c> that the rule searches for. If invalid, returns <c>TokenType.None</c>.</returns>
         static Token.TokenType GetTokenTypeFromRuleName(string name)
         {
             switch (name)
@@ -165,6 +169,11 @@ namespace maple
             public string name;
             public Regex pattern;
 
+            /// <summary>
+            /// <c>LexerRule</c> represents a named pattern that the tokenizer will search for.
+            /// </summary>
+            /// <param name="name">The name of the pattern.</param>
+            /// <param name="pattern">The RegEx pattern to search.</param>
             public LexerRule(string name, string pattern)
             {
                 this.name = name;

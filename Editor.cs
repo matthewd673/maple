@@ -141,6 +141,9 @@ namespace maple
                         Printer.WriteToFooter((GetCurrentDoc().GetSelectionInX() + 1) + "," + (GetCurrentDoc().GetSelectionInY() + 1) + " - " +
                             (GetCurrentDoc().GetSelectionOutX() + 1) + "," + (GetCurrentDoc().GetSelectionOutY() + 1) + " ",
                             -1, Styler.selectionColor, ConsoleColor.Black);
+                    else if (GetCurrentDoc().HasSelectionStart()) //write selection in as reminder
+                        Printer.WriteToFooter((GetCurrentDoc().GetSelectionInX() + 1) + "," + (GetCurrentDoc().GetSelectionInY() + 1) + " ...",
+                            -1, Styler.selectionColor, ConsoleColor.Black);
                     //Printer.DrawFooter(defaultFooterContent, foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
                 }
                 else if (Input.GetInputTarget() == Input.InputTarget.Command) //render input footer
