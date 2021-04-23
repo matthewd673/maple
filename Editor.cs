@@ -15,7 +15,7 @@ namespace maple
             //create cursor
             cmdCursor = new Cursor(0, 0);
 
-            cmdCursor.contentOffsetX = 7;
+            cmdCursor.contentOffsetX = Styler.vanityFooter.Length + 2;
             cmdCursor.contentOffsetY = Cursor.maxScreenY;
 
             //create doc cursor with document
@@ -97,6 +97,9 @@ namespace maple
             refreshedLines.Add(lineIndex);
         }
 
+        /// <summary>
+        /// Mark all document lines to be refreshed when the next redraw is called.
+        /// </summary>
         public static void RefreshAllLines()
         {
             for(int i = 0; i < GetCurrentDoc().GetMaxLine() + 1; i++)
@@ -104,6 +107,9 @@ namespace maple
             fullClearNext = true;
         }
 
+        /// <summary>
+        /// Redraw all lines (within window bounds) that are marked for refresh.
+        /// </summary>
         public static void RedrawLines()
         {
             //redraw lines that have changed
@@ -124,10 +130,17 @@ namespace maple
 
             if(!CommandLine.HasOutput())
             {
-                if(Input.GetInputTarget() == Input.InputTarget.Document) //render default footer
-                    Printer.DrawFooter(defaultFooterContent, foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
-                else if(Input.GetInputTarget() == Input.InputTarget.Command) //render input footer
-                    Printer.DrawFooter("maple> " + CommandLine.GetText(), foregroundColor: Styler.cmdinColor, backgroundColor: ConsoleColor.Black);
+                if (Input.GetInputTarget() == Input.InputTarget.Document) //render default footer
+                {
+                    //draw piece by piece
+                    Printer.ClearFooter(ConsoleColor.Black);
+                    Printer.WriteToFooter(Styler.vanityFooter + " ", 0, Styler.accentColor, ConsoleColor.Black);
+                    Printer.WriteToFooter(GetCurrentDoc().GetFilePath() + " ", -1, Styler.textColor, ConsoleColor.Black);
+                    Printer.WriteToFooter((docCursor.dX + 1) + ", " + (docCursor.dY + 1) + " ", -1, Styler.accentColor, ConsoleColor.Black);
+                    //Printer.DrawFooter(defaultFooterContent, foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
+                }
+                else if (Input.GetInputTarget() == Input.InputTarget.Command) //render input footer
+                    Printer.DrawFooter("maple: " + CommandLine.GetText(), foregroundColor: Styler.cmdinColor, backgroundColor: ConsoleColor.Black);
             }
             else //render output footer
                 Printer.DrawFooter(CommandLine.GetOutput(), foregroundColor: Styler.cmdoutColor, backgroundColor: ConsoleColor.Black);

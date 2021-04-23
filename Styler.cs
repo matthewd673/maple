@@ -16,6 +16,7 @@ namespace maple
         public static ConsoleColor cmdinColor = ConsoleColor.Yellow;
         public static ConsoleColor cmdoutColor = ConsoleColor.Cyan;
         public static ConsoleColor gutterColor = ConsoleColor.DarkGray;
+        public static ConsoleColor selectionColor = ConsoleColor.Blue;
 
         //syntax colors
         public static ConsoleColor numberLiteralColor = ConsoleColor.Magenta;
@@ -27,11 +28,17 @@ namespace maple
         public static ConsoleColor groupingColor = ConsoleColor.White;
         public static ConsoleColor operatorColor = ConsoleColor.Red;
 
+        //text customizations
+        public static String vanityFooter = "maple";
+
         public static void LoadMapleTheme()
         {
             String mapleThemePath = Settings.themeDirectory + Settings.themeFile;
-            if(File.Exists(mapleThemePath))
+            if (File.Exists(mapleThemePath))
+            {
                 AssignThemeColors(mapleThemePath);
+                AssignCustomText(mapleThemePath);
+            }
         }
 
         public static void AssignThemeColors(String themePath)
@@ -69,6 +76,8 @@ namespace maple
                         cmdoutColor = color; break;
                     case "gutter":
                         gutterColor = color; break;
+                    case "selection":
+                        selectionColor = color; break;
                     case "numberliteral":
                         numberLiteralColor = color; break;
                     case "stringliteral":
@@ -85,6 +94,34 @@ namespace maple
                         groupingColor = color; break;
                     case "operator":
                         operatorColor = color; break;
+                }
+            }
+        }
+
+        public static void AssignCustomText(String themePath)
+        {
+            XmlDocument document = new XmlDocument();
+            document.Load(themePath);
+
+            XmlNodeList texts = document.GetElementsByTagName("string");
+            foreach (XmlNode node in texts)
+            {
+                String category = "";
+                String value = "";
+
+                foreach (XmlAttribute a in node.Attributes)
+                {
+                    if (a.Name.ToLower() != "category")
+                        return;
+
+                    category = a.Value.ToLower();
+                }
+                value = node.InnerText.ToLower();
+
+                switch (category)
+                {
+                    case "vanityfooter":
+                        vanityFooter = value; break;
                 }
             }
         }

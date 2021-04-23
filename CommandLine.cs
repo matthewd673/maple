@@ -102,14 +102,10 @@ namespace maple
                     UnknownCommand();
                     break;
                 case "i":
-                    SelectInCommand();
-                    break;
                 case "selectin":
                     SelectInCommand();
                     break;
                 case "o":
-                    SelectOutCommand();
-                    break;
                 case "selectout":
                     SelectOutCommand();
                     break;
@@ -190,14 +186,24 @@ namespace maple
 
         static void SelectInCommand()
         {
-            Editor.GetDocCursor().MarkSelectionIn();
-            SetOutput("Selection start at " + Editor.GetDocCursor().dX);
+            Editor.GetCurrentDoc().MarkSelectionIn(Editor.GetDocCursor().dX, Editor.GetDocCursor().dY);
+            if (Editor.GetCurrentDoc().HasSelection()) //only refresh if there is a complete selection
+            {
+                Editor.RefreshAllLines();
+                //Editor.RedrawLines();
+            }
+            //SetOutput("Selection start at " + Editor.GetDocCursor().dX);
         }
 
         static void SelectOutCommand()
         {
-            Editor.GetDocCursor().MarkSelectionOut();
-            SetOutput("Selection end at " + Editor.GetDocCursor().dY);
+            Editor.GetCurrentDoc().MarkSelectionOut(Editor.GetDocCursor().dX, Editor.GetDocCursor().dY);
+            if (Editor.GetCurrentDoc().HasSelection()) //only refresh if there is a complete selection
+            {
+                Editor.RefreshAllLines();
+                //Editor.RedrawLines();
+            }
+            //SetOutput("Selection end at " + Editor.GetDocCursor().dY);
         }
 
         static void UnknownCommand()

@@ -242,7 +242,7 @@ namespace maple
             if(currentTarget == InputTarget.Document)
             {
                 //check if there is command output to be cleared
-                if(CommandLine.GetOutput() != "" && !Settings.quickCli)
+                if(!CommandLine.GetOutput().Equals("") && !Settings.quickCli)
                     CommandLine.ClearOutput(); //there is output, clear it
                 else
                 {

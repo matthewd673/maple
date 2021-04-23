@@ -47,13 +47,25 @@ namespace maple
             ResetColors();
         }
 
-        public static void DrawFooter(String content, ConsoleColor foregroundColor = ConsoleColor.Black, ConsoleColor backgroundColor = ConsoleColor.Gray, int offsetBottom = 0)
+        public static void DrawFooter(String content, ConsoleColor foregroundColor = ConsoleColor.Black, ConsoleColor backgroundColor = ConsoleColor.Gray)
         {
-            ClearLine(Cursor.maxScreenY - offsetBottom, backgroundColor);
-            printerCursor.Move(0, Cursor.maxScreenY - offsetBottom);
+            ClearFooter();
+            WriteToFooter(content, 0, foregroundColor, backgroundColor);
+        }
+
+        public static void ClearFooter(ConsoleColor backgroundColor = ConsoleColor.Black)
+        {
+            ClearLine(Cursor.maxScreenY, backgroundColor);
+            ResetColors();
+        }
+
+        public static void WriteToFooter(String text, int x = 0, ConsoleColor foregroundColor = ConsoleColor.Black, ConsoleColor backgroundColor = ConsoleColor.Gray)
+        {
+            if (x != -1) //manual cursor position
+                printerCursor.Move(x, Cursor.maxScreenY);
             Console.BackgroundColor = backgroundColor;
             Console.ForegroundColor = foregroundColor;
-            Console.Write(content);
+            Console.Write(text);
             ResetColors();
         }
 
