@@ -27,20 +27,25 @@ namespace maple
         /// </summary>
         /// <param name="filepath">The path of the file to load.</param>
         /// <param name="internalDocument">Indicates if the document is internal, and can therefore operate with limited functionality.</param>
-        public Document(String filepath, bool internalDocument = false)
+        public Document(string filepath, bool internalDocument = false)
         {
+
+            filepath = ProcessFilepath(filepath);
             fileLines = new List<Line>();
 
             //calculate user-facing document properties (if not interal)
             if (!internalDocument)
             {
-                //load theme file if one exists
-                String fileExtension = Path.GetExtension(filepath).Remove(0, 1);
-                fileExtension = fileExtension.TrimEnd(); //remove trailing whitespace
-                if (File.Exists(Settings.syntaxDirectory + fileExtension + ".xml")) //load lexer settings if they are available for this filetype
-                    Lexer.LoadSyntax(Settings.syntaxDirectory + fileExtension + ".xml");
+                //load theme file if one exists (and if it has a filepath at all)
+                if (Path.GetExtension(filepath).Length > 0)
+                {
+                    string fileExtension = Path.GetExtension(filepath).Remove(0, 1);
+                    fileExtension = fileExtension.TrimEnd(); //remove trailing whitespace
+                    if (File.Exists(Settings.syntaxDirectory + fileExtension + ".xml")) //load lexer settings if they are available for this filetype
+                        Lexer.LoadSyntax(Settings.syntaxDirectory + fileExtension + ".xml");
+                }
 
-                //apply new properties (if not internal)
+                //apply scroll properties
                 CalculateScrollIncrement();
                 scrollY = 0;
                 scrollX = 0;
@@ -50,7 +55,32 @@ namespace maple
 
         }
 
-        public void LoadDocument(String filepath)
+        public string ProcessFilepath(string filepath)
+        {
+            //if it doesn't exist, attempt to adjust
+            if (!File.Exists(filepath))
+            {
+                //check for reserved filename
+                switch (filepath)
+                {
+                    case "{themefile}":
+                        return Settings.themeDirectory + Settings.themeFile;
+                    case "{propfile}":
+                        return Settings.settingsFile;
+                }
+
+                //check for path substitution
+                if (filepath.Contains("{mapledir}"))
+                    return filepath.Replace("{mapledir}", Settings.mapleDirectory);
+                if (filepath.Contains("{themedir}"))
+                    return filepath.Replace("{themedir}", Settings.themeDirectory);
+                if (filepath.Contains("{syntaxdir}"))
+                    return filepath.Replace("{syntaxdir}", Settings.syntaxDirectory);
+            }
+            return filepath; //nothing to change
+        }
+
+        public void LoadDocument(string filepath)
         {
             //clear any lines that may have existed from before
             fileLines.Clear();
@@ -59,9 +89,9 @@ namespace maple
             this.filepath = filepath;
             if(File.Exists(filepath))
             {
-                List<String> fileLinesText = File.ReadAllLines(filepath).ToList<String>();
+                List<string> fileLinesText = File.ReadAllLines(filepath).ToList<String>();
                 
-                foreach(String s in fileLinesText)
+                foreach(string s in fileLinesText)
                 {
                     //List<Token> lineTokens = Line.GenerateTokensFromString(s);
                     fileLines.Add(new Line(s));
@@ -70,17 +100,18 @@ namespace maple
                 if(fileLines.Count == 0)
                     fileLines.Add(new Line(""));
             }
-            else
+            else //file does not exist
             {
+                //create a file
                 File.Create(filepath).Close();
                 fileLines = new List<Line>() { new Line("") };
             }
 
         }
 
-        public void SaveDocument(String savePath)
+        public void SaveDocument(string savePath)
         {
-            List<String> allLines = new List<String>();
+            List<string> allLines = new List<string>();
             foreach(Line l in fileLines)
                 allLines.Add(l.GetContent());
             File.WriteAllLines(savePath, allLines);
