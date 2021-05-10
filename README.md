@@ -24,7 +24,7 @@ Maple is pretty easy to build since it has no dependencies.
 
 ## Commands
 
-Execute commands by toggling to command input with the `escape` key.
+Execute commands from within maple by toggling to command input with the `escape` key.
 
 **`help`:** display a list of maple commands
 
@@ -39,6 +39,12 @@ Execute commands by toggling to command input with the `escape` key.
 **`bot`:** move the cursor to the last line of the document
 
 **`cls`:** clear previous command output
+
+**`selectin` (`i`):** mark the beginning of a selection
+
+**`selectout` (`o`):** mark the end of a selection
+
+**`redraw`:** force a full redraw of the editor *(experimental)*
 
 Some commands may display an output upon completion. Clear command output with the `escape` key.
 It is necessary to clear command output before toggling to the command input again, unless `--quick-cli` is active.
@@ -60,15 +66,15 @@ When running maple, you can include switches to temporarily change editor behavi
 
 ## Themes & Syntax Highlighting
 
-Maple supports syntax highlighting for `.cs` files by default.
+Maple supports syntax highlighting for `.cs` files by default, and has the "maple" theme built in.
+The syntax and theme systems are fully modular, and custom configurations can be created easily.
 
-To add syntax highlighting for another language:
- - Create a new `.xml` file in the `syntax` directory (e.g.: `cs.xml`)
- - Use `<syntax>` tags to define RegEx patterns for different types of tokens (e.g.: `<syntax type="numberLiteral">[0-9]</syntax>`)
- - Use `<keyword>` tags to define different keywords (e.g.: `<keyword>static</keyword>`)
- - Maple will use the highlighting file the next time a file of that type is loaded
+Syntax files are loaded based on the filetype of the current document
+ - Syntax highlighting files are stored as XML within the `syntax` directory
+ - `<syntax>` tags define the patterns for each supported type of token (e.g.: `<syntax type="numberLiteral">([0-9]+\.?[0-9]*f?)</syntax>`)
+ - `<keyword>` tags define the keywords of the language, (e.g.: `<keyword>static</keyword>`)
 
-Maple also supports custom colors for highlighting, accents, etc:
- - Open `maple.xml` within the `themes` directory
- - Assign any valid Windows console color to each text type (for example: `<color category="accent">darkCyan</color>`)
- - Maple will use the set color scheme the next time it is launched
+Theme files are loaded according to the `themeFile` property
+ - Theme files are stored as XML within the `themes` directory
+ - Each text type can be assigned any valid [Windows console color](https://docs.microsoft.com/en-us/dotnet/api/system.consolecolor?view=net-5.0)
+ - Theme categories encompass syntax tokens and maple UI elements, like the footer
