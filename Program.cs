@@ -10,15 +10,9 @@ namespace maple
         {
             PrepareWindow();
 
-            //load settings
-            Settings.LoadSettings();
-
-            //prepare styler
-            Styler.LoadMapleTheme();
-
             //turn args into string for parser
-            String argString = "";
-            foreach(String s in args)
+            string argString = "";
+            foreach(string s in args)
                 argString += s + " ";
             argString.Trim(' ');
 
@@ -29,25 +23,38 @@ namespace maple
                 );
 
             //load settings from switches
-            foreach(String sw in runInfo.switches)
+            foreach(string sw in runInfo.switches)
             {
                 switch(sw)
                 {
                     case "--quick-cli":
                         Settings.quickCli = true;
+                        Settings.IgnoreSetting("quickcli");
                         break;
                     case "--debug-tokens":
                         Settings.debugTokens = true;
+                        Settings.IgnoreSetting("debugtokens");
                         break;
                     case "--no-highlight":
                         Settings.noHighlight = true;
+                        Settings.IgnoreSetting("nohighlight");
+                        break;
+                    case "--relative-path":
+                        Settings.relativePath = true;
+                        Settings.IgnoreSetting("relativepath");
                         break;
                 }
             }
 
+            //load settings
+            Settings.LoadSettings();
+
+            //prepare styler
+            Styler.LoadMapleTheme();
+
             //handle input
             //load file
-            if(args.Length > 0)
+            if (args.Length > 0)
             {
                 Editor.Initialize(runInfo.args[0]);
             }

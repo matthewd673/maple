@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Reflection;
@@ -9,16 +10,24 @@ namespace maple
     {
 
         public static string mapleDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        public static String settingsFile = mapleDirectory + "\\properties.xml";
+        public static string settingsFile = mapleDirectory + "\\properties.xml";
 
         //properties
         public static bool quickCli = false;
         public static bool debugTokens = false;
         public static bool noHighlight = false;
+        public static bool relativePath = false;
 
         public static string themeDirectory = mapleDirectory + "\\themes\\";
         public static string themeFile = "maple.xml";
         public static string syntaxDirectory = mapleDirectory + "\\syntax\\";
+
+        static List<string> ignoreList = new List<string>(); //stores a list of settings to ignore when loading
+
+        public static void IgnoreSetting(string name)
+        {
+            ignoreList.Add(name.ToLower());
+        }
 
         public static void LoadSettings()
         {
@@ -43,6 +52,9 @@ namespace maple
                 }
                 value = node.InnerText.ToLower();
 
+                if (ignoreList.Contains(name)) //skip all settings in ignore list
+                    continue;
+
                 switch(name)
                 {
                     case "quickcli":
@@ -53,6 +65,11 @@ namespace maple
                         break;
                     case "nohighlight":
                         noHighlight = IsTrue(value);
+                        break;
+                    case "relativepath":
+                        relativePath = IsTrue(value);
+                        if (relativePath)
+                            mapleDirectory = Directory.GetCurrentDirectory();
                         break;
                     case "themedirectory":
                         themeDirectory = value;

@@ -152,6 +152,8 @@ namespace maple
                     return Token.TokenType.StringLiteral;
                 case "characterliteral":
                     return Token.TokenType.CharLiteral;
+                case "booleanliteral":
+                    return Token.TokenType.BooleanLiteral;
                 case "comment":
                     return Token.TokenType.Comment;
                 case "operator":

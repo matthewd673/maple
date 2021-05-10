@@ -21,19 +21,20 @@ namespace maple
         //syntax colors
         public static ConsoleColor numberLiteralColor = ConsoleColor.Magenta;
         public static ConsoleColor stringLiteralColor = ConsoleColor.Green;
-        public static ConsoleColor charLiteralColor = ConsoleColor.Yellow;
+        public static ConsoleColor charLiteralColor = ConsoleColor.DarkGreen;
+        public static ConsoleColor booleanLiteralColor = ConsoleColor.Blue;
         public static ConsoleColor variableColor = ConsoleColor.Gray;
-        public static ConsoleColor keywordColor = ConsoleColor.Blue;
+        public static ConsoleColor keywordColor = ConsoleColor.Yellow;
         public static ConsoleColor commentColor = ConsoleColor.DarkGray;
         public static ConsoleColor groupingColor = ConsoleColor.White;
         public static ConsoleColor operatorColor = ConsoleColor.Red;
 
         //text customizations
-        public static String vanityFooter = "maple";
+        public static string vanityFooter = "maple";
 
         public static void LoadMapleTheme()
         {
-            String mapleThemePath = Settings.themeDirectory + Settings.themeFile;
+            string mapleThemePath = Settings.themeDirectory + Settings.themeFile;
             if (File.Exists(mapleThemePath))
             {
                 AssignThemeColors(mapleThemePath);
@@ -41,7 +42,7 @@ namespace maple
             }
         }
 
-        public static void AssignThemeColors(String themePath)
+        public static void AssignThemeColors(string themePath)
         {
             XmlDocument document = new XmlDocument();
             document.Load(themePath);
@@ -49,8 +50,8 @@ namespace maple
             XmlNodeList colors = document.GetElementsByTagName("color");
             foreach(XmlNode node in colors)
             {
-                String category = "";
-                String value = "";
+                string category = "";
+                string value = "";
 
                 foreach(XmlAttribute a in node.Attributes)
                 {
@@ -84,6 +85,8 @@ namespace maple
                         stringLiteralColor = color; break;
                     case "characterliteral":
                         charLiteralColor = color; break;
+                    case "booleanliteral":
+                        booleanLiteralColor = color; break;
                     case "variable":
                         variableColor = color; break;
                     case "keyword":
@@ -98,7 +101,7 @@ namespace maple
             }
         }
 
-        public static void AssignCustomText(String themePath)
+        public static void AssignCustomText(string themePath)
         {
             XmlDocument document = new XmlDocument();
             document.Load(themePath);
@@ -126,7 +129,7 @@ namespace maple
             }
         }
 
-        public static ConsoleColor ColorFromText(String name)
+        public static ConsoleColor ColorFromText(string name)
         {
             switch(name)
             {

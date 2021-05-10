@@ -285,6 +285,7 @@ namespace maple
                     {
                         totalLength = -1;
                         Printer.PrintWord(t.GetText(), foregroundColor: ConsoleColor.Black, backgroundColor: ConsoleColor.Yellow);
+                        Console.Title = t.GetText() + ": " + t.GetTokenType();
                     }
                     else
                         Printer.PrintWord(t.GetText(), foregroundColor: t.GetColor());

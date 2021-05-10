@@ -1,7 +1,8 @@
 <xml>
     <!--Highlighting RegEx-->
-    <syntax type="numberLiteral">([0-9]+\.?[0-9]*f?)</syntax>
-    <syntax type="alphabetical">([a-zA-Z]+[0-9]*[a-zA-Z]*)</syntax>
+    <syntax type="numberLiteral">(\d+\.?\d*f?)</syntax>
+    <syntax type="booleanLiteral">(true|false)</syntax>
+    <syntax type="alphabetical">(\w+[0-9]*\w*)</syntax>
     <syntax type="break">( |;|,)</syntax>
     <syntax type="grouping">(\(|\)|\{|\}|\[|\])</syntax>
     <syntax type="stringLiteral">&quot;.*&quot;</syntax>
@@ -33,7 +34,6 @@
         <keyword>event</keyword>
         <keyword>explicit</keyword>
         <keyword>extern</keyword>
-        <keyword>false</keyword>
         <keyword>finally</keyword>
         <keyword>fixed</keyword>
         <keyword>float</keyword>
@@ -74,7 +74,6 @@
         <keyword>switch</keyword>
         <keyword>this</keyword>
         <keyword>throw</keyword>
-        <keyword>true</keyword>
         <keyword>try</keyword>
         <keyword>typeof</keyword>
         <keyword>uint</keyword>
