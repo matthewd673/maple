@@ -298,13 +298,14 @@ namespace maple
         /// </summary>
         /// <param name="lineIndex">The index of the line to generate for.</param>
         /// <returns>A String representing the gutter text to render.</returns>
-        String BuildGutter(int lineIndex)
+        string BuildGutter(int lineIndex)
         {
-            String gutterContent = (lineIndex + 1).ToString();
+            string gutterContent = (lineIndex + 1).ToString();
             while(gutterContent.Length < gutterWidth - gutterPadding)
                 gutterContent = "0" + gutterContent;
             while(gutterContent.Length < gutterWidth)
                 gutterContent += " ";
+
             return gutterContent;
         }
 
@@ -362,7 +363,7 @@ namespace maple
             int oldGutterWidth = gutterWidth;
             gutterWidth = fileLines.Count.ToString().Length + gutterPadding;
 
-            if(gutterWidth != oldGutterWidth)
+            if (gutterWidth != oldGutterWidth)
                 Editor.RefreshAllLines();
 
             return gutterWidth;

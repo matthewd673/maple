@@ -63,11 +63,12 @@ namespace maple
                         bool backspaceScrolledUp = false;
                         if(docCursor.dY > 0)
                         {
-                            String currentLineContent = doc.GetLine(docCursor.dY); //get remaining content on current line
+                            string currentLineContent = doc.GetLine(docCursor.dY); //get remaining content on current line
                             int previousLineMaxX = doc.GetLineLength(docCursor.dY - 1); //get max position on preceding line
-                            String combinedLineContent = doc.GetLine(docCursor.dY - 1) + currentLineContent; //combine content
+                            string combinedLineContent = doc.GetLine(docCursor.dY - 1) + currentLineContent; //combine content
                             doc.SetLine(docCursor.dY - 1, combinedLineContent); //set previous line to combined content
                             doc.RemoveLine(docCursor.dY); //remove current line
+                            docCursor.CalculateGutterWidth();
 
                             docCursor.SetDocPosition(docCursor.dX, docCursor.dY - 1);
 
@@ -97,9 +98,10 @@ namespace maple
                     {
                         if(docCursor.dY < doc.GetMaxLine()) //there is a following line to append
                         {
-                            String followingLineText = doc.GetLine(docCursor.dY + 1); //get following line content
+                            string followingLineText = doc.GetLine(docCursor.dY + 1); //get following line content
                             doc.SetLine(docCursor.dY, doc.GetLine(docCursor.dY) + followingLineText); //append to current
                             doc.RemoveLine(docCursor.dY + 1); //remove next line
+                            docCursor.CalculateGutterWidth();
                             for(int i = docCursor.dY; i < doc.GetMaxLine() + 1; i++)
                                 Editor.RefreshLine(i);
                         }
@@ -112,9 +114,10 @@ namespace maple
                     break;
                 case ConsoleKey.Enter:
                     doc.AddLine(docCursor.dY + 1); //add new line
+                    docCursor.CalculateGutterWidth(); //update gutter position
 
-                    String followingTextLine = doc.GetLine(docCursor.dY);
-                    String followingText = followingTextLine.Substring(docCursor.dX); //get text following cursor (on current line)
+                    string followingTextLine = doc.GetLine(docCursor.dY);
+                    string followingText = followingTextLine.Substring(docCursor.dX); //get text following cursor (on current line)
 
                     doc.AddTextAtPosition(0, docCursor.dY + 1, followingText); //add following text to new line
 
