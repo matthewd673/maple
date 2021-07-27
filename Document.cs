@@ -435,6 +435,15 @@ namespace maple
             return true;
         }
 
+        public string GetTextAtPosition(int x, int y)
+        {
+            if(x < 0 || y < 0 || y > fileLines.Count)
+                return "";
+
+            String currentLine = GetLine(y);
+            return currentLine.Remove(0, x);
+        }
+
         public bool AddLine(int index)
         {
             if(index < 0 || index > fileLines.Count)

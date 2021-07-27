@@ -17,10 +17,12 @@ namespace maple
         public static bool debugTokens = false;
         public static bool noHighlight = false;
         public static bool relativePath = false;
+        public static bool navigatePastTabs = true;
 
         public static string themeDirectory = mapleDirectory + "\\themes\\";
         public static string themeFile = "maple.xml";
         public static string syntaxDirectory = mapleDirectory + "\\syntax\\";
+        public static int tabSpacesCount = 4;
 
         static List<string> ignoreList = new List<string>(); //stores a list of settings to ignore when loading
 
@@ -57,6 +59,7 @@ namespace maple
 
                 switch(name)
                 {
+                    //SWITCHES
                     case "quickcli":
                         quickCli = IsTrue(value);
                         break;
@@ -71,6 +74,10 @@ namespace maple
                         if (relativePath)
                             mapleDirectory = Directory.GetCurrentDirectory();
                         break;
+                    case "navigatepasttabs":
+                        navigatePastTabs = IsTrue(value);
+                        break;
+                    //ARGUMENTS
                     case "themedirectory":
                         themeDirectory = value;
                         if(!themeDirectory.EndsWith("/"))
@@ -85,6 +92,9 @@ namespace maple
                         if (!syntaxDirectory.EndsWith("/"))
                             syntaxDirectory += "/";
                         syntaxDirectory = syntaxDirectory.Replace("{mapledir}", mapleDirectory);
+                        break;
+                    case "tabspacescount":
+                        tabSpacesCount = Convert.ToInt32(value);
                         break;
                 }
             }

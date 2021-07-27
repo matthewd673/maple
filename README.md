@@ -64,6 +64,8 @@ When running maple, you can include switches to temporarily change editor behavi
 
 **`--no-highlight`:** skip the tokenizer and ignore all syntax highlighting rules
 
+**`--navigate-past-tabs`:** when navigating with the right arrow key, skip past groups of spaces equal to the current tab size
+
 ## Themes & Syntax Highlighting
 
 Maple supports syntax highlighting for `.cs` files by default, and has the "maple" theme built in.

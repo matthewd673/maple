@@ -43,7 +43,22 @@ namespace maple
                     docCursor.MoveLeft();
                     break;
                 case ConsoleKey.RightArrow:
-                    docCursor.MoveRight();
+                    if (Settings.navigatePastTabs) //check if there is a tab to skip
+                    {
+                        //build tab text
+                        string tabSearchText = "";
+                        for (int i = 0; i < Settings.tabSpacesCount; i++)
+                            tabSearchText += " ";
+                        if (docCursor.GetDocument().GetTextAtPosition(docCursor.dX, docCursor.dY).StartsWith(tabSearchText)) //can skip, do so
+                        {
+                            for (int i = 0; i < Settings.tabSpacesCount; i++)
+                                docCursor.MoveRight();
+                        }
+                        else //can't skip, move normally
+                            docCursor.MoveRight();
+                    }
+                    else //basic move
+                        docCursor.MoveRight();
                     break;
                 
                 //LINE MANIPULATION
@@ -59,7 +74,6 @@ namespace maple
                     }
                     else //at beginning of line, append current line to previous
                     {
-                        
                         bool backspaceScrolledUp = false;
                         if(docCursor.dY > 0)
                         {
@@ -148,11 +162,15 @@ namespace maple
                     ToggleInputTarget();
                     break;
                 case ConsoleKey.Tab:
-                    bool tabText = doc.AddTextAtPosition(docCursor.dX, docCursor.dY, "    ");
+                    //build and add tab text
+                    string tabText = "";
+                    for (int i = 0; i < Settings.tabSpacesCount; i++)
+                        tabText += " ";
+                    bool tabTextAdded = doc.AddTextAtPosition(docCursor.dX, docCursor.dY, tabText);
                     
-                    if(tabText)
+                    if(tabTextAdded)
                     {
-                        for(int i = 0; i < 4; i++)
+                        for(int i = 0; i < Settings.tabSpacesCount; i++) //move cursor forward as appropriate
                             docCursor.MoveRight();
                         Editor.RefreshLine(docCursor.dY);
                     }
@@ -160,20 +178,17 @@ namespace maple
                 //TYPING
                 default:                    
                     String typed = keyInfo.KeyChar.ToString();
-
                     //continue only if the typed character can be displayed
                     Regex r = new Regex("\\P{Cc}");
                     if(!r.Match(typed).Success)
                         break;
 
                     bool addedText = doc.AddTextAtPosition(docCursor.dX, docCursor.dY, typed);
-                    
                     if(addedText)
                     {
                         docCursor.MoveRight();
                         Editor.RefreshLine(docCursor.dY);
                     }
-
                     break;
             }
         }

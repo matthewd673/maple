@@ -43,6 +43,10 @@ namespace maple
                         Settings.relativePath = true;
                         Settings.IgnoreSetting("relativepath");
                         break;
+                    case "--navigate-past-tabs":
+                        Settings.navigatePastTabs = true;
+                        Settings.IgnoreSetting("navigatepasttabs");
+                        break;
                 }
             }
 
