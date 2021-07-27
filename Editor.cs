@@ -136,7 +136,7 @@ namespace maple
                     Printer.ClearFooter(ConsoleColor.Black);
                     Printer.WriteToFooter(Styler.vanityFooter + " ", 0, Styler.accentColor, ConsoleColor.Black); //write vanity prefix
                     Printer.WriteToFooter(GetCurrentDoc().GetFilePath().TrimEnd() + " ", -1, Styler.textColor, ConsoleColor.Black); //write doc name
-                    Printer.WriteToFooter((docCursor.dX + 1) + ", " + (docCursor.dY + 1) + " ", -1, Styler.accentColor, ConsoleColor.Black); //writer cursor position
+                    Printer.WriteToFooter("ln " + (docCursor.dY + 1) + " col " + (docCursor.dX + 1) + " ", -1, Styler.accentColor, ConsoleColor.Black); //writer cursor position
                     if (GetCurrentDoc().HasSelection()) //write selection bounds (if has selection)
                         Printer.WriteToFooter((GetCurrentDoc().GetSelectionInX() + 1) + "," + (GetCurrentDoc().GetSelectionInY() + 1) + " - " +
                             (GetCurrentDoc().GetSelectionOutX() + 1) + "," + (GetCurrentDoc().GetSelectionOutY() + 1) + " ",

@@ -14,6 +14,8 @@ namespace maple
 
         static InputTarget currentTarget = InputTarget.Document;
 
+        static int maxCursorX = 0;
+
         public static void AcceptInput(ConsoleKeyInfo keyInfo)
         {
 
@@ -35,12 +37,15 @@ namespace maple
                 //MOVEMENT
                 case ConsoleKey.UpArrow:
                     docCursor.MoveUp();
+                    docCursor.Move(maxCursorX, docCursor.dY); //attempt to move to max x position
                     break;
                 case ConsoleKey.DownArrow:
                     docCursor.MoveDown();
+                    docCursor.Move(maxCursorX, docCursor.dY); //attempt to move to max x position
                     break;
                 case ConsoleKey.LeftArrow:
                     docCursor.MoveLeft();
+                    maxCursorX = docCursor.dX; //update max x position
                     break;
                 case ConsoleKey.RightArrow:
                     if (Settings.navigatePastTabs) //check if there is a tab to skip
@@ -59,6 +64,7 @@ namespace maple
                     }
                     else //basic move
                         docCursor.MoveRight();
+                    maxCursorX = docCursor.dX; //update max x position
                     break;
                 
                 //LINE MANIPULATION
@@ -84,7 +90,7 @@ namespace maple
                             doc.RemoveLine(docCursor.dY); //remove current line
                             docCursor.CalculateGutterWidth();
 
-                            docCursor.SetDocPosition(docCursor.dX, docCursor.dY - 1);
+                            docCursor.Move(docCursor.dX, docCursor.dY - 1);
 
                             //scroll up if necessary
                             if(docCursor.sY == 0)
@@ -93,7 +99,7 @@ namespace maple
                                 backspaceScrolledUp = true;
                             }
 
-                            docCursor.SetDocPosition(previousLineMaxX, docCursor.dY); //move cursor to preceding line
+                            docCursor.Move(previousLineMaxX, docCursor.dY); //move cursor to preceding line
                         }
                         //update all lines below
                         if(!backspaceScrolledUp)
@@ -106,6 +112,8 @@ namespace maple
                     }
 
                     Editor.RefreshLine(docCursor.dY);
+                    
+                    maxCursorX = docCursor.dX; //update max x position
                     break;
                 case ConsoleKey.Delete:
                     if(docCursor.dX == doc.GetLineLength(docCursor.dY)) //deleting at end of line
@@ -146,7 +154,7 @@ namespace maple
                         enterScrolledDown = true;
                     }
 
-                    docCursor.SetDocPosition(0, docCursor.dY + 1); //move cursor to beginning of new line
+                    docCursor.Move(0, docCursor.dY + 1); //move cursor to beginning of new line
                     Editor.RefreshLine(docCursor.sY);
 
                     //update all lines below
@@ -157,6 +165,8 @@ namespace maple
                     }
                     else
                         Editor.RefreshAllLines();
+
+                    maxCursorX = docCursor.dX; //update max x position
                     break;
                 case ConsoleKey.Escape:
                     ToggleInputTarget();
@@ -174,6 +184,16 @@ namespace maple
                             docCursor.MoveRight();
                         Editor.RefreshLine(docCursor.dY);
                     }
+
+                    maxCursorX = docCursor.dX; //update max x position
+                    break;
+                case ConsoleKey.Home:
+                    docCursor.Move(0, docCursor.dY); //move to beginning of line
+                    maxCursorX = docCursor.dX; //update max x position
+                    break;
+                case ConsoleKey.End:
+                    docCursor.Move(doc.GetLineLength(docCursor.dY), docCursor.dY); //move to end of line
+                    maxCursorX = docCursor.dX; //update max x position
                     break;
                 //TYPING
                 default:                    
@@ -189,6 +209,7 @@ namespace maple
                         docCursor.MoveRight();
                         Editor.RefreshLine(docCursor.dY);
                     }
+                    maxCursorX = docCursor.dX; //update max x position
                     break;
             }
         }
