@@ -9,32 +9,32 @@ namespace maple
     {
 
         //basic colors
-        public static ConsoleColor textColor = ConsoleColor.Gray;
-        public static ConsoleColor accentColor = ConsoleColor.Yellow;
-        public static ConsoleColor highlightColor = ConsoleColor.Yellow;
-        public static ConsoleColor errorColor = ConsoleColor.Red;
-        public static ConsoleColor cmdinColor = ConsoleColor.Yellow;
-        public static ConsoleColor cmdoutColor = ConsoleColor.Cyan;
-        public static ConsoleColor gutterColor = ConsoleColor.DarkGray;
-        public static ConsoleColor selectionColor = ConsoleColor.Blue;
+        public static ConsoleColor TextColor { get; private set; } = ConsoleColor.Gray;
+        public static ConsoleColor AccentColor { get; private set; } = ConsoleColor.Yellow;
+        public static ConsoleColor HighlightColor { get; private set; } = ConsoleColor.Yellow;
+        public static ConsoleColor ErrorColor { get; private set; } = ConsoleColor.Red;
+        public static ConsoleColor CmdInColor { get; private set; } = ConsoleColor.Yellow;
+        public static ConsoleColor CmdOutColor { get; private set; } = ConsoleColor.Cyan;
+        public static ConsoleColor GutterColor { get; private set; } = ConsoleColor.DarkGray;
+        public static ConsoleColor SelectionColor { get; private set; } = ConsoleColor.Blue;
 
         //syntax colors
-        public static ConsoleColor numberLiteralColor = ConsoleColor.Magenta;
-        public static ConsoleColor stringLiteralColor = ConsoleColor.Green;
-        public static ConsoleColor charLiteralColor = ConsoleColor.DarkGreen;
-        public static ConsoleColor booleanLiteralColor = ConsoleColor.Blue;
-        public static ConsoleColor variableColor = ConsoleColor.Gray;
-        public static ConsoleColor keywordColor = ConsoleColor.Yellow;
-        public static ConsoleColor commentColor = ConsoleColor.DarkGray;
-        public static ConsoleColor groupingColor = ConsoleColor.White;
-        public static ConsoleColor operatorColor = ConsoleColor.Red;
+        public static ConsoleColor NumberLiteralColor { get; private set; } = ConsoleColor.Magenta;
+        public static ConsoleColor StringLiteralColor { get; private set; } = ConsoleColor.Green;
+        public static ConsoleColor CharLiteralColor { get; private set; } = ConsoleColor.DarkGreen;
+        public static ConsoleColor BooleanLiteralColor { get; private set; } = ConsoleColor.Blue;
+        public static ConsoleColor VariableColor { get; private set; } = ConsoleColor.Gray;
+        public static ConsoleColor KeywordColor { get; private set; } = ConsoleColor.Yellow;
+        public static ConsoleColor CommentColor { get; private set; } = ConsoleColor.DarkGray;
+        public static ConsoleColor GroupingColor { get; private set; } = ConsoleColor.White;
+        public static ConsoleColor OperatorColor { get; private set; } = ConsoleColor.Red;
 
         //text customizations
-        public static string vanityFooter = "maple";
+        public static string VanityFooter { get; private set; } = "maple";
 
         public static void LoadMapleTheme()
         {
-            string mapleThemePath = Settings.themeDirectory + Settings.themeFile;
+            string mapleThemePath = Settings.ThemeDirectory + Settings.ThemeFile;
             if (File.Exists(mapleThemePath))
             {
                 AssignThemeColors(mapleThemePath);
@@ -66,37 +66,37 @@ namespace maple
                 switch(category)
                 {
                     case "text":
-                        textColor = color; break;
+                        TextColor = color; break;
                     case "accent":
-                        accentColor = color; break;
+                        AccentColor = color; break;
                     case "error":
-                        errorColor = color; break;
+                        ErrorColor = color; break;
                     case "commandinput":
-                        cmdinColor = color; break;
+                        CmdInColor = color; break;
                     case "commandoutput":
-                        cmdoutColor = color; break;
+                        CmdOutColor = color; break;
                     case "gutter":
-                        gutterColor = color; break;
+                        GutterColor = color; break;
                     case "selection":
-                        selectionColor = color; break;
+                        SelectionColor = color; break;
                     case "numberliteral":
-                        numberLiteralColor = color; break;
+                        NumberLiteralColor = color; break;
                     case "stringliteral":
-                        stringLiteralColor = color; break;
+                        StringLiteralColor = color; break;
                     case "characterliteral":
-                        charLiteralColor = color; break;
+                        CharLiteralColor = color; break;
                     case "booleanliteral":
-                        booleanLiteralColor = color; break;
+                        BooleanLiteralColor = color; break;
                     case "variable":
-                        variableColor = color; break;
+                        VariableColor = color; break;
                     case "keyword":
-                        keywordColor = color; break;
+                        KeywordColor = color; break;
                     case "comment":
-                        commentColor = color; break;
+                        CommentColor = color; break;
                     case "grouping":
-                        groupingColor = color; break;
+                        GroupingColor = color; break;
                     case "operator":
-                        operatorColor = color; break;
+                        OperatorColor = color; break;
                 }
             }
         }
@@ -124,7 +124,7 @@ namespace maple
                 switch (category)
                 {
                     case "vanityfooter":
-                        vanityFooter = value; break;
+                        VanityFooter = value; break;
                 }
             }
         }

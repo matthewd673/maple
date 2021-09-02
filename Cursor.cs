@@ -4,61 +4,65 @@ namespace maple
 {
     class Cursor
     {
-        public int dX, dY;
-        public int sX, sY;
+        public int DX { get; set; }
+        public int DY { get; set; }
 
-        public const int minScreenX = 0;
-        public const int minScreenY = 0;
+        public int SX { get; set; }
+        public int SY { get; set; }
+
+        public const int MinScreenX = 0;
+        public const int MinScreenY = 0;
         
-        public static int maxScreenX, maxScreenY;
+        public static int MaxScreenX { get; set; }
+        public static int MaxScreenY { get; set; }
 
-        public int contentOffsetX = 0;
-        public int contentOffsetY = 0;
+        public int ContentOffsetX { get; set; } = 0;
+        public int ContentOffsetY { get; set; } = 0;
 
         public Cursor(int dX, int dY)
         {
-            this.dX = dX;
-            this.dY = dY;
+            DX = dX;
+            DY = dY;
 
             CalculateCursorBounds();
         }
         
         public static void CalculateCursorBounds()
         {
-            maxScreenX = Console.BufferWidth - 1;
-            maxScreenY = Console.BufferHeight - 1;
+            MaxScreenX = Console.BufferWidth - 1;
+            MaxScreenY = Console.BufferHeight - 1;
         }
 
         public void LockToScreenConstraints()
         {
             //keep screen x, y in safe range
-            if(sX < minScreenX)
-                sX = minScreenX;
-            if(sX > maxScreenX)
-                sX = maxScreenX;
-            if(sY < minScreenY)
-                sY = minScreenY;
-            if(sY > maxScreenY)
-                sY = maxScreenX;
+            if(SX < MinScreenX)
+                SX = MinScreenX;
+            if(SX > MaxScreenX)
+                SX = MaxScreenX;
+            if(SY < MinScreenY)
+                SY = MinScreenY;
+            if(SY > MaxScreenY)
+                SY = MaxScreenX;
         }
 
         public void Move(int tX, int tY, bool constrainToScreen = true)
         {
-            dX = tX;
-            dY = tY;
+            DX = tX;
+            DY = tY;
 
-            sX = dX + contentOffsetX;
-            sY = dY + contentOffsetY;
+            SX = DX + ContentOffsetX;
+            SY = DY + ContentOffsetY;
 
             if(constrainToScreen)
                 LockToScreenConstraints();
 
-            Console.SetCursorPosition(sX, sY);
+            Console.SetCursorPosition(SX, SY);
         }
 
         public void ApplyPosition()
         {
-            Console.SetCursorPosition(sX, sY);
+            Console.SetCursorPosition(SX, SY);
         }
 
     }

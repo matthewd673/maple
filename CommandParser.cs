@@ -8,15 +8,15 @@ namespace maple
 
         public struct CommandInfo
         {
-            public String primaryCommand;
-            public List<String> args;
-            public List<String> switches;
+            public String PrimaryCommand { get; set; }
+            public List<String> Args { get; set; }
+            public List<String> Switches { get; set; }
 
             public CommandInfo(String primaryCommand, List<String> args, List<String> switches)
             {
-                this.primaryCommand = primaryCommand;
-                this.args = args;
-                this.switches = switches;
+                PrimaryCommand = primaryCommand;
+                Args = args;
+                Switches = switches;
             }
         }
 

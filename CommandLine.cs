@@ -3,74 +3,70 @@ using System.Collections.Generic;
 
 namespace maple
 {
-    class CommandLine
+    static class CommandLine
     {
 
-        static String inputText = "";
-        static String outputText = "";
+        public static String InputText { get; private set; } = "";
 
-        static bool hasOutput = false;
+        private static String _outputText = "";
+        public static String OutputText
+        {
+            get { return _outputText; }
+            set { _outputText = value; HasOutput = true; }
+        }
+
+        public static bool HasOutput { get; private set; } = false;
 
         public static bool AddText(int pos, String text)
         {
-            if(pos < 0 || pos > inputText.Length)
+            if(pos < 0 || pos > InputText.Length)
                 return false;
                 
-            inputText = inputText.Insert(pos, text);
+            InputText = InputText.Insert(pos, text);
             return true;
         }
 
         public static bool RemoveText(int pos)
         {
-            if(pos < 0 || pos > inputText.Length - 1)
+            if(pos < 0 || pos > InputText.Length - 1)
                 return false;
             
-            inputText = inputText.Remove(pos, 1);
+            InputText = InputText.Remove(pos, 1);
             return true;
         }
 
         public static bool IsSafeCursorX(int x)
         {
-            return (x >= 0 && x < inputText.Length);
-        }
-
-        public static String GetText() { return inputText; }
-        public static bool HasOutput() { return hasOutput; }
-        public static String GetOutput() { return outputText; }
-
-        public static void SetOutput(String output)
-        {
-            outputText = output;
+            return (x >= 0 && x < InputText.Length);
         }
 
         static void SetOutput(String text, String speaker)
         {
-            outputText = "[" + speaker + "]: " + text;
-            hasOutput = true;
+            OutputText = "[" + speaker + "]: " + text;
         }
 
         public static void ClearOutput()
         {
-            outputText = "";
-            hasOutput = false;
+            OutputText = "";
+            HasOutput = false;
         }
 
         public static void ClearInput()
         {
-            inputText = "";
-            Editor.GetCommandCursor().Move(0, 0);
+            InputText = "";
+            Editor.CmdCursor.Move(0, 0);
         }
 
         public static void ExecuteInput()
         {
-            if(hasOutput) //output is being displayed, reset for the future
+            if(HasOutput) //output is being displayed, reset for the future
                 ClearOutput();
 
-            CommandParser.CommandInfo commandInfo = CommandParser.Parse(inputText);
+            CommandParser.CommandInfo commandInfo = CommandParser.Parse(InputText);
 
-            String primaryCommand = commandInfo.primaryCommand;
-            List<String> commandArgs = commandInfo.args;
-            List<String> commandSwitches = commandInfo.switches;
+            String primaryCommand = commandInfo.PrimaryCommand;
+            List<String> commandArgs = commandInfo.Args;
+            List<String> commandSwitches = commandInfo.Switches;
 
             switch(primaryCommand)
             {
@@ -112,7 +108,7 @@ namespace maple
             }
 
             //empty input field and toggle back to editor
-            inputText = "";
+            InputText = "";
             Input.ToggleInputTarget();
         }
 
@@ -124,14 +120,14 @@ namespace maple
         static void SaveCommand(List<String> args, List<String> switches)
         {
 
-            String savePath = Editor.GetDocCursor().GetDocument().GetFilePath();
+            String savePath = Editor.DocCursor.Doc.Filepath;
             if(args.Count > 0)
                 savePath = args[0];
             savePath = savePath.Trim('\"');
 
-            Editor.GetDocCursor().GetDocument().SaveDocument(savePath);
+            Editor.DocCursor.Doc.SaveDocument(savePath);
 
-            String existingPath = Editor.GetDocCursor().GetDocument().GetFilePath();
+            String existingPath = Editor.DocCursor.Doc.Filepath;
 
             if(savePath != existingPath)
                 SetOutput("Copy of file saved to " + savePath, "save");
@@ -168,42 +164,42 @@ namespace maple
 
         static void TopCommand()
         {
-            Editor.GetDocCursor().Move(Editor.GetDocCursor().dX, 0);
+            Editor.DocCursor.Move(Editor.DocCursor.DX, 0);
         }
 
         static void BotCommand()
         {
-            Editor.GetDocCursor().Move(Editor.GetDocCursor().dX, Editor.GetDocCursor().GetDocument().GetMaxLine());
+            Editor.DocCursor.Move(Editor.DocCursor.DX, Editor.DocCursor.Doc.GetMaxLine());
         }
 
         static void RedrawCommand()
         {
             Cursor.CalculateCursorBounds();
-            Editor.GetDocCursor().GetDocument().CalculateScrollIncrement();
+            Editor.DocCursor.Doc.CalculateScrollIncrement();
             Editor.RefreshAllLines();
-            Editor.GetDocCursor().Move(Editor.GetDocCursor().dX, Editor.GetDocCursor().dY);
+            Editor.DocCursor.Move(Editor.DocCursor.DX, Editor.DocCursor.DY);
         }
 
         static void SelectInCommand()
         {
-            Editor.GetCurrentDoc().MarkSelectionIn(Editor.GetDocCursor().dX, Editor.GetDocCursor().dY);
+            Editor.GetCurrentDoc().MarkSelectionIn(Editor.DocCursor.DX, Editor.DocCursor.DY);
             if (Editor.GetCurrentDoc().HasSelection()) //only refresh if there is a complete selection
             {
                 Editor.RefreshAllLines();
                 //Editor.RedrawLines();
             }
-            //SetOutput("Selection start at " + Editor.GetDocCursor().dX);
+            //SetOutput("Selection start at " + Editor.DocCursor.dX);
         }
 
         static void SelectOutCommand()
         {
-            Editor.GetCurrentDoc().MarkSelectionOut(Editor.GetDocCursor().dX, Editor.GetDocCursor().dY);
+            Editor.GetCurrentDoc().MarkSelectionOut(Editor.DocCursor.DX, Editor.DocCursor.DY);
             if (Editor.GetCurrentDoc().HasSelection()) //only refresh if there is a complete selection
             {
                 Editor.RefreshAllLines();
                 //Editor.RedrawLines();
             }
-            //SetOutput("Selection end at " + Editor.GetDocCursor().dY);
+            //SetOutput("Selection end at " + Editor.DocCursor.dY);
         }
 
         static void UnknownCommand()

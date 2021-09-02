@@ -7,39 +7,34 @@ namespace maple
     class Line
     {
 
-        Token[] tokens = new Token[0];
-        String lineContent = "";
+        public Token[] Tokens { get; private set; }= new Token[0];
+
+        private String _lineContent = "";
+        public String LineContent {
+            get
+            {
+                return _lineContent;
+            }
+            set
+            {
+                Tokens = GenerateTokensFromString(value);
+
+                String content = "";
+                foreach(Token t in Tokens)
+                    content += t.Text;
+
+                _lineContent = content;
+            }
+        }
 
         public Line(String text)
         {
-            tokens = GenerateTokensFromString(text);
-            UpdateContentFromTokens();
+            LineContent = text;
         }
 
         public static Token[] GenerateTokensFromString(String text)
         {
             return Lexer.Tokenize(text);
-        }
-
-        public Token[] GetTokens() { return tokens; }
-
-        public String GetContent() { return lineContent; }
-
-        public void UpdateContentFromTokens()
-        {
-            String content = "";
-            foreach(Token t in tokens)
-            {
-                content += t.GetText();
-            }
-
-            lineContent = content;
-        }
-
-        public void SetContent(String newContent)
-        {
-            tokens = GenerateTokensFromString(newContent);
-            UpdateContentFromTokens();
         }
 
     }

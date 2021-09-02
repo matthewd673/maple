@@ -12,16 +12,16 @@ namespace maple
             Command
         }
 
-        static InputTarget currentTarget = InputTarget.Document;
+        public static InputTarget CurrentTarget { get; private set; } = InputTarget.Document;
 
         static int maxCursorX = 0;
 
         public static void AcceptInput(ConsoleKeyInfo keyInfo)
         {
 
-            if(currentTarget == InputTarget.Document)
+            if(CurrentTarget == InputTarget.Document)
                 AcceptDocumentInput(keyInfo);
-            else if(currentTarget == InputTarget.Command)
+            else if(CurrentTarget == InputTarget.Command)
                 AcceptCommandInput(keyInfo);
 
         }
@@ -29,34 +29,34 @@ namespace maple
         static void AcceptDocumentInput(ConsoleKeyInfo keyInfo)
         {
 
-            DocumentCursor docCursor = Editor.GetDocCursor();
-            Document doc = docCursor.GetDocument();
+            DocumentCursor docCursor = Editor.DocCursor;
+            Document doc = docCursor.Doc;
 
             switch(keyInfo.Key)
             {
                 //MOVEMENT
                 case ConsoleKey.UpArrow:
                     docCursor.MoveUp();
-                    docCursor.Move(maxCursorX, docCursor.dY); //attempt to move to max x position
+                    docCursor.Move(maxCursorX, docCursor.DY); //attempt to move to max x position
                     break;
                 case ConsoleKey.DownArrow:
                     docCursor.MoveDown();
-                    docCursor.Move(maxCursorX, docCursor.dY); //attempt to move to max x position
+                    docCursor.Move(maxCursorX, docCursor.DY); //attempt to move to max x position
                     break;
                 case ConsoleKey.LeftArrow:
                     docCursor.MoveLeft();
-                    maxCursorX = docCursor.dX; //update max x position
+                    maxCursorX = docCursor.DX; //update max x position
                     break;
                 case ConsoleKey.RightArrow:
-                    if (Settings.navigatePastTabs) //check if there is a tab to skip
+                    if (Settings.NavigatePastTabs) //check if there is a tab to skip
                     {
                         //build tab text
                         string tabSearchText = "";
-                        for (int i = 0; i < Settings.tabSpacesCount; i++)
+                        for (int i = 0; i < Settings.TabSpacesCount; i++)
                             tabSearchText += " ";
-                        if (docCursor.GetDocument().GetTextAtPosition(docCursor.dX, docCursor.dY).StartsWith(tabSearchText)) //can skip, do so
+                        if (docCursor.Doc.GetTextAtPosition(docCursor.DX, docCursor.DY).StartsWith(tabSearchText)) //can skip, do so
                         {
-                            for (int i = 0; i < Settings.tabSpacesCount; i++)
+                            for (int i = 0; i < Settings.TabSpacesCount; i++)
                                 docCursor.MoveRight();
                         }
                         else //can't skip, move normally
@@ -64,16 +64,16 @@ namespace maple
                     }
                     else //basic move
                         docCursor.MoveRight();
-                    maxCursorX = docCursor.dX; //update max x position
+                    maxCursorX = docCursor.DX; //update max x position
                     break;
                 
                 //LINE MANIPULATION
                 case ConsoleKey.Backspace:
-                    if(docCursor.dX > 0) //not at the beginning of the line
+                    if(docCursor.DX > 0) //not at the beginning of the line
                     {
                         bool backspaceTriggered = doc.RemoveTextAtPosition(
-                            docCursor.dX - 1,
-                            docCursor.dY);
+                            docCursor.DX - 1,
+                            docCursor.DY);
 
                         if(backspaceTriggered)
                             docCursor.MoveLeft();
@@ -81,92 +81,92 @@ namespace maple
                     else //at beginning of line, append current line to previous
                     {
                         bool backspaceScrolledUp = false;
-                        if(docCursor.dY > 0)
+                        if(docCursor.DY > 0)
                         {
-                            string currentLineContent = doc.GetLine(docCursor.dY); //get remaining content on current line
-                            int previousLineMaxX = doc.GetLineLength(docCursor.dY - 1); //get max position on preceding line
-                            string combinedLineContent = doc.GetLine(docCursor.dY - 1) + currentLineContent; //combine content
-                            doc.SetLine(docCursor.dY - 1, combinedLineContent); //set previous line to combined content
-                            doc.RemoveLine(docCursor.dY); //remove current line
+                            string currentLineContent = doc.GetLine(docCursor.DY); //get remaining content on current line
+                            int previousLineMaxX = doc.GetLineLength(docCursor.DY - 1); //get max position on preceding line
+                            string combinedLineContent = doc.GetLine(docCursor.DY - 1) + currentLineContent; //combine content
+                            doc.SetLine(docCursor.DY - 1, combinedLineContent); //set previous line to combined content
+                            doc.RemoveLine(docCursor.DY); //remove current line
                             docCursor.CalculateGutterWidth();
 
-                            docCursor.Move(docCursor.dX, docCursor.dY - 1);
+                            docCursor.Move(docCursor.DX, docCursor.DY - 1);
 
                             //scroll up if necessary
-                            if(docCursor.sY == 0)
+                            if(docCursor.SY == 0)
                             {
                                 doc.ScrollUp();
                                 backspaceScrolledUp = true;
                             }
 
-                            docCursor.Move(previousLineMaxX, docCursor.dY); //move cursor to preceding line
+                            docCursor.Move(previousLineMaxX, docCursor.DY); //move cursor to preceding line
                         }
                         //update all lines below
                         if(!backspaceScrolledUp)
                         {
-                            for(int i = docCursor.dY; i <= doc.GetMaxLine() + 1; i++) //+1 so that the old line is cleared
+                            for(int i = docCursor.DY; i <= doc.GetMaxLine() + 1; i++) //+1 so that the old line is cleared
                                 Editor.RefreshLine(i);
                         }
                         else
                             Editor.RefreshAllLines();
                     }
 
-                    Editor.RefreshLine(docCursor.dY);
+                    Editor.RefreshLine(docCursor.DY);
                     
-                    maxCursorX = docCursor.dX; //update max x position
+                    maxCursorX = docCursor.DX; //update max x position
                     break;
                 case ConsoleKey.Delete:
-                    if(docCursor.dX == doc.GetLineLength(docCursor.dY)) //deleting at end of line
+                    if(docCursor.DX == doc.GetLineLength(docCursor.DY)) //deleting at end of line
                     {
-                        if(docCursor.dY < doc.GetMaxLine()) //there is a following line to append
+                        if(docCursor.DY < doc.GetMaxLine()) //there is a following line to append
                         {
-                            string followingLineText = doc.GetLine(docCursor.dY + 1); //get following line content
-                            doc.SetLine(docCursor.dY, doc.GetLine(docCursor.dY) + followingLineText); //append to current
-                            doc.RemoveLine(docCursor.dY + 1); //remove next line
+                            string followingLineText = doc.GetLine(docCursor.DY + 1); //get following line content
+                            doc.SetLine(docCursor.DY, doc.GetLine(docCursor.DY) + followingLineText); //append to current
+                            doc.RemoveLine(docCursor.DY + 1); //remove next line
                             docCursor.CalculateGutterWidth();
-                            for(int i = docCursor.dY; i < doc.GetMaxLine() + 1; i++)
+                            for(int i = docCursor.DY; i < doc.GetMaxLine() + 1; i++)
                                 Editor.RefreshLine(i);
                         }
                     }
                     else
                     {
-                        doc.RemoveTextAtPosition(docCursor.dX, docCursor.dY); //remove next character
-                        Editor.RefreshLine(docCursor.dY); //update line
+                        doc.RemoveTextAtPosition(docCursor.DX, docCursor.DY); //remove next character
+                        Editor.RefreshLine(docCursor.DY); //update line
                     }
                     break;
                 case ConsoleKey.Enter:
-                    doc.AddLine(docCursor.dY + 1); //add new line
+                    doc.AddLine(docCursor.DY + 1); //add new line
                     docCursor.CalculateGutterWidth(); //update gutter position
 
-                    string followingTextLine = doc.GetLine(docCursor.dY);
-                    string followingText = followingTextLine.Substring(docCursor.dX); //get text following cursor (on current line)
+                    string followingTextLine = doc.GetLine(docCursor.DY);
+                    string followingText = followingTextLine.Substring(docCursor.DX); //get text following cursor (on current line)
 
-                    doc.AddTextAtPosition(0, docCursor.dY + 1, followingText); //add following text to new line
+                    doc.AddTextAtPosition(0, docCursor.DY + 1, followingText); //add following text to new line
 
-                    if(docCursor.dX < followingTextLine.Length)
-                        doc.SetLine(docCursor.dY, followingTextLine.Remove(docCursor.dX)); //remove following text on current line
+                    if(docCursor.DX < followingTextLine.Length)
+                        doc.SetLine(docCursor.DY, followingTextLine.Remove(docCursor.DX)); //remove following text on current line
                     
                     //scroll down if necessary
                     bool enterScrolledDown = false;
-                    if(docCursor.sY >= Cursor.maxScreenY - 1)
+                    if(docCursor.SY >= Cursor.MaxScreenY - 1)
                     {
                         doc.ScrollDown();
                         enterScrolledDown = true;
                     }
 
-                    docCursor.Move(0, docCursor.dY + 1); //move cursor to beginning of new line
-                    Editor.RefreshLine(docCursor.sY);
+                    docCursor.Move(0, docCursor.DY + 1); //move cursor to beginning of new line
+                    Editor.RefreshLine(docCursor.SY);
 
                     //update all lines below
                     if(!enterScrolledDown)
                     {
-                        for(int i = docCursor.dY - 1; i <= doc.GetMaxLine(); i++)
+                        for(int i = docCursor.DY - 1; i <= doc.GetMaxLine(); i++)
                             Editor.RefreshLine(i);
                     }
                     else
                         Editor.RefreshAllLines();
 
-                    maxCursorX = docCursor.dX; //update max x position
+                    maxCursorX = docCursor.DX; //update max x position
                     break;
                 case ConsoleKey.Escape:
                     ToggleInputTarget();
@@ -174,26 +174,26 @@ namespace maple
                 case ConsoleKey.Tab:
                     //build and add tab text
                     string tabText = "";
-                    for (int i = 0; i < Settings.tabSpacesCount; i++)
+                    for (int i = 0; i < Settings.TabSpacesCount; i++)
                         tabText += " ";
-                    bool tabTextAdded = doc.AddTextAtPosition(docCursor.dX, docCursor.dY, tabText);
+                    bool tabTextAdded = doc.AddTextAtPosition(docCursor.DX, docCursor.DY, tabText);
                     
                     if(tabTextAdded)
                     {
-                        for(int i = 0; i < Settings.tabSpacesCount; i++) //move cursor forward as appropriate
+                        for(int i = 0; i < Settings.TabSpacesCount; i++) //move cursor forward as appropriate
                             docCursor.MoveRight();
-                        Editor.RefreshLine(docCursor.dY);
+                        Editor.RefreshLine(docCursor.DY);
                     }
 
-                    maxCursorX = docCursor.dX; //update max x position
+                    maxCursorX = docCursor.DX; //update max x position
                     break;
                 case ConsoleKey.Home:
-                    docCursor.Move(0, docCursor.dY); //move to beginning of line
-                    maxCursorX = docCursor.dX; //update max x position
+                    docCursor.Move(0, docCursor.DY); //move to beginning of line
+                    maxCursorX = docCursor.DX; //update max x position
                     break;
                 case ConsoleKey.End:
-                    docCursor.Move(doc.GetLineLength(docCursor.dY), docCursor.dY); //move to end of line
-                    maxCursorX = docCursor.dX; //update max x position
+                    docCursor.Move(doc.GetLineLength(docCursor.DY), docCursor.DY); //move to end of line
+                    maxCursorX = docCursor.DX; //update max x position
                     break;
                 //TYPING
                 default:                    
@@ -203,13 +203,13 @@ namespace maple
                     if(!r.Match(typed).Success)
                         break;
 
-                    bool addedText = doc.AddTextAtPosition(docCursor.dX, docCursor.dY, typed);
+                    bool addedText = doc.AddTextAtPosition(docCursor.DX, docCursor.DY, typed);
                     if(addedText)
                     {
                         docCursor.MoveRight();
-                        Editor.RefreshLine(docCursor.dY);
+                        Editor.RefreshLine(docCursor.DY);
                     }
-                    maxCursorX = docCursor.dX; //update max x position
+                    maxCursorX = docCursor.DX; //update max x position
                     break;
             }
         }
@@ -217,31 +217,31 @@ namespace maple
         static void AcceptCommandInput(ConsoleKeyInfo keyInfo)
         {
 
-            Cursor cmdCursor = Editor.GetCommandCursor();
+            Cursor cmdCursor = Editor.CmdCursor;
 
             switch(keyInfo.Key)
             {
                 //MOVEMENT
                 case ConsoleKey.LeftArrow:
-                    int newLeftX = cmdCursor.dX - 1;
+                    int newLeftX = cmdCursor.DX - 1;
                     if(CommandLine.IsSafeCursorX(newLeftX))
                         cmdCursor.Move(newLeftX, 0);
                     break;
                 case ConsoleKey.RightArrow:
-                    int newRightX = cmdCursor.dX + 1;
+                    int newRightX = cmdCursor.DX + 1;
                     if(CommandLine.IsSafeCursorX(newRightX))
                         cmdCursor.Move(newRightX, 0);
                     break;
 
                 //LINE MANIPULATION
                 case ConsoleKey.Backspace:
-                    bool backspaceTriggered = CommandLine.RemoveText(cmdCursor.dX - 1);
+                    bool backspaceTriggered = CommandLine.RemoveText(cmdCursor.DX - 1);
                     
                     if(backspaceTriggered)
-                        cmdCursor.Move(cmdCursor.dX - 1, 0);
+                        cmdCursor.Move(cmdCursor.DX - 1, 0);
                     break;
                 case ConsoleKey.Delete:
-                    CommandLine.RemoveText(cmdCursor.dX);
+                    CommandLine.RemoveText(cmdCursor.DX);
                     break;
 
                 //COMMANDS
@@ -262,36 +262,31 @@ namespace maple
                     if(!r.Match(typed).Success)
                         break;
                     
-                    bool addedText = CommandLine.AddText(Editor.GetCommandCursor().dX, typed);
+                    bool addedText = CommandLine.AddText(Editor.CmdCursor.DX, typed);
 
                     if(addedText)
-                        Editor.GetCommandCursor().dX++;
+                        Editor.CmdCursor.DX++;
 
                     break;
             }
         }
 
-        public static InputTarget GetInputTarget()
-        {
-            return currentTarget;
-        }
-
         public static void ToggleInputTarget()
         {
-            if(currentTarget == InputTarget.Document)
+            if(CurrentTarget == InputTarget.Document)
             {
                 //check if there is command output to be cleared
-                if(!CommandLine.GetOutput().Equals("") && !Settings.quickCli)
+                if(!CommandLine.OutputText.Equals("") && !Settings.QuickCli)
                     CommandLine.ClearOutput(); //there is output, clear it
                 else
                 {
                     CommandLine.ClearOutput();
-                    currentTarget = InputTarget.Command; //there is no output, toggle
-                    Editor.GetCommandCursor().Move(0, 0); //reset cursor position
+                    CurrentTarget = InputTarget.Command; //there is no output, toggle
+                    Editor.CmdCursor.Move(0, 0); //reset cursor position
                 }
             }
-            else if(currentTarget == InputTarget.Command)
-                currentTarget = InputTarget.Document;
+            else if(CurrentTarget == InputTarget.Command)
+                CurrentTarget = InputTarget.Document;
         }
 
     }

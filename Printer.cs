@@ -11,6 +11,7 @@ namespace maple
         static Cursor printerCursor = new Cursor(0, 0);
 
         static String clearString = " ";
+        
         public static void Resize()
         {
             clearString = new string(' ', Console.WindowWidth);
@@ -55,14 +56,14 @@ namespace maple
 
         public static void ClearFooter(ConsoleColor backgroundColor = ConsoleColor.Black)
         {
-            ClearLine(Cursor.maxScreenY, backgroundColor);
+            ClearLine(Cursor.MaxScreenY, backgroundColor);
             ResetColors();
         }
 
         public static void WriteToFooter(String text, int x = 0, ConsoleColor foregroundColor = ConsoleColor.Black, ConsoleColor backgroundColor = ConsoleColor.Gray)
         {
             if (x != -1) //manual cursor position
-                printerCursor.Move(x, Cursor.maxScreenY);
+                printerCursor.Move(x, Cursor.MaxScreenY);
             Console.BackgroundColor = backgroundColor;
             Console.ForegroundColor = foregroundColor;
             Console.Write(text);
@@ -78,7 +79,7 @@ namespace maple
         public static void ClearLine(int line, ConsoleColor clearColor = ConsoleColor.Black)
         {
             //don't clear if out of range
-            if(line < 0 || line > Cursor.maxScreenY)
+            if(line < 0 || line > Cursor.MaxScreenY)
                 return;
 
             //overwrite entire line

@@ -13,16 +13,16 @@ namespace maple
         public static string settingsFile = mapleDirectory + "\\properties.xml";
 
         //properties
-        public static bool quickCli = false;
-        public static bool debugTokens = false;
-        public static bool noHighlight = false;
-        public static bool relativePath = false;
-        public static bool navigatePastTabs = true;
+        public static bool QuickCli { get; set; } = false;
+        public static bool DebugTokens { get; set; } = false;
+        public static bool NoHighlight { get; set; } = false;
+        public static bool RelativePath { get; set; } = false;
+        public static bool NavigatePastTabs { get; set; } = true;
 
-        public static string themeDirectory = mapleDirectory + "\\themes\\";
-        public static string themeFile = "maple.xml";
-        public static string syntaxDirectory = mapleDirectory + "\\syntax\\";
-        public static int tabSpacesCount = 4;
+        public static string ThemeDirectory { get; private set; } = mapleDirectory + "\\themes\\";
+        public static string ThemeFile { get; private set; } = "maple.xml";
+        public static string SyntaxDirectory { get; private set; } = mapleDirectory + "\\syntax\\";
+        public static int TabSpacesCount { get; private set; } = 4;
 
         static List<string> ignoreList = new List<string>(); //stores a list of settings to ignore when loading
 
@@ -61,40 +61,40 @@ namespace maple
                 {
                     //SWITCHES
                     case "quickcli":
-                        quickCli = IsTrue(value);
+                        QuickCli = IsTrue(value);
                         break;
                     case "debugtokens":
-                        debugTokens = IsTrue(value);
+                        DebugTokens = IsTrue(value);
                         break;
                     case "nohighlight":
-                        noHighlight = IsTrue(value);
+                        NoHighlight = IsTrue(value);
                         break;
                     case "relativepath":
-                        relativePath = IsTrue(value);
-                        if (relativePath)
+                        RelativePath = IsTrue(value);
+                        if (RelativePath)
                             mapleDirectory = Directory.GetCurrentDirectory();
                         break;
                     case "navigatepasttabs":
-                        navigatePastTabs = IsTrue(value);
+                        NavigatePastTabs = IsTrue(value);
                         break;
                     //ARGUMENTS
                     case "themedirectory":
-                        themeDirectory = value;
-                        if(!themeDirectory.EndsWith("/"))
-                            themeDirectory += "/";
-                        themeDirectory = themeDirectory.Replace("{mapledir}", mapleDirectory);
+                        ThemeDirectory = value;
+                        if(!ThemeDirectory.EndsWith("/"))
+                            ThemeDirectory += "/";
+                        ThemeDirectory = ThemeDirectory.Replace("{mapledir}", mapleDirectory);
                         break;
                     case "themefile":
-                        themeFile = value;
+                        ThemeFile = value;
                         break;
                     case "syntaxdirectory":
-                        syntaxDirectory = value;
-                        if (!syntaxDirectory.EndsWith("/"))
-                            syntaxDirectory += "/";
-                        syntaxDirectory = syntaxDirectory.Replace("{mapledir}", mapleDirectory);
+                        SyntaxDirectory = value;
+                        if (!SyntaxDirectory.EndsWith("/"))
+                            SyntaxDirectory += "/";
+                        SyntaxDirectory = SyntaxDirectory.Replace("{mapledir}", mapleDirectory);
                         break;
                     case "tabspacescount":
-                        tabSpacesCount = Convert.ToInt32(value);
+                        TabSpacesCount = Convert.ToInt32(value);
                         break;
                 }
             }
@@ -103,7 +103,7 @@ namespace maple
 
         static bool IsTrue(string value)
         {
-            return value == "true";
+            return value.Equals("true") | value.Equals("t") | value.Equals("1");
         }
 
     }

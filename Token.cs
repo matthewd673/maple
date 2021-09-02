@@ -22,76 +22,58 @@ namespace maple
             Operator,
         }
 
-        TokenType tokenType;
-        String text;
-        ConsoleColor color = ConsoleColor.Gray;
+        private TokenType _ttype;
+        public TokenType TType
+        {
+            get { return _ttype; }
+            set { _ttype = value; ApplyColor(); }
+        }
+        public String Text { get; private set; }
+        public ConsoleColor Color { get; private set; } = ConsoleColor.Gray;
 
         public Token(String text, TokenType tokenType)
         {
-            this.text = text;
-            this.tokenType = tokenType;
-            ApplyColor();
-        }
-
-        public String GetText()
-        {
-            return text;
+            this.Text = text;
+            this.TType = tokenType;
         }
 
         public void Append(String s)
         {
-            text += s;
-        }
-
-        public void SetType(TokenType tokenType)
-        {
-            this.tokenType = tokenType;
-            ApplyColor();
+            Text += s;
         }
 
         public void ApplyColor()
         {
-            switch(tokenType)
+            switch(TType)
             {
                 case TokenType.NumberLiteral:
-                    color = Styler.numberLiteralColor;
+                    Color = Styler.NumberLiteralColor;
                     break;
                 case TokenType.StringLiteral:
-                    color = Styler.stringLiteralColor;
+                    Color = Styler.StringLiteralColor;
                     break;
                 case TokenType.CharLiteral:
-                    color = Styler.charLiteralColor;
+                    Color = Styler.CharLiteralColor;
                     break;
                 case TokenType.BooleanLiteral:
-                    color = Styler.booleanLiteralColor;
+                    Color = Styler.BooleanLiteralColor;
                     break;
                 case TokenType.Keyword:
-                    color = Styler.keywordColor;
+                    Color = Styler.KeywordColor;
                     break;
                 case TokenType.Comment:
-                    color = Styler.commentColor;
+                    Color = Styler.CommentColor;
                     break;
                 case TokenType.Grouping:
-                    color = Styler.groupingColor;
+                    Color = Styler.GroupingColor;
                     break;
                 case TokenType.Operator:
-                    color = Styler.operatorColor;
+                    Color = Styler.OperatorColor;
                     break;
                 default:
-                    color = Styler.textColor;
+                    Color = Styler.TextColor;
                     break;
             }
         }
-
-        public ConsoleColor GetColor()
-        {
-            return color;
-        }
-
-        public TokenType GetTokenType()
-        {
-            return tokenType;
-        }
-
     }
 }

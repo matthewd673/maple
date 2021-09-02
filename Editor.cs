@@ -5,28 +5,28 @@ namespace maple
 {
     static class Editor
     {
-        static Cursor cmdCursor;
-        static DocumentCursor docCursor;
+        public static Cursor CmdCursor { get; private set; }
+        public static DocumentCursor DocCursor { get; private set; }
         static List<int> refreshedLines = new List<int>();
         static bool fullClearNext = false;
 
         public static void Initialize(String filename)
         {
             //create cursor
-            cmdCursor = new Cursor(0, 0);
+            CmdCursor = new Cursor(0, 0);
 
-            cmdCursor.contentOffsetX = Styler.vanityFooter.Length + 2;
-            cmdCursor.contentOffsetY = Cursor.maxScreenY;
+            CmdCursor.ContentOffsetX = Styler.VanityFooter.Length + 2;
+            CmdCursor.ContentOffsetY = Cursor.MaxScreenY;
 
             //create doc cursor with document
-            docCursor = new DocumentCursor(filename, 0, 0);
-            docCursor.CalculateGutterWidth();
-            docCursor.Move(0, 0);
-            docCursor.ApplyPosition();
+            DocCursor = new DocumentCursor(filename, 0, 0);
+            DocCursor.CalculateGutterWidth();
+            DocCursor.Move(0, 0);
+            DocCursor.ApplyPosition();
 
             //render initial footer
-            Printer.DrawFooter("maple", foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
-            docCursor.Move(docCursor.dX, docCursor.dY); //reset to original position
+            Printer.DrawFooter("maple", foregroundColor: Styler.AccentColor, backgroundColor: ConsoleColor.Black);
+            DocCursor.Move(DocCursor.DX, DocCursor.DY); //reset to original position
 
             //prep for initial full-draw
             RefreshAllLines();
@@ -55,8 +55,8 @@ namespace maple
             Input.AcceptInput(Console.ReadKey());
 
             //force line refresh each time if debugging tokens
-            if(Settings.debugTokens)
-                RefreshLine(docCursor.dY);
+            if(Settings.DebugTokens)
+                RefreshLine(DocCursor.DY);
 
             //redraw lines that have changed
             if(fullClearNext)
@@ -72,25 +72,23 @@ namespace maple
             PrintFooter();
 
             //apply user cursor position
-            if(Input.GetInputTarget() == Input.InputTarget.Document)
-                docCursor.Move(docCursor.dX, docCursor.dY);
-            else if(Input.GetInputTarget() == Input.InputTarget.Command)
-                cmdCursor.Move(cmdCursor.dX, cmdCursor.dY);
+            if(Input.CurrentTarget == Input.InputTarget.Document)
+                DocCursor.Move(DocCursor.DX, DocCursor.DY);
+            else if(Input.CurrentTarget == Input.InputTarget.Command)
+                CmdCursor.Move(CmdCursor.DX, CmdCursor.DY);
         }
 
         public static Cursor GetActiveCursor()
         {
-            if(Input.GetInputTarget() == Input.InputTarget.Document)
-                return docCursor;
-            else if(Input.GetInputTarget() == Input.InputTarget.Command)
-                return cmdCursor;
+            if(Input.CurrentTarget == Input.InputTarget.Document)
+                return DocCursor;
+            else if(Input.CurrentTarget == Input.InputTarget.Command)
+                return CmdCursor;
             
-            return docCursor;
+            return DocCursor;
         }
 
-        public static DocumentCursor GetDocCursor() { return docCursor; }
-        public static Document GetCurrentDoc() { return docCursor.GetDocument(); }
-        public static Cursor GetCommandCursor() { return cmdCursor; }
+        public static Document GetCurrentDoc() { return DocCursor.Doc; }
 
         public static void RefreshLine(int lineIndex)
         {
@@ -118,7 +116,7 @@ namespace maple
                 if(lineIndex <= GetCurrentDoc().GetMaxLine())
                     GetCurrentDoc().PrintLine(lineIndex);
                 else
-                    Printer.ClearLine(lineIndex - GetCurrentDoc().GetScrollY());
+                    Printer.ClearLine(lineIndex - GetCurrentDoc().ScrollY);
             }
             refreshedLines.Clear(); //clear for next time
         }
@@ -128,29 +126,29 @@ namespace maple
             //generate footer string
             //string defaultFooterContent = "maple (" + (docCursor.dX + 1) + ", " + (docCursor.dY + 1) + ") - " + GetCurrentDoc().GetFilePath();
 
-            if(!CommandLine.HasOutput())
+            if(!CommandLine.HasOutput)
             {
-                if (Input.GetInputTarget() == Input.InputTarget.Document) //render default footer
+                if (Input.CurrentTarget == Input.InputTarget.Document) //render default footer
                 {
                     //draw piece by piece
                     Printer.ClearFooter(ConsoleColor.Black);
-                    Printer.WriteToFooter(Styler.vanityFooter + " ", 0, Styler.accentColor, ConsoleColor.Black); //write vanity prefix
-                    Printer.WriteToFooter(GetCurrentDoc().GetFilePath().TrimEnd() + " ", -1, Styler.textColor, ConsoleColor.Black); //write doc name
-                    Printer.WriteToFooter("ln " + (docCursor.dY + 1) + " col " + (docCursor.dX + 1) + " ", -1, Styler.accentColor, ConsoleColor.Black); //writer cursor position
+                    Printer.WriteToFooter(Styler.VanityFooter + " ", 0, Styler.AccentColor, ConsoleColor.Black); //write vanity prefix
+                    Printer.WriteToFooter(GetCurrentDoc().Filepath.TrimEnd() + " ", -1, Styler.TextColor, ConsoleColor.Black); //write doc name
+                    Printer.WriteToFooter("ln " + (DocCursor.DY + 1) + " col " + (DocCursor.DX + 1) + " ", -1, Styler.AccentColor, ConsoleColor.Black); //writer cursor position
                     if (GetCurrentDoc().HasSelection()) //write selection bounds (if has selection)
                         Printer.WriteToFooter((GetCurrentDoc().GetSelectionInX() + 1) + "," + (GetCurrentDoc().GetSelectionInY() + 1) + " - " +
                             (GetCurrentDoc().GetSelectionOutX() + 1) + "," + (GetCurrentDoc().GetSelectionOutY() + 1) + " ",
-                            -1, Styler.selectionColor, ConsoleColor.Black);
+                            -1, Styler.SelectionColor, ConsoleColor.Black);
                     else if (GetCurrentDoc().HasSelectionStart()) //write selection in as reminder
                         Printer.WriteToFooter((GetCurrentDoc().GetSelectionInX() + 1) + "," + (GetCurrentDoc().GetSelectionInY() + 1) + " ...",
-                            -1, Styler.selectionColor, ConsoleColor.Black);
+                            -1, Styler.SelectionColor, ConsoleColor.Black);
                     //Printer.DrawFooter(defaultFooterContent, foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
                 }
-                else if (Input.GetInputTarget() == Input.InputTarget.Command) //render input footer
-                    Printer.DrawFooter("maple: " + CommandLine.GetText(), foregroundColor: Styler.cmdinColor, backgroundColor: ConsoleColor.Black);
+                else if (Input.CurrentTarget == Input.InputTarget.Command) //render input footer
+                    Printer.DrawFooter("maple: " + CommandLine.InputText, foregroundColor: Styler.CmdInColor, backgroundColor: ConsoleColor.Black);
             }
             else //render output footer
-                Printer.DrawFooter(CommandLine.GetOutput(), foregroundColor: Styler.cmdoutColor, backgroundColor: ConsoleColor.Black);
+                Printer.DrawFooter(CommandLine.OutputText, foregroundColor: Styler.CmdOutColor, backgroundColor: ConsoleColor.Black);
         }
     }
 }

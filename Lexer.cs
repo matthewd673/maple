@@ -22,7 +22,7 @@ namespace maple
 
             if(!File.Exists(syntaxPath))
             {
-                Settings.noHighlight = true;
+                Settings.NoHighlight = true;
                 return;
             }
 
@@ -70,16 +70,16 @@ namespace maple
                 for (int i = 0; i < rules.Count; i++)
                 {
                     LexerRule rule = rules[i];
-                    Match firstMatch = rule.pattern.Match(text);
+                    Match firstMatch = rule.Pattern.Match(text);
 
                     if (!firstMatch.Success) //no match, keep checking
                         continue;
 
                     if (firstMatch.Index == 0) //next token matches - jobs done
                     {
-                        Token.TokenType tokenType = GetTokenTypeFromRuleName(rule.name);
+                        Token.TokenType tokenType = GetTokenTypeFromRuleName(rule.Name);
                         //if alphabetical, check for keyword
-                        if (rule.name.Equals("alphabetical") && keywords.Contains(firstMatch.Value))
+                        if (rule.Name.Equals("alphabetical") && keywords.Contains(firstMatch.Value))
                             tokenType = Token.TokenType.Keyword;
 
                         tokens.Add(new Token(firstMatch.Value, tokenType));
@@ -90,7 +90,7 @@ namespace maple
 
                     //there is a match, but it isn't at index 0
                     nearestMatch = firstMatch;
-                    nearestMatchRuleName = rule.name;
+                    nearestMatchRuleName = rule.Name;
                 }
 
                 //all rules have been checked
@@ -168,8 +168,8 @@ namespace maple
         struct LexerRule
         {
 
-            public string name;
-            public Regex pattern;
+            public string Name { get; set; }
+            public Regex Pattern { get; set; }
 
             /// <summary>
             /// <c>LexerRule</c> represents a named pattern that the tokenizer will search for.
@@ -178,8 +178,8 @@ namespace maple
             /// <param name="pattern">The RegEx pattern to search.</param>
             public LexerRule(string name, string pattern)
             {
-                this.name = name;
-                this.pattern = new Regex(pattern);
+                Name = name;
+                Pattern = new Regex(pattern);
             }
         }
 

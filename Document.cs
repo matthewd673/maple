@@ -8,18 +8,18 @@ namespace maple
     class Document
     {
 
-        string filepath;
+        public string Filepath { get; private set; }
         List<Line> fileLines;
 
         int scrollYIncrement = 0;
         int scrollXIncrement = 0;
-        int scrollY = 0;
-        int scrollX = 0;
+        public int ScrollY { get; private set; } = 0;
+        public int ScrollX { get; private set; } = 0;
 
         Point selectIn = new Point(-1, -1);
         Point selectOut = new Point(-1, -1);
 
-        public int gutterWidth = 0;
+        public int GutterWidth { get; private set; } = 0;
         int gutterPadding = 2;
 
         /// <summary>
@@ -41,14 +41,14 @@ namespace maple
                 {
                     string fileExtension = Path.GetExtension(filepath).Remove(0, 1);
                     fileExtension = fileExtension.TrimEnd(); //remove trailing whitespace
-                    if (File.Exists(Settings.syntaxDirectory + fileExtension + ".xml")) //load lexer settings if they are available for this filetype
-                        Lexer.LoadSyntax(Settings.syntaxDirectory + fileExtension + ".xml");
+                    if (File.Exists(Settings.SyntaxDirectory + fileExtension + ".xml")) //load lexer settings if they are available for this filetype
+                        Lexer.LoadSyntax(Settings.SyntaxDirectory + fileExtension + ".xml");
                 }
 
                 //apply scroll properties
                 CalculateScrollIncrement();
-                scrollY = 0;
-                scrollX = 0;
+                ScrollY = 0;
+                ScrollX = 0;
             }
 
             LoadDocument(filepath);
@@ -64,7 +64,7 @@ namespace maple
                 switch (filepath)
                 {
                     case "{themefile}":
-                        return Settings.themeDirectory + Settings.themeFile;
+                        return Settings.ThemeDirectory + Settings.ThemeFile;
                     case "{propfile}":
                         return Settings.settingsFile;
                 }
@@ -73,9 +73,9 @@ namespace maple
                 if (filepath.Contains("{mapledir}"))
                     return filepath.Replace("{mapledir}", Settings.mapleDirectory);
                 if (filepath.Contains("{themedir}"))
-                    return filepath.Replace("{themedir}", Settings.themeDirectory);
+                    return filepath.Replace("{themedir}", Settings.ThemeDirectory);
                 if (filepath.Contains("{syntaxdir}"))
-                    return filepath.Replace("{syntaxdir}", Settings.syntaxDirectory);
+                    return filepath.Replace("{syntaxdir}", Settings.SyntaxDirectory);
             }
             return filepath; //nothing to change
         }
@@ -86,7 +86,7 @@ namespace maple
             fileLines.Clear();
 
             //load new document
-            this.filepath = filepath;
+            this.Filepath = filepath;
             if(File.Exists(filepath))
             {
                 List<string> fileLinesText = File.ReadAllLines(filepath).ToList<String>();
@@ -113,66 +113,61 @@ namespace maple
         {
             List<string> allLines = new List<string>();
             foreach(Line l in fileLines)
-                allLines.Add(l.GetContent());
+                allLines.Add(l.LineContent);
             File.WriteAllLines(savePath, allLines);
-        }
-
-        public String GetFilePath()
-        {
-            return filepath;
         }
 
         public void PrintFileLines()
         {
-            for(int i = scrollY; i < Cursor.maxScreenY + scrollY; i++)
+            for(int i = ScrollY; i < Cursor.MaxScreenY + ScrollY; i++)
                 PrintLine(i);
         }
 
         public void PrintLine(int lineIndex)
         {
             //don't, if out of range
-            if(lineIndex < 0 || lineIndex > fileLines.Count - 1 || lineIndex - scrollY < 0 || lineIndex - scrollY > Cursor.maxScreenY - 1)
+            if(lineIndex < 0 || lineIndex > fileLines.Count - 1 || lineIndex - ScrollY < 0 || lineIndex - ScrollY > Cursor.MaxScreenY - 1)
                 return;
 
             Line l = fileLines[lineIndex];
             
             //clear line on screen
-            Printer.ClearLine(lineIndex - scrollY);
-            Printer.MoveCursor(0, lineIndex - scrollY);
+            Printer.ClearLine(lineIndex - ScrollY);
+            Printer.MoveCursor(0, lineIndex - ScrollY);
 
             //build gutter content & print gutter
             String gutterContent = BuildGutter(lineIndex);
-            Printer.PrintWord(gutterContent, foregroundColor: Styler.gutterColor);
+            Printer.PrintWord(gutterContent, foregroundColor: Styler.GutterColor);
 
             bool lineContainsSelection = LineContainsSelection(lineIndex);
             //find start and end relative to line
-            int lineSelectInX = selectIn.x;
-            if (selectIn.y < lineIndex) //selection starts on previous line...
+            int lineSelectInX = selectIn.X;
+            if (selectIn.Y < lineIndex) //selection starts on previous line...
                 lineSelectInX = 0; //...so it starts at 0 on this line
-            int lineSelectOutX = selectOut.x;
-            if (selectOut.y > lineIndex) //selection ends on following line...
-                lineSelectOutX = l.GetContent().Length; //...so it ends at the end of this line
+            int lineSelectOutX = selectOut.X;
+            if (selectOut.Y > lineIndex) //selection ends on following line...
+                lineSelectOutX = l.LineContent.Length; //...so it ends at the end of this line
 
             bool fullySelected = false;
-            if (lineContainsSelection && lineSelectInX == 0 && lineSelectOutX >= l.GetContent().Length - 1)
+            if (lineContainsSelection && lineSelectInX == 0 && lineSelectOutX >= l.LineContent.Length - 1)
                 fullySelected = true;
 
             //print all tokens in line
-            if(!Settings.debugTokens) //ordinary printing:
+            if(!Settings.DebugTokens) //ordinary printing:
             {
                 int lineLen = 0;
 
-                foreach(Token t in l.GetTokens())
+                foreach(Token t in l.Tokens)
                 {
                     //store difference between previous and current line lengths
                     int oldLineLen = lineLen;
-                    lineLen += t.GetText().Length;
+                    lineLen += t.Text.Length;
 
                     //if token comes before scroll x (hidden to left), skip
-                    if (lineLen < scrollX)
+                    if (lineLen < ScrollX)
                         continue;
                     //if token comes after scroll x (hidden to right), skip it and all subsequent tokens
-                    if (oldLineLen > scrollX + Cursor.maxScreenX)
+                    if (oldLineLen > ScrollX + Cursor.MaxScreenX)
                         break;
 
                     int tSelectStart = -1;
@@ -188,19 +183,19 @@ namespace maple
                         //constrain to bounds of token string
                         if (tSelectStart < 0)
                             tSelectStart = 0;
-                        if (tSelectEnd >= t.GetText().Length)
-                            tSelectEnd = t.GetText().Length;
+                        if (tSelectEnd >= t.Text.Length)
+                            tSelectEnd = t.Text.Length;
 
                         tokenHasSelect = true;
 
                     }
 
-                    string printText = t.GetText();
+                    string printText = t.Text;
 
                     //trim the parts of the token that are hidden by horizontal scroll
-                    if (lineLen > scrollX) //part of token is hidden to left, trim beginning
+                    if (lineLen > ScrollX) //part of token is hidden to left, trim beginning
                     {
-                        int hiddenCharCt = scrollX - oldLineLen;
+                        int hiddenCharCt = ScrollX - oldLineLen;
                         if (hiddenCharCt > 0)
                         {
                             printText = printText.Remove(0, hiddenCharCt); //trim off hidden
@@ -225,21 +220,21 @@ namespace maple
                             string preSelectSubstring = printText.Substring(0, tSelectStart);
                             string inSelectSubstring = printText.Substring(tSelectStart, selectLength);
                             string postSelectSubstring = printText.Substring(tSelectEnd);
-                            Printer.PrintWord(preSelectSubstring, foregroundColor: t.GetColor());
-                            Printer.PrintWord(inSelectSubstring, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.selectionColor);
-                            Printer.PrintWord(postSelectSubstring, foregroundColor: t.GetColor());
+                            Printer.PrintWord(preSelectSubstring, foregroundColor: t.Color);
+                            Printer.PrintWord(inSelectSubstring, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.SelectionColor);
+                            Printer.PrintWord(postSelectSubstring, foregroundColor: t.Color);
                         }
                         else //no precise selection to print
                         {
                             if (!fullySelected) //normal print
-                                Printer.PrintWord(printText, foregroundColor: t.GetColor());
+                                Printer.PrintWord(printText, foregroundColor: t.Color);
                             else //print fully selected
-                                Printer.PrintWord(printText, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.selectionColor);
+                                Printer.PrintWord(printText, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.SelectionColor);
                         }
                     }
-                    else if (lineLen > scrollX + Cursor.maxScreenX) //part of token is hidden to right, trim end
+                    else if (lineLen > ScrollX + Cursor.MaxScreenX) //part of token is hidden to right, trim end
                     {
-                        int hiddenCharCt = lineLen - (scrollX + Cursor.maxScreenX);
+                        int hiddenCharCt = lineLen - (ScrollX + Cursor.MaxScreenX);
                         if (hiddenCharCt > 0)
                         {
                             printText = printText.Remove(printText.Length - 1 - hiddenCharCt, printText.Length);
@@ -257,16 +252,16 @@ namespace maple
                                 string preSelectSubstring = printText.Substring(0, tSelectStart);
                                 string inSelectSubstring = printText.Substring(tSelectStart, selectLength);
                                 string postSelectSubstring = printText.Substring(tSelectEnd);
-                                Printer.PrintWord(preSelectSubstring, foregroundColor: t.GetColor());
-                                Printer.PrintWord(inSelectSubstring, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.selectionColor);
-                                Printer.PrintWord(postSelectSubstring, foregroundColor: t.GetColor());
+                                Printer.PrintWord(preSelectSubstring, foregroundColor: t.Color);
+                                Printer.PrintWord(inSelectSubstring, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.SelectionColor);
+                                Printer.PrintWord(postSelectSubstring, foregroundColor: t.Color);
                             }
                             else //no precise selection to print
                             {
                                 if (!fullySelected)
-                                    Printer.PrintWord(printText, foregroundColor: t.GetColor());
+                                    Printer.PrintWord(printText, foregroundColor: t.Color);
                                 else
-                                    Printer.PrintWord(printText, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.selectionColor);
+                                    Printer.PrintWord(printText, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.SelectionColor);
                             }
                         }
                         else //can't be negative
@@ -277,18 +272,18 @@ namespace maple
             else //debug printing:
             {
                 int totalLength = 0;
-                foreach(Token t in l.GetTokens())
+                foreach(Token t in l.Tokens)
                 {
                     if(totalLength != -1)
-                        totalLength += t.GetText().Length;
-                    if(totalLength > Editor.GetDocCursor().dX && lineIndex == Editor.GetDocCursor().dY)
+                        totalLength += t.Text.Length;
+                    if(totalLength > Editor.DocCursor.DX && lineIndex == Editor.DocCursor.DY)
                     {
                         totalLength = -1;
-                        Printer.PrintWord(t.GetText(), foregroundColor: ConsoleColor.Black, backgroundColor: ConsoleColor.Yellow);
-                        Console.Title = t.GetText() + ": " + t.GetTokenType();
+                        Printer.PrintWord(t.Text, foregroundColor: ConsoleColor.Black, backgroundColor: ConsoleColor.Yellow);
+                        Console.Title = t.Text + ": " + t.TType;
                     }
                     else
-                        Printer.PrintWord(t.GetText(), foregroundColor: t.GetColor());
+                        Printer.PrintWord(t.Text, foregroundColor: t.Color);
                 }
             }
         }
@@ -301,9 +296,9 @@ namespace maple
         string BuildGutter(int lineIndex)
         {
             string gutterContent = (lineIndex + 1).ToString();
-            while(gutterContent.Length < gutterWidth - gutterPadding)
+            while(gutterContent.Length < GutterWidth - gutterPadding)
                 gutterContent = "0" + gutterContent;
-            while(gutterContent.Length < gutterWidth)
+            while(gutterContent.Length < GutterWidth)
                 gutterContent += " ";
 
             return gutterContent;
@@ -314,9 +309,9 @@ namespace maple
         /// </summary>
         public void ScrollUp()
         {
-            scrollY -= scrollYIncrement;
-            if(scrollY < 0)
-                scrollY = 0;
+            ScrollY -= scrollYIncrement;
+            if(ScrollY < 0)
+                ScrollY = 0;
         }
 
         /// <summary>
@@ -324,7 +319,7 @@ namespace maple
         /// </summary>
         public void ScrollDown()
         {
-            scrollY += scrollYIncrement;
+            ScrollY += scrollYIncrement;
         }
 
         /// <summary>
@@ -332,9 +327,9 @@ namespace maple
         /// </summary>
         public void ScrollLeft()
         {
-            scrollX -= scrollXIncrement;
-            if(scrollX < 0)
-                scrollX = 0;
+            ScrollX -= scrollXIncrement;
+            if(ScrollX < 0)
+                ScrollX = 0;
         }
 
         /// <summary>
@@ -342,31 +337,27 @@ namespace maple
         /// </summary>
         public void ScrollRight()
         {
-            scrollX += scrollXIncrement;
+            ScrollX += scrollXIncrement;
         }
-
-        public int GetScrollY() { return scrollY; }
-
-        public int GetScrollX() { return scrollX; }
 
         /// <summary>
         /// Set the X and Y scroll increments based on the current buffer dimensions.
         /// </summary>
         public void CalculateScrollIncrement()
         {
-            scrollYIncrement = (Cursor.maxScreenY - 1) / 2;
-            scrollXIncrement = (Cursor.maxScreenX - 1) / 2;
+            scrollYIncrement = (Cursor.MaxScreenY - 1) / 2;
+            scrollXIncrement = (Cursor.MaxScreenX - 1) / 2;
         }
 
         public int CalculateGutterWidth()
         {
-            int oldGutterWidth = gutterWidth;
-            gutterWidth = fileLines.Count.ToString().Length + gutterPadding;
+            int oldGutterWidth = GutterWidth;
+            GutterWidth = fileLines.Count.ToString().Length + gutterPadding;
 
-            if (gutterWidth != oldGutterWidth)
+            if (GutterWidth != oldGutterWidth)
                 Editor.RefreshAllLines();
 
-            return gutterWidth;
+            return GutterWidth;
         }
 
         /// <summary>
@@ -377,7 +368,7 @@ namespace maple
         public String GetLine(int index)
         {
             if(index >= 0 && index < fileLines.Count)
-                return fileLines[index].GetContent();
+                return fileLines[index].LineContent;
             else
                 return "";
         }
@@ -390,14 +381,14 @@ namespace maple
         {
             List<String> lines = new List<String>();
             foreach(Line l in fileLines)
-                lines.Add(l.GetContent());
+                lines.Add(l.LineContent);
             return lines;
         }
 
         public void SetLine(int index, String text)
         {
             if(index >= 0 && index < fileLines.Count)
-                fileLines[index].SetContent(text);
+                fileLines[index].LineContent = text;
         }
 
         public bool AddTextAtPosition(int x, int y, String text)
@@ -488,7 +479,7 @@ namespace maple
         public int GetLineLength(int line)
         {
             if(line < fileLines.Count)
-                return fileLines[line].GetContent().Length;
+                return fileLines[line].LineContent.Length;
             else
                 return 0;
         }
@@ -511,21 +502,21 @@ namespace maple
             if (!HasSelection())
                 return;
 
-            if (selectOut.y < selectIn.y) //flip start and end if end is on a previous line
+            if (selectOut.Y < selectIn.Y) //flip start and end if end is on a previous line
             {
-                Point tempIn = new Point(selectIn.x, selectIn.y);
-                selectIn = new Point(selectOut.x, selectOut.y);
+                Point tempIn = new Point(selectIn.X, selectIn.Y);
+                selectIn = new Point(selectOut.X, selectOut.Y);
                 selectOut = tempIn;
             }
-            else if (selectOut.y == selectIn.y && selectOut.x < selectIn.x) //flip start and end if end occurs first on same line
+            else if (selectOut.Y == selectIn.Y && selectOut.X < selectIn.X) //flip start and end if end occurs first on same line
             {
-                Point tempIn = new Point(selectIn.x, selectIn.y);
-                selectIn = new Point(selectOut.x, selectOut.y);
+                Point tempIn = new Point(selectIn.X, selectIn.Y);
+                selectIn = new Point(selectOut.X, selectOut.Y);
                 selectOut = tempIn;
             }
 
             //selecting a 0-width range causes errors (and why would you want to anyway?)
-            if (selectIn.x == selectOut.x && selectIn.y == selectOut.y)
+            if (selectIn.X == selectOut.X && selectIn.Y == selectOut.Y)
             {
                 selectIn = new Point(-1, -1);
                 selectOut = new Point(-1, -1);
@@ -539,17 +530,17 @@ namespace maple
         /// <returns>Returns true if the document has a starting and ending selection bound.</returns>
         public bool HasSelection()
         {
-            return selectIn.x != -1 && selectIn.y != -1 && selectOut.x != -1 && selectOut.y != -1;
+            return selectIn.X != -1 && selectIn.Y != -1 && selectOut.X != -1 && selectOut.Y != -1;
         }
 
         public bool HasSelectionStart()
         {
-            return selectIn.x != -1 && selectIn.y != -1;
+            return selectIn.X != -1 && selectIn.Y != -1;
         }
 
         public bool HasSelectionEnd()
         {
-            return selectOut.x != -1 && selectIn.y != -1;
+            return selectOut.X != -1 && selectIn.Y != -1;
         }
 
         /// <summary>
@@ -559,7 +550,7 @@ namespace maple
         /// <returns>Returns true if the line contains selected text.</returns>
         bool LineContainsSelection(int lineIndex)
         {
-            return selectIn.y <= lineIndex && selectOut.y >= lineIndex;
+            return selectIn.Y <= lineIndex && selectOut.Y >= lineIndex;
         }
 
         /// <summary>
@@ -568,13 +559,13 @@ namespace maple
         /// <returns>Returns true if the current selection starts and ends on different lines.</returns>
         bool IsMultilineSelection()
         {
-            return selectIn.y != selectOut.y;
+            return selectIn.Y != selectOut.Y;
         }
         
-        public int GetSelectionInX() { return selectIn.x; }
-        public int GetSelectionInY() { return selectIn.y; }
-        public int GetSelectionOutX() { return selectOut.x; }
-        public int GetSelectionOutY() { return selectOut.y; }
+        public int GetSelectionInX() { return selectIn.X; }
+        public int GetSelectionInY() { return selectIn.Y; }
+        public int GetSelectionOutX() { return selectOut.X; }
+        public int GetSelectionOutY() { return selectOut.Y; }
 
         /// <summary>
         /// Get the text contained within the current selection bounds.
@@ -583,22 +574,22 @@ namespace maple
         public string GetSelectionText()
         {
 
-            Console.Title = selectIn.x + " , " + selectOut.x;
+            Console.Title = selectIn.X + " , " + selectOut.X;
 
-            if (selectIn.y == -1 || selectOut.y == -1) //skip if no selection
+            if (selectIn.Y == -1 || selectOut.Y == -1) //skip if no selection
                 return "";
 
-            if (selectIn.y == selectOut.y) //just return substring if on same line
-                return GetLine(selectIn.y).Substring(selectIn.x, selectOut.x);
+            if (selectIn.Y == selectOut.Y) //just return substring if on same line
+                return GetLine(selectIn.Y).Substring(selectIn.X, selectOut.X);
 
             //multiple lines
             String text = "";
-            for (int y = selectIn.y; y <= selectOut.y; y++)
+            for (int y = selectIn.Y; y <= selectOut.Y; y++)
             {
-                if (y == selectIn.y)
-                    text += GetLine(y).Substring(selectIn.x) + "\n";
-                else if (y == selectOut.y)
-                    text += GetLine(y).Substring(0, selectOut.x);
+                if (y == selectIn.Y)
+                    text += GetLine(y).Substring(selectIn.X) + "\n";
+                else if (y == selectOut.Y)
+                    text += GetLine(y).Substring(0, selectOut.X);
                 else
                     text += GetLine(y) + "\n";
             }
