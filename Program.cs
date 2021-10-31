@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace maple
 {
@@ -46,6 +45,10 @@ namespace maple
                     case "--navigate-past-tabs":
                         Settings.NavigatePastTabs = true;
                         Settings.IgnoreSetting("navigatepasttabs");
+                        break;
+                    case "--delete-entire-tabs":
+                        Settings.DeleteEntireTabs = true;
+                        Settings.IgnoreSetting("deleteentiretabs");
                         break;
                 }
             }

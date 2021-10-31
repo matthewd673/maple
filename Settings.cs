@@ -18,6 +18,7 @@ namespace maple
         public static bool NoHighlight { get; set; } = false;
         public static bool RelativePath { get; set; } = false;
         public static bool NavigatePastTabs { get; set; } = true;
+        public static bool DeleteEntireTabs { get; set; } = true;
 
         public static string ThemeDirectory { get; private set; } = mapleDirectory + "\\themes\\";
         public static string ThemeFile { get; private set; } = "maple.xml";
@@ -76,6 +77,9 @@ namespace maple
                         break;
                     case "navigatepasttabs":
                         NavigatePastTabs = IsTrue(value);
+                        break;
+                    case "deleteentiretabs":
+                        DeleteEntireTabs = IsTrue(value);
                         break;
                     //ARGUMENTS
                     case "themedirectory":

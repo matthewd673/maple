@@ -16,8 +16,17 @@ namespace maple
 
         static int maxCursorX = 0;
 
+        static string tabString = "";
+
         public static void AcceptInput(ConsoleKeyInfo keyInfo)
         {
+
+            //build tab string if necessary
+            if (tabString.Length == 0)
+            {
+                for (int i = 0; i < Settings.TabSpacesCount; i++)
+                    tabString += " ";
+            }
 
             if(CurrentTarget == InputTarget.Document)
                 AcceptDocumentInput(keyInfo);
@@ -48,21 +57,12 @@ namespace maple
                     maxCursorX = docCursor.DX; //update max x position
                     break;
                 case ConsoleKey.RightArrow:
-                    if (Settings.NavigatePastTabs) //check if there is a tab to skip
+                    if (Settings.NavigatePastTabs && docCursor.Doc.GetTextAtPosition(docCursor.DX, docCursor.DY).StartsWith(tabString)) //can skip, do so
                     {
-                        //build tab text
-                        string tabSearchText = "";
                         for (int i = 0; i < Settings.TabSpacesCount; i++)
-                            tabSearchText += " ";
-                        if (docCursor.Doc.GetTextAtPosition(docCursor.DX, docCursor.DY).StartsWith(tabSearchText)) //can skip, do so
-                        {
-                            for (int i = 0; i < Settings.TabSpacesCount; i++)
-                                docCursor.MoveRight();
-                        }
-                        else //can't skip, move normally
                             docCursor.MoveRight();
                     }
-                    else //basic move
+                    else //can't skip, move normally
                         docCursor.MoveRight();
                     maxCursorX = docCursor.DX; //update max x position
                     break;
@@ -71,12 +71,26 @@ namespace maple
                 case ConsoleKey.Backspace:
                     if(docCursor.DX > 0) //not at the beginning of the line
                     {
-                        bool backspaceTriggered = doc.RemoveTextAtPosition(
-                            docCursor.DX - 1,
-                            docCursor.DY);
+                        if (Settings.DeleteEntireTabs //fancy tab delete
+                            && docCursor.DX >= Settings.TabSpacesCount
+                            && docCursor.Doc.GetTextAtPosition(docCursor.DX - Settings.TabSpacesCount, docCursor.DY).StartsWith(tabString))
+                            {
+                                for(int i = 0; i < Settings.TabSpacesCount; i++)
+                                {
+                                    bool backspaceTriggered = doc.RemoveTextAtPosition(docCursor.DX - 1, docCursor.DY);
+                                    if (backspaceTriggered)
+                                        docCursor.MoveLeft();
+                                }
+                            }
+                            else
+                            {
+                                bool backspaceTriggered = doc.RemoveTextAtPosition(
+                                    docCursor.DX - 1,
+                                    docCursor.DY);
 
-                        if(backspaceTriggered)
-                            docCursor.MoveLeft();
+                                if(backspaceTriggered)
+                                    docCursor.MoveLeft();
+                            }
                     }
                     else //at beginning of line, append current line to previous
                     {
@@ -128,9 +142,15 @@ namespace maple
                                 Editor.RefreshLine(i);
                         }
                     }
-                    else
+                    else //basic delete
                     {
-                        doc.RemoveTextAtPosition(docCursor.DX, docCursor.DY); //remove next character
+                        if (Settings.DeleteEntireTabs && docCursor.Doc.GetTextAtPosition(docCursor.DX, docCursor.DY).StartsWith(tabString))
+                        {
+                            for (int i = 0; i < Settings.TabSpacesCount; i++)
+                                doc.RemoveTextAtPosition(docCursor.DX, docCursor.DY);
+                        }
+                        else
+                            doc.RemoveTextAtPosition(docCursor.DX, docCursor.DY); //remove next character
                         Editor.RefreshLine(docCursor.DY); //update line
                     }
                     break;
@@ -172,11 +192,7 @@ namespace maple
                     ToggleInputTarget();
                     break;
                 case ConsoleKey.Tab:
-                    //build and add tab text
-                    string tabText = "";
-                    for (int i = 0; i < Settings.TabSpacesCount; i++)
-                        tabText += " ";
-                    bool tabTextAdded = doc.AddTextAtPosition(docCursor.DX, docCursor.DY, tabText);
+                    bool tabTextAdded = doc.AddTextAtPosition(docCursor.DX, docCursor.DY, tabString); //attempt to add tab text
                     
                     if(tabTextAdded)
                     {
