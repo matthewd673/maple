@@ -26,7 +26,9 @@ Maple is pretty easy to build since it has no dependencies.
 
 Execute commands from within maple by toggling to command input with the `escape` key.
 
-**`help`:** display a list of maple commands
+**`help all`:** display a list of maple commands
+
+**`help [command]`:** get help for a specific command
 
 **`close`:** close maple without saving
 
@@ -37,6 +39,8 @@ Execute commands from within maple by toggling to command input with the `escape
 **`top`:** move the cursor to the first line of the document
 
 **`bot`:** move the cursor to the last line of the document
+
+**`goto [line number]`:** move the cursor to the given line
 
 **`cls`:** clear previous command output
 
@@ -65,6 +69,8 @@ When running maple, you can include switches to temporarily change editor behavi
 **`--no-highlight`:** skip the tokenizer and ignore all syntax highlighting rules
 
 **`--navigate-past-tabs`:** when navigating with the right arrow key, skip past groups of spaces equal to the current tab size
+
+**`--delete-entire-tabs`:** when pressing `Backspace` or `Delete`, remove groups of spaces equal to the current tab size
 
 ## Themes & Syntax Highlighting
 

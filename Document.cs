@@ -92,10 +92,7 @@ namespace maple
                 List<string> fileLinesText = File.ReadAllLines(filepath).ToList<String>();
                 
                 foreach(string s in fileLinesText)
-                {
-                    //List<Token> lineTokens = Line.GenerateTokensFromString(s);
                     fileLines.Add(new Line(s));
-                }
 
                 if(fileLines.Count == 0)
                     fileLines.Add(new Line(""));
@@ -105,6 +102,7 @@ namespace maple
                 //create a file
                 File.Create(filepath).Close();
                 fileLines = new List<Line>() { new Line("") };
+                CommandLine.OutputText = "New file \"" + filepath.Trim() + "\" was created";
             }
 
         }

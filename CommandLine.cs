@@ -71,7 +71,7 @@ namespace maple
             switch(primaryCommand)
             {
                 case "help":
-                    HelpCommand();
+                    HelpCommand(commandArgs, commandSwitches);
                     break;
                 case "save":
                     SaveCommand(commandArgs, commandSwitches);
@@ -94,8 +94,8 @@ namespace maple
                 case "redraw":
                     RedrawCommand();
                     break;
-                default:
-                    UnknownCommand();
+                case "goto":
+                    GotoCommand(commandArgs, commandSwitches);
                     break;
                 case "i":
                 case "selectin":
@@ -105,6 +105,9 @@ namespace maple
                 case "selectout":
                     SelectOutCommand();
                     break;
+                default:
+                    UnknownCommand();
+                    break;
             }
 
             //empty input field and toggle back to editor
@@ -112,14 +115,57 @@ namespace maple
             Input.ToggleInputTarget();
         }
 
-        static void HelpCommand()
+        static void HelpCommand(List<String> args, List<String> switches)
         {
-            SetOutput("close | save | load | cls | top | bot", "help");
+            if (args.Count < 1)
+            {
+                SetOutput("'help [command]' or 'help all'", "help");
+                return;
+            }
+
+            switch (args[0])
+            {
+                case "all":
+                    SetOutput("save, load, close, cls, top, bot, redraw, goto, selectin, selectout", "help");
+                    break;
+                case "save":
+                    SetOutput("save [optional filename]: save document to filename", "help");
+                    break;
+                case "load":
+                    SetOutput("load [filename]: load document at filename", "help");
+                    break;
+                case "close":
+                    SetOutput("close: close maple without saving", "help");
+                    break;
+                case "cls":
+                    SetOutput("cls: clear the last command output", "help");
+                    break;
+                case "top":
+                    SetOutput("top: jump to the top of the document", "help");
+                    break;
+                case "bot":
+                    SetOutput("bot: jump to the bottom of the document", "help");
+                    break;
+                case "redraw":
+                    SetOutput("redraw: redraw the editor", "help");
+                    break;
+                case "goto":
+                    SetOutput("goto [line]: jump to the specified line", "help");
+                    break;
+                case "selectin":
+                    SetOutput("selectin (i): start selection", "help");
+                    break;
+                case "selectout":
+                    SetOutput("selectout (o): end selection", "help");
+                    break;
+                default:
+                    SetOutput("Unknown command, try 'help all'", "help");
+                    break;
+            }
         }
 
         static void SaveCommand(List<String> args, List<String> switches)
         {
-
             String savePath = Editor.DocCursor.Doc.Filepath;
             if(args.Count > 0)
                 savePath = args[0];
@@ -188,7 +234,6 @@ namespace maple
                 Editor.RefreshAllLines();
                 //Editor.RedrawLines();
             }
-            //SetOutput("Selection start at " + Editor.DocCursor.dX);
         }
 
         static void SelectOutCommand()
@@ -199,12 +244,31 @@ namespace maple
                 Editor.RefreshAllLines();
                 //Editor.RedrawLines();
             }
-            //SetOutput("Selection end at " + Editor.DocCursor.dY);
+        }
+
+        static void GotoCommand(List<String> args, List<String> switches)
+        {
+            if (args.Count < 1)
+            {
+                SetOutput("No line number provided", "goto");
+                return;
+            }
+
+            int l = 0;
+            if (int.TryParse(args[0], out l))
+            {
+                if (l > Editor.DocCursor.Doc.GetMaxLine() + 1 || l < 0)
+                    SetOutput("Invalid line number, must be >= 1 and <= " + (Editor.DocCursor.Doc.GetMaxLine() + 1), "goto");
+                else
+                    Editor.DocCursor.Move(0, l - 1);
+            }
+            else
+                SetOutput("Invalid line number, must be an integer", "goto");
         }
 
         static void UnknownCommand()
         {
-            SetOutput("Unknown command, run 'help'", "error");
+            SetOutput("Unknown command, try 'help all'", "error");
         }
 
     }

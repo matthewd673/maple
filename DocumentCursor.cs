@@ -4,7 +4,7 @@ namespace maple
 {
     class DocumentCursor : Cursor
     {
-
+        
         public Document Doc { get; private set; }
 
         public DocumentCursor(String filepath, int dX, int dY) : base(dX, dY)
