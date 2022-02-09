@@ -105,6 +105,9 @@ namespace maple
                 case "selectout":
                     SelectOutCommand();
                     break;
+                case "readonly":
+                    ReadonlyCommand();
+                    break;
                 default:
                     UnknownCommand();
                     break;
@@ -126,7 +129,7 @@ namespace maple
             switch (args[0])
             {
                 case "all":
-                    SetOutput("save, load, close, cls, top, bot, redraw, goto, selectin, selectout", "help");
+                    SetOutput("save, load, close, cls, top, bot, redraw, goto, selectin, selectout, readonly", "help");
                     break;
                 case "save":
                     SetOutput("save [optional filename]: save document to filename", "help");
@@ -152,11 +155,16 @@ namespace maple
                 case "goto":
                     SetOutput("goto [line]: jump to the specified line", "help");
                     break;
+                case "i":
                 case "selectin":
                     SetOutput("selectin (i): start selection", "help");
                     break;
+                case "o":
                 case "selectout":
                     SetOutput("selectout (o): end selection", "help");
+                    break;
+                case "readonly":
+                    SetOutput("readonly: toggle readonly mode", "help");
                     break;
                 default:
                     SetOutput("Unknown command, try 'help all'", "help");
@@ -264,6 +272,15 @@ namespace maple
             }
             else
                 SetOutput("Invalid line number, must be an integer", "goto");
+        }
+
+        static void ReadonlyCommand()
+        {
+            Input.ReadOnly = !Input.ReadOnly;
+            if (Input.ReadOnly)
+                SetOutput("Editor is now readonly, use 'readonly' command to toggle", "readonly");
+            else
+                SetOutput("Editor is no longer readonly", "readonly");
         }
 
         static void UnknownCommand()

@@ -18,6 +18,8 @@ namespace maple
 
         static string tabString = "";
 
+        public static bool ReadOnly { get; set; } = false;
+
         public static void AcceptInput(ConsoleKeyInfo keyInfo)
         {
 
@@ -69,6 +71,8 @@ namespace maple
                 
                 //LINE MANIPULATION
                 case ConsoleKey.Backspace:
+                    if (ReadOnly) break;
+
                     if(docCursor.DX > 0) //not at the beginning of the line
                     {
                         if (Settings.DeleteEntireTabs //fancy tab delete
@@ -130,6 +134,8 @@ namespace maple
                     maxCursorX = docCursor.DX; //update max x position
                     break;
                 case ConsoleKey.Delete:
+                    if (ReadOnly) break;
+
                     if(docCursor.DX == doc.GetLineLength(docCursor.DY)) //deleting at end of line
                     {
                         if(docCursor.DY < doc.GetMaxLine()) //there is a following line to append
@@ -155,6 +161,8 @@ namespace maple
                     }
                     break;
                 case ConsoleKey.Enter:
+                    if (ReadOnly) break;
+
                     doc.AddLine(docCursor.DY + 1); //add new line
                     docCursor.CalculateGutterWidth(); //update gutter position
 
@@ -192,6 +200,8 @@ namespace maple
                     ToggleInputTarget();
                     break;
                 case ConsoleKey.Tab:
+                    if (ReadOnly) break;
+
                     bool tabTextAdded = doc.AddTextAtPosition(docCursor.DX, docCursor.DY, tabString); //attempt to add tab text
                     
                     if(tabTextAdded)
@@ -211,8 +221,16 @@ namespace maple
                     docCursor.Move(doc.GetLineLength(docCursor.DY), docCursor.DY); //move to end of line
                     maxCursorX = docCursor.DX; //update max x position
                     break;
+                case ConsoleKey.PageUp:
+                    docCursor.Move(docCursor.DX, docCursor.DY - doc.ScrollYIncrement);
+                    break;
+                case ConsoleKey.PageDown:
+                    docCursor.Move(docCursor.DX, docCursor.DY + doc.ScrollYIncrement);
+                    break;
                 //TYPING
-                default:                    
+                default:
+                    if (ReadOnly) break;
+
                     String typed = keyInfo.KeyChar.ToString();
                     //continue only if the typed character can be displayed
                     Regex r = new Regex("\\P{Cc}");

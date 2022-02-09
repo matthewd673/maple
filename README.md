@@ -48,6 +48,8 @@ Execute commands from within maple by toggling to command input with the `escape
 
 **`selectout` (`o`):** mark the end of a selection
 
+**`readonly`:** toggle editor readonly mode
+
 **`redraw`:** force a full redraw of the editor *(experimental)*
 
 Some commands may display an output upon completion. Clear command output with the `escape` key.

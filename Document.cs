@@ -11,7 +11,7 @@ namespace maple
         public string Filepath { get; private set; }
         List<Line> fileLines;
 
-        int scrollYIncrement = 0;
+        public int ScrollYIncrement { get; private set; } = 0;
         int scrollXIncrement = 0;
         public int ScrollY { get; private set; } = 0;
         public int ScrollX { get; private set; } = 0;
@@ -307,7 +307,7 @@ namespace maple
         /// </summary>
         public void ScrollUp()
         {
-            ScrollY -= scrollYIncrement;
+            ScrollY -= ScrollYIncrement;
             if(ScrollY < 0)
                 ScrollY = 0;
         }
@@ -317,7 +317,7 @@ namespace maple
         /// </summary>
         public void ScrollDown()
         {
-            ScrollY += scrollYIncrement;
+            ScrollY += ScrollYIncrement;
         }
 
         /// <summary>
@@ -343,7 +343,7 @@ namespace maple
         /// </summary>
         public void CalculateScrollIncrement()
         {
-            scrollYIncrement = (Cursor.MaxScreenY - 1) / 2;
+            ScrollYIncrement = (Cursor.MaxScreenY - 1) / 2;
             scrollXIncrement = (Cursor.MaxScreenX - 1) / 2;
         }
 
