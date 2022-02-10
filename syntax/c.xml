@@ -1,0 +1,78 @@
+<xml>
+    <!--Highlighting RegEx-->
+    <syntax type="numberLiteral">(\d+\.?\d*f?)</syntax>
+    <syntax type="booleanLiteral">(true|false)</syntax>
+    <syntax type="alphabetical">(\w+[0-9]*\w*)</syntax>
+    <syntax type="break">( |;|,)</syntax>
+    <syntax type="grouping">(\(|\)|\{|\}|\[|\])</syntax>
+    <syntax type="stringLiteral">&quot;.*&quot;</syntax>
+    <syntax type="characterLiteral">&apos;.?&apos;</syntax>
+    <syntax type="comment">(\/\/.*)</syntax>
+    <syntax type="operator">(\+|\-|\*|((?&lt;!\/)\/(?!\/))|\=|\%|\&gt;|\&lt;|\||\&amp;|\!)</syntax>
+    <!--Keywords-->
+    <!--Sourced from https://en.cppreference.com/w/c/keyword -->
+    <keywords>
+        <keyword>auto</keyword>
+        <keyword>break</keyword>
+        <keyword>case</keyword>
+        <keyword>char</keyword>
+        <keyword>const</keyword>
+        <keyword>continue</keyword>
+        <keyword>default</keyword>
+        <keyword>do</keyword>
+        <keyword>double</keyword>
+        <keyword>else</keyword>
+        <keyword>enum</keyword>
+        <keyword>extern</keyword>
+        <keyword>float</keyword>
+        <keyword>for</keyword>
+        <keyword>goto</keyword>
+        <keyword>if</keyword>
+        <keyword>inline</keyword>
+        <keyword>int</keyword>
+        <keyword>long</keyword>
+        <keyword>register</keyword>
+        <keyword>restrict</keyword>
+        <keyword>return</keyword>
+        <keyword>short</keyword>
+        <keyword>signed</keyword>
+        <keyword>sizeof</keyword>
+        <keyword>static</keyword>
+        <keyword>struct</keyword>
+        <keyword>switch</keyword>
+        <keyword>typedef</keyword>
+        <keyword>union</keyword>
+        <keyword>unsigned</keyword>
+        <keyword>void</keyword>
+        <keyword>volatile</keyword>
+        <keyword>while</keyword>
+        <keyword>_Alignas</keyword>
+        <keyword>_Alignof</keyword>
+        <keyword>_Atomic</keyword>
+        <keyword>_Bool</keyword>
+        <keyword>_Complex</keyword>
+        <keyword>_Decimal128</keyword>
+        <keyword>_Decimal32</keyword>
+        <keyword>_Decimal64</keyword>
+        <keyword>_Generic</keyword>
+        <keyword>_Imaginary</keyword>
+        <keyword>_Noreturn</keyword>
+        <keyword>_Static_assert</keyword>
+        <keyword>_Thread_local</keyword>
+        <keyword>elif</keyword>
+        <keyword>endif</keyword>
+        <keyword>ifdef</keyword>
+        <keyword>ifndef</keyword>
+        <keyword>define</keyword>
+        <keyword>undef</keyword>
+        <keyword>include</keyword>
+        <keyword>line</keyword>
+        <keyword>error</keyword>
+        <keyword>pragma</keyword>
+        <keyword>defined</keyword>
+        <keyword>__has_c_attribute</keyword>
+        <keyword>_Pragma</keyword>
+        <keyword>asm</keyword>
+        <keyword>fortran</keyword>
+    </keywords>
+</xml>

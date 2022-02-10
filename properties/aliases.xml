@@ -1,0 +1,14 @@
+<xml>
+    <alias command="help">h</alias>
+    <alias command="save">s</alias>
+    <alias command="load">l</alias>
+    <alias command="top">t</alias>
+    <alias command="bot">b</alias>
+    <alias command="bot">bottom</alias>
+    <alias command="selectin">i</alias>
+    <alias command="selectout">o</alias>
+    <alias command="readonly">ro</alias>
+    <alias command="goto">go</alias>
+    <alias command="goto">g</alias>
+    <alias command="goto">line</alias>
+</xml>

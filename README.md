@@ -44,9 +44,9 @@ Execute commands from within maple by toggling to command input with the `escape
 
 **`cls`:** clear previous command output
 
-**`selectin` (`i`):** mark the beginning of a selection
+**`selectin`:** mark the beginning of a selection
 
-**`selectout` (`o`):** mark the end of a selection
+**`selectout`:** mark the end of a selection
 
 **`readonly`:** toggle editor readonly mode
 
@@ -55,9 +55,13 @@ Execute commands from within maple by toggling to command input with the `escape
 Some commands may display an output upon completion. Clear command output with the `escape` key.
 It is necessary to clear command output before toggling to the command input again, unless `--quick-cli` is active.
 
+### Aliases
+
+Maple supports aliases to make entering commands faster or easier to remember. Aliases are contained in `properties/aliases.xml`. Some of the default aliases include **`s`** for `save`, **`go`** for `goto`, and **`ro`** for `readonly`.
+
 ## Properties & Switches
 
-User preferences are stored in `properties.xml`, which is read on startup.
+User preferences are stored in `properties/properties.xml`, which is read on startup.
 Each switch has a corresponding property within `properties.xml`, which can be set to `True`/`False` more permanently.
 There are also additional properties which aren't available as switches, (e.g.: `themeFile`).
 
@@ -88,3 +92,19 @@ Theme files are loaded according to the `themeFile` property
  - Theme files are stored as XML within the `themes` directory
  - Each text type can be assigned any valid [Windows console color](https://docs.microsoft.com/en-us/dotnet/api/system.consolecolor?view=net-5.0)
  - Theme categories encompass syntax tokens and maple UI elements, like the footer
+
+## File Nicknames
+
+For quick access to properties, themes, and other maple files there are a few nicknames you can use:
+
+**`{themefile}`:** the theme file currently loaded
+
+**`{propfile}`:** the `properties.xml` file
+
+**`{aliasfile}`:** the `aliases.xml` file
+
+**`{mapledir}`:** the maple directory
+
+**`{themedir}`:** the theme directory
+
+**`{syntaxdir}`:** the syntax directory

@@ -66,12 +66,14 @@ namespace maple
                     case "{themefile}":
                         return Settings.ThemeDirectory + Settings.ThemeFile;
                     case "{propfile}":
-                        return Settings.settingsFile;
+                        return Settings.SettingsFile;
+                    case "{aliasfile}":
+                        return Settings.AliasesFile;
                 }
 
                 //check for path substitution
                 if (filepath.Contains("{mapledir}"))
-                    return filepath.Replace("{mapledir}", Settings.mapleDirectory);
+                    return filepath.Replace("{mapledir}", Settings.MapleDirectory);
                 if (filepath.Contains("{themedir}"))
                     return filepath.Replace("{themedir}", Settings.ThemeDirectory);
                 if (filepath.Contains("{syntaxdir}"))

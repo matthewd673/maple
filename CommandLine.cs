@@ -68,6 +68,10 @@ namespace maple
             List<String> commandArgs = commandInfo.Args;
             List<String> commandSwitches = commandInfo.Switches;
 
+            //swap out alias with actual primary command
+            if (Settings.Aliases.ContainsKey(primaryCommand))
+                primaryCommand = Settings.Aliases[primaryCommand];
+
             switch(primaryCommand)
             {
                 case "help":
@@ -97,11 +101,9 @@ namespace maple
                 case "goto":
                     GotoCommand(commandArgs, commandSwitches);
                     break;
-                case "i":
                 case "selectin":
                     SelectInCommand();
                     break;
-                case "o":
                 case "selectout":
                     SelectOutCommand();
                     break;
@@ -126,8 +128,17 @@ namespace maple
                 return;
             }
 
+            if (Settings.Aliases.ContainsKey(args[0]))
+            {
+                SetOutput(args[0] + ": alias for '" + Settings.Aliases[args[0]] + "'", "help");
+                return;
+            }
+
             switch (args[0])
             {
+                case "help":
+                    SetOutput("'help [command]' or 'help all'", "help");
+                    break;
                 case "all":
                     SetOutput("save, load, close, cls, top, bot, redraw, goto, selectin, selectout, readonly", "help");
                     break;
@@ -155,11 +166,9 @@ namespace maple
                 case "goto":
                     SetOutput("goto [line]: jump to the specified line", "help");
                     break;
-                case "i":
                 case "selectin":
                     SetOutput("selectin (i): start selection", "help");
                     break;
-                case "o":
                 case "selectout":
                     SetOutput("selectout (o): end selection", "help");
                     break;
@@ -167,7 +176,7 @@ namespace maple
                     SetOutput("readonly: toggle readonly mode", "help");
                     break;
                 default:
-                    SetOutput("Unknown command, try 'help all'", "help");
+                    UnknownCommand();
                     break;
             }
         }
@@ -285,7 +294,7 @@ namespace maple
 
         static void UnknownCommand()
         {
-            SetOutput("Unknown command, try 'help all'", "error");
+            SetOutput("Unknown command, try 'help all' or update the alias file", "error");
         }
 
     }

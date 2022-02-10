@@ -50,11 +50,16 @@ namespace maple
                         Settings.DeleteEntireTabs = true;
                         Settings.IgnoreSetting("deleteentiretabs");
                         break;
+                    case "--readonly":
+                        Input.ReadOnly = true;
+                        Settings.IgnoreSetting("readonly");
+                        break;
                 }
             }
 
             //load settings
             Settings.LoadSettings();
+            Settings.LoadAliases();
 
             //prepare styler
             Styler.LoadMapleTheme();

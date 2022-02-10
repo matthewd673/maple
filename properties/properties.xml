@@ -6,6 +6,7 @@
     <property name="relativePath">False</property>
     <property name="navigatePastTabs">True</property>
     <property name="deleteEntireTabs">True</property>
+    <property name="readonly">False</property>
     <!--Arguments-->
     <property name="themeDirectory">{mapledir}\themes</property>
     <property name="themeFile">maple.xml</property>
