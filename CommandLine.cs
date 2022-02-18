@@ -161,7 +161,7 @@ namespace maple
                     SetOutput("bot: jump to the bottom of the document", "help");
                     break;
                 case "redraw":
-                    SetOutput("redraw: redraw the editor", "help");
+                    SetOutput("redraw: redraw the editor, usually fixes any rendering errors", "help");
                     break;
                 case "goto":
                     SetOutput("goto [line]: jump to the specified line", "help");
@@ -237,10 +237,14 @@ namespace maple
 
         static void RedrawCommand()
         {
+            Printer.Resize();
             Cursor.CalculateCursorBounds();
             Editor.DocCursor.Doc.CalculateScrollIncrement();
-            Editor.RefreshAllLines();
             Editor.DocCursor.Move(Editor.DocCursor.DX, Editor.DocCursor.DY);
+            Editor.DocCursor.LockToScreenConstraints();
+            Editor.RefreshAllLines();
+            Console.Clear();
+            Editor.RedrawLines();
         }
 
         static void SelectInCommand()

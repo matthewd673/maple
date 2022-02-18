@@ -16,7 +16,7 @@ namespace maple
             //create cursor
             CmdCursor = new Cursor(0, 0);
 
-            CmdCursor.ContentOffsetX = Styler.VanityFooter.Length + 2;
+            CmdCursor.ContentOffsetX = 7; //hardcoded for "maple: " in line with new footer printing
             CmdCursor.ContentOffsetY = Cursor.MaxScreenY;
 
             //create doc cursor with document
@@ -67,7 +67,6 @@ namespace maple
             {
                 Console.Clear();
                 RedrawLines();
-                fullClearNext = false; //don't do it again until told
             }
             else
                 RedrawLines();
@@ -123,6 +122,7 @@ namespace maple
                     Printer.ClearLine(lineIndex - GetCurrentDoc().ScrollY);
             }
             refreshedLines.Clear(); //clear for next time
+            fullClearNext = false; //don't full clear again unless told
         }
 
         public static void PrintFooter()

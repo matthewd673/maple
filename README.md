@@ -1,4 +1,4 @@
-# maple 🍁
+﻿# maple 🍁
 
 Terminal text editor for Windows written in C#
 
@@ -50,7 +50,7 @@ Execute commands from within maple by toggling to command input with the `escape
 
 **`readonly`:** toggle editor readonly mode
 
-**`redraw`:** force a full redraw of the editor *(experimental)*
+**`redraw`:** force a full redraw of the editor, usually fixes any rendering errors
 
 Some commands may display an output upon completion. Clear command output with the `escape` key.
 It is necessary to clear command output before toggling to the command input again, unless `--quick-cli` is active.

@@ -11,4 +11,5 @@
     <alias command="goto">go</alias>
     <alias command="goto">g</alias>
     <alias command="goto">line</alias>
+    <alias command="redraw">resize</alias>
 </xml>
