@@ -22,11 +22,21 @@ namespace maple
 
             if(!File.Exists(syntaxPath))
             {
+                Log.Write("Syntax path doesn't exist at '" + syntaxPath + "', enabling NoHighlight", "commandline");
                 Settings.NoHighlight = true;
                 return;
             }
 
-            document.Load(syntaxPath);
+            try
+            {
+                document.Load(syntaxPath);
+            }
+            catch (Exception e)
+            {
+                CommandLine.SetOutput("Encountered an exception while loading syntax XML", "internal");
+                Log.Write("Encountered exception while loading syntax XML: " + e.Message, "lexer");
+                return;
+            }
             
             //build syntax rules
             XmlNodeList syntaxRules = document.GetElementsByTagName("syntax");
@@ -43,13 +53,19 @@ namespace maple
                 }
                 value = node.InnerText.ToLower();
 
-                rules.Add(new LexerRule(type, value));
+                if (type.Equals("stringliteral")) //always prioritize stringliteral since it sometimes conflicts
+                    rules.Add(new LexerRule(type, value));
+                else
+                    rules.Insert(0, new LexerRule(type, value));
             }
+
+            Log.Write("Loaded " + rules.Count + " lexer rules", "lexer");
 
             //build keyword list
             XmlNodeList keywordNodes = document.GetElementsByTagName("keyword");
             foreach (XmlNode node in keywordNodes)
                 keywords.Add(node.InnerText);
+            Log.Write("Loaded " + keywords.Count + " lexer keywords", "lexer");
         }
 
         /// <summary>
@@ -72,7 +88,7 @@ namespace maple
                     LexerRule rule = rules[i];
                     Match firstMatch = rule.Pattern.Match(text);
 
-                    if (!firstMatch.Success) //no match, keep checking
+                    if (!firstMatch.Success || firstMatch.Value.Equals("")) //no match, keep checking
                         continue;
 
                     if (firstMatch.Index == 0) //next token matches - jobs done
@@ -167,7 +183,6 @@ namespace maple
 
         struct LexerRule
         {
-
             public string Name { get; set; }
             public Regex Pattern { get; set; }
 

@@ -40,9 +40,9 @@ namespace maple
             return (x >= 0 && x < InputText.Length);
         }
 
-        static void SetOutput(String text, String speaker)
+        public static void SetOutput(String text, String speaker)
         {
-            OutputText = "[" + speaker + "]: " + text;
+            OutputText = String.Format("[{0}]: {1}", speaker, text);
         }
 
         public static void ClearOutput()
@@ -130,7 +130,7 @@ namespace maple
 
             if (Settings.Aliases.ContainsKey(args[0]))
             {
-                SetOutput(args[0] + ": alias for '" + Settings.Aliases[args[0]] + "'", "help");
+                SetOutput(String.Format("{0}: alias for '{1}'", args[0], Settings.Aliases[args[0]]), "help");
                 return;
             }
 
@@ -193,9 +193,9 @@ namespace maple
             String existingPath = Editor.DocCursor.Doc.Filepath;
 
             if(savePath != existingPath)
-                SetOutput("Copy of file saved to " + savePath, "save");
+                SetOutput(String.Format("Copy of file saved to {0}", savePath), "save");
             else
-                SetOutput("File saved to " + savePath, "save");
+                SetOutput(String.Format("File saved to {0}", savePath), "save");
         }
 
         static void LoadCommand(List<String> args, List<String> switches)
@@ -275,7 +275,7 @@ namespace maple
             if (int.TryParse(args[0], out l))
             {
                 if (l > Editor.DocCursor.Doc.GetMaxLine() + 1 || l < 0)
-                    SetOutput("Invalid line number, must be >= 1 and <= " + (Editor.DocCursor.Doc.GetMaxLine() + 1), "goto");
+                    SetOutput(String.Format("Invalid line number, must be >= 1 and <= {0}", (Editor.DocCursor.Doc.GetMaxLine() + 1)), "goto");
                 else
                     Editor.DocCursor.Move(0, l - 1);
             }

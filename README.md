@@ -4,7 +4,7 @@ Terminal text editor for Windows written in C#
 
 **Try it out: `./maple Program.cs`**
 
-***NOTE:** maple works best with [**Windows Terminal**](https://aka.ms/terminal) - cmd and PowerShell have not been tested*
+***NOTE:** maple works best with [**Windows Terminal**](https://aka.ms/terminal)*
 
 ---
 
@@ -77,6 +77,10 @@ When running maple, you can include switches to temporarily change editor behavi
 **`--navigate-past-tabs`:** when navigating with the right arrow key, skip past groups of spaces equal to the current tab size
 
 **`--delete-entire-tabs`:** when pressing `Backspace` or `Delete`, remove groups of spaces equal to the current tab size
+
+**`--readonly`:** launch the editor in readonly mode
+
+**`--enable-logging`:** log non-fatal errors and internal status in `log.txt`, enabled by default
 
 ## Themes & Syntax Highlighting
 

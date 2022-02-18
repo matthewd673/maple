@@ -12,6 +12,7 @@ namespace maple
 
         public static void Initialize(String filename)
         {
+            Log.Write("Performing editor initialization", "editor");
             //create cursor
             CmdCursor = new Cursor(0, 0);
 
@@ -19,6 +20,7 @@ namespace maple
             CmdCursor.ContentOffsetY = Cursor.MaxScreenY;
 
             //create doc cursor with document
+            Log.Write("Creating document cursor", "editor");
             DocCursor = new DocumentCursor(filename, 0, 0);
             DocCursor.CalculateGutterWidth();
             DocCursor.Move(0, 0);
@@ -29,9 +31,11 @@ namespace maple
             DocCursor.Move(DocCursor.DX, DocCursor.DY); //reset to original position
 
             //prep for initial full-draw
+            Log.Write("Preparing for initial full-draw", "editor");
             RefreshAllLines();
 
             //full-draw all lines for initial render
+            Log.Write("Full-drawing", "editor");
             Console.Clear();
             RedrawLines();
             fullClearNext = false;
@@ -124,28 +128,26 @@ namespace maple
         public static void PrintFooter()
         {
             //generate footer string
-            //string defaultFooterContent = "maple (" + (docCursor.dX + 1) + ", " + (docCursor.dY + 1) + ") - " + GetCurrentDoc().GetFilePath();
-
-            if(!CommandLine.HasOutput)
+            if(!CommandLine.HasOutput) //print normal footer if there isn't any command output
             {
                 if (Input.CurrentTarget == Input.InputTarget.Document) //render default footer
                 {
                     //draw piece by piece
                     Printer.ClearFooter(ConsoleColor.Black);
-                    Printer.WriteToFooter(Styler.VanityFooter + " ", 0, Styler.AccentColor, ConsoleColor.Black); //write vanity prefix
-                    Printer.WriteToFooter(GetCurrentDoc().Filepath.TrimEnd() + " ", -1, Styler.TextColor, ConsoleColor.Black); //write doc name
-                    Printer.WriteToFooter("ln " + (DocCursor.DY + 1) + " col " + (DocCursor.DX + 1) + " ", -1, Styler.AccentColor, ConsoleColor.Black); //writer cursor position
+                    Printer.WriteToFooter(String.Format("{0} ", Styler.VanityFooter), 0, Styler.AccentColor, ConsoleColor.Black); //write vanity prefix
+                    Printer.WriteToFooter(String.Format("{0} ", GetCurrentDoc().Filepath.TrimEnd()), -1, Styler.TextColor, ConsoleColor.Black); //write doc name
+                    Printer.WriteToFooter(String.Format("ln {0} col {1} ", (DocCursor.DY + 1), (DocCursor.DX + 1)), -1, Styler.AccentColor, ConsoleColor.Black); //writer cursor position
                     if (GetCurrentDoc().HasSelection()) //write selection bounds (if has selection)
-                        Printer.WriteToFooter((GetCurrentDoc().GetSelectionInX() + 1) + "," + (GetCurrentDoc().GetSelectionInY() + 1) + " - " +
-                            (GetCurrentDoc().GetSelectionOutX() + 1) + "," + (GetCurrentDoc().GetSelectionOutY() + 1) + " ",
+                        Printer.WriteToFooter(String.Format("{0},{1} - {2},{3} ", (GetCurrentDoc().GetSelectionInX() + 1), (GetCurrentDoc().GetSelectionInY() + 1),
+                            (GetCurrentDoc().GetSelectionOutX() + 1), (GetCurrentDoc().GetSelectionOutY() + 1)),
                             -1, Styler.SelectionColor, ConsoleColor.Black);
                     else if (GetCurrentDoc().HasSelectionStart()) //write selection in as reminder
-                        Printer.WriteToFooter((GetCurrentDoc().GetSelectionInX() + 1) + "," + (GetCurrentDoc().GetSelectionInY() + 1) + " ...",
+                        Printer.WriteToFooter(String.Format("{0},{1} ...", (GetCurrentDoc().GetSelectionInX() + 1), (GetCurrentDoc().GetSelectionInY() + 1)),
                             -1, Styler.SelectionColor, ConsoleColor.Black);
                     //Printer.DrawFooter(defaultFooterContent, foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
                 }
                 else if (Input.CurrentTarget == Input.InputTarget.Command) //render input footer
-                    Printer.DrawFooter("maple: " + CommandLine.InputText, foregroundColor: Styler.CmdInColor, backgroundColor: ConsoleColor.Black);
+                    Printer.DrawFooter(String.Format("maple: {0}", CommandLine.InputText), foregroundColor: Styler.CmdInColor, backgroundColor: ConsoleColor.Black);
             }
             else //render output footer
                 Printer.DrawFooter(CommandLine.OutputText, foregroundColor: Styler.CmdOutColor, backgroundColor: ConsoleColor.Black);

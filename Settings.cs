@@ -9,7 +9,7 @@ namespace maple
     static class Settings
     {
 
-        public static string MapleDirectory { get; set; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        public static string MapleDirectory { get; private set; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static string SettingsFile { get; set; } = MapleDirectory + "\\properties\\properties.xml";
         public static string AliasesFile { get; set; } = MapleDirectory + "\\properties\\aliases.xml";
 
@@ -20,6 +20,7 @@ namespace maple
         public static bool RelativePath { get; set; } = false;
         public static bool NavigatePastTabs { get; set; } = true;
         public static bool DeleteEntireTabs { get; set; } = true;
+        public static bool EnableLogging { get; set; } = true;
 
         public static string ThemeDirectory { get; private set; } = MapleDirectory + "\\themes\\";
         public static string ThemeFile { get; private set; } = "maple.xml";
@@ -40,9 +41,21 @@ namespace maple
             XmlDocument document = new XmlDocument();
 
             if (!File.Exists(SettingsFile))
+            {
+                Log.Write("Settings file doesn't exist at '" + SettingsFile + "'", "settings");
                 return;
+            }
 
-            document.Load(SettingsFile);
+            try
+            {
+                document.Load(SettingsFile);
+            }
+            catch (Exception e)
+            {
+                CommandLine.SetOutput("Encountered an exception while loading properties XML", "internal");
+                Log.Write("Encountered exception while loading properties XML: " + e.Message, "settings");
+                return;
+            }
 
             XmlNodeList properties = document.GetElementsByTagName("property");
             foreach(XmlNode node in properties)
@@ -87,6 +100,9 @@ namespace maple
                     case "readonly":
                         Input.ReadOnly = IsTrue(value);
                         break;
+                    case "enablelogging":
+                        EnableLogging = IsTrue(value);
+                        break;
                     //ARGUMENTS
                     case "themedirectory":
                         ThemeDirectory = value;
@@ -116,10 +132,22 @@ namespace maple
             XmlDocument document = new XmlDocument();
 
             if (!File.Exists(AliasesFile))
+            {
+                Log.Write("Aliases file doesn't exist at '" + AliasesFile + "'", "settings");
                 return;
+            }
 
-            document.Load(AliasesFile);
-            
+            try
+            {
+                document.Load(AliasesFile);
+            }
+            catch (Exception e)
+            {
+                CommandLine.SetOutput("Encountered an exception while loading alias XML", "internal");
+                Log.Write("Encountered exception while loading alias XML: " + e.Message, "settings");
+                return;
+            }
+
             XmlNodeList aliases = document.GetElementsByTagName("alias");
             foreach (XmlNode node in aliases)
             {
@@ -133,8 +161,6 @@ namespace maple
                     command = a.Value.ToLower();
                 }
                 value = node.InnerText;
-
-                Console.Title = value + ", " + command;
 
                 Aliases.Add(value, command);
             }

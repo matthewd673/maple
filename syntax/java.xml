@@ -1,0 +1,66 @@
+<xml>
+    <!--Highlighting RegEx-->
+    <syntax type="numberLiteral">([0-9]+\.?[0-9]*f?)</syntax>
+    <syntax type="alphabetical">([a-zA-Z]+[0-9]*[a-zA-Z]*)</syntax>
+    <syntax type="break">( |;|,)</syntax>
+    <syntax type="grouping">(\(|\)|\{|\}|\[|\])</syntax>
+    <syntax type="stringLiteral">&quot;.*&quot;</syntax>
+    <syntax type="characterLiteral">&apos;.?&apos;</syntax>
+    <syntax type="comment">(\/\/.*)</syntax>
+    <syntax type="operator">(\+|\-|\*|((?&lt;!\/)\/(?!\/))|\=|\%|\&gt;|\&lt;|\||\&amp;|\!)</syntax>
+    <!--Keywords-->
+    <keywords>
+        <keyword>abstract</keyword>
+        <keyword>assert</keyword>
+        <keyword>boolean</keyword>
+        <keyword>break</keyword>
+        <keyword>byte</keyword>
+        <keyword>case</keyword>
+        <keyword>catch</keyword>
+        <keyword>char</keyword>
+        <keyword>class</keyword>
+        <keyword>const</keyword>
+        <keyword>continue</keyword>
+        <keyword>default</keyword>
+        <keyword>do</keyword>
+        <keyword>double</keyword>
+        <keyword>else</keyword>
+        <keyword>enum</keyword>
+        <keyword>extends</keyword>
+        <keyword>final</keyword>
+        <keyword>finally</keyword>
+        <keyword>float</keyword>
+        <keyword>for</keyword>
+        <keyword>goto</keyword>
+        <keyword>if</keyword>
+        <keyword>implements</keyword>
+        <keyword>import</keyword>
+        <keyword>instanceof</keyword>
+        <keyword>int</keyword>
+        <keyword>interface</keyword>
+        <keyword>lpng</keyword>
+        <keyword>native</keyword>
+        <keyword>new</keyword>
+        <keyword>package</keyword>
+        <keyword>private</keyword>
+        <keyword>protected</keyword>
+        <keyword>public</keyword>
+        <keyword>return</keyword>
+        <keyword>short</keyword>
+        <keyword>static</keyword>
+        <keyword>strictfp</keyword>
+        <keyword>super</keyword>
+        <keyword>switch</keyword>
+        <keyword>synchronized</keyword>
+        <keyword>this</keyword>
+        <keyword>throw</keyword>
+        <keyword>throws</keyword>
+        <keyword>transient</keyword>
+        <keyword>try</keyword>
+        <keyword>void</keyword>
+        <keyword>volatile</keyword>
+        <keyword>while</keyword>
+        <keyword>true</keyword>
+        <keyword>false</keyword>
+    </keywords>
+</xml>

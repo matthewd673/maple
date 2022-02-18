@@ -9,6 +9,11 @@ namespace maple
         {
             PrepareWindow();
 
+            //initialize logger
+            //note: maple directory will never be relative, since flag is set later (this may be a good thing?)
+            Log.InitializeLogger();
+
+            Log.Write("Parsing arguments", "program");
             //turn args into string for parser
             string argString = "";
             foreach(string s in args)
@@ -21,6 +26,7 @@ namespace maple
                 combineArgs: true
                 );
 
+            Log.Write("Loading settings from switches", "program");
             //load settings from switches
             foreach(string sw in runInfo.Switches)
             {
@@ -54,13 +60,22 @@ namespace maple
                         Input.ReadOnly = true;
                         Settings.IgnoreSetting("readonly");
                         break;
+                    case "--enable-logging":
+                        Settings.EnableLogging = true;
+                        Settings.IgnoreSetting("enablelogging");
+                        break;
+                    default:
+                        Log.Write("Encountered unknown switch '" + sw + "'", "program");
+                        break;
                 }
             }
 
+            Log.Write("Loading settings & aliases", "program");
             //load settings
             Settings.LoadSettings();
             Settings.LoadAliases();
 
+            Log.Write("Loading theme", "program");
             //prepare styler
             Styler.LoadMapleTheme();
 
@@ -68,16 +83,19 @@ namespace maple
             //load file
             if (args.Length > 0)
             {
+                Log.Write("Initializing editor with file '" + runInfo.Args[0] + "'", "program");
                 Editor.Initialize(runInfo.Args[0]);
             }
             else //no argument provided
             {
+                Log.Write("No file provided in args, defaulting to about", "program");
                 Printer.PrintLine("maple - terminal text editor | github.com/matthewd673/maple", Styler.AccentColor);
                 Printer.PrintLine("No arguments provided: 'maple [filename]' to begin editing", Styler.ErrorColor);
                 return;
             }
 
             //send control to editor
+            Log.Write("Entering editor input loop", "program");
             Editor.BeginInputLoop();
 
         }
@@ -91,6 +109,7 @@ namespace maple
 
         public static void Close()
         {
+            Log.Write("Session ended, cleaning up", "program");
             Console.Clear();
             Console.ForegroundColor = Styler.AccentColor;
             Console.WriteLine("maple session ended");

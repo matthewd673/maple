@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System.Text;
 
 namespace maple
 {
@@ -37,12 +38,21 @@ namespace maple
             if (!internalDocument)
             {
                 //load theme file if one exists (and if it has a filepath at all)
+                Log.Write("Loading syntax information", "document");
                 if (Path.GetExtension(filepath).Length > 0)
                 {
                     string fileExtension = Path.GetExtension(filepath).Remove(0, 1);
                     fileExtension = fileExtension.TrimEnd(); //remove trailing whitespace
                     if (File.Exists(Settings.SyntaxDirectory + fileExtension + ".xml")) //load lexer settings if they are available for this filetype
+                    {
+                        Log.Write("Loading lexer settings from '" + Settings.SyntaxDirectory + fileExtension + ".xml'", "document");
                         Lexer.LoadSyntax(Settings.SyntaxDirectory + fileExtension + ".xml");
+                    }
+                    else
+                        Log.Write("Cannot load lexer settings, syntax file '" + Settings.SyntaxDirectory + fileExtension + ".xml' doesn't exist", "document");
+                }
+                else {
+                    Log.Write("Loaded document is marked as internal", "document");
                 }
 
                 //apply scroll properties
@@ -60,6 +70,8 @@ namespace maple
             //if it doesn't exist, attempt to adjust
             if (!File.Exists(filepath))
             {
+                Log.Write("Filepath '" + filepath + "' doesn't exist, attempting substitution", "document");
+
                 //check for reserved filename
                 switch (filepath)
                 {
@@ -91,20 +103,26 @@ namespace maple
             this.Filepath = filepath;
             if(File.Exists(filepath))
             {
-                List<string> fileLinesText = File.ReadAllLines(filepath).ToList<String>();
+                Log.Write("Loading from '" + filepath + "'", "document");
+                List<string> fileLinesText = File.ReadAllLines(filepath, Encoding.UTF8).ToList<String>();
                 
                 foreach(string s in fileLinesText)
                     fileLines.Add(new Line(s));
 
+                Log.Write("Loaded " + fileLines.Count + " lines", "document");
+
                 if(fileLines.Count == 0)
                     fileLines.Add(new Line(""));
+
+                Log.Write("Initial file loaded from '" + filepath + "'", "document");
             }
             else //file does not exist
             {
                 //create a file
-                File.Create(filepath).Close();
+                File.CreateText(filepath).Close();
                 fileLines = new List<Line>() { new Line("") };
-                CommandLine.OutputText = "New file \"" + filepath.Trim() + "\" was created";
+                CommandLine.OutputText = String.Format("New file \"{0}\" was created", filepath.Trim());
+                Log.Write("Initial file doesn't exist, created '" + filepath + "'", "document");
             }
 
         }
@@ -114,7 +132,8 @@ namespace maple
             List<string> allLines = new List<string>();
             foreach(Line l in fileLines)
                 allLines.Add(l.LineContent);
-            File.WriteAllLines(savePath, allLines);
+            File.WriteAllLines(savePath, allLines, Encoding.UTF8);
+            Log.Write("Saved file to '" + savePath + "'", "document");
         }
 
         public void PrintFileLines()
@@ -187,7 +206,6 @@ namespace maple
                             tSelectEnd = t.Text.Length;
 
                         tokenHasSelect = true;
-
                     }
 
                     string printText = t.Text;
@@ -574,7 +592,7 @@ namespace maple
         public string GetSelectionText()
         {
 
-            Console.Title = selectIn.X + " , " + selectOut.X;
+            // Console.Title = selectIn.X + " , " + selectOut.X;
 
             if (selectIn.Y == -1 || selectOut.Y == -1) //skip if no selection
                 return "";
@@ -595,7 +613,7 @@ namespace maple
             }
 
             //debug!
-            File.WriteAllText("DEBUGLONGSELECT.txt", text);
+            // File.WriteAllText("DEBUGLONGSELECT.txt", text);
 
             return text;
         }

@@ -40,12 +40,24 @@ namespace maple
                 AssignThemeColors(mapleThemePath);
                 AssignCustomText(mapleThemePath);
             }
+            else
+                Log.Write("Theme file doesn't exist at '" + mapleThemePath + "'", "styler");
         }
 
         public static void AssignThemeColors(string themePath)
         {
             XmlDocument document = new XmlDocument();
-            document.Load(themePath);
+
+            try
+            {
+                document.Load(themePath);
+            }
+            catch (Exception e)
+            {
+                CommandLine.SetOutput("Encountered an exception while loading theme XML", "internal");
+                Log.Write("Encountered exception while loading theme XML: " + e.Message, "styler");
+                return;
+            }
 
             XmlNodeList colors = document.GetElementsByTagName("color");
             foreach(XmlNode node in colors)
@@ -97,6 +109,9 @@ namespace maple
                         GroupingColor = color; break;
                     case "operator":
                         OperatorColor = color; break;
+                    default:
+                        Log.Write("Encountered unknown theme category '" + category + "'", "styler");
+                        break;
                 }
             }
         }
@@ -104,7 +119,17 @@ namespace maple
         public static void AssignCustomText(string themePath)
         {
             XmlDocument document = new XmlDocument();
-            document.Load(themePath);
+
+            try
+            {
+                document.Load(themePath);
+            }
+            catch (Exception e)
+            {
+                CommandLine.SetOutput("Encountered an exception while loading custom text XML", "internal");
+                Log.Write("Encountered exception while loading custom text XML: " + e.Message, "styler");
+                return;
+            }
 
             XmlNodeList texts = document.GetElementsByTagName("string");
             foreach (XmlNode node in texts)
@@ -125,6 +150,9 @@ namespace maple
                 {
                     case "vanityfooter":
                         VanityFooter = value; break;
+                    default:
+                        Log.Write("Encountered unknown text category '" + category + "'", "styler");
+                        break;
                 }
             }
         }
@@ -166,6 +194,7 @@ namespace maple
                 case "white":
                     return ConsoleColor.White;
                 default:
+                    Log.Write("Encountered unknown ConsoleColor '" + "'", "styler");
                     return ConsoleColor.Gray;
             }
         }
