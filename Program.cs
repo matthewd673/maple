@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace maple
 {
@@ -104,6 +105,7 @@ namespace maple
         {
             Console.Clear();
             Console.Title = "maple";
+            Console.OutputEncoding = Encoding.UTF8;
             Printer.Resize();
         }
 

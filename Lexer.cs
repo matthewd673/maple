@@ -8,9 +8,14 @@ namespace maple
 {
     public static class Lexer
     {
-
         static List<LexerRule> rules = new List<LexerRule>();
         static List<string> keywords = new List<string>();
+
+        const string CliStringRule = "\".*\"";
+        const string CliSwitchRule = "-{1,2}.+ ";
+        const string CliFullCommandRule = "^.+ ";
+        static List<LexerRule> cliRules = new List<LexerRule>();
+        static List<string> cliKeywords = new List<string>();
 
         /// <summary>
         /// Build a set of lexer rules and keywords from a syntax spec file (XML expected).
@@ -22,7 +27,7 @@ namespace maple
 
             if(!File.Exists(syntaxPath))
             {
-                Log.Write("Syntax path doesn't exist at '" + syntaxPath + "', enabling NoHighlight", "commandline");
+                Log.Write("Syntax path doesn't exist at '" + syntaxPath + "', enabling NoHighlight", "lexer");
                 Settings.NoHighlight = true;
                 return;
             }
@@ -33,7 +38,7 @@ namespace maple
             }
             catch (Exception e)
             {
-                CommandLine.SetOutput("Encountered an exception while loading syntax XML", "internal");
+                CommandLine.SetOutput("Encountered an exception while loading syntax XML", "lexer");
                 Log.Write("Encountered exception while loading syntax XML: " + e.Message, "lexer");
                 return;
             }
@@ -68,12 +73,31 @@ namespace maple
             Log.Write("Loaded " + keywords.Count + " lexer keywords", "lexer");
         }
 
+        public static void LoadCommandLineSyntax()
+        {
+            //build rules
+            //rules are colored based on existing theme colors (for now)
+            cliRules.Add(new LexerRule("alphabetical", CliFullCommandRule));
+            cliRules.Add(new LexerRule("comment", CliSwitchRule));
+            cliRules.Add(new LexerRule("stringliteral", CliStringRule));
+
+            Log.Write("Loaded " + cliRules.Count + " command line lexer rules", "lexer");
+
+            //build command list
+            foreach (string c in CommandLine.CommandMasterList)
+                cliKeywords.Add(c);
+            foreach (string a in Settings.Aliases.Keys)
+                cliKeywords.Add(a);
+
+            Log.Write("Loaded " + cliKeywords.Count + " command line keywords", "lexer");
+        }
+
         /// <summary>
         /// Turn a piece of text into a series of <c>Token</c>s according to the given lexer rules.
         /// </summary>
         /// <param name="text">The text to be tokenized.</param>
         /// <returns>An array of <c>Token</c>s</returns>
-        public static Token[] Tokenize(string text)
+        static Token[] InternalTokenizer(string text, List<LexerRule> rules, List<string> keywords)
         {
             List<Token> tokens = new List<Token>();
 
@@ -137,14 +161,16 @@ namespace maple
             }
 
             return tokens.ToArray();
-
         }
 
-        static bool IsKeyword(String term)
+        public static Token[] Tokenize(string text)
         {
-            if(keywords.Contains(term))
-                return true;
-            return false;
+            return InternalTokenizer(text, rules, keywords);
+        }
+
+        public static Token[] TokenizeCommandLine(string text)
+        {
+            return InternalTokenizer(text, cliRules, cliKeywords);
         }
 
         /// <summary>

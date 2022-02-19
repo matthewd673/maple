@@ -7,7 +7,7 @@ namespace maple
     class Line
     {
 
-        public Token[] Tokens { get; private set; }= new Token[0];
+        public Token[] Tokens { get; private set; } = new Token[0];
 
         private String _lineContent = "";
         public String LineContent {
@@ -19,17 +19,18 @@ namespace maple
             {
                 Tokens = GenerateTokensFromString(value);
 
-                String content = "";
-                foreach(Token t in Tokens)
-                    content += t.Text;
-
-                _lineContent = content;
+                _lineContent = value;
             }
         }
 
         public Line(String text)
         {
             LineContent = text;
+        }
+
+        public void ForceTokenize()
+        {
+            Tokens = GenerateTokensFromString(_lineContent);
         }
 
         public static Token[] GenerateTokensFromString(String text)

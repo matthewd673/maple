@@ -6,6 +6,11 @@ namespace maple
     static class CommandLine
     {
 
+        public static string[] CommandMasterList { get; } = new string[] {
+            "help", "save", "load", "close", "cls", "top", "bot", "redraw",
+            "goto", "selectin", "selectout", "deselect", "readonly", "syntax"
+            };
+
         public static String InputText { get; private set; } = "";
 
         private static String _outputText = "";
@@ -113,6 +118,9 @@ namespace maple
                 case "readonly":
                     ReadonlyCommand();
                     break;
+                case "syntax":
+                    SyntaxCommand(commandArgs, commandSwitches);
+                    break;
                 default:
                     UnknownCommand();
                     break;
@@ -143,7 +151,7 @@ namespace maple
                     SetOutput("'help [command]' or 'help all'", "help");
                     break;
                 case "all":
-                    SetOutput("save, load, close, cls, top, bot, redraw, goto, selectin, selectout, readonly", "help");
+                    SetOutput("save, load, close, cls, top, bot, redraw, goto, selectin, selectout, readonly, syntax", "help");
                     break;
                 case "save":
                     SetOutput("save [optional filename]: save document to filename", "help");
@@ -180,6 +188,9 @@ namespace maple
                     break;
                 case "readonly":
                     SetOutput("readonly: toggle readonly mode", "help");
+                    break;
+                case "syntax":
+                    SetOutput("syntax [extension]: render this file with the syntax rules defined for [extension] files", "help");
                     break;
                 default:
                     UnknownCommand();
@@ -302,6 +313,22 @@ namespace maple
                 SetOutput("Editor is now readonly, use 'readonly' command to toggle", "readonly");
             else
                 SetOutput("Editor is no longer readonly", "readonly");
+        }
+
+        static void SyntaxCommand(List<String> args, List<String> switches)
+        {
+            if (args.Count < 1)
+            {
+                SetOutput("No file extension provided", "syntax");
+                return;
+            }
+
+            Lexer.LoadSyntax(Settings.SyntaxDirectory + args[0] + ".xml");
+
+            Editor.GetCurrentDoc().ForceReTokenize();
+            Console.Clear();
+            Editor.RefreshAllLines();
+            Editor.RedrawLines();
         }
 
         static void UnknownCommand()

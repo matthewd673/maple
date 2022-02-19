@@ -26,6 +26,9 @@ namespace maple
             DocCursor.Move(0, 0);
             DocCursor.ApplyPosition();
 
+            //load footer lexer
+            Log.Write("Building command line input lexer rules", "editor");
+            Lexer.LoadCommandLineSyntax();
             //render initial footer
             Printer.DrawFooter("maple", foregroundColor: Styler.AccentColor, backgroundColor: ConsoleColor.Black);
             DocCursor.Move(DocCursor.DX, DocCursor.DY); //reset to original position
@@ -146,8 +149,21 @@ namespace maple
                             -1, Styler.SelectionColor, ConsoleColor.Black);
                     //Printer.DrawFooter(defaultFooterContent, foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
                 }
+                // else if (Input.CurrentTarget == Input.InputTarget.Command) //render input footer
+                //     Printer.DrawFooter(String.Format("maple: {0}", CommandLine.InputText), foregroundColor: Styler.CmdInColor, backgroundColor: ConsoleColor.Black);
                 else if (Input.CurrentTarget == Input.InputTarget.Command) //render input footer
-                    Printer.DrawFooter(String.Format("maple: {0}", CommandLine.InputText), foregroundColor: Styler.CmdInColor, backgroundColor: ConsoleColor.Black);
+                {
+                    Token[] cliTokens = Lexer.TokenizeCommandLine(CommandLine.InputText);
+                    Printer.ClearFooter();
+                    Printer.WriteToFooter("maple: ", x: 0, foregroundColor: Styler.AccentColor);
+                    int writeX = 7;
+                    for (int i = 0; i < cliTokens.Length; i++)
+                    {
+                        Printer.WriteToFooter(cliTokens[i].Text, x: writeX, foregroundColor: cliTokens[i].Color);
+                        writeX += cliTokens[i].Text.Length;
+                        Console.Title = cliTokens[i].TType.ToString();
+                    }
+                }
             }
             else //render output footer
                 Printer.DrawFooter(CommandLine.OutputText, foregroundColor: Styler.CmdOutColor, backgroundColor: ConsoleColor.Black);

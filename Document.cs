@@ -502,6 +502,12 @@ namespace maple
                 return 0;
         }
 
+        public void ForceReTokenize()
+        {
+            for (int i = 0; i < fileLines.Count; i++)
+                fileLines[i].ForceTokenize();
+        }
+
         public void MarkSelectionIn(int x, int y)
         {
             selectIn = new Point(x, y);
