@@ -514,6 +514,12 @@ namespace maple
             ArrangeSelectionPoints();
         }
 
+        public void Deselect()
+        {
+            selectIn = new Point(-1, -1);
+            selectOut = new Point(-1, -1);
+        }
+
         public void ArrangeSelectionPoints()
         {
 

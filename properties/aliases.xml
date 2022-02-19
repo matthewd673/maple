@@ -7,6 +7,7 @@
     <alias command="bot">bottom</alias>
     <alias command="selectin">i</alias>
     <alias command="selectout">o</alias>
+    <alias command="deselect">d</alias>
     <alias command="readonly">ro</alias>
     <alias command="goto">go</alias>
     <alias command="goto">g</alias>

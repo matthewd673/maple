@@ -107,6 +107,9 @@ namespace maple
                 case "selectout":
                     SelectOutCommand();
                     break;
+                case "deselect":
+                    DeselectCommand();
+                    break;
                 case "readonly":
                     ReadonlyCommand();
                     break;
@@ -167,10 +170,13 @@ namespace maple
                     SetOutput("goto [line]: jump to the specified line", "help");
                     break;
                 case "selectin":
-                    SetOutput("selectin (i): start selection", "help");
+                    SetOutput("selectin: start selection", "help");
                     break;
                 case "selectout":
-                    SetOutput("selectout (o): end selection", "help");
+                    SetOutput("selectout: end selection", "help");
+                    break;
+                case "deselect":
+                    SetOutput("deselect: clear selection region bounds", "help");
                     break;
                 case "readonly":
                     SetOutput("readonly: toggle readonly mode", "help");
@@ -251,20 +257,22 @@ namespace maple
         {
             Editor.GetCurrentDoc().MarkSelectionIn(Editor.DocCursor.DX, Editor.DocCursor.DY);
             if (Editor.GetCurrentDoc().HasSelection()) //only refresh if there is a complete selection
-            {
                 Editor.RefreshAllLines();
-                //Editor.RedrawLines();
-            }
         }
 
         static void SelectOutCommand()
         {
             Editor.GetCurrentDoc().MarkSelectionOut(Editor.DocCursor.DX, Editor.DocCursor.DY);
             if (Editor.GetCurrentDoc().HasSelection()) //only refresh if there is a complete selection
-            {
                 Editor.RefreshAllLines();
-                //Editor.RedrawLines();
-            }
+        }
+
+        static void DeselectCommand()
+        {
+            bool hadSelection = Editor.GetCurrentDoc().HasSelection();
+            Editor.GetCurrentDoc().Deselect();
+            if (hadSelection)
+                Editor.RefreshAllLines();
         }
 
         static void GotoCommand(List<String> args, List<String> switches)

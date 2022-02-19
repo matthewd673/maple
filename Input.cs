@@ -22,7 +22,6 @@ namespace maple
 
         public static void AcceptInput(ConsoleKeyInfo keyInfo)
         {
-
             //build tab string if necessary
             if (tabString.Length == 0)
             {
@@ -34,12 +33,10 @@ namespace maple
                 AcceptDocumentInput(keyInfo);
             else if(CurrentTarget == InputTarget.Command)
                 AcceptCommandInput(keyInfo);
-
         }
 
         static void AcceptDocumentInput(ConsoleKeyInfo keyInfo)
         {
-
             DocumentCursor docCursor = Editor.DocCursor;
             Document doc = docCursor.Doc;
 
@@ -47,18 +44,22 @@ namespace maple
             {
                 //MOVEMENT
                 case ConsoleKey.UpArrow:
+                    if (doc.HasSelection()) break;
                     docCursor.MoveUp();
                     docCursor.Move(maxCursorX, docCursor.DY); //attempt to move to max x position
                     break;
                 case ConsoleKey.DownArrow:
+                    if (doc.HasSelection()) break;
                     docCursor.MoveDown();
                     docCursor.Move(maxCursorX, docCursor.DY); //attempt to move to max x position
                     break;
                 case ConsoleKey.LeftArrow:
+                    if (doc.HasSelection()) break;
                     docCursor.MoveLeft();
                     maxCursorX = docCursor.DX; //update max x position
                     break;
                 case ConsoleKey.RightArrow:
+                    if (doc.HasSelection()) break;
                     if (Settings.NavigatePastTabs && docCursor.Doc.GetTextAtPosition(docCursor.DX, docCursor.DY).StartsWith(tabString)) //can skip, do so
                     {
                         for (int i = 0; i < Settings.TabSpacesCount; i++)
@@ -72,6 +73,12 @@ namespace maple
                 //LINE MANIPULATION
                 case ConsoleKey.Backspace:
                     if (ReadOnly) break;
+
+                    if (doc.HasSelection())
+                    {
+                        DeleteSelectionText(docCursor);
+                        break;
+                    }
 
                     if(docCursor.DX > 0) //not at the beginning of the line
                     {
@@ -136,6 +143,12 @@ namespace maple
                 case ConsoleKey.Delete:
                     if (ReadOnly) break;
 
+                    if (doc.HasSelection())
+                    {
+                        DeleteSelectionText(docCursor);
+                        break;
+                    }
+
                     if(docCursor.DX == doc.GetLineLength(docCursor.DY)) //deleting at end of line
                     {
                         if(docCursor.DY < doc.GetMaxLine()) //there is a following line to append
@@ -162,6 +175,10 @@ namespace maple
                     break;
                 case ConsoleKey.Enter:
                     if (ReadOnly) break;
+
+                    //don't break after clearing selection since we still want a newline
+                    if (doc.HasSelection())
+                        DeleteSelectionText(docCursor);
 
                     doc.AddLine(docCursor.DY + 1); //add new line
                     docCursor.CalculateGutterWidth(); //update gutter position
@@ -202,6 +219,19 @@ namespace maple
                 case ConsoleKey.Tab:
                     if (ReadOnly) break;
 
+                    //if selected, indent all
+                    if (doc.HasSelection())
+                    {
+                        for (int i = doc.GetSelectionInY(); i <= doc.GetSelectionOutY(); i++)
+                            doc.AddTextAtPosition(0, i, tabString);
+
+                        //rerender all
+                        Console.Clear();
+                        Editor.RefreshAllLines();
+                        Editor.RedrawLines();
+                        break;
+                    }
+
                     bool tabTextAdded = doc.AddTextAtPosition(docCursor.DX, docCursor.DY, tabString); //attempt to add tab text
                     
                     if(tabTextAdded)
@@ -230,6 +260,10 @@ namespace maple
                 //TYPING
                 default:
                     if (ReadOnly) break;
+
+                    //clear selection before typing
+                    if (doc.HasSelection())
+                        DeleteSelectionText(docCursor);
 
                     String typed = keyInfo.KeyChar.ToString();
                     //continue only if the typed character can be displayed
@@ -321,6 +355,81 @@ namespace maple
             }
             else if(CurrentTarget == InputTarget.Command)
                 CurrentTarget = InputTarget.Document;
+        }
+
+        //this function is pretty messy, definitely refactor later
+        static void DeleteSelectionText(DocumentCursor docCursor)
+        {
+            Document doc = docCursor.Doc;
+
+            if (doc.HasSelection())
+            {
+                int lineDelta = doc.GetSelectionOutY() - doc.GetSelectionInY();
+                //multi-line selection
+                if (lineDelta >= 1)
+                {
+                    //clear fully-selected middle lines
+                    for (int i = doc.GetSelectionInY() + 1; i < doc.GetSelectionInY() + lineDelta; i++)
+                    {
+                        doc.RemoveLine(i);
+                        i--;
+                        lineDelta--;
+                    }
+                    //clear end of first line
+                    doc.SetLine(
+                        doc.GetSelectionInY(),
+                        doc.GetLine(doc.GetSelectionInY()).Remove(
+                            doc.GetSelectionInX(),
+                            doc.GetLine(doc.GetSelectionInY()).Length - doc.GetSelectionInX()
+                        )
+                    );
+                    //if first line is now empty, remove
+                    if (doc.GetLine(doc.GetSelectionInY()).Equals(""))
+                        doc.RemoveLine(doc.GetSelectionInY());
+                    //clear beginning of last line and append to end of first line
+                    if (lineDelta > 1)
+                    {
+                        doc.SetLine(
+                            doc.GetSelectionInY(),
+                            doc.GetLine(doc.GetSelectionInY()) +
+                            doc.GetLine(doc.GetSelectionInY() + lineDelta - 1).Remove(
+                                0,
+                                doc.GetSelectionOutX()
+                            )
+                        );
+                        doc.RemoveLine(doc.GetSelectionInY() + lineDelta - 1);
+                    }
+                    else
+                    {
+                        doc.SetLine(
+                            doc.GetSelectionInY(),
+                            doc.GetLine(doc.GetSelectionInY()) +
+                            doc.GetLine(doc.GetSelectionInY() + lineDelta).Remove(
+                                0,
+                                doc.GetSelectionOutX()
+                            )
+                        );
+                        doc.RemoveLine(doc.GetSelectionInY() + lineDelta);
+                    }                            
+                }
+                else //one line
+                {
+                    //remove from line
+                    doc.SetLine(
+                        doc.GetSelectionInY(),
+                        doc.GetLine(doc.GetSelectionInY()).Remove(
+                            doc.GetSelectionInX(), doc.GetSelectionOutX() - doc.GetSelectionInX()
+                        )
+                    );
+                }
+
+                //reset cursor, clear selection and rerender all
+                docCursor.Move(doc.GetSelectionInX(), doc.GetSelectionInY());
+                doc.Deselect();
+                Console.Clear();
+                Editor.RefreshAllLines();
+                Editor.RedrawLines();
+            }
         }
 
     }

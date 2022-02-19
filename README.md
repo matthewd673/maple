@@ -24,7 +24,7 @@ Maple is pretty easy to build since it has no dependencies.
 
 ## Commands
 
-Execute commands from within maple by toggling to command input with the `escape` key.
+Execute commands from within maple by toggling to command input with the <kbd>esc</kbd> key.
 
 **`help all`:** display a list of maple commands
 
@@ -52,7 +52,7 @@ Execute commands from within maple by toggling to command input with the `escape
 
 **`redraw`:** force a full redraw of the editor, usually fixes any rendering errors
 
-Some commands may display an output upon completion. Clear command output with the `escape` key.
+Some commands may display an output upon completion. Clear command output with the <kbd>esc</kbd> key.
 It is necessary to clear command output before toggling to the command input again, unless `--quick-cli` is active.
 
 ### Aliases
@@ -76,7 +76,7 @@ When running maple, you can include switches to temporarily change editor behavi
 
 **`--navigate-past-tabs`:** when navigating with the right arrow key, skip past groups of spaces equal to the current tab size
 
-**`--delete-entire-tabs`:** when pressing `Backspace` or `Delete`, remove groups of spaces equal to the current tab size
+**`--delete-entire-tabs`:** when pressing <kbd>Backspace</kbd> or <kbd>del</kbd>, remove groups of spaces equal to the current tab size
 
 **`--readonly`:** launch the editor in readonly mode
 
