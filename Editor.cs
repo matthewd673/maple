@@ -158,7 +158,12 @@ namespace maple
                 }
             }
             else //render output footer
-                Printer.DrawFooter(CommandLine.OutputText, foregroundColor: Styler.CmdOutColor, backgroundColor: ConsoleColor.Black);
+            {
+                ConsoleColor outputColor = Styler.CmdOutColor;
+                if (CommandLine.OutputIsError)
+                    outputColor = Styler.ErrorColor;
+                Printer.DrawFooter(CommandLine.OutputText, foregroundColor: outputColor, backgroundColor: ConsoleColor.Black);
+            }
         }
     }
 }

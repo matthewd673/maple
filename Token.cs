@@ -20,6 +20,7 @@ namespace maple
             Comment,
             Grouping,
             Operator,
+            Error, //only used by cli lexer
         }
 
         private TokenType _ttype;
@@ -69,6 +70,9 @@ namespace maple
                     break;
                 case TokenType.Operator:
                     Color = Styler.OperatorColor;
+                    break;
+                case TokenType.Error:
+                    Color = Styler.ErrorColor;
                     break;
                 default:
                     Color = Styler.TextColor;

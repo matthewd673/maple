@@ -38,7 +38,7 @@ namespace maple
             }
             catch (Exception e)
             {
-                CommandLine.SetOutput("Encountered an exception while loading syntax XML", "lexer");
+                CommandLine.SetOutput("Encountered an exception while loading syntax XML", "internal", error: true);
                 Log.Write("Encountered exception while loading syntax XML: " + e.Message, "lexer");
                 return;
             }
@@ -170,7 +170,11 @@ namespace maple
 
         public static Token[] TokenizeCommandLine(string text)
         {
-            return InternalTokenizer(text, cliRules, cliKeywords);
+            Token[] tokens = InternalTokenizer(text, cliRules, cliKeywords);
+            //if first token isn't a keyword, and there's more than 1 token, user is trying an unknown command
+            if (tokens.Length > 1 && tokens[0].TType == Token.TokenType.Variable && !cliKeywords.Contains(tokens[0].Text))
+                tokens[0].TType = Token.TokenType.Error;
+            return tokens;
         }
 
         /// <summary>
@@ -202,6 +206,8 @@ namespace maple
                     return Token.TokenType.Operator;
                 case "keyword":
                     return Token.TokenType.Keyword;
+                case "error":
+                    return Token.TokenType.Error;
                 default:
                     return Token.TokenType.None;
             }

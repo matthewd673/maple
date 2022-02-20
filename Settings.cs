@@ -52,7 +52,7 @@ namespace maple
             }
             catch (Exception e)
             {
-                CommandLine.SetOutput("Encountered an exception while loading properties XML", "internal");
+                CommandLine.SetOutput("Encountered an exception while loading properties XML", "internal", error: true);
                 Log.Write("Encountered exception while loading properties XML: " + e.Message, "settings");
                 return;
             }
@@ -143,7 +143,7 @@ namespace maple
             }
             catch (Exception e)
             {
-                CommandLine.SetOutput("Encountered an exception while loading alias XML", "internal");
+                CommandLine.SetOutput("Encountered an exception while loading alias XML", "internal", error: true);
                 Log.Write("Encountered exception while loading alias XML: " + e.Message, "settings");
                 return;
             }
