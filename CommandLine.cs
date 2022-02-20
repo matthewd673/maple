@@ -190,7 +190,7 @@ namespace maple
                     SetOutput("readonly: toggle readonly mode", "help");
                     break;
                 case "syntax":
-                    SetOutput("syntax [extension]: render this file with the syntax rules defined for [extension] files", "help");
+                    SetOutput("syntax [extension]: render the current file with the syntax rules defined for [extension] files", "help");
                     break;
                 default:
                     UnknownCommand();

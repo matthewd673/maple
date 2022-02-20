@@ -52,6 +52,8 @@ Execute commands from within maple by toggling to command input with the <kbd>es
 
 **`redraw`:** force a full redraw of the editor, usually fixes any rendering errors
 
+**`syntax`:** render the current file with the syntax rules defined for [extension] files
+
 Some commands may display an output upon completion. Clear command output with the <kbd>esc</kbd> key.
 It is necessary to clear command output before toggling to the command input again, unless `--quick-cli` is active.
 
@@ -89,7 +91,8 @@ The syntax and theme systems are fully modular, and custom configurations can be
 
 Syntax files are loaded based on the filetype of the current document
  - Syntax highlighting files are stored as XML within the `syntax` directory
- - `<syntax>` tags define the patterns for each supported type of token (e.g.: `<syntax type="numberLiteral">([0-9]+\.?[0-9]*f?)</syntax>`)
+ - `<syntax>` tags define the RegEx patterns for each supported type of token (e.g.: `<syntax type="numberLiteral">([0-9]+\.?[0-9]*f?)</syntax>`)
+   - [regex101.com](https://regex101.com/) makes it significantly easier to develop these syntax rules
  - `<keyword>` tags define the keywords of the language, (e.g.: `<keyword>static</keyword>`)
 
 Theme files are loaded according to the `themeFile` property

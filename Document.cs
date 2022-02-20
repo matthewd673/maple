@@ -603,9 +603,6 @@ namespace maple
         /// <returns>A String containing the current selection text.</returns>
         public string GetSelectionText()
         {
-
-            // Console.Title = selectIn.X + " , " + selectOut.X;
-
             if (selectIn.Y == -1 || selectOut.Y == -1) //skip if no selection
                 return "";
 
@@ -623,9 +620,6 @@ namespace maple
                 else
                     text += GetLine(y) + "\n";
             }
-
-            //debug!
-            // File.WriteAllText("DEBUGLONGSELECT.txt", text);
 
             return text;
         }

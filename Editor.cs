@@ -147,22 +147,14 @@ namespace maple
                     else if (GetCurrentDoc().HasSelectionStart()) //write selection in as reminder
                         Printer.WriteToFooter(String.Format("{0},{1} ...", (GetCurrentDoc().GetSelectionInX() + 1), (GetCurrentDoc().GetSelectionInY() + 1)),
                             -1, Styler.SelectionColor, ConsoleColor.Black);
-                    //Printer.DrawFooter(defaultFooterContent, foregroundColor: Styler.accentColor, backgroundColor: ConsoleColor.Black);
                 }
-                // else if (Input.CurrentTarget == Input.InputTarget.Command) //render input footer
-                //     Printer.DrawFooter(String.Format("maple: {0}", CommandLine.InputText), foregroundColor: Styler.CmdInColor, backgroundColor: ConsoleColor.Black);
                 else if (Input.CurrentTarget == Input.InputTarget.Command) //render input footer
                 {
                     Token[] cliTokens = Lexer.TokenizeCommandLine(CommandLine.InputText);
                     Printer.ClearFooter();
                     Printer.WriteToFooter("maple: ", x: 0, foregroundColor: Styler.AccentColor);
-                    int writeX = 7;
                     for (int i = 0; i < cliTokens.Length; i++)
-                    {
-                        Printer.WriteToFooter(cliTokens[i].Text, x: writeX, foregroundColor: cliTokens[i].Color);
-                        writeX += cliTokens[i].Text.Length;
-                        Console.Title = cliTokens[i].TType.ToString();
-                    }
+                        Printer.WriteToFooter(cliTokens[i].Text, foregroundColor: cliTokens[i].Color);
                 }
             }
             else //render output footer

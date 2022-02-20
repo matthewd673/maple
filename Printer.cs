@@ -60,7 +60,7 @@ namespace maple
             ResetColors();
         }
 
-        public static void WriteToFooter(String text, int x = 0, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
+        public static void WriteToFooter(String text, int x = -1, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
         {
             if (x != -1) //manual cursor position
                 printerCursor.Move(x, Cursor.MaxScreenY);
