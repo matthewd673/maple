@@ -38,7 +38,7 @@ namespace maple
             }
             catch (Exception e)
             {
-                CommandLine.SetOutput("Encountered an exception while loading syntax XML", "internal", error: true);
+                CommandLine.SetOutput("Encountered an exception while loading syntax XML", "internal", oType: CommandLine.OutputType.Error);
                 Log.Write("Encountered exception while loading syntax XML: " + e.Message, "lexer");
                 return;
             }
@@ -59,9 +59,9 @@ namespace maple
                 value = node.InnerText.ToLower();
 
                 if (type.Equals("stringliteral")) //always prioritize stringliteral since it sometimes conflicts
-                    rules.Add(new LexerRule(type, value));
+                    rules.Add(new LexerRule(Token.TokenType.StringLiteral, value));
                 else
-                    rules.Insert(0, new LexerRule(type, value));
+                    rules.Insert(0, new LexerRule(GetTokenTypeFromRuleName(type), value));
             }
 
             Log.Write("Loaded " + rules.Count + " lexer rules", "lexer");
@@ -77,9 +77,9 @@ namespace maple
         {
             //build rules
             //rules are colored based on existing theme colors (for now)
-            cliRules.Add(new LexerRule("alphabetical", CliFullCommandRule));
-            cliRules.Add(new LexerRule("comment", CliSwitchRule));
-            cliRules.Add(new LexerRule("stringliteral", CliStringRule));
+            cliRules.Add(new LexerRule(Token.TokenType.Alphabetical, CliFullCommandRule));
+            cliRules.Add(new LexerRule(Token.TokenType.CliSwitch, CliSwitchRule));
+            cliRules.Add(new LexerRule(Token.TokenType.CliString, CliStringRule));
 
             Log.Write("Loaded " + cliRules.Count + " command line lexer rules", "lexer");
 
@@ -104,7 +104,7 @@ namespace maple
             while (text.Length > 0)
             {
                 Match nearestMatch = null;
-                string nearestMatchRuleName = "";
+                Token.TokenType nearestMatchRuleType = Token.TokenType.None;
 
                 bool foundPerfect = false;
                 for (int i = 0; i < rules.Count; i++)
@@ -117,12 +117,12 @@ namespace maple
 
                     if (firstMatch.Index == 0) //next token matches - jobs done
                     {
-                        Token.TokenType tokenType = GetTokenTypeFromRuleName(rule.Name);
+                        Token.TokenType currentType = rule.TType;
                         //if alphabetical, check for keyword
-                        if (rule.Name.Equals("alphabetical") && keywords.Contains(firstMatch.Value))
-                            tokenType = Token.TokenType.Keyword;
+                        if (rule.TType == Token.TokenType.Alphabetical && keywords.Contains(firstMatch.Value))
+                            currentType = Token.TokenType.Keyword;
 
-                        tokens.Add(new Token(firstMatch.Value, tokenType));
+                        tokens.Add(new Token(firstMatch.Value, currentType));
                         text = text.Remove(firstMatch.Index, firstMatch.Value.Length);
                         foundPerfect = true;
                         break;
@@ -130,7 +130,7 @@ namespace maple
 
                     //there is a match, but it isn't at index 0
                     nearestMatch = firstMatch;
-                    nearestMatchRuleName = rule.Name;
+                    nearestMatchRuleType = rule.TType;
                 }
 
                 //all rules have been checked
@@ -144,12 +144,13 @@ namespace maple
                         text = text.Remove(0, nearestMatch.Index);
                         //eat first matched token
                         text = text.Remove(0, nearestMatch.Value.Length);
-                        Token.TokenType tokenType = GetTokenTypeFromRuleName(nearestMatchRuleName);
-                        //if alphabetical, check for keyword
-                        if (nearestMatchRuleName.Equals("alphabetical") && keywords.Contains(nearestMatch.Value))
-                            tokenType = Token.TokenType.Keyword;
 
-                        tokens.Add(new Token(nearestMatch.Value, tokenType));
+                        Token.TokenType currentType = nearestMatchRuleType;
+                        //if alphabetical, check for keyword
+                        if (nearestMatchRuleType == Token.TokenType.Alphabetical && keywords.Contains(nearestMatch.Value))
+                            currentType = Token.TokenType.Keyword;
+
+                        tokens.Add(new Token(nearestMatch.Value, currentType));
                     }
                     else //there is no match anywhere
                     {
@@ -170,10 +171,18 @@ namespace maple
 
         public static Token[] TokenizeCommandLine(string text)
         {
-            Token[] tokens = InternalTokenizer(text, cliRules, cliKeywords);
+            Token[] tokens = InternalTokenizer(text, cliRules, new List<string>()); //will handle keywords manually, no need
+            
             //if first token isn't a keyword, and there's more than 1 token, user is trying an unknown command
-            if (tokens.Length > 1 && tokens[0].TType == Token.TokenType.Variable && !cliKeywords.Contains(tokens[0].Text))
-                tokens[0].TType = Token.TokenType.Error;
+            if (tokens.Length > 1 && tokens[0].TType == Token.TokenType.Alphabetical)
+            {
+                bool firstIsValid = cliKeywords.Contains(tokens[0].Text);
+                if (firstIsValid)
+                    tokens[0].TType = Token.TokenType.CliCommandValid;
+                else
+                    tokens[0].TType = Token.TokenType.CliCommandInvalid;
+            }
+            
             return tokens;
         }
 
@@ -189,7 +198,7 @@ namespace maple
                 case "numberliteral":
                     return Token.TokenType.NumberLiteral;
                 case "alphabetical":
-                    return Token.TokenType.Variable;
+                    return Token.TokenType.Alphabetical;
                 case "break":
                     return Token.TokenType.Break;
                 case "grouping":
@@ -206,8 +215,6 @@ namespace maple
                     return Token.TokenType.Operator;
                 case "keyword":
                     return Token.TokenType.Keyword;
-                case "error":
-                    return Token.TokenType.Error;
                 default:
                     return Token.TokenType.None;
             }
@@ -215,7 +222,7 @@ namespace maple
 
         struct LexerRule
         {
-            public string Name { get; set; }
+            public Token.TokenType TType { get; set; }
             public Regex Pattern { get; set; }
 
             /// <summary>
@@ -223,9 +230,9 @@ namespace maple
             /// </summary>
             /// <param name="name">The name of the pattern.</param>
             /// <param name="pattern">The RegEx pattern to search.</param>
-            public LexerRule(string name, string pattern)
+            public LexerRule(Token.TokenType tType, string pattern)
             {
-                Name = name;
+                TType = tType;
                 Pattern = new Regex(pattern);
             }
         }

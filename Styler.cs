@@ -13,8 +13,6 @@ namespace maple
         public static ConsoleColor AccentColor { get; private set; } = ConsoleColor.Yellow;
         public static ConsoleColor HighlightColor { get; private set; } = ConsoleColor.Yellow;
         public static ConsoleColor ErrorColor { get; private set; } = ConsoleColor.Red;
-        public static ConsoleColor CmdInColor { get; private set; } = ConsoleColor.Yellow;
-        public static ConsoleColor CmdOutColor { get; private set; } = ConsoleColor.Cyan;
         public static ConsoleColor GutterColor { get; private set; } = ConsoleColor.DarkGray;
         public static ConsoleColor SelectionColor { get; private set; } = ConsoleColor.Blue;
 
@@ -28,6 +26,17 @@ namespace maple
         public static ConsoleColor CommentColor { get; private set; } = ConsoleColor.DarkGray;
         public static ConsoleColor GroupingColor { get; private set; } = ConsoleColor.White;
         public static ConsoleColor OperatorColor { get; private set; } = ConsoleColor.Red;
+
+        //cli colors
+        public static ConsoleColor CliInputDefaultColor { get; private set; } = ConsoleColor.Yellow;
+        public static ConsoleColor CliOutputInfoColor { get; private set; } = ConsoleColor.Cyan;
+        public static ConsoleColor CliOutputErrorColor { get; private set; } = ConsoleColor.Red;
+        public static ConsoleColor CliOutputSuccessColor { get; private set; } = ConsoleColor.Green;
+        public static ConsoleColor CliPromptColor { get; private set; } = ConsoleColor.Yellow;
+        public static ConsoleColor CliCommandValidColor { get; private set; } = ConsoleColor.Yellow;
+        public static ConsoleColor CliCommandInvalidColor { get; private set; } = ConsoleColor.Red;
+        public static ConsoleColor CliSwitchColor { get; private set; } = ConsoleColor.DarkGray;
+        public static ConsoleColor CliStringColor { get; private set; } = ConsoleColor.Green;
 
         //text customizations
         public static string VanityFooter { get; private set; } = "maple";
@@ -54,7 +63,7 @@ namespace maple
             }
             catch (Exception e)
             {
-                CommandLine.SetOutput("Encountered an exception while loading theme XML", "internal", error: true);
+                CommandLine.SetOutput("Encountered an exception while loading theme XML", "internal", oType: CommandLine.OutputType.Error);
                 Log.Write("Encountered exception while loading theme XML: " + e.Message, "styler");
                 return;
             }
@@ -83,10 +92,6 @@ namespace maple
                         AccentColor = color; break;
                     case "error":
                         ErrorColor = color; break;
-                    case "commandinput":
-                        CmdInColor = color; break;
-                    case "commandoutput":
-                        CmdOutColor = color; break;
                     case "gutter":
                         GutterColor = color; break;
                     case "selection":
@@ -109,6 +114,24 @@ namespace maple
                         GroupingColor = color; break;
                     case "operator":
                         OperatorColor = color; break;
+                    case "cliinputdefault":
+                        CliInputDefaultColor = color; break;
+                    case "clioutputinfo":
+                        CliOutputInfoColor = color; break;
+                    case "clioutputerror":
+                        CliOutputErrorColor = color; break;
+                    case "clioutputsuccess":
+                        CliOutputSuccessColor = color; break;
+                    case "cliprompt":
+                        CliPromptColor = color; break;
+                    case "clicommandvalid":
+                        CliCommandValidColor = color; break;
+                    case "clicommandinvalid":
+                        CliCommandInvalidColor = color; break;
+                    case "cliswitch":
+                        CliSwitchColor = color; break;
+                    case "clistring":
+                        CliStringColor = color; break;
                     default:
                         Log.Write("Encountered unknown theme category '" + category + "'", "styler");
                         break;
@@ -126,7 +149,7 @@ namespace maple
             }
             catch (Exception e)
             {
-                CommandLine.SetOutput("Encountered an exception while loading custom text XML", "internal", error: true);
+                CommandLine.SetOutput("Encountered an exception while loading custom text XML", "internal", oType: CommandLine.OutputType.Error);
                 Log.Write("Encountered exception while loading custom text XML: " + e.Message, "styler");
                 return;
             }

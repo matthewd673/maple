@@ -17,6 +17,7 @@ namespace maple
         public static bool QuickCli { get; set; } = false;
         public static bool DebugTokens { get; set; } = false;
         public static bool NoHighlight { get; set; } = false;
+        public static bool CliNoHighlight { get; set; } = false;
         public static bool RelativePath { get; set; } = false;
         public static bool NavigatePastTabs { get; set; } = true;
         public static bool DeleteEntireTabs { get; set; } = true;
@@ -52,7 +53,7 @@ namespace maple
             }
             catch (Exception e)
             {
-                CommandLine.SetOutput("Encountered an exception while loading properties XML", "internal", error: true);
+                CommandLine.SetOutput("Encountered an exception while loading properties XML", "internal", oType: CommandLine.OutputType.Error);
                 Log.Write("Encountered exception while loading properties XML: " + e.Message, "settings");
                 return;
             }
@@ -85,6 +86,9 @@ namespace maple
                         break;
                     case "nohighlight":
                         NoHighlight = IsTrue(value);
+                        break;
+                    case "clinohighlight":
+                        CliNoHighlight = IsTrue(value);
                         break;
                     case "relativepath":
                         RelativePath = IsTrue(value);
@@ -143,7 +147,7 @@ namespace maple
             }
             catch (Exception e)
             {
-                CommandLine.SetOutput("Encountered an exception while loading alias XML", "internal", error: true);
+                CommandLine.SetOutput("Encountered an exception while loading alias XML", "internal", oType: CommandLine.OutputType.Error);
                 Log.Write("Encountered exception while loading alias XML: " + e.Message, "settings");
                 return;
             }

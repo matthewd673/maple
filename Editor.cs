@@ -150,18 +150,30 @@ namespace maple
                 }
                 else if (Input.CurrentTarget == Input.InputTarget.Command) //render input footer
                 {
-                    Token[] cliTokens = Lexer.TokenizeCommandLine(CommandLine.InputText);
                     Printer.ClearFooter();
-                    Printer.WriteToFooter("maple: ", x: 0, foregroundColor: Styler.AccentColor);
-                    for (int i = 0; i < cliTokens.Length; i++)
-                        Printer.WriteToFooter(cliTokens[i].Text, foregroundColor: cliTokens[i].Color);
+                    if (Settings.CliNoHighlight)
+                        Printer.DrawFooter(String.Format("maple: {0}", CommandLine.InputText), Styler.CliInputDefaultColor);
+                    else
+                    {
+                        Printer.WriteToFooter("maple: ", x: 0, foregroundColor: Styler.AccentColor);
+                        Token[] cliTokens = Lexer.TokenizeCommandLine(CommandLine.InputText);
+                        for (int i = 0; i < cliTokens.Length; i++)
+                            Printer.WriteToFooter(cliTokens[i].Text, foregroundColor: cliTokens[i].Color);
+                    }
                 }
             }
             else //render output footer
             {
-                ConsoleColor outputColor = Styler.CmdOutColor;
-                if (CommandLine.OutputIsError)
-                    outputColor = Styler.ErrorColor;
+                ConsoleColor outputColor = Styler.CliOutputInfoColor;
+                switch (CommandLine.OType)
+                {
+                    case CommandLine.OutputType.Error:
+                        outputColor = Styler.CliOutputErrorColor;
+                        break;
+                    case CommandLine.OutputType.Success:
+                        outputColor = Styler.CliOutputSuccessColor;
+                        break;
+                }
                 Printer.DrawFooter(CommandLine.OutputText, foregroundColor: outputColor, backgroundColor: ConsoleColor.Black);
             }
         }

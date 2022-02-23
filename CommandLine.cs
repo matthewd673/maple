@@ -6,6 +6,13 @@ namespace maple
     static class CommandLine
     {
 
+        public enum OutputType
+        {
+            Info,
+            Error,
+            Success,
+        }
+
         public static string[] CommandMasterList { get; } = new string[] {
             "help", "save", "load", "close", "cls", "top", "bot", "redraw",
             "goto", "selectin", "selectout", "deselect", "readonly", "syntax"
@@ -19,7 +26,7 @@ namespace maple
             get { return _outputText; }
             set { _outputText = value; HasOutput = true; }
         }
-        public static bool OutputIsError = false;
+        public static OutputType OType = OutputType.Info;
 
         public static bool HasOutput { get; private set; } = false;
 
@@ -46,17 +53,17 @@ namespace maple
             return (x >= 0 && x < InputText.Length);
         }
 
-        public static void SetOutput(String text, String speaker, bool error = false)
+        public static void SetOutput(String text, String speaker, OutputType oType = OutputType.Info)
         {
             OutputText = String.Format("[{0}]: {1}", speaker, text);
-            OutputIsError = error;
+            OType = oType;
         }
 
         public static void ClearOutput()
         {
             OutputText = "";
             HasOutput = false;
-            OutputIsError = false;
+            OType = OutputType.Info;
         }
 
         public static void ClearInput()
@@ -222,7 +229,7 @@ namespace maple
         {
             if(args.Count < 1)
             {
-                SetOutput("No filepath provided", "load", error: true);
+                SetOutput("No filepath provided", "load", oType: OutputType.Error);
                 return;
             }
 
@@ -293,7 +300,7 @@ namespace maple
         {
             if (args.Count < 1)
             {
-                SetOutput("No line number provided", "goto", error: true);
+                SetOutput("No line number provided", "goto", oType: OutputType.Error);
                 return;
             }
 
@@ -301,12 +308,12 @@ namespace maple
             if (int.TryParse(args[0], out l))
             {
                 if (l > Editor.DocCursor.Doc.GetMaxLine() + 1 || l < 0)
-                    SetOutput(String.Format("Invalid line number, must be >= 1 and <= {0}", (Editor.DocCursor.Doc.GetMaxLine() + 1)), "goto", error: true);
+                    SetOutput(String.Format("Invalid line number, must be >= 1 and <= {0}", (Editor.DocCursor.Doc.GetMaxLine() + 1)), "goto", oType: OutputType.Error);
                 else
                     Editor.DocCursor.Move(0, l - 1);
             }
             else
-                SetOutput("Invalid line number, must be an integer", "goto", error: true);
+                SetOutput("Invalid line number, must be an integer", "goto", oType: OutputType.Error);
         }
 
         static void ReadonlyCommand()
@@ -322,7 +329,7 @@ namespace maple
         {
             if (args.Count < 1)
             {
-                SetOutput("No file extension provided", "syntax", error: true);
+                SetOutput("No file extension provided", "syntax", oType: OutputType.Error);
                 return;
             }
 
@@ -336,7 +343,7 @@ namespace maple
 
         static void UnknownCommand()
         {
-            SetOutput("Unknown command, try 'help all' or update the alias file", "error", error: true);
+            SetOutput("Unknown command, try 'help all' or update the alias file", "error", oType: OutputType.Error);
         }
 
     }

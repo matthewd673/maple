@@ -10,7 +10,7 @@ namespace maple
             None,
             Misc,
             Break,
-            Variable,
+            Alphabetical,
             Keyword,
             Function,
             NumberLiteral,
@@ -20,7 +20,11 @@ namespace maple
             Comment,
             Grouping,
             Operator,
-            Error, //only used by cli lexer
+            //for cli lexer
+            CliCommandValid,
+            CliCommandInvalid,
+            CliSwitch,
+            CliString,
         }
 
         private TokenType _ttype;
@@ -48,35 +52,31 @@ namespace maple
             switch(TType)
             {
                 case TokenType.NumberLiteral:
-                    Color = Styler.NumberLiteralColor;
-                    break;
+                    Color = Styler.NumberLiteralColor; break;
                 case TokenType.StringLiteral:
-                    Color = Styler.StringLiteralColor;
-                    break;
+                    Color = Styler.StringLiteralColor; break;
                 case TokenType.CharLiteral:
-                    Color = Styler.CharLiteralColor;
-                    break;
+                    Color = Styler.CharLiteralColor; break;
                 case TokenType.BooleanLiteral:
-                    Color = Styler.BooleanLiteralColor;
-                    break;
+                    Color = Styler.BooleanLiteralColor; break;
                 case TokenType.Keyword:
-                    Color = Styler.KeywordColor;
-                    break;
+                    Color = Styler.KeywordColor; break;
                 case TokenType.Comment:
-                    Color = Styler.CommentColor;
-                    break;
+                    Color = Styler.CommentColor; break;
                 case TokenType.Grouping:
-                    Color = Styler.GroupingColor;
-                    break;
+                    Color = Styler.GroupingColor; break;
                 case TokenType.Operator:
-                    Color = Styler.OperatorColor;
-                    break;
-                case TokenType.Error:
-                    Color = Styler.ErrorColor;
-                    break;
+                    Color = Styler.OperatorColor; break;
+                case TokenType.CliCommandValid:
+                    Color = Styler.CliCommandValidColor; break;
+                case TokenType.CliCommandInvalid:
+                    Color = Styler.CliCommandInvalidColor; break;
+                case TokenType.CliSwitch:
+                    Color = Styler.CliSwitchColor; break;
+                case TokenType.CliString:
+                    Color = Styler.CliStringColor; break;
                 default:
-                    Color = Styler.TextColor;
-                    break;
+                    Color = Styler.TextColor; break;
             }
         }
     }

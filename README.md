@@ -76,6 +76,8 @@ When running maple, you can include switches to temporarily change editor behavi
 
 **`--no-highlight`:** skip the tokenizer and ignore all syntax highlighting rules
 
+**`--cli-no-highlight`:** skip the cli tokenizer and render command input with `cliInputDefault` color
+
 **`--navigate-past-tabs`:** when navigating with the right arrow key, skip past groups of spaces equal to the current tab size
 
 **`--delete-entire-tabs`:** when pressing <kbd>Backspace</kbd> or <kbd>del</kbd>, remove groups of spaces equal to the current tab size

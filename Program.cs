@@ -45,6 +45,10 @@ namespace maple
                         Settings.NoHighlight = true;
                         Settings.IgnoreSetting("nohighlight");
                         break;
+                    case "--cli-no-highlight":
+                        Settings.CliNoHighlight = true;
+                        Settings.IgnoreSetting("clinohighlight");
+                        break;
                     case "--relative-path":
                         Settings.RelativePath = true;
                         Settings.IgnoreSetting("relativepath");
