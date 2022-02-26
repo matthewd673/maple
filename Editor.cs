@@ -9,6 +9,9 @@ namespace maple
         public static DocumentCursor DocCursor { get; private set; }
         static List<int> refreshedLines = new List<int>();
         static bool fullClearNext = false;
+        
+        static bool fullClearFooterNext = true; //start with a full refresh
+        static int dynamicFooterStartX = 0;
 
         public static void Initialize(String filename)
         {
@@ -46,15 +49,13 @@ namespace maple
 
         public static void BeginInputLoop()
         {
+            PrintFooter();
             while(true)
                 InputLoop();
         }
 
         static void InputLoop()
         {
-            //render footer
-            PrintFooter();
-
             //set actual cursor position
             GetActiveCursor().ApplyPosition();
 
@@ -70,11 +71,12 @@ namespace maple
             {
                 Console.Clear();
                 RedrawLines();
+                FullRefreshFooter(); //since the console was cleared
             }
             else
                 RedrawLines();
 
-            //render footer again
+            //render footer
             PrintFooter();
 
             //apply user cursor position
@@ -128,6 +130,11 @@ namespace maple
             fullClearNext = false; //don't full clear again unless told
         }
 
+        public static void FullRefreshFooter()
+        {
+            fullClearFooterNext = true;
+        }
+
         public static void PrintFooter()
         {
             //generate footer string
@@ -136,10 +143,18 @@ namespace maple
                 if (Input.CurrentTarget == Input.InputTarget.Document) //render default footer
                 {
                     //draw piece by piece
-                    Printer.ClearFooter(ConsoleColor.Black);
-                    Printer.WriteToFooter(String.Format("{0} ", Styler.VanityFooter), 0, Styler.AccentColor, ConsoleColor.Black); //write vanity prefix
-                    Printer.WriteToFooter(String.Format("{0} ", GetCurrentDoc().Filepath.TrimEnd()), -1, Styler.TextColor, ConsoleColor.Black); //write doc name
-                    Printer.WriteToFooter(String.Format("ln {0} col {1} ", (DocCursor.DY + 1), (DocCursor.DX + 1)), -1, Styler.AccentColor, ConsoleColor.Black); //writer cursor position
+                    if (fullClearFooterNext)
+                    {
+                        Printer.ClearFooter(ConsoleColor.Black);
+                        string vanityString = String.Format("{0} ", Styler.VanityFooter);
+                        string filepathString = String.Format("{0} ", GetCurrentDoc().Filepath.TrimEnd());
+                        Printer.WriteToFooter(vanityString, 0, Styler.AccentColor, ConsoleColor.Black); //write vanity prefix
+                        Printer.WriteToFooter(filepathString, -1, Styler.TextColor, ConsoleColor.Black); //write doc name
+                        dynamicFooterStartX = vanityString.Length + filepathString.Length;
+                        fullClearFooterNext = false;
+                    }
+
+                    Printer.WriteToFooter(String.Format("ln {0} col {1} ", (DocCursor.DY + 1), (DocCursor.DX + 1)), dynamicFooterStartX, Styler.AccentColor, ConsoleColor.Black); //writer cursor position
                     if (GetCurrentDoc().HasSelection()) //write selection bounds (if has selection)
                         Printer.WriteToFooter(String.Format("{0},{1} - {2},{3} ", (GetCurrentDoc().GetSelectionInX() + 1), (GetCurrentDoc().GetSelectionInY() + 1),
                             (GetCurrentDoc().GetSelectionOutX() + 1), (GetCurrentDoc().GetSelectionOutY() + 1)),
@@ -147,23 +162,33 @@ namespace maple
                     else if (GetCurrentDoc().HasSelectionStart()) //write selection in as reminder
                         Printer.WriteToFooter(String.Format("{0},{1} ...", (GetCurrentDoc().GetSelectionInX() + 1), (GetCurrentDoc().GetSelectionInY() + 1)),
                             -1, Styler.SelectionColor, ConsoleColor.Black);
+                    
+                    Printer.WriteToFooter("                      "); //TODO: sloppy, but it works for now
                 }
                 else if (Input.CurrentTarget == Input.InputTarget.Command) //render input footer
                 {
-                    Printer.ClearFooter();
+                    if (fullClearFooterNext)
+                    {
+                        Printer.ClearFooter();
+                        Printer.WriteToFooter("maple: ", x: 0, foregroundColor: Styler.AccentColor);
+                    }
                     if (Settings.CliNoHighlight)
-                        Printer.DrawFooter(String.Format("maple: {0}", CommandLine.InputText), Styler.CliInputDefaultColor);
+                        Printer.WriteToFooter(CommandLine.InputText, x: Styler.VanityFooter.Length + 2, Styler.CliInputDefaultColor);
                     else
                     {
-                        Printer.WriteToFooter("maple: ", x: 0, foregroundColor: Styler.AccentColor);
                         Token[] cliTokens = Lexer.TokenizeCommandLine(CommandLine.InputText);
+                        Printer.MoveCursor(Styler.VanityFooter.Length + 2, Cursor.MaxScreenY);
+                        
                         for (int i = 0; i < cliTokens.Length; i++)
                             Printer.WriteToFooter(cliTokens[i].Text, foregroundColor: cliTokens[i].Color);
                     }
                 }
             }
-            else //render output footer
+            else //render output footer (TODO: don't keep reprinting the output)
             {
+                if (!fullClearFooterNext)
+                    return;
+                
                 ConsoleColor outputColor = Styler.CliOutputInfoColor;
                 switch (CommandLine.OType)
                 {

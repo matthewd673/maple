@@ -69,6 +69,10 @@ namespace maple
                         Settings.EnableLogging = true;
                         Settings.IgnoreSetting("enablelogging");
                         break;
+                    case "--experimental-coloring":
+                        Settings.ExperimentalColoring = true;
+                        Settings.IgnoreSetting("experimentalcoloring");
+                        break;
                     default:
                         Log.Write("Encountered unknown switch '" + sw + "'", "program");
                         break;

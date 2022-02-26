@@ -35,6 +35,7 @@ namespace maple
         }
         public String Text { get; private set; }
         public ConsoleColor Color { get; private set; } = ConsoleColor.Gray;
+        public string ColorCode = "\u001b[95m"; //magenta if error
 
         public Token(String text, TokenType tokenType)
         {
@@ -42,17 +43,13 @@ namespace maple
             this.TType = tokenType;
         }
 
-        public void Append(String s)
-        {
-            Text += s;
-        }
-
         public void ApplyColor()
         {
             switch(TType)
             {
                 case TokenType.NumberLiteral:
-                    Color = Styler.NumberLiteralColor; break;
+                    Color = Styler.NumberLiteralColor;
+                    break;
                 case TokenType.StringLiteral:
                     Color = Styler.StringLiteralColor; break;
                 case TokenType.CharLiteral:
@@ -77,6 +74,35 @@ namespace maple
                     Color = Styler.CliStringColor; break;
                 default:
                     Color = Styler.TextColor; break;
+            }
+            ColorCode = "\u001b[" + ConsoleColorToCode(Color) + "m";
+        }
+
+        //TEMPORARY, INCOMPLETE
+        static string ConsoleColorToCode(ConsoleColor color)
+        {
+            switch (color)
+            {
+                case ConsoleColor.Black:
+                    return "30";
+                case ConsoleColor.Red:
+                    return "31";
+                case ConsoleColor.Green:
+                    return "32";
+                case ConsoleColor.Yellow:
+                    return "33";
+                case ConsoleColor.Blue:
+                    return "34";
+                case ConsoleColor.Magenta:
+                    return "35";
+                case ConsoleColor.Cyan:
+                    return "36";
+                case ConsoleColor.White:
+                    return "97";
+                case ConsoleColor.Gray:
+                    return "37";
+                default:
+                    return "37";
             }
         }
     }

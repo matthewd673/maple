@@ -80,6 +80,7 @@ namespace maple
                         break;
                     }
 
+                    int charsDeleted = 0;
                     if(docCursor.DX > 0) //not at the beginning of the line
                     {
                         if (Settings.DeleteEntireTabs //fancy tab delete
@@ -90,7 +91,10 @@ namespace maple
                                 {
                                     bool backspaceTriggered = doc.RemoveTextAtPosition(docCursor.DX - 1, docCursor.DY);
                                     if (backspaceTriggered)
+                                    {
                                         docCursor.MoveLeft();
+                                        charsDeleted++;
+                                    }
                                 }
                             }
                             else
@@ -100,7 +104,10 @@ namespace maple
                                     docCursor.DY);
 
                                 if(backspaceTriggered)
+                                {
                                     docCursor.MoveLeft();
+                                    charsDeleted++;
+                                }
                             }
                     }
                     else //at beginning of line, append current line to previous
@@ -137,7 +144,7 @@ namespace maple
                     }
 
                     Editor.RefreshLine(docCursor.DY);
-                    
+
                     maxCursorX = docCursor.DX; //update max x position
                     break;
                 case ConsoleKey.Delete:
@@ -271,11 +278,13 @@ namespace maple
                     if(!r.Match(typed).Success)
                         break;
 
+                    int oldTokenCount = doc.GetLineTokenCount(docCursor.DY); //track old token count to determine if redraw is necessary
                     bool addedText = doc.AddTextAtPosition(docCursor.DX, docCursor.DY, typed);
                     if(addedText)
                     {
                         docCursor.MoveRight();
-                        Editor.RefreshLine(docCursor.DY);
+                        if (doc.GetLineTokenCount(docCursor.DY) != oldTokenCount) //only refresh if new tokens
+                            Editor.RefreshLine(docCursor.DY);
                     }
                     maxCursorX = docCursor.DX; //update max x position
                     break;
@@ -341,8 +350,11 @@ namespace maple
 
         public static void ToggleInputTarget()
         {
+            Editor.FullRefreshFooter(); //footer will always need to be refreshed
+            Editor.PrintFooter();
             if(CurrentTarget == InputTarget.Document)
             {
+                Editor.FullRefreshFooter(); //why do it twice? who knows, but you need to
                 //check if there is command output to be cleared
                 if(!CommandLine.OutputText.Equals("") && !Settings.QuickCli)
                     CommandLine.ClearOutput(); //there is output, clear it

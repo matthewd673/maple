@@ -43,7 +43,7 @@ namespace maple
                 {
                     string fileExtension = Path.GetExtension(filepath).Remove(0, 1);
                     fileExtension = fileExtension.TrimEnd(); //remove trailing whitespace
-                    if (File.Exists(Settings.SyntaxDirectory + fileExtension + ".xml")) //load lexer settings if they are available for this filetype
+                    if (File.Exists(Path.Combine(Settings.SyntaxDirectory, fileExtension + ".xml"))) //load lexer settings if they are available for this filetype
                     {
                         Log.Write("Loading lexer settings from '" + Settings.SyntaxDirectory + fileExtension + ".xml'", "document");
                         Lexer.LoadSyntax(Settings.SyntaxDirectory + fileExtension + ".xml");
@@ -76,7 +76,7 @@ namespace maple
                 switch (filepath)
                 {
                     case "{themefile}":
-                        return Settings.ThemeDirectory + Settings.ThemeFile;
+                        return Path.Combine(Settings.ThemeDirectory, Settings.ThemeFile);
                     case "{propfile}":
                         return Settings.SettingsFile;
                     case "{aliasfile}":
@@ -232,23 +232,28 @@ namespace maple
                         else //hiddenCharCt can't be negative, for highlighter's sake
                             hiddenCharCt = 0;
 
-                        if (tokenHasSelect) //print selected part with separate styles
+                        if (!Settings.ExperimentalColoring)
                         {
-                            int selectLength = tSelectEnd - tSelectStart;
-                            string preSelectSubstring = printText.Substring(0, tSelectStart);
-                            string inSelectSubstring = printText.Substring(tSelectStart, selectLength);
-                            string postSelectSubstring = printText.Substring(tSelectEnd);
-                            Printer.PrintWord(preSelectSubstring, foregroundColor: t.Color);
-                            Printer.PrintWord(inSelectSubstring, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.SelectionColor);
-                            Printer.PrintWord(postSelectSubstring, foregroundColor: t.Color);
+                            if (tokenHasSelect) //print selected part with separate styles
+                            {
+                                int selectLength = tSelectEnd - tSelectStart;
+                                string preSelectSubstring = printText.Substring(0, tSelectStart);
+                                string inSelectSubstring = printText.Substring(tSelectStart, selectLength);
+                                string postSelectSubstring = printText.Substring(tSelectEnd);
+                                Printer.PrintWord(preSelectSubstring, foregroundColor: t.Color);
+                                Printer.PrintWord(inSelectSubstring, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.SelectionColor);
+                                Printer.PrintWord(postSelectSubstring, foregroundColor: t.Color);
+                            }
+                            else //no precise selection to print
+                            {
+                                if (!fullySelected) //normal print
+                                    Printer.PrintWord(printText, foregroundColor: t.Color);
+                                else //print fully selected
+                                    Printer.PrintWord(printText, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.SelectionColor);
+                            }
                         }
-                        else //no precise selection to print
-                        {
-                            if (!fullySelected) //normal print
-                                Printer.PrintWord(printText, foregroundColor: t.Color);
-                            else //print fully selected
-                                Printer.PrintWord(printText, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.SelectionColor);
-                        }
+                        else //TODO: highlight support
+                            Printer.PrintToken(t);
                     }
                     else if (lineLen > ScrollX + Cursor.MaxScreenX) //part of token is hidden to right, trim end
                     {
@@ -498,6 +503,14 @@ namespace maple
         {
             if(line < fileLines.Count)
                 return fileLines[line].LineContent.Length;
+            else
+                return 0;
+        }
+
+        public int GetLineTokenCount(int line)
+        {
+            if (line < fileLines.Count)
+                return fileLines[line].Tokens.Length;
             else
                 return 0;
         }

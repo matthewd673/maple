@@ -11,7 +11,10 @@ namespace maple
         static Cursor printerCursor = new Cursor(0, 0);
 
         static String clearString = " ";
-        
+
+        public static int CursorSX { get { return printerCursor.SX; } }
+        public static int CursorSY { get { return printerCursor.SY; } }
+
         public static void Resize()
         {
             clearString = new string(' ', Console.WindowWidth);
@@ -22,6 +25,13 @@ namespace maple
             Console.ForegroundColor = foregroundColor;
             Console.BackgroundColor = backgroundColor;
             Console.Write(word);
+            ResetColors();
+        }
+
+        public static void PrintToken(Token token)
+        {
+            Console.Write(token.ColorCode);
+            Console.Write(token.Text);
             ResetColors();
         }
 

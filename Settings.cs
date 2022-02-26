@@ -10,8 +10,8 @@ namespace maple
     {
 
         public static string MapleDirectory { get; private set; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        public static string SettingsFile { get; set; } = MapleDirectory + "\\properties\\properties.xml";
-        public static string AliasesFile { get; set; } = MapleDirectory + "\\properties\\aliases.xml";
+        public static string SettingsFile { get; set; } = Path.Combine(MapleDirectory, "properties", "properties.xml");
+        public static string AliasesFile { get; set; } = Path.Combine(MapleDirectory, "properties", "aliases.xml");
 
         //properties
         public static bool QuickCli { get; set; } = false;
@@ -22,10 +22,11 @@ namespace maple
         public static bool NavigatePastTabs { get; set; } = true;
         public static bool DeleteEntireTabs { get; set; } = true;
         public static bool EnableLogging { get; set; } = true;
+        public static bool ExperimentalColoring { get; set; } = true;
 
-        public static string ThemeDirectory { get; private set; } = MapleDirectory + "\\themes\\";
+        public static string ThemeDirectory { get; private set; } = Path.Combine(MapleDirectory, "themes");
         public static string ThemeFile { get; private set; } = "maple.xml";
-        public static string SyntaxDirectory { get; private set; } = MapleDirectory + "\\syntax\\";
+        public static string SyntaxDirectory { get; private set; } = Path.Combine(MapleDirectory, "syntax");
         public static int TabSpacesCount { get; private set; } = 4;
 
         static List<string> ignoreList = new List<string>(); //stores a list of settings to ignore when loading
@@ -106,6 +107,9 @@ namespace maple
                         break;
                     case "enablelogging":
                         EnableLogging = IsTrue(value);
+                        break;
+                    case "experimentalcoloring":
+                        ExperimentalColoring = IsTrue(value);
                         break;
                     //ARGUMENTS
                     case "themedirectory":

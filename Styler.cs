@@ -217,7 +217,7 @@ namespace maple
                 case "white":
                     return ConsoleColor.White;
                 default:
-                    Log.Write("Encountered unknown ConsoleColor '" + "'", "styler");
+                    Log.Write("Encountered unknown ConsoleColor '" + name + "'", "styler");
                     return ConsoleColor.Gray;
             }
         }
