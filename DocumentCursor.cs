@@ -17,7 +17,7 @@ namespace maple
             if(SX == 0 && Doc.ScrollX > 0)
             {
                 Doc.ScrollLeft();
-                Console.Clear();
+                Printer.Clear();
                 Doc.PrintFileLines();
             }
             else
@@ -39,7 +39,7 @@ namespace maple
             if(SY == MaxScreenX - 1)
             {
                 Doc.ScrollRight();
-                Console.Clear();
+                Printer.Clear();
                 Doc.PrintFileLines();
             }
 
@@ -59,7 +59,7 @@ namespace maple
             if(SY == 0 && Doc.ScrollY > 0)
             {
                 Doc.ScrollUp();
-                Console.Clear();
+                Printer.Clear();
                 Doc.PrintFileLines();
             }
             else
@@ -70,7 +70,7 @@ namespace maple
             if(SY == MaxScreenY - 1)
             {
                 Doc.ScrollDown();
-                Console.Clear();
+                Printer.Clear();
                 Doc.PrintFileLines();
             }
             else

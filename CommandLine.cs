@@ -270,7 +270,7 @@ namespace maple
             Editor.DocCursor.Move(Editor.DocCursor.DX, Editor.DocCursor.DY);
             Editor.DocCursor.LockToScreenConstraints();
             Editor.RefreshAllLines();
-            Console.Clear();
+            Printer.Clear();
             Editor.RedrawLines();
         }
 
@@ -336,7 +336,7 @@ namespace maple
             Lexer.LoadSyntax(Settings.SyntaxDirectory + args[0] + ".xml");
 
             Editor.GetCurrentDoc().ForceReTokenize();
-            Console.Clear();
+            Printer.Clear();
             Editor.RefreshAllLines();
             Editor.RedrawLines();
         }

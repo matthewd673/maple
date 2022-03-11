@@ -42,7 +42,7 @@ namespace maple
 
             //full-draw all lines for initial render
             Log.Write("Full-drawing", "editor");
-            Console.Clear();
+            Printer.Clear();
             RedrawLines();
             fullClearNext = false;
         }
@@ -69,7 +69,7 @@ namespace maple
             //redraw lines that have changed
             if(fullClearNext)
             {
-                Console.Clear();
+                Printer.Clear();
                 RedrawLines();
                 FullRefreshFooter(); //since the console was cleared
             }

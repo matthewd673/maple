@@ -233,7 +233,7 @@ namespace maple
                             doc.AddTextAtPosition(0, i, tabString);
 
                         //rerender all
-                        Console.Clear();
+                        Printer.Clear();
                         Editor.RefreshAllLines();
                         Editor.RedrawLines();
                         break;
@@ -438,7 +438,7 @@ namespace maple
                 //reset cursor, clear selection and rerender all
                 docCursor.Move(doc.GetSelectionInX(), doc.GetSelectionInY());
                 doc.Deselect();
-                Console.Clear();
+                Printer.Clear();
                 Editor.RefreshAllLines();
                 Editor.RedrawLines();
             }

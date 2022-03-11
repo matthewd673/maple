@@ -291,6 +291,9 @@ namespace maple
                             hiddenCharCt = 0;
                     }
                 }
+
+                Printer.ApplyBuffer();
+
             }
             else //debug printing:
             {

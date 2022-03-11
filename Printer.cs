@@ -117,7 +117,32 @@ namespace maple
 
         private static int GetBufferIndex(int x, int y)
         {
-            return y * width + x + 1;
+            return y * width + x;
+        }
+
+        private static short GetAttribute(ConsoleColor color)
+        {
+            switch (color)
+            {
+                case ConsoleColor.Blue:
+                    return 0x0001;
+                case ConsoleColor.Green:
+                    return 0x0002;
+                case ConsoleColor.Cyan:
+                    return 0x0003;
+                case ConsoleColor.Red:
+                    return 0x0004;
+                case ConsoleColor.Magenta:
+                    return 0x0005;
+                case ConsoleColor.Yellow:
+                    return 0x0006;
+                case ConsoleColor.Gray:
+                case ConsoleColor.White:
+                    return 0x0007;
+                case ConsoleColor.DarkGray:
+                    return 0x0008;
+            }
+            return 0x0000;
         }
 
         private static int GetBufferIndex(Cursor cursor)
@@ -125,9 +150,10 @@ namespace maple
             return GetBufferIndex(cursor.SX, cursor.SY);
         }
 
-        private static void ApplyBuffer()
+        public static void ApplyBuffer()
         {
-            bool b = WriteConsoleOutputW(consoleHandle, buf,
+            bool b = WriteConsoleOutputW(consoleHandle,
+                buf,
                 new Coord() { X = width, Y = height },
                 new Coord() { X = 0, Y = 0 },
                 ref rect
@@ -165,12 +191,12 @@ namespace maple
             for (int i = index; i < index + word.Length; i++)
             {
                 buf[i].Char.UnicodeChar = word.ToCharArray()[i - index];
-                buf[i].Attributes = 0x0002;
+                buf[i].Attributes = GetAttribute(foregroundColor);
             }
 
             printerCursor.SX += word.Length;
             
-            ApplyBuffer();
+            // ApplyBuffer();
         }
 
         public static void PrintToken(Token token)
@@ -182,9 +208,20 @@ namespace maple
             for (int i = index; i < index + token.Text.Length; i++)
             {
                 buf[i].Char.UnicodeChar = token.Text.ToCharArray()[i - index];
+                buf[i].Attributes = GetAttribute(token.Color);
             }
 
             printerCursor.SX += token.Text.Length;
+
+            // ApplyBuffer();
+        }
+
+        public static void Clear()
+        {
+            for (int i = 0; i < buf.Length; i++)
+            {
+                buf[i].Char.UnicodeChar = 0x0020;
+            }
 
             ApplyBuffer();
         }
@@ -252,7 +289,8 @@ namespace maple
             int startIndex = GetBufferIndex(0, line);
             for (int i = startIndex; i < startIndex + width - 1; i++)
             {
-                buf[i].Char.UnicodeChar = 0x0020;
+                buf[i].Char.UnicodeChar = 0x0020; //0x0020
+                buf[i].Attributes = 0x0001;
             }
 
             ApplyBuffer();
