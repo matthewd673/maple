@@ -9,8 +9,7 @@ namespace maple
         static void Main(string[] args)
         {
 
-            ExperimentalPrinter.Initialize();
-            return;
+            Printer.Initialize();
 
             PrepareWindow();
 
