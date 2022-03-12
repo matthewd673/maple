@@ -13,8 +13,31 @@ namespace maple
         public const int MinScreenX = 0;
         public const int MinScreenY = 0;
         
-        public static int MaxScreenX { get; set; }
-        public static int MaxScreenY { get; set; }
+
+        private static int _oldMaxScreenX = 0;
+        public static int MaxScreenX
+        {
+            get
+            {
+                int newMaxScreenX = Console.WindowWidth - 1;
+                if (newMaxScreenX != _oldMaxScreenX)
+                    Printer.Resize();
+                _oldMaxScreenX = newMaxScreenX;
+                return newMaxScreenX;
+            }
+        }
+        private static int _oldMaxScreenY = 0;
+        public static int MaxScreenY
+        {
+            get
+            {
+                int newMaxScreenY = Console.WindowHeight - 1;
+                if (newMaxScreenY != _oldMaxScreenY)
+                    Printer.Resize();
+                _oldMaxScreenY = newMaxScreenY;
+                return newMaxScreenY;
+            }
+        }
 
         public int ContentOffsetX { get; set; } = 0;
         public int ContentOffsetY { get; set; } = 0;
@@ -24,14 +47,14 @@ namespace maple
             DX = dX;
             DY = dY;
 
-            CalculateCursorBounds();
+            // CalculateCursorBounds();
         }
         
-        public static void CalculateCursorBounds()
-        {
-            MaxScreenX = Console.BufferWidth - 1;
-            MaxScreenY = Console.BufferHeight - 1;
-        }
+        // public static void CalculateCursorBounds()
+        // {
+        //     MaxScreenX = Console.BufferWidth - 1;
+        //     MaxScreenY = Console.BufferHeight - 1;
+        // }
 
         public void LockToScreenConstraints()
         {
@@ -43,7 +66,7 @@ namespace maple
             if(SY < MinScreenY)
                 SY = MinScreenY;
             if(SY > MaxScreenY)
-                SY = MaxScreenX;
+                SY = MaxScreenY;
         }
 
         public void Move(int tX, int tY, bool constrainToScreen = true)

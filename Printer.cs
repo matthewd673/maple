@@ -67,8 +67,8 @@ namespace maple
         }
 
         private static SafeFileHandle consoleHandle;
-        private static short width;
-        private static short height;
+        private static short bufWidth;
+        private static short bufHeight;
         private static CharInfo[] buf;
         private static SmallRect rect;
 
@@ -84,21 +84,21 @@ namespace maple
                 return;
             }
 
-            width = (short)Console.WindowWidth;
-            height = (short)Console.WindowHeight;
+            bufWidth = (short)Console.WindowWidth;
+            bufHeight = (short)Console.WindowHeight;
 
-            buf = new CharInfo[width * height];
-            rect = new SmallRect() { Left = 0, Top = 0, Right = width, Bottom = height };
+            buf = new CharInfo[bufWidth * bufHeight];
+            rect = new SmallRect() { Left = 0, Top = 0, Right = bufWidth, Bottom = bufHeight };
         }
 
         private static int GetBufferIndex(int x, int y)
         {
-            return y * width + x;
+            return y * bufWidth + x;
         }
 
         private static short GetAttribute(ConsoleColor foregroundColor, ConsoleColor backgroundColor)
         {
-            return (short)(GetAttribute(backgroundColor) << 4 | GetAttribute(foregroundColor));
+            return (short)((short)(GetAttribute(backgroundColor) << 4) | GetAttribute(foregroundColor));
         }
 
         private static short GetAttribute(ConsoleColor color)
@@ -138,7 +138,7 @@ namespace maple
         {
             bool b = WriteConsoleOutputW(consoleHandle,
                 buf,
-                new Coord() { X = width, Y = height },
+                new Coord() { X = bufWidth, Y = bufHeight },
                 new Coord() { X = 0, Y = 0 },
                 ref rect
                 );
@@ -154,7 +154,11 @@ namespace maple
 
         public static void Resize()
         {
-            
+            bufWidth = (short)Console.WindowWidth;
+            bufHeight = (short)Console.WindowHeight;
+
+            buf = new CharInfo[bufWidth * bufHeight];
+            rect = new SmallRect() { Left = 0, Top = 0, Right = bufWidth, Bottom = bufHeight };
         }
 
         public static void PrintWord(String word, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
@@ -261,7 +265,7 @@ namespace maple
                 return;
             
             int startIndex = GetBufferIndex(0, line);
-            for (int i = startIndex; i < startIndex + width; i++)
+            for (int i = startIndex; i < startIndex + bufWidth; i++)
             {
                 buf[i].Char.UnicodeChar = 0x0020;
                 buf[i].Attributes = 0x0000;

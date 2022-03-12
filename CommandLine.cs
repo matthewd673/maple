@@ -273,7 +273,7 @@ namespace maple
         static void RedrawCommand()
         {
             Printer.Resize();
-            Cursor.CalculateCursorBounds();
+            // Cursor.CalculateCursorBounds();
             Editor.DocCursor.Doc.CalculateScrollIncrement();
             Editor.DocCursor.Move(Editor.DocCursor.DX, Editor.DocCursor.DY);
             Editor.DocCursor.LockToScreenConstraints();

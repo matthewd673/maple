@@ -8,9 +8,6 @@ namespace maple
 
         static void Main(string[] args)
         {
-
-            Printer.Initialize();
-
             PrepareWindow();
 
             //initialize logger
@@ -114,7 +111,8 @@ namespace maple
 
         static void PrepareWindow()
         {
-            Console.Clear();
+            Printer.Initialize();
+            Printer.Clear();
             Console.Title = "maple";
             Console.OutputEncoding = Encoding.UTF8;
             Printer.Resize();
