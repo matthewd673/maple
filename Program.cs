@@ -71,6 +71,10 @@ namespace maple
                         Settings.EnableLogging = true;
                         Settings.IgnoreSetting("enablelogging");
                         break;
+                    case "--summarize-log":
+                        Settings.EnableLogging = true;
+                        Settings.IgnoreSetting("summarizelog");
+                        break;
                     default:
                         Log.Write("Encountered unknown switch '" + sw + "'", "program", important: true);
                         break;
@@ -132,7 +136,10 @@ namespace maple
 
             if (Settings.SummarizeLog)
             {
-                Console.WriteLine("{0} important/unusual log event(s) occurred in the last session", Log.ImportantEvents);
+                if (Settings.EnableLogging)
+                    Console.WriteLine("{0} important/unusual log event(s) occurred in the last session", Log.ImportantEvents);
+                else
+                    Console.WriteLine("Logging was disabled during this session; however, an empty log file still exists");
                 Console.WriteLine("Log file is available at: {0}", Log.LogPath);
             }
             

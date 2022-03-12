@@ -36,6 +36,8 @@ Execute commands from within maple by toggling to command input with the <kbd>es
 
 **`load [filename]`:** load a new file into the editor *(changes to existing file not saved)*
 
+**`new [filename]`:** create a new file *(changes to existing file not saved)*
+
 **`top`:** move the cursor to the first line of the document
 
 **`bot`:** move the cursor to the last line of the document
@@ -89,6 +91,8 @@ When running maple, you can include switches to temporarily change editor behavi
 **`--readonly`:** launch the editor in readonly mode
 
 **`--enable-logging`:** log non-fatal errors and internal status in `log.txt`, enabled by default
+
+**`--summarize-log`:** present a summary of important log events when maple closes
 
 ## Themes & Syntax Highlighting
 
