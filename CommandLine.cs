@@ -64,6 +64,7 @@ namespace maple
             OutputText = "";
             HasOutput = false;
             OType = OutputType.Info;
+            Editor.PrintFooter();
         }
 
         public static void ClearInput()
@@ -151,7 +152,7 @@ namespace maple
 
             if (Settings.Aliases.ContainsKey(args[0]))
             {
-                SetOutput(String.Format("{0}: alias for '{1}'", args[0], Settings.Aliases[args[0]]), "help");
+                SetOutput(String.Format("'{0}' is an alias for '{1}'", args[0], Settings.Aliases[args[0]]), "help");
                 return;
             }
 

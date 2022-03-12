@@ -124,22 +124,25 @@ namespace maple
         {
             switch (color)
             {
-                case ConsoleColor.Blue:
+                case ConsoleColor.Black: //bright: 0x008 (dark gray)
+                    return 0x0000;
+                case ConsoleColor.Blue: //bright: 0x0009
                     return 0x0001;
-                case ConsoleColor.Green:
+                case ConsoleColor.Green: //bright: 0x000A
                     return 0x0002;
-                case ConsoleColor.Cyan:
+                case ConsoleColor.Cyan: //bright: 0x000B
                     return 0x0003;
-                case ConsoleColor.Red:
+                case ConsoleColor.Red: //bright 0x000C
                     return 0x0004;
-                case ConsoleColor.Magenta:
+                case ConsoleColor.Magenta: //bright: 0x000D
                     return 0x0005;
-                case ConsoleColor.Yellow:
+                case ConsoleColor.Yellow: //bright: 0x000E
                     return 0x0006;
                 case ConsoleColor.Gray:
-                case ConsoleColor.White:
-                    return 0x0007;
-                case ConsoleColor.DarkGray:
+                    return 0x0007; //"foreground"
+                case ConsoleColor.White: //"bright gray"
+                    return 0x000F;
+                case ConsoleColor.DarkGray: //bright black
                     return 0x0008;
             }
             return 0x0000;
@@ -236,7 +239,7 @@ namespace maple
             Console.ForegroundColor = foregroundColor;
             Console.BackgroundColor = backgroundColor;
             Console.WriteLine(message);
-            ResetColors();
+            // ResetColors();
         }
 
         public static void DrawHeader(String content, ConsoleColor foregroundColor = ConsoleColor.Black, ConsoleColor backgroundColor = ConsoleColor.Gray, int offsetTop = 0)
@@ -246,7 +249,7 @@ namespace maple
             Console.BackgroundColor = backgroundColor;
             Console.ForegroundColor = foregroundColor;
             Console.WriteLine(content);
-            ResetColors();
+            // ResetColors();
         }
 
         public static void DrawFooter(String content, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
@@ -255,49 +258,57 @@ namespace maple
             WriteToFooter(content, 0, foregroundColor, backgroundColor);
         }
 
-        public static void ClearFooter(ConsoleColor backgroundColor = ConsoleColor.Black)
+        public static void ClearFooter()
         {
-            ClearLine(Cursor.MaxScreenY, backgroundColor);
-            ResetColors();
+            ClearLine(Cursor.MaxScreenY);
         }
 
         public static void WriteToFooter(String text, int x = -1, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
         {
-            if (x != -1) //manual cursor position
+            // if (x != -1) //manual cursor position
+            //     printerCursor.Move(x, Cursor.MaxScreenY);
+            // Console.BackgroundColor = backgroundColor;
+            // Console.ForegroundColor = foregroundColor;
+            // Console.Write(text);
+            if (x != -1)
                 printerCursor.Move(x, Cursor.MaxScreenY);
-            Console.BackgroundColor = backgroundColor;
-            Console.ForegroundColor = foregroundColor;
-            Console.Write(text);
-            ResetColors();
+            int index = GetBufferIndex(printerCursor);
+            for (int i = index; i < index + text.Length; i++)
+            {
+                buf[i].Char.UnicodeChar = text.ToCharArray()[i - index];
+                buf[i].Attributes = GetAttribute(foregroundColor);
+            }
+            printerCursor.SX += text.Length;
         }
 
-        public static void ResetColors()
-        {
-            Console.ForegroundColor = defaultForegroundColor;
-            Console.BackgroundColor = defaultBackgroundColor;
-        }
-
-        public static void ClearLine(int line, ConsoleColor clearColor = ConsoleColor.Black)
+        public static void ClearLine(int line)
         {
             //don't clear if out of range
             if(line < 0 || line > Cursor.MaxScreenY)
                 return;
-
-            //overwrite entire line
-            Console.BackgroundColor = clearColor;
             
             int startIndex = GetBufferIndex(0, line);
             for (int i = startIndex; i < startIndex + width - 1; i++)
-            {
                 buf[i].Char.UnicodeChar = 0x0020; //0x0020
-                buf[i].Attributes = 0x0001;
-            }
 
-            ApplyBuffer();
+            // ApplyBuffer();
 
             // Console.SetCursorPosition(0, line);
             // Console.Write(clearString);
             // ResetColors();
+        }
+
+        public static void ClearRight(int line)
+        {
+            if (line < 0 || line > Cursor.MaxScreenY)
+                return;
+
+            int startIndex = GetBufferIndex(printerCursor.SX, line);
+            int width = Cursor.MaxScreenX - printerCursor.SX;
+            for (int i = startIndex; i < startIndex + width; i++)
+            {
+                buf[i].Char.UnicodeChar = 0x0020; //0x0020
+            }
         }
     }
 }

@@ -350,11 +350,11 @@ namespace maple
 
         public static void ToggleInputTarget()
         {
-            Editor.FullRefreshFooter(); //footer will always need to be refreshed
+            // Editor.FullRefreshFooter(); //footer will always need to be refreshed
             Editor.PrintFooter();
             if(CurrentTarget == InputTarget.Document)
             {
-                Editor.FullRefreshFooter(); //why do it twice? who knows, but you need to
+                // Editor.FullRefreshFooter(); //why do it twice? who knows, but you need to
                 //check if there is command output to be cleared
                 if(!CommandLine.OutputText.Equals("") && !Settings.QuickCli)
                     CommandLine.ClearOutput(); //there is output, clear it
