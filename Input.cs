@@ -251,17 +251,25 @@ namespace maple
                     maxCursorX = docCursor.DX; //update max x position
                     break;
                 case ConsoleKey.Home:
+                    if (doc.HasSelection())
+                        break;
                     docCursor.Move(0, docCursor.DY); //move to beginning of line
                     maxCursorX = docCursor.DX; //update max x position
                     break;
                 case ConsoleKey.End:
+                    if (doc.HasSelection())
+                        break;
                     docCursor.Move(doc.GetLineLength(docCursor.DY), docCursor.DY); //move to end of line
                     maxCursorX = docCursor.DX; //update max x position
                     break;
                 case ConsoleKey.PageUp:
+                    if (doc.HasSelection())
+                        break;
                     docCursor.Move(docCursor.DX, docCursor.DY - doc.ScrollYIncrement);
                     break;
                 case ConsoleKey.PageDown:
+                    if (doc.HasSelection())
+                        break;
                     docCursor.Move(docCursor.DX, docCursor.DY + doc.ScrollYIncrement);
                     break;
                 //TYPING

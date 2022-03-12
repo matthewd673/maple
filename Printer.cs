@@ -207,7 +207,6 @@ namespace maple
 
         public static void PrintManually(char c, int sX, int sY, ConsoleColor foregroundColor, ConsoleColor backgroundColor)
         {
-            Console.Title = sX + ", " + sY;
             int index = GetBufferIndex(sX, sY);
             buf[index].Char.UnicodeChar = c;
             buf[index].Attributes = GetAttribute(foregroundColor, backgroundColor);
@@ -218,6 +217,7 @@ namespace maple
             for (int i = 0; i < buf.Length; i++)
             {
                 buf[i].Char.UnicodeChar = 0x0020;
+                buf[i].Attributes = 0x0000;
             }
 
             ApplyBuffer();
@@ -260,11 +260,23 @@ namespace maple
             if (x != -1)
                 printerCursor.Move(x, Cursor.MaxScreenY);
             int index = GetBufferIndex(printerCursor);
+
+            char[] textChars = text.ToCharArray();
+            short attribute = GetAttribute(foregroundColor);
+
             for (int i = index; i < index + text.Length; i++)
             {
-                buf[i].Char.UnicodeChar = text.ToCharArray()[i - index];
-                buf[i].Attributes = GetAttribute(foregroundColor);
+                if (i >= buf.Length) //overflow
+                {
+                    buf[buf.Length - 1].Char.UnicodeChar = '…';
+                    buf[buf.Length - 1].Attributes = GetAttribute(ConsoleColor.Black, Styler.AccentColor);
+                    break;
+                }
+
+                buf[i].Char.UnicodeChar = textChars[i - index];
+                buf[i].Attributes = attribute;
             }
+
             printerCursor.SX += text.Length;
         }
 

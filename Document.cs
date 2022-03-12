@@ -289,7 +289,7 @@ namespace maple
                 }
 
                 //print overflow indicator
-                if (lineLen - ScrollX > Cursor.MaxScreenX)
+                if (lineLen - ScrollX + GutterWidth >= Cursor.MaxScreenX)
                     Printer.PrintManually('…', Cursor.MaxScreenX, lineIndex - ScrollY, ConsoleColor.Black, Styler.GutterColor);
 
                 Printer.ApplyBuffer();
@@ -323,11 +323,26 @@ namespace maple
         {
             string gutterContent = (lineIndex + 1).ToString();
             while(gutterContent.Length < GutterWidth - gutterPadding)
-                gutterContent = "0" + gutterContent;
+                gutterContent = Styler.GutterLeftPad + gutterContent;
             while(gutterContent.Length < GutterWidth)
+            {
                 gutterContent += " ";
+                if (gutterContent.Length == GutterWidth - 1)
+                    gutterContent += Styler.GutterBarrier;
+            }
 
             return gutterContent;
+        }
+
+        public int CalculateGutterWidth()
+        {
+            int oldGutterWidth = GutterWidth;
+            GutterWidth = fileLines.Count.ToString().Length + gutterPadding;
+
+            if (GutterWidth != oldGutterWidth)
+                Editor.RefreshAllLines();
+
+            return GutterWidth;
         }
 
         /// <summary>
@@ -373,17 +388,6 @@ namespace maple
         {
             ScrollYIncrement = (Cursor.MaxScreenY - 1) / 2;
             scrollXIncrement = (Cursor.MaxScreenX - 1) / 2;
-        }
-
-        public int CalculateGutterWidth()
-        {
-            int oldGutterWidth = GutterWidth;
-            GutterWidth = fileLines.Count.ToString().Length + gutterPadding;
-
-            if (GutterWidth != oldGutterWidth)
-                Editor.RefreshAllLines();
-
-            return GutterWidth;
         }
 
         /// <summary>

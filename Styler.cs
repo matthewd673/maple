@@ -40,6 +40,8 @@ namespace maple
 
         //text customizations
         public static string VanityFooter { get; private set; } = "maple";
+        public static string GutterLeftPad { get; private set; } = "0";
+        public static string GutterBarrier { get; private set; } = " ";
 
         public static void LoadMapleTheme()
         {
@@ -173,6 +175,18 @@ namespace maple
                 {
                     case "vanityfooter":
                         VanityFooter = value; break;
+                    case "gutterleftpad":
+                        if (value.Length > 1 || value.Length == 0)
+                            Log.Write("GutterLeftPad value must be 1 character", "styler");
+                        else
+                            GutterLeftPad = value.ToCharArray()[0].ToString();
+                        break;
+                    case "gutterbarrier":
+                        if (value.Length > 1 || value.Length == 0)
+                            Log.Write("GutterBarrier value must be 1 character", "styler");
+                        else
+                            GutterBarrier = value.ToCharArray()[0].ToString();
+                        break;
                     default:
                         Log.Write("Encountered unknown text category '" + category + "'", "styler");
                         break;

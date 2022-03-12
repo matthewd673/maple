@@ -27,4 +27,5 @@
     <color category="cliString">Green</color>
     <!--Editor Customizations-->
     <string category="vanityFooter">maple</string>
+    <string category="gutterLeftPad">0</string>
 </xml>
