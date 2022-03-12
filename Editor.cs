@@ -125,6 +125,9 @@ namespace maple
                 else
                     Printer.ClearLine(lineIndex - GetCurrentDoc().ScrollY);
             }
+
+            Printer.ApplyBuffer();
+            
             refreshedLines.Clear(); //clear for next time
             fullClearNext = false; //don't full clear again unless told
         }
@@ -156,9 +159,7 @@ namespace maple
                     if (Input.ReadOnly)
                         Printer.WriteToFooter("[readonly] ", -1, Styler.AccentColor);
                     
-                    // Printer.WriteToFooter("                      "); //TODO: sloppy, but it works for now
-                    Printer.ClearRight(Cursor.MaxScreenY);
-
+                    Printer.ClearRight();
                     Printer.ApplyBuffer();
                 }
                 else if (Input.CurrentTarget == Input.InputTarget.Command) //render input footer

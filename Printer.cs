@@ -78,8 +78,8 @@ namespace maple
 
             if (consoleHandle.IsInvalid)
             {
-                Log.Write("Failed to create console handle", "printer2");
-                Console.WriteLine("printer2 failed");
+                Log.Write("Failed to create console handle", "printer");
+                PrintLine("Printer failed to create console handle", Styler.ErrorColor);
                 Environment.Exit(1);
                 return;
             }
@@ -89,35 +89,16 @@ namespace maple
 
             buf = new CharInfo[width * height];
             rect = new SmallRect() { Left = 0, Top = 0, Right = width, Bottom = height };
-
-            for (int i = 0; i < buf.Length; i++)
-            {
-                buf[i].Attributes = 0x0201;
-            }
-
-            // for (ushort character = 0x0041; character < 0x0041 + 26; ++character)
-            // {
-            //     for (short attribute = 0; attribute < 15; ++attribute)
-            //     {
-            //         for (int i = 0; i < buf.Length; ++i)
-            //         {
-            //             buf[i].Attributes = attribute;
-            //             buf[i].Char.UnicodeChar = character;
-            //         }
-
-            //         bool b = WriteConsoleOutputW(consoleHandle, buf,
-            //             new Coord() { X = width, Y = height },
-            //             new Coord() { X = 0, Y = 0 },
-            //             ref rect);
-            //         Console.ReadKey();
-            //     }
-            // }
-            // Console.ReadKey();
         }
 
         private static int GetBufferIndex(int x, int y)
         {
             return y * width + x;
+        }
+
+        private static short GetAttribute(ConsoleColor foregroundColor, ConsoleColor backgroundColor)
+        {
+            return (short)(GetAttribute(backgroundColor) << 4 | GetAttribute(foregroundColor));
         }
 
         private static short GetAttribute(ConsoleColor color)
@@ -168,14 +149,12 @@ namespace maple
 
         static Cursor printerCursor = new Cursor(0, 0);
 
-        static String clearString = " ";
-
         public static int CursorSX { get { return printerCursor.SX; } }
         public static int CursorSY { get { return printerCursor.SY; } }
 
         public static void Resize()
         {
-            clearString = new string(' ', Console.WindowWidth);
+            
         }
 
         public static void PrintWord(String word, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
@@ -185,21 +164,20 @@ namespace maple
             // Console.Write(word);
             // ResetColors();
 
-            Console.Title = width + "," + height;
-
             int index = GetBufferIndex(printerCursor);
 
-            Log.Write(index.ToString(), "printer2");
+            char[] wordChars = word.ToCharArray();
+            short attribute = GetAttribute(foregroundColor, backgroundColor);
 
             for (int i = index; i < index + word.Length; i++)
             {
-                buf[i].Char.UnicodeChar = word.ToCharArray()[i - index];
-                buf[i].Attributes = GetAttribute(foregroundColor);
+                // buf[i].Char.UnicodeChar = word.ToCharArray()[i - index];
+                // buf[i].Attributes = GetAttribute(foregroundColor); //TODO: support background colors
+                buf[i].Char.UnicodeChar = wordChars[i - index];
+                buf[i].Attributes = attribute;
             }
 
             printerCursor.SX += word.Length;
-            
-            // ApplyBuffer();
         }
 
         public static void PrintToken(Token token)
@@ -265,11 +243,6 @@ namespace maple
 
         public static void WriteToFooter(String text, int x = -1, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
         {
-            // if (x != -1) //manual cursor position
-            //     printerCursor.Move(x, Cursor.MaxScreenY);
-            // Console.BackgroundColor = backgroundColor;
-            // Console.ForegroundColor = foregroundColor;
-            // Console.Write(text);
             if (x != -1)
                 printerCursor.Move(x, Cursor.MaxScreenY);
             int index = GetBufferIndex(printerCursor);
@@ -288,26 +261,25 @@ namespace maple
                 return;
             
             int startIndex = GetBufferIndex(0, line);
-            for (int i = startIndex; i < startIndex + width - 1; i++)
-                buf[i].Char.UnicodeChar = 0x0020; //0x0020
-
-            // ApplyBuffer();
-
-            // Console.SetCursorPosition(0, line);
-            // Console.Write(clearString);
-            // ResetColors();
+            for (int i = startIndex; i < startIndex + width; i++)
+            {
+                buf[i].Char.UnicodeChar = 0x0020;
+                buf[i].Attributes = 0x0000;
+            }
         }
 
-        public static void ClearRight(int line)
+        public static void ClearRight()
         {
-            if (line < 0 || line > Cursor.MaxScreenY)
+            //don't clear if out of range
+            if (printerCursor.SY < 0 || printerCursor.SY > Cursor.MaxScreenY)
                 return;
 
-            int startIndex = GetBufferIndex(printerCursor.SX, line);
+            int startIndex = GetBufferIndex(printerCursor.SX, printerCursor.SY);
             int width = Cursor.MaxScreenX - printerCursor.SX;
             for (int i = startIndex; i < startIndex + width; i++)
             {
-                buf[i].Char.UnicodeChar = 0x0020; //0x0020
+                buf[i].Char.UnicodeChar = 0x0020;
+                buf[i].Attributes = 0x0000;
             }
         }
     }

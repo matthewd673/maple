@@ -283,8 +283,7 @@ namespace maple
                     if(addedText)
                     {
                         docCursor.MoveRight();
-                        if (doc.GetLineTokenCount(docCursor.DY) != oldTokenCount) //only refresh if new tokens
-                            Editor.RefreshLine(docCursor.DY);
+                        Editor.RefreshLine(docCursor.DY);
                     }
                     maxCursorX = docCursor.DX; //update max x position
                     break;
