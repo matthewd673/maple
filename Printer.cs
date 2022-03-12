@@ -80,9 +80,11 @@ namespace maple
             {
                 Log.Write("Failed to create console handle", "printer");
                 PrintLineSimple("Printer failed to create console handle", Styler.ErrorColor);
-                Environment.Exit(1);
+                Environment.Exit(1); //kinda temporary
                 return;
             }
+
+            Log.Write("Successfully created console handle", "printer");
 
             bufWidth = (short)Console.WindowWidth;
             bufHeight = (short)Console.WindowHeight;
@@ -169,11 +171,6 @@ namespace maple
 
         public static void PrintWord(String word, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
         {
-            // Console.ForegroundColor = foregroundColor;
-            // Console.BackgroundColor = backgroundColor;
-            // Console.Write(word);
-            // ResetColors();
-
             int index = GetBufferIndex(printerCursor);
 
             char[] wordChars = word.ToCharArray();
@@ -181,8 +178,6 @@ namespace maple
 
             for (int i = index; i < index + word.Length; i++)
             {
-                // buf[i].Char.UnicodeChar = word.ToCharArray()[i - index];
-                // buf[i].Attributes = GetAttribute(foregroundColor); //TODO: support background colors
                 buf[i].Char.UnicodeChar = wordChars[i - index];
                 buf[i].Attributes = attribute;
             }
@@ -192,9 +187,6 @@ namespace maple
 
         public static void PrintToken(Token token)
         {
-            // Console.Write(token.ColorCode);
-            // Console.Write(token.Text);
-            // ResetColors();
             int index = GetBufferIndex(printerCursor);
             for (int i = index; i < index + token.Text.Length; i++)
             {

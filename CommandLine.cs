@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace maple
 {
@@ -16,7 +17,7 @@ namespace maple
         public static string[] CommandMasterList { get; } = new string[] {
             "help", "save", "load", "close", "cls", "top", "bot", "redraw",
             "goto", "selectin", "selectout", "deselect", "readonly", "syntax",
-            "alias"
+            "alias", "url"
             };
 
         public static String InputText { get; private set; } = "";
@@ -136,6 +137,9 @@ namespace maple
                 case "alias":
                     AliasCommand(commandArgs, commandSwitches);
                     break;
+                case "url":
+                    UrlCommand();
+                    break;
                 default:
                     UnknownCommand();
                     break;
@@ -166,7 +170,7 @@ namespace maple
                     SetOutput("'help [command]' or 'help all'", "help");
                     break;
                 case "all":
-                    SetOutput("save, load, close, cls, top, bot, redraw, goto, selectin, selectout, readonly, syntax, alias", "help");
+                    SetOutput("save, load, close, cls, top, bot, redraw, goto, selectin, selectout, readonly, syntax, alias, url", "help");
                     break;
                 case "save":
                     SetOutput("save [optional filename]: save document to filename", "help");
@@ -209,6 +213,9 @@ namespace maple
                     break;
                 case "alias":
                     SetOutput("alias [command]: view all aliases for a given command", "help");
+                    break;
+                case "url":
+                    SetOutput("url: if the cursor is currently hovered on a url, open it in the browser", "help");
                     break;
                 default:
                     UnknownCommand();
@@ -392,6 +399,30 @@ namespace maple
             }
 
             SetOutput(output, "alias");
+        }
+
+        static void UrlCommand()
+        {
+            Token hoveredToken = Editor.GetCurrentDoc().GetTokenAtPosition(Editor.DocCursor.DX, Editor.DocCursor.DY);
+            if (hoveredToken.TType != Token.TokenType.Url)
+            {
+                SetOutput("Selected token isn't a valid URL", "url", OutputType.Error);
+                Log.Write("Attempted to navigate to '" + hoveredToken.Text + "'", "commandline/url");
+                return;
+            }
+
+            string url = hoveredToken.Text;
+            try
+            {
+                Process.Start("explorer", hoveredToken.Text);
+                SetOutput("Navigating to " + hoveredToken.Text, "url", OutputType.Success);
+            }
+            catch (Exception e)
+            {
+                SetOutput("Failed to launch browser process", "url", OutputType.Error);
+                Log.Write("URL command failed: " + e.Message, "commandline/url");
+                Log.Write("...was attempting to navigate to " + hoveredToken.Text, "commandline/url");
+            }
         }
 
         static void UnknownCommand()

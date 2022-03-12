@@ -20,6 +20,7 @@ namespace maple
             Comment,
             Grouping,
             Operator,
+            Url,
             //for cli lexer
             CliCommandValid,
             CliCommandInvalid,
@@ -64,6 +65,8 @@ namespace maple
                     Color = Styler.GroupingColor; break;
                 case TokenType.Operator:
                     Color = Styler.OperatorColor; break;
+                case TokenType.Url:
+                    Color = Styler.UrlColor; break;
                 case TokenType.CliCommandValid:
                     Color = Styler.CliCommandValidColor; break;
                 case TokenType.CliCommandInvalid:

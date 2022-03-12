@@ -465,6 +465,22 @@ namespace maple
             return currentLine.Remove(0, x);
         }
 
+        public Token GetTokenAtPosition(int x, int y)
+        {
+            if (x < 0 || x > GetLineLength(y) || y < 0 || y > fileLines.Count)
+                return new Token(null, Token.TokenType.None);
+            
+            int totalLength = 0;
+            foreach(Token t in fileLines[y].Tokens)
+            {
+                totalLength += t.Text.Length;
+                if(totalLength > Editor.DocCursor.DX)
+                    return t;
+            }
+
+            return new Token(null, Token.TokenType.None);
+        }
+
         public bool AddLine(int index)
         {
             if(index < 0 || index > fileLines.Count)

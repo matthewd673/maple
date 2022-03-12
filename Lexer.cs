@@ -60,6 +60,8 @@ namespace maple
 
                 if (type.Equals("stringliteral")) //always prioritize stringliteral since it sometimes conflicts
                     rules.Add(new LexerRule(Token.TokenType.StringLiteral, value));
+                if (type.Equals("url"))
+                    rules.Add(new LexerRule(Token.TokenType.Url, value));
                 else
                     rules.Insert(0, new LexerRule(GetTokenTypeFromRuleName(type), value));
             }
@@ -216,6 +218,8 @@ namespace maple
                     return Token.TokenType.Comment;
                 case "operator":
                     return Token.TokenType.Operator;
+                case "url":
+                    return Token.TokenType.Url;
                 case "keyword":
                     return Token.TokenType.Keyword;
                 default:

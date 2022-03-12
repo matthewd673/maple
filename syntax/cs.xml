@@ -9,6 +9,7 @@
     <syntax type="characterLiteral">&apos;.?&apos;</syntax>
     <syntax type="comment">(\/\/.*)</syntax>
     <syntax type="operator">(\+|\-|\*|((?&lt;!\/)\/(?!\/))|\=|\%|\&gt;|\&lt;|\||\&amp;|\!)</syntax>
+    <syntax type="url">http(s{0,1}):\/\/[0-9a-zA-Z\.\-_~\/\?=&%]+</syntax>
     <!--Keywords-->
     <keywords>
         <keyword>abstract</keyword>

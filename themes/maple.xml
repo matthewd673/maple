@@ -15,6 +15,7 @@
     <color category="comment">DarkGray</color>
     <color category="grouping">Gray</color>
     <color category="operator">Red</color>
+    <color category="url">Blue</color>
     <!--CLI Colors-->
     <color category="cliInputDefault">Yellow</color>
     <color category="cliOutputInfo">Cyan</color>
@@ -28,4 +29,5 @@
     <!--Editor Customizations-->
     <string category="vanityFooter">maple</string>
     <string category="gutterLeftPad">0</string>
+    <string category="gutterBarrier"></string>
 </xml>
