@@ -69,10 +69,6 @@ namespace maple
                         Settings.EnableLogging = true;
                         Settings.IgnoreSetting("enablelogging");
                         break;
-                    case "--experimental-coloring":
-                        Settings.ExperimentalColoring = true;
-                        Settings.IgnoreSetting("experimentalcoloring");
-                        break;
                     default:
                         Log.Write("Encountered unknown switch '" + sw + "'", "program");
                         break;
@@ -98,8 +94,8 @@ namespace maple
             else //no argument provided
             {
                 Log.Write("No file provided in args, defaulting to about", "program");
-                Printer.PrintLine("maple - terminal text editor | github.com/matthewd673/maple", Styler.AccentColor);
-                Printer.PrintLine("No arguments provided: 'maple [filename]' to begin editing", Styler.ErrorColor);
+                Printer.PrintLineSimple("maple - terminal text editor | github.com/matthewd673/maple", Styler.AccentColor);
+                Printer.PrintLineSimple("No arguments provided: 'maple [filename]' to begin editing", Styler.ErrorColor);
                 return;
             }
 

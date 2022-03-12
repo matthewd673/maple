@@ -232,28 +232,23 @@ namespace maple
                         else //hiddenCharCt can't be negative, for highlighter's sake
                             hiddenCharCt = 0;
 
-                        if (!Settings.ExperimentalColoring)
+                        if (tokenHasSelect) //print selected part with separate styles
                         {
-                            if (tokenHasSelect) //print selected part with separate styles
-                            {
-                                int selectLength = tSelectEnd - tSelectStart;
-                                string preSelectSubstring = printText.Substring(0, tSelectStart);
-                                string inSelectSubstring = printText.Substring(tSelectStart, selectLength);
-                                string postSelectSubstring = printText.Substring(tSelectEnd);
-                                Printer.PrintWord(preSelectSubstring, foregroundColor: t.Color);
-                                Printer.PrintWord(inSelectSubstring, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.SelectionColor);
-                                Printer.PrintWord(postSelectSubstring, foregroundColor: t.Color);
-                            }
-                            else //no precise selection to print
-                            {
-                                if (!fullySelected) //normal print
-                                    Printer.PrintWord(printText, foregroundColor: t.Color);
-                                else //print fully selected
-                                    Printer.PrintWord(printText, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.SelectionColor);
-                            }
+                            int selectLength = tSelectEnd - tSelectStart;
+                            string preSelectSubstring = printText.Substring(0, tSelectStart);
+                            string inSelectSubstring = printText.Substring(tSelectStart, selectLength);
+                            string postSelectSubstring = printText.Substring(tSelectEnd);
+                            Printer.PrintWord(preSelectSubstring, foregroundColor: t.Color);
+                            Printer.PrintWord(inSelectSubstring, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.SelectionColor);
+                            Printer.PrintWord(postSelectSubstring, foregroundColor: t.Color);
                         }
-                        else //TODO: highlight support
-                            Printer.PrintToken(t);
+                        else //no precise selection to print
+                        {
+                            if (!fullySelected) //normal print
+                                Printer.PrintWord(printText, foregroundColor: t.Color);
+                            else //print fully selected
+                                Printer.PrintWord(printText, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.SelectionColor);
+                        }
                     }
                     else if (lineLen > ScrollX + Cursor.MaxScreenX) //part of token is hidden to right, trim end
                     {
@@ -286,11 +281,16 @@ namespace maple
                                 else
                                     Printer.PrintWord(printText, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.SelectionColor);
                             }
+
                         }
                         else //can't be negative
                             hiddenCharCt = 0;
                     }
                 }
+
+                //print overflow indicator
+                if (lineLen - ScrollX > Cursor.MaxScreenX)
+                    Printer.PrintManually('…', Cursor.MaxScreenX, lineIndex - ScrollY, ConsoleColor.Black, Styler.GutterColor);
 
                 Printer.ApplyBuffer();
 

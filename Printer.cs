@@ -79,7 +79,7 @@ namespace maple
             if (consoleHandle.IsInvalid)
             {
                 Log.Write("Failed to create console handle", "printer");
-                PrintLine("Printer failed to create console handle", Styler.ErrorColor);
+                PrintLineSimple("Printer failed to create console handle", Styler.ErrorColor);
                 Environment.Exit(1);
                 return;
             }
@@ -105,26 +105,38 @@ namespace maple
         {
             switch (color)
             {
-                case ConsoleColor.Black: //bright: 0x008 (dark gray)
+                case ConsoleColor.Black:
                     return 0x0000;
-                case ConsoleColor.Blue: //bright: 0x0009
+                case ConsoleColor.DarkBlue:
                     return 0x0001;
-                case ConsoleColor.Green: //bright: 0x000A
+                case ConsoleColor.Blue:
+                    return 0x0009;
+                case ConsoleColor.DarkGreen:
                     return 0x0002;
-                case ConsoleColor.Cyan: //bright: 0x000B
+                case ConsoleColor.Green:
+                    return 0x000A;
+                case ConsoleColor.DarkCyan:
                     return 0x0003;
-                case ConsoleColor.Red: //bright 0x000C
+                case ConsoleColor.Cyan:
+                    return 0x000B;
+                case ConsoleColor.DarkRed:
                     return 0x0004;
-                case ConsoleColor.Magenta: //bright: 0x000D
+                case ConsoleColor.Red:
+                    return 0x000C;
+                case ConsoleColor.DarkMagenta:
                     return 0x0005;
-                case ConsoleColor.Yellow: //bright: 0x000E
+                case ConsoleColor.Magenta:
+                    return 0x000D;
+                case ConsoleColor.DarkYellow:
                     return 0x0006;
+                case ConsoleColor.Yellow:
+                    return 0x000E;
                 case ConsoleColor.Gray:
-                    return 0x0007; //"foreground"
-                case ConsoleColor.White: //"bright gray"
-                    return 0x000F;
-                case ConsoleColor.DarkGray: //bright black
+                    return 0x0007;
+                case ConsoleColor.DarkGray:
                     return 0x0008;
+                case ConsoleColor.White:
+                    return 0x000F;
             }
             return 0x0000;
         }
@@ -144,13 +156,7 @@ namespace maple
                 );
         }
 
-        static ConsoleColor defaultForegroundColor = ConsoleColor.Gray;
-        static ConsoleColor defaultBackgroundColor = ConsoleColor.Black;
-
         static Cursor printerCursor = new Cursor(0, 0);
-
-        public static int CursorSX { get { return printerCursor.SX; } }
-        public static int CursorSY { get { return printerCursor.SY; } }
 
         public static void Resize()
         {
@@ -197,8 +203,14 @@ namespace maple
             }
 
             printerCursor.SX += token.Text.Length;
+        }
 
-            // ApplyBuffer();
+        public static void PrintManually(char c, int sX, int sY, ConsoleColor foregroundColor, ConsoleColor backgroundColor)
+        {
+            Console.Title = sX + ", " + sY;
+            int index = GetBufferIndex(sX, sY);
+            buf[index].Char.UnicodeChar = c;
+            buf[index].Attributes = GetAttribute(foregroundColor, backgroundColor);
         }
 
         public static void Clear()
@@ -216,12 +228,11 @@ namespace maple
             printerCursor.Move(x, y);
         }
 
-        public static void PrintLine(String message, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
+        public static void PrintLineSimple(String message, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
         {
             Console.ForegroundColor = foregroundColor;
             Console.BackgroundColor = backgroundColor;
             Console.WriteLine(message);
-            // ResetColors();
         }
 
         public static void DrawHeader(String content, ConsoleColor foregroundColor = ConsoleColor.Black, ConsoleColor backgroundColor = ConsoleColor.Gray, int offsetTop = 0)
@@ -231,7 +242,6 @@ namespace maple
             Console.BackgroundColor = backgroundColor;
             Console.ForegroundColor = foregroundColor;
             Console.WriteLine(content);
-            // ResetColors();
         }
 
         public static void DrawFooter(String content, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)

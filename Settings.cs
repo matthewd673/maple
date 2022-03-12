@@ -22,7 +22,6 @@ namespace maple
         public static bool NavigatePastTabs { get; set; } = true;
         public static bool DeleteEntireTabs { get; set; } = true;
         public static bool EnableLogging { get; set; } = true;
-        public static bool ExperimentalColoring { get; set; } = false;
 
         public static string ThemeDirectory { get; private set; } = Path.Combine(MapleDirectory, "themes");
         public static string ThemeFile { get; private set; } = "maple.xml";
@@ -107,9 +106,6 @@ namespace maple
                         break;
                     case "enablelogging":
                         EnableLogging = IsTrue(value);
-                        break;
-                    case "experimentalcoloring":
-                        ExperimentalColoring = IsTrue(value);
                         break;
                     //ARGUMENTS
                     case "themedirectory":
