@@ -22,6 +22,7 @@ namespace maple
         public static bool NavigatePastTabs { get; set; } = true;
         public static bool DeleteEntireTabs { get; set; } = true;
         public static bool EnableLogging { get; set; } = true;
+        public static bool SummarizeLog { get; set; } = false;
 
         public static string ThemeDirectory { get; private set; } = Path.Combine(MapleDirectory, "themes");
         public static string ThemeFile { get; private set; } = "maple.xml";
@@ -43,7 +44,7 @@ namespace maple
 
             if (!File.Exists(SettingsFile))
             {
-                Log.Write("Settings file doesn't exist at '" + SettingsFile + "'", "settings");
+                Log.Write("Settings file doesn't exist at '" + SettingsFile + "'", "settings", important: true);
                 return;
             }
 
@@ -54,7 +55,7 @@ namespace maple
             catch (Exception e)
             {
                 CommandLine.SetOutput("Encountered an exception while loading properties XML", "internal", oType: CommandLine.OutputType.Error);
-                Log.Write("Encountered exception while loading properties XML: " + e.Message, "settings");
+                Log.Write("Encountered exception while loading properties XML: " + e.Message, "settings", important: true);
                 return;
             }
 
@@ -107,6 +108,9 @@ namespace maple
                     case "enablelogging":
                         EnableLogging = IsTrue(value);
                         break;
+                    case "summarizelog":
+                        SummarizeLog = IsTrue(value);
+                        break;
                     //ARGUMENTS
                     case "themedirectory":
                         ThemeDirectory = value;
@@ -137,7 +141,7 @@ namespace maple
 
             if (!File.Exists(AliasesFile))
             {
-                Log.Write("Aliases file doesn't exist at '" + AliasesFile + "'", "settings");
+                Log.Write("Aliases file doesn't exist at '" + AliasesFile + "'", "settings", important: true);
                 return;
             }
 
@@ -148,7 +152,7 @@ namespace maple
             catch (Exception e)
             {
                 CommandLine.SetOutput("Encountered an exception while loading alias XML", "internal", oType: CommandLine.OutputType.Error);
-                Log.Write("Encountered exception while loading alias XML: " + e.Message, "settings");
+                Log.Write("Encountered exception while loading alias XML: " + e.Message, "settings", important: true);
                 return;
             }
 

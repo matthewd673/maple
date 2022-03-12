@@ -23,6 +23,8 @@ namespace maple
         public int GutterWidth { get; private set; } = 0;
         int gutterPadding = 2;
 
+        public bool NewlyCreated { get; private set; } = false;
+
         /// <summary>
         /// <c>Document</c> represents a text file which is either user-facing or for internal use.
         /// </summary>
@@ -49,7 +51,7 @@ namespace maple
                         Lexer.LoadSyntax(Settings.SyntaxDirectory + fileExtension + ".xml");
                     }
                     else
-                        Log.Write("Cannot load lexer settings, syntax file '" + Settings.SyntaxDirectory + fileExtension + ".xml' doesn't exist", "document");
+                        Log.Write("Cannot load lexer settings, syntax file '" + Settings.SyntaxDirectory + fileExtension + ".xml' doesn't exist", "document", important: true);
                 }
                 else {
                     Log.Write("Loaded document is marked as internal", "document");
@@ -65,7 +67,7 @@ namespace maple
 
         }
 
-        public string ProcessFilepath(string filepath)
+        public static string ProcessFilepath(string filepath)
         {
             //if it doesn't exist, attempt to adjust
             if (!File.Exists(filepath))
@@ -122,7 +124,8 @@ namespace maple
                 File.CreateText(filepath).Close();
                 fileLines = new List<Line>() { new Line("") };
                 CommandLine.OutputText = String.Format("New file \"{0}\" was created", filepath.Trim());
-                Log.Write("Initial file doesn't exist, created '" + filepath + "'", "document");
+                Log.Write("Initial file doesn't exist, created '" + filepath + "'", "document", important: true);
+                NewlyCreated = true;
             }
 
         }
@@ -290,7 +293,12 @@ namespace maple
 
                 //print overflow indicator
                 if (lineLen - ScrollX + GutterWidth >= Cursor.MaxScreenX)
-                    Printer.PrintManually('…', Cursor.MaxScreenX, lineIndex - ScrollY, ConsoleColor.Black, Styler.GutterColor);
+                    Printer.PrintManually(
+                        Styler.OverflowIndicator.ToCharArray()[0],
+                        Cursor.MaxScreenX,
+                        lineIndex - ScrollY,
+                        (short)(Printer.GetAttributeAtPosition(Cursor.MaxScreenX, lineIndex - ScrollY) << 4 & 0x00F0) //set background to old foreground, and foreground to black
+                        );
 
                 Printer.ApplyBuffer();
 

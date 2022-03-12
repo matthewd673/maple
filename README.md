@@ -56,6 +56,8 @@ Execute commands from within maple by toggling to command input with the <kbd>es
 
 **`alias [command]`:** view all aliases for a given command
 
+**`url [command]`:** if the cursor is currently hovered on a url, open it in the browser
+
 Some commands may display an output upon completion. Clear command output with the <kbd>esc</kbd> key.
 It is necessary to clear command output before toggling to the command input again, unless `--quick-cli` is active.
 

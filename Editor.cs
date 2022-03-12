@@ -20,9 +20,6 @@ namespace maple
             CmdCursor.ContentOffsetX = 7; //hardcoded for "maple: "
             CmdCursor.ContentOffsetY = Int32.MaxValue;
 
-            // CmdCursor.ContentOffsetX = 7; //hardcoded for "maple: " in line with new footer printing
-            // CmdCursor.ContentOffsetY = Cursor.MaxScreenY;
-
             //create doc cursor with document
             Log.Write("Creating document cursor", "editor");
             DocCursor = new DocumentCursor(filename, 0, 0);

@@ -43,6 +43,7 @@ namespace maple
         public static string VanityFooter { get; private set; } = "maple";
         public static string GutterLeftPad { get; private set; } = "0";
         public static string GutterBarrier { get; private set; } = " ";
+        public static string OverflowIndicator { get; private set; } = "…";
 
         public static void LoadMapleTheme()
         {
@@ -53,7 +54,7 @@ namespace maple
                 AssignCustomText(mapleThemePath);
             }
             else
-                Log.Write("Theme file doesn't exist at '" + mapleThemePath + "'", "styler");
+                Log.Write("Theme file doesn't exist at '" + mapleThemePath + "'", "styler", important: true);
         }
 
         public static void AssignThemeColors(string themePath)
@@ -67,7 +68,7 @@ namespace maple
             catch (Exception e)
             {
                 CommandLine.SetOutput("Encountered an exception while loading theme XML", "internal", oType: CommandLine.OutputType.Error);
-                Log.Write("Encountered exception while loading theme XML: " + e.Message, "styler");
+                Log.Write("Encountered exception while loading theme XML: " + e.Message, "styler", important: true);
                 return;
             }
 
@@ -138,7 +139,7 @@ namespace maple
                     case "clistring":
                         CliStringColor = color; break;
                     default:
-                        Log.Write("Encountered unknown theme category '" + category + "'", "styler");
+                        Log.Write("Encountered unknown theme category '" + category + "'", "styler", important: true);
                         break;
                 }
             }
@@ -155,7 +156,7 @@ namespace maple
             catch (Exception e)
             {
                 CommandLine.SetOutput("Encountered an exception while loading custom text XML", "internal", oType: CommandLine.OutputType.Error);
-                Log.Write("Encountered exception while loading custom text XML: " + e.Message, "styler");
+                Log.Write("Encountered exception while loading custom text XML: " + e.Message, "styler", important: true);
                 return;
             }
 
@@ -180,18 +181,24 @@ namespace maple
                         VanityFooter = value; break;
                     case "gutterleftpad":
                         if (value.Length > 1 || value.Length == 0)
-                            Log.Write("GutterLeftPad value must be 1 character", "styler");
+                            Log.Write("GutterLeftPad value must be 1 character", "styler", important: true);
                         else
                             GutterLeftPad = value.ToCharArray()[0].ToString();
                         break;
                     case "gutterbarrier":
                         if (value.Length > 1 || value.Length == 0)
-                            Log.Write("GutterBarrier value must be 1 character", "styler");
+                            Log.Write("GutterBarrier value must be 1 character", "styler", important: true);
                         else
                             GutterBarrier = value.ToCharArray()[0].ToString();
                         break;
+                    case "overflowindicator":
+                        if (value.Length > 1 || value.Length == 0)
+                            Log.Write("OverflowIndicator value must be 1 character", "styler", important: true);
+                        else
+                            OverflowIndicator = value.ToCharArray()[0].ToString();
+                        break;
                     default:
-                        Log.Write("Encountered unknown text category '" + category + "'", "styler");
+                        Log.Write("Encountered unknown text category '" + category + "'", "styler", important: true);
                         break;
                 }
             }
@@ -234,7 +241,7 @@ namespace maple
                 case "white":
                     return ConsoleColor.White;
                 default:
-                    Log.Write("Encountered unknown ConsoleColor '" + name + "'", "styler");
+                    Log.Write("Encountered unknown ConsoleColor '" + name + "'", "styler", important: true);
                     return ConsoleColor.Gray;
             }
         }

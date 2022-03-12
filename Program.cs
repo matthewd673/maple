@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.IO;
 
 namespace maple
 {
@@ -8,11 +9,12 @@ namespace maple
 
         static void Main(string[] args)
         {
-            PrepareWindow();
 
             //initialize logger
             //note: maple directory will never be relative, since flag is set later (this may be a good thing?)
             Log.InitializeLogger();
+
+            PrepareWindow();
 
             Log.Write("Parsing arguments", "program");
             //turn args into string for parser
@@ -70,7 +72,7 @@ namespace maple
                         Settings.IgnoreSetting("enablelogging");
                         break;
                     default:
-                        Log.Write("Encountered unknown switch '" + sw + "'", "program");
+                        Log.Write("Encountered unknown switch '" + sw + "'", "program", important: true);
                         break;
                 }
             }
@@ -93,9 +95,10 @@ namespace maple
             }
             else //no argument provided
             {
-                Log.Write("No file provided in args, defaulting to about", "program");
-                Printer.PrintLineSimple("maple - terminal text editor | github.com/matthewd673/maple", Styler.AccentColor);
+                Log.Write("No file provided in args, defaulting to about", "program", important: true);
+                Printer.PrintLineSimple("maple - terminal text editor | https://github.com/matthewd673/maple", Styler.AccentColor);
                 Printer.PrintLineSimple("No arguments provided: 'maple [filename]' to begin editing", Styler.ErrorColor);
+                Console.ResetColor();
                 return;
             }
 
@@ -120,7 +123,20 @@ namespace maple
             Console.Clear();
             Console.ForegroundColor = Styler.AccentColor;
             Console.WriteLine("maple session ended");
-            Console.ForegroundColor = Styler.TextColor;
+
+            if (Editor.GetCurrentDoc().GetAllLines().Count == 1 && Editor.GetCurrentDoc().GetLineLength(0) == 0 && Editor.GetCurrentDoc().NewlyCreated)
+            {
+                File.Delete(Editor.GetCurrentDoc().Filepath);
+                Log.Write("Cleaned empty, newly-created file '" + Editor.GetCurrentDoc().Filepath + "'", "program", important: true);
+            }
+
+            if (Settings.SummarizeLog)
+            {
+                Console.WriteLine("{0} important/unusual log event(s) occurred in the last session", Log.ImportantEvents);
+                Console.WriteLine("Log file is available at: {0}", Log.LogPath);
+            }
+            
+            Console.ResetColor();
             Environment.Exit(0);
         }
 

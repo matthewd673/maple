@@ -78,7 +78,7 @@ namespace maple
 
             if (consoleHandle.IsInvalid)
             {
-                Log.Write("Failed to create console handle", "printer");
+                Log.Write("Failed to create console handle", "printer", important: true);
                 PrintLineSimple("Printer failed to create console handle", Styler.ErrorColor);
                 Environment.Exit(1); //kinda temporary
                 return;
@@ -98,12 +98,12 @@ namespace maple
             return y * bufWidth + x;
         }
 
-        private static short GetAttribute(ConsoleColor foregroundColor, ConsoleColor backgroundColor)
+        private static short GetAttributeFromColor(ConsoleColor foregroundColor, ConsoleColor backgroundColor)
         {
-            return (short)((short)(GetAttribute(backgroundColor) << 4) | GetAttribute(foregroundColor));
+            return (short)((short)(GetAttributeFromColor(backgroundColor) << 4) | GetAttributeFromColor(foregroundColor));
         }
 
-        private static short GetAttribute(ConsoleColor color)
+        private static short GetAttributeFromColor(ConsoleColor color)
         {
             switch (color)
             {
@@ -143,6 +143,11 @@ namespace maple
             return 0x0000;
         }
 
+        public static short GetAttributeAtPosition(int x, int y)
+        {
+            return buf[GetBufferIndex(x, y)].Attributes;
+        }
+
         private static int GetBufferIndex(Cursor cursor)
         {
             return GetBufferIndex(cursor.SX, cursor.SY);
@@ -169,12 +174,16 @@ namespace maple
             rect = new SmallRect() { Left = 0, Top = 0, Right = bufWidth, Bottom = bufHeight };
         }
 
-        public static void PrintWord(String word, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
+        public static void PrintWord(string word, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
+        {
+            PrintWord(word, GetAttributeFromColor(foregroundColor, backgroundColor));
+        }
+
+        public static void PrintWord(string word, short attribute)
         {
             int index = GetBufferIndex(printerCursor);
 
             char[] wordChars = word.ToCharArray();
-            short attribute = GetAttribute(foregroundColor, backgroundColor);
 
             for (int i = index; i < index + word.Length; i++)
             {
@@ -185,23 +194,16 @@ namespace maple
             printerCursor.SX += word.Length;
         }
 
-        public static void PrintToken(Token token)
+        public static void PrintManually(char c, int sX, int sY, ConsoleColor foregroundColor, ConsoleColor backgroundColor)
         {
-            int index = GetBufferIndex(printerCursor);
-            for (int i = index; i < index + token.Text.Length; i++)
-            {
-                buf[i].Char.UnicodeChar = token.Text.ToCharArray()[i - index];
-                buf[i].Attributes = GetAttribute(token.Color);
-            }
-
-            printerCursor.SX += token.Text.Length;
+            PrintManually(c, sX, sY, GetAttributeFromColor(foregroundColor, backgroundColor));
         }
 
-        public static void PrintManually(char c, int sX, int sY, ConsoleColor foregroundColor, ConsoleColor backgroundColor)
+        public static void PrintManually(char c, int sX, int sY, short attribute)
         {
             int index = GetBufferIndex(sX, sY);
             buf[index].Char.UnicodeChar = c;
-            buf[index].Attributes = GetAttribute(foregroundColor, backgroundColor);
+            buf[index].Attributes = attribute;
         }
 
         public static void Clear()
@@ -254,14 +256,14 @@ namespace maple
             int index = GetBufferIndex(printerCursor);
 
             char[] textChars = text.ToCharArray();
-            short attribute = GetAttribute(foregroundColor);
+            short attribute = GetAttributeFromColor(foregroundColor);
 
             for (int i = index; i < index + text.Length; i++)
             {
                 if (i >= buf.Length) //overflow
                 {
                     buf[buf.Length - 1].Char.UnicodeChar = '…';
-                    buf[buf.Length - 1].Attributes = GetAttribute(ConsoleColor.Black, Styler.AccentColor);
+                    buf[buf.Length - 1].Attributes = GetAttributeFromColor(ConsoleColor.Black, Styler.AccentColor);
                     break;
                 }
 

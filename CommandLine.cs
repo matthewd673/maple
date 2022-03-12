@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 namespace maple
 {
@@ -15,9 +16,9 @@ namespace maple
         }
 
         public static string[] CommandMasterList { get; } = new string[] {
-            "help", "save", "load", "close", "cls", "top", "bot", "redraw",
-            "goto", "selectin", "selectout", "deselect", "readonly", "syntax",
-            "alias", "url"
+            "help", "save", "load", "new", "close", "cls", "top", "bot",
+            "redraw", "goto", "selectin", "selectout", "deselect", "readonly",
+            "syntax", "alias", "url"
             };
 
         public static String InputText { get; private set; } = "";
@@ -101,6 +102,9 @@ namespace maple
                 case "load":
                     LoadCommand(commandArgs, commandSwitches);
                     break;
+                case "new":
+                    NewCommand(commandArgs, commandSwitches);
+                    break;
                 case "close":
                     CloseCommand();
                     break;
@@ -170,13 +174,16 @@ namespace maple
                     SetOutput("'help [command]' or 'help all'", "help");
                     break;
                 case "all":
-                    SetOutput("save, load, close, cls, top, bot, redraw, goto, selectin, selectout, readonly, syntax, alias, url", "help");
+                    SetOutput("save, load, new, close, cls, top, bot, redraw, goto, selectin, selectout, readonly, syntax, alias, url", "help");
                     break;
                 case "save":
                     SetOutput("save [optional filename]: save document to filename", "help");
                     break;
                 case "load":
                     SetOutput("load [filename]: load document at filename", "help");
+                    break;
+                case "new":
+                    SetOutput("new [filename]: create a new document at filename", "help");
                     break;
                 case "close":
                     SetOutput("close: close maple without saving", "help");
@@ -254,7 +261,34 @@ namespace maple
                 filepath = filepath.Trim('\"');
 
             //initialize new editor
-            Editor.Initialize(filepath);
+            if (File.Exists(Document.ProcessFilepath(filepath)))
+                Editor.Initialize(filepath);
+            else
+                SetOutput(String.Format("File '{0}' doesn't exist, use 'new' to create a new file", filepath), "load", OutputType.Error);
+        }
+
+        static void NewCommand(List<String> args, List<String> switches)
+        {
+            if (args.Count < 1)
+            {
+                SetOutput("No filepath provided", "new", oType: OutputType.Error);
+                return;
+            }
+
+            String filepath = args[0];
+            //trim quotes if it was in a block
+            if(filepath.StartsWith("\""))
+                filepath = filepath.Trim('\"');
+
+            //initialize new editor
+            if (File.Exists(Document.ProcessFilepath(filepath)))
+                SetOutput(String.Format("File '{0}' already exists, use 'load' to load an existing file", filepath), "new", OutputType.Error);
+            else
+            {
+                Editor.Initialize(filepath);
+                SetOutput(String.Format("Created a new file at '{0}'", filepath), "new", OutputType.Success);
+            }
+        
         }
 
         static void CloseCommand()
@@ -420,7 +454,7 @@ namespace maple
             catch (Exception e)
             {
                 SetOutput("Failed to launch browser process", "url", OutputType.Error);
-                Log.Write("URL command failed: " + e.Message, "commandline/url");
+                Log.Write("URL command failed: " + e.Message, "commandline/url", important: true);
                 Log.Write("...was attempting to navigate to " + hoveredToken.Text, "commandline/url");
             }
         }

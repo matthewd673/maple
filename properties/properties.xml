@@ -8,6 +8,7 @@
     <property name="deleteEntireTabs">True</property>
     <property name="readonly">False</property>
     <property name="enableLogging">True</property>
+    <property name="summarizeLog">False</property>
     <!--Arguments-->
     <property name="themeDirectory">{mapledir}\themes</property>
     <property name="themeFile">maple.xml</property>

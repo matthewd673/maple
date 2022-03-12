@@ -27,7 +27,7 @@ namespace maple
 
             if(!File.Exists(syntaxPath))
             {
-                Log.Write("Syntax path doesn't exist at '" + syntaxPath + "', enabling NoHighlight", "lexer");
+                Log.Write("Syntax path doesn't exist at '" + syntaxPath + "', enabling NoHighlight", "lexer", important: true);
                 Settings.NoHighlight = true;
                 return;
             }
@@ -39,7 +39,7 @@ namespace maple
             catch (Exception e)
             {
                 CommandLine.SetOutput("Encountered an exception while loading syntax XML", "internal", oType: CommandLine.OutputType.Error);
-                Log.Write("Encountered exception while loading syntax XML: " + e.Message, "lexer");
+                Log.Write("Encountered exception while loading syntax XML: " + e.Message, "lexer", important: true);
                 return;
             }
             
