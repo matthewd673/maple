@@ -15,7 +15,8 @@ namespace maple
 
         public static string[] CommandMasterList { get; } = new string[] {
             "help", "save", "load", "close", "cls", "top", "bot", "redraw",
-            "goto", "selectin", "selectout", "deselect", "readonly", "syntax"
+            "goto", "selectin", "selectout", "deselect", "readonly", "syntax",
+            "alias"
             };
 
         public static String InputText { get; private set; } = "";
@@ -132,6 +133,9 @@ namespace maple
                 case "syntax":
                     SyntaxCommand(commandArgs, commandSwitches);
                     break;
+                case "alias":
+                    AliasCommand(commandArgs, commandSwitches);
+                    break;
                 default:
                     UnknownCommand();
                     break;
@@ -162,7 +166,7 @@ namespace maple
                     SetOutput("'help [command]' or 'help all'", "help");
                     break;
                 case "all":
-                    SetOutput("save, load, close, cls, top, bot, redraw, goto, selectin, selectout, readonly, syntax", "help");
+                    SetOutput("save, load, close, cls, top, bot, redraw, goto, selectin, selectout, readonly, syntax, alias", "help");
                     break;
                 case "save":
                     SetOutput("save [optional filename]: save document to filename", "help");
@@ -202,6 +206,9 @@ namespace maple
                     break;
                 case "syntax":
                     SetOutput("syntax [extension]: render the current file with the syntax rules defined for [extension] files", "help");
+                    break;
+                case "alias":
+                    SetOutput("alias [command]: view all aliases for a given command", "help");
                     break;
                 default:
                     UnknownCommand();
@@ -340,6 +347,51 @@ namespace maple
             Printer.Clear();
             Editor.RefreshAllLines();
             Editor.RedrawLines();
+        }
+
+        static void AliasCommand(List<String> args, List<String> switches)
+        {
+            if (args.Count < 1)
+            {
+                SetOutput("No command provided", "alias", oType: OutputType.Error);
+                return;
+            }
+
+            //it may be an alias, though that isn't what this command is really for
+            if (Settings.Aliases.ContainsKey(args[0]))
+            {
+                SetOutput(String.Format("'{0}' is an alias for '{1}'", args[0], Settings.Aliases[args[0]]), "alias");
+                return;
+            }
+
+            //it must be a command, not an alias
+            if (!Settings.Aliases.ContainsValue(args[0]))
+            {
+                SetOutput(String.Format("'{0}' does not have any aliases", args[0]), "alias");
+                return;
+            }
+
+            List<string> commandAliases = new List<string>();
+            foreach (string k in Settings.Aliases.Keys)
+            {
+                if (Settings.Aliases[k].Equals(args[0]))
+                    commandAliases.Add(k);
+            }
+
+            string output = String.Format("{0} has {1} ", args[0], commandAliases.Count);
+            if (commandAliases.Count == 1)
+                output += "alias: ";
+            else
+                output += "aliases: ";
+            
+            for (int i = 0; i < commandAliases.Count; i++)
+            {
+                output += "'" + commandAliases[i] + "'";
+                if (i < commandAliases.Count - 1)
+                    output += ", ";
+            }
+
+            SetOutput(output, "alias");
         }
 
         static void UnknownCommand()
