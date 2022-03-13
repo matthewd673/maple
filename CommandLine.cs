@@ -18,13 +18,13 @@ namespace maple
         public static string[] CommandMasterList { get; } = new string[] {
             "help", "save", "load", "new", "close", "cls", "top", "bot",
             "redraw", "goto", "selectin", "selectout", "deselect", "readonly",
-            "syntax", "alias", "url"
+            "syntax", "alias", "url", "find"
             };
 
-        public static String InputText { get; private set; } = "";
+        public static string InputText { get; private set; } = "";
 
-        private static String _outputText = "";
-        public static String OutputText
+        private static string _outputText = "";
+        public static string OutputText
         {
             get { return _outputText; }
             set { _outputText = value; HasOutput = true; }
@@ -33,7 +33,16 @@ namespace maple
 
         public static bool HasOutput { get; private set; } = false;
 
-        public static bool AddText(int pos, String text)
+        public static List<string> CommandHistory { get; private set; } = new List<string>();
+        public static int CommandHistoryIndex { get; set; } = -1;
+
+        private static string lastFindSearch = "";
+        private static int lastFindIndex = -1;
+        private static bool lastFindLast = false;
+        private static bool lastFindUpwards = false;
+        private static bool lastFindCaseSensitive = false;
+
+        public static bool AddText(int pos, string text)
         {
             if(pos < 0 || pos > InputText.Length)
                 return false;
@@ -56,7 +65,7 @@ namespace maple
             return (x >= 0 && x < InputText.Length);
         }
 
-        public static void SetOutput(String text, String speaker, OutputType oType = OutputType.Info)
+        public static void SetOutput(string text, string speaker, OutputType oType = OutputType.Info)
         {
             OutputText = String.Format("[{0}]: {1}", speaker, text);
             OType = oType;
@@ -81,11 +90,15 @@ namespace maple
             if(HasOutput) //output is being displayed, reset for the future
                 ClearOutput();
 
+            CommandHistoryIndex = -1; //reset command history index
+            if (CommandHistory.Count == 0 || !CommandHistory[CommandHistory.Count - 1].Equals(InputText))
+                CommandHistory.Insert(0, InputText);
+
             CommandParser.CommandInfo commandInfo = CommandParser.Parse(InputText);
 
-            String primaryCommand = commandInfo.PrimaryCommand;
-            List<String> commandArgs = commandInfo.Args;
-            List<String> commandSwitches = commandInfo.Switches;
+            string primaryCommand = commandInfo.PrimaryCommand;
+            List<string> commandArgs = commandInfo.Args;
+            List<string> commandSwitches = commandInfo.Switches;
 
             //swap out alias with actual primary command
             if (Settings.Aliases.ContainsKey(primaryCommand))
@@ -144,6 +157,9 @@ namespace maple
                 case "url":
                     UrlCommand();
                     break;
+                case "find":
+                    FindCommand(commandArgs, commandSwitches);
+                    break;
                 default:
                     UnknownCommand();
                     break;
@@ -154,7 +170,7 @@ namespace maple
             Input.ToggleInputTarget();
         }
 
-        static void HelpCommand(List<String> args, List<String> switches)
+        static void HelpCommand(List<string> args, List<string> switches)
         {
             if (args.Count < 1)
             {
@@ -174,7 +190,7 @@ namespace maple
                     SetOutput("'help [command]' or 'help all'", "help");
                     break;
                 case "all":
-                    SetOutput("save, load, new, close, cls, top, bot, redraw, goto, selectin, selectout, readonly, syntax, alias, url", "help");
+                    SetOutput("save, load, new, close, cls, top, bot, redraw, goto, find, selectin, selectout, readonly, syntax, alias, url", "help");
                     break;
                 case "save":
                     SetOutput("save [optional filename]: save document to filename", "help");
@@ -224,22 +240,25 @@ namespace maple
                 case "url":
                     SetOutput("url: if the cursor is currently hovered on a url, open it in the browser", "help");
                     break;
+                case "find":
+                    SetOutput("find [query] [switches]: find the next occurrence of the search phrase, starting from the top", "help");
+                    break;
                 default:
                     UnknownCommand();
                     break;
             }
         }
 
-        static void SaveCommand(List<String> args, List<String> switches)
+        static void SaveCommand(List<string> args, List<string> switches)
         {
-            String savePath = Editor.DocCursor.Doc.Filepath;
+            string savePath = Editor.DocCursor.Doc.Filepath;
             if(args.Count > 0)
                 savePath = args[0];
             savePath = savePath.Trim('\"');
 
             Editor.DocCursor.Doc.SaveDocument(savePath);
 
-            String existingPath = Editor.DocCursor.Doc.Filepath;
+            string existingPath = Editor.DocCursor.Doc.Filepath;
 
             if(savePath != existingPath)
                 SetOutput(String.Format("Copy of file saved to {0}", savePath), "save");
@@ -247,7 +266,7 @@ namespace maple
                 SetOutput(String.Format("File saved to {0}", savePath), "save");
         }
 
-        static void LoadCommand(List<String> args, List<String> switches)
+        static void LoadCommand(List<string> args, List<string> switches)
         {
             if(args.Count < 1)
             {
@@ -255,7 +274,7 @@ namespace maple
                 return;
             }
 
-            String filepath = args[0];
+            string filepath = args[0];
             //trim quotes if it was in a block
             if(filepath.StartsWith("\""))
                 filepath = filepath.Trim('\"');
@@ -267,7 +286,7 @@ namespace maple
                 SetOutput(String.Format("File '{0}' doesn't exist, use 'new' to create a new file", filepath), "load", OutputType.Error);
         }
 
-        static void NewCommand(List<String> args, List<String> switches)
+        static void NewCommand(List<string> args, List<string> switches)
         {
             if (args.Count < 1)
             {
@@ -275,7 +294,7 @@ namespace maple
                 return;
             }
 
-            String filepath = args[0];
+            string filepath = args[0];
             //trim quotes if it was in a block
             if(filepath.StartsWith("\""))
                 filepath = filepath.Trim('\"');
@@ -345,7 +364,7 @@ namespace maple
                 Editor.RefreshAllLines();
         }
 
-        static void GotoCommand(List<String> args, List<String> switches)
+        static void GotoCommand(List<string> args, List<string> switches)
         {
             if (args.Count < 1)
             {
@@ -374,7 +393,7 @@ namespace maple
                 SetOutput("Editor is no longer readonly", "readonly");
         }
 
-        static void SyntaxCommand(List<String> args, List<String> switches)
+        static void SyntaxCommand(List<string> args, List<string> switches)
         {
             if (args.Count < 1)
             {
@@ -390,7 +409,7 @@ namespace maple
             Editor.RedrawLines();
         }
 
-        static void AliasCommand(List<String> args, List<String> switches)
+        static void AliasCommand(List<string> args, List<string> switches)
         {
             if (args.Count < 1)
             {
@@ -457,6 +476,116 @@ namespace maple
                 Log.Write("URL command failed: " + e.Message, "commandline/url", important: true);
                 Log.Write("...was attempting to navigate to " + hoveredToken.Text, "commandline/url");
             }
+        }
+
+        static void FindCommand(List<string> args, List<string> switches)
+        {
+            string search = "";
+            foreach (string a in args)
+                search += a + " ";
+            search = search.Trim();
+
+            bool findLast = (switches.Contains("--last") || switches.Contains("-l"));
+            // bool findFirstOverride = (switches.Contains("--first") || switches.Contains("-f"));
+            bool findUpwards = (switches.Contains("--up") || switches.Contains("-u"));
+            bool findCount = (switches.Contains("--count") || switches.Contains("-ct"));
+            bool findCaseSensitive = (switches.Contains("--case") || switches.Contains("-c"));
+
+            if (search.Equals("")) //default to the last search
+            {
+                if (lastFindSearch.Equals("")) //there is no last search
+                {
+                    SetOutput("No query provided", "find", OutputType.Error);
+                    return;
+                }
+                else
+                {
+                    search = lastFindSearch;
+                    if (!findLast) findLast = lastFindLast;
+                    if (!findUpwards) findUpwards = lastFindUpwards;
+                    if (!findCaseSensitive) findCaseSensitive = lastFindCaseSensitive;
+                }
+            }
+            else //update last search if search wasn't blank
+            {
+                lastFindSearch = search;
+                lastFindIndex = -1;
+                lastFindLast = findLast;
+                lastFindUpwards = findUpwards;
+                lastFindCaseSensitive = findCaseSensitive;
+            }
+
+            //search all lines of document and find all indexes
+            List<Point> indexes = new List<Point>();
+            int i = 0;
+            foreach (string l in Editor.GetCurrentDoc().GetAllLines())
+            {
+                i++;
+                int lastIndex = -1;
+
+                string caseSearch = search;
+                string caseL = l;
+                if (!findCaseSensitive)
+                {
+                    caseSearch = caseSearch.ToLower();
+                    caseL = caseL.ToLower();
+                }
+
+                while (true)
+                {
+
+                    int nextIndex = caseL.IndexOf(caseSearch, (lastIndex == -1)? 0 : lastIndex );
+                    if (nextIndex == lastIndex)
+                        break;
+
+                    Log.Write(nextIndex + " on line " + i, "commandline/find");
+                    indexes.Add(new Point(nextIndex, i - 1));
+                    lastIndex = nextIndex;
+                }
+            }
+
+            //count and then stop, if selected
+            if (findCount)
+            {
+                string template = "There are {0} occurrences of '{1}'";
+                if (indexes.Count == 1)
+                    template = "There is {0} occurrence of '{1}'";
+                SetOutput(String.Format(template, indexes.Count, search), "find");
+                return;
+            }
+
+            if (lastFindIndex == -1 && findLast)
+            {
+                lastFindIndex = indexes.Count - 1;
+                if (findUpwards)
+                    lastFindIndex++;
+            }
+
+            int findIndex = lastFindIndex;
+            
+            if (findUpwards)
+            {
+                findIndex--;
+                if (findIndex == 0) //about to wrap
+                    SetOutput("This is the first occurrence", "find");
+                //wrap
+                if (findIndex < 0)
+                    findIndex = indexes.Count - 1;
+            }
+            else
+            {
+                findIndex++;
+                if (findIndex == indexes.Count - 1) //about to wrap
+                    SetOutput("This is the final occurrence", "find");
+                //wrap
+                if (findIndex >= indexes.Count)
+                    findIndex = 0;
+            }
+
+            Editor.DocCursor.Move(indexes[findIndex].X, indexes[findIndex].Y);
+
+            lastFindIndex = findIndex;
+
         }
 
         static void UnknownCommand()

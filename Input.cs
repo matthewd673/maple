@@ -317,12 +317,36 @@ namespace maple
                         cmdCursor.Move(newRightX, 0);
                     break;
 
+                //HISTORY
+                case ConsoleKey.UpArrow:
+                    if (CommandLine.CommandHistoryIndex >= CommandLine.CommandHistory.Count - 1)
+                        break;
+                    CommandLine.CommandHistoryIndex++;
+                    CommandLine.ClearInput();
+                    CommandLine.AddText(0, CommandLine.CommandHistory[CommandLine.CommandHistoryIndex]);
+                    cmdCursor.Move(CommandLine.InputText.Length, 0);
+                    break;
+                case ConsoleKey.DownArrow:
+                    if (CommandLine.CommandHistoryIndex <= 0)
+                    {
+                        CommandLine.ClearInput();
+                        CommandLine.CommandHistoryIndex = -1;
+                        break;
+                    }
+                    CommandLine.CommandHistoryIndex--;
+                    CommandLine.ClearInput();
+                    CommandLine.AddText(0, CommandLine.CommandHistory[CommandLine.CommandHistoryIndex]);
+                    cmdCursor.Move(CommandLine.InputText.Length, 0);
+                    break;
+
                 //LINE MANIPULATION
                 case ConsoleKey.Backspace:
                     bool backspaceTriggered = CommandLine.RemoveText(cmdCursor.DX - 1);
                     
                     if(backspaceTriggered)
                         cmdCursor.Move(cmdCursor.DX - 1, 0);
+
+                    CommandLine.CommandHistoryIndex = -1; //break out of command history
                     break;
                 case ConsoleKey.Delete:
                     CommandLine.RemoveText(cmdCursor.DX);
@@ -334,6 +358,7 @@ namespace maple
                     break;
                 case ConsoleKey.Escape:
                     CommandLine.ClearInput();
+                    CommandLine.CommandHistoryIndex = -1;
                     ToggleInputTarget();
                     break;
                 
@@ -351,17 +376,17 @@ namespace maple
                     if(addedText)
                         Editor.CmdCursor.DX++;
 
+                    CommandLine.CommandHistoryIndex = -1; //break out of command history
+
                     break;
             }
         }
 
         public static void ToggleInputTarget()
         {
-            // Editor.FullRefreshFooter(); //footer will always need to be refreshed
             Editor.PrintFooter();
             if(CurrentTarget == InputTarget.Document)
             {
-                // Editor.FullRefreshFooter(); //why do it twice? who knows, but you need to
                 //check if there is command output to be cleared
                 if(!CommandLine.OutputText.Equals("") && !Settings.QuickCli)
                     CommandLine.ClearOutput(); //there is output, clear it

@@ -13,4 +13,6 @@
     <alias command="goto">g</alias>
     <alias command="goto">line</alias>
     <alias command="redraw">resize</alias>
+    <alias command="close">quit</alias>
+    <alias command="find">f</alias>
 </xml>

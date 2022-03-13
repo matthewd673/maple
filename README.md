@@ -44,6 +44,14 @@ Execute commands from within maple by toggling to command input with the <kbd>es
 
 **`goto [line number]`:** move the cursor to the given line
 
+**`find [query] [switches]`:** search the document for a given word/phrase
+  * The query can contain spaces without surrounding it in quotes
+  * Run `find` to continue searching with the previous parameters
+  * **`--last`/`-l`:** start at the last occurrence
+  * **`--up`/`-u`:** step upwards through the occurrences
+  * **`--count`/`-ct`:** return the number of occurrences
+  * **`--case`/`-c`:** case sensitive search
+
 **`cls`:** clear previous command output
 
 **`selectin`:** mark the beginning of a selection
