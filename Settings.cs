@@ -174,7 +174,7 @@ namespace maple
             }
         }
 
-        static bool IsTrue(string value)
+        public static bool IsTrue(string value)
         {
             return value.Equals("true") | value.Equals("t") | value.Equals("1");
         }

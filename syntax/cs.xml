@@ -5,11 +5,11 @@
     <syntax type="alphabetical">(\w+[0-9]*\w*)</syntax>
     <syntax type="break">( |;|,)</syntax>
     <syntax type="grouping">(\(|\)|\{|\}|\[|\])</syntax>
-    <syntax type="stringLiteral">&quot;.*&quot;</syntax>
-    <syntax type="characterLiteral">&apos;.?&apos;</syntax>
+    <syntax type="stringLiteral">((?&lt;![\\])\")((?:.(?!(?&lt;![\\])\1))*.?)\1</syntax>
+    <syntax type="characterLiteral">((?&lt;![\\])')((?:.(?!(?&lt;![\\])\1))*.?)\1</syntax>
     <syntax type="comment">(\/\/.*)</syntax>
     <syntax type="operator">(\+|\-|\*|((?&lt;!\/)\/(?!\/))|\=|\%|\&gt;|\&lt;|\||\&amp;|\!)</syntax>
-    <syntax type="url">http(s{0,1}):\/\/[0-9a-zA-Z\.\-_~\/\?=&%]+</syntax>
+    <syntax type="url">http(s{0,1}):\/\/[0-9a-zA-Z\.\-_~\/\?=&amp;%]+</syntax>
     <!--Keywords-->
     <keywords>
         <keyword>abstract</keyword>

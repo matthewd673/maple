@@ -49,21 +49,26 @@ namespace maple
             {
                 string type = "";
                 string value = "";
+                bool insensitive = false;
                 foreach(XmlAttribute a in node.Attributes)
                 {
-                    if(a.Name.ToLower() != "type")
-                        return;
-
-                    type = a.Value.ToLower();
+                    if(a.Name.ToLower().Equals("type"))
+                        type = a.Value.ToLower();
+                    if(a.Name.ToLower().Equals("insensitive"))
+                        insensitive = Settings.IsTrue(a.Value);
                 }
                 value = node.InnerText.ToLower();
 
+                RegexOptions options = RegexOptions.None;
+                if (insensitive)
+                    options = options | RegexOptions.IgnoreCase;
+
                 if (type.Equals("stringliteral")) //always prioritize stringliteral since it sometimes conflicts
-                    rules.Add(new LexerRule(Token.TokenType.StringLiteral, value));
+                    rules.Add(new LexerRule(Token.TokenType.StringLiteral, value, options));
                 if (type.Equals("url"))
-                    rules.Add(new LexerRule(Token.TokenType.Url, value));
+                    rules.Add(new LexerRule(Token.TokenType.Url, value, options));
                 else
-                    rules.Insert(0, new LexerRule(GetTokenTypeFromRuleName(type), value));
+                    rules.Insert(0, new LexerRule(GetTokenTypeFromRuleName(type), value, options));
             }
 
             Log.Write("Loaded " + rules.Count + " lexer rules", "lexer");
@@ -131,8 +136,11 @@ namespace maple
                     }
 
                     //there is a match, but it isn't at index 0
-                    nearestMatch = firstMatch;
-                    nearestMatchRuleType = rule.TType;
+                    if (nearestMatch == null || firstMatch.Index < nearestMatch.Index)
+                    {
+                        nearestMatch = firstMatch;
+                        nearestMatchRuleType = rule.TType;
+                    }
                 }
 
                 //all rules have been checked
@@ -237,10 +245,10 @@ namespace maple
             /// </summary>
             /// <param name="name">The name of the pattern.</param>
             /// <param name="pattern">The RegEx pattern to search.</param>
-            public LexerRule(Token.TokenType tType, string pattern)
+            public LexerRule(Token.TokenType tType, string pattern, RegexOptions options = RegexOptions.None)
             {
                 TType = tType;
-                Pattern = new Regex(pattern);
+                Pattern = new Regex(pattern, options | RegexOptions.Compiled);
             }
         }
 
