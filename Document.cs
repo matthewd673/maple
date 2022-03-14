@@ -306,6 +306,7 @@ namespace maple
             else //debug printing:
             {
                 int totalLength = 0;
+                Token hovered = null;
                 foreach(Token t in l.Tokens)
                 {
                     if(totalLength != -1)
@@ -314,10 +315,16 @@ namespace maple
                     {
                         totalLength = -1;
                         Printer.PrintWord(t.Text, foregroundColor: ConsoleColor.Black, backgroundColor: ConsoleColor.Yellow);
-                        Console.Title = t.Text + ": " + t.TType;
+                        hovered = t;
                     }
                     else
                         Printer.PrintWord(t.Text, foregroundColor: t.Color);
+                }
+
+                if (hovered != null)
+                {
+                    Settings.QuickCli = true; //workaround for handling constant outputs
+                    CommandLine.SetOutput(String.Format("({0},{1}) {2}, '{3}'", Editor.DocCursor.DX, Editor.DocCursor.DY, hovered.TType, hovered.Text), "tdebug");
                 }
             }
         }

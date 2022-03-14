@@ -47,11 +47,17 @@ namespace maple
                     if (doc.HasSelection()) break;
                     docCursor.MoveUp();
                     docCursor.Move(maxCursorX, docCursor.DY); //attempt to move to max x position
+                    //for debugtokens
+                    if (Settings.DebugTokens && docCursor.DY + 1 <= doc.GetMaxLine())
+                        Editor.RefreshLine(docCursor.DY + 1);
                     break;
                 case ConsoleKey.DownArrow:
                     if (doc.HasSelection()) break;
                     docCursor.MoveDown();
                     docCursor.Move(maxCursorX, docCursor.DY); //attempt to move to max x position
+                    //for debugtokens
+                    if (Settings.DebugTokens && docCursor.DY - 1 >= 0)
+                        Editor.RefreshLine(docCursor.DY - 1);
                     break;
                 case ConsoleKey.LeftArrow:
                     if (doc.HasSelection()) break;

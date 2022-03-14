@@ -106,7 +106,7 @@ namespace maple
         /// </summary>
         public static void RefreshAllLines()
         {
-            for(int i = 0; i < GetCurrentDoc().GetMaxLine() + 1; i++)
+            for(int i = 0; i <= GetCurrentDoc().GetMaxLine(); i++)
                 refreshedLines.Add(i);
             fullClearNext = true;
         }
@@ -134,9 +134,9 @@ namespace maple
         public static void PrintFooter()
         {
             //generate footer string
-            if(!CommandLine.HasOutput) //print normal footer if there isn't any command output
+            if (Input.CurrentTarget == Input.InputTarget.Document)
             {
-                if (Input.CurrentTarget == Input.InputTarget.Document) //render default footer
+                if (!CommandLine.HasOutput)
                 {
                     //draw piece by piece
                     Printer.ClearFooter();
@@ -161,35 +161,35 @@ namespace maple
                     Printer.ClearRight();
                     Printer.ApplyBuffer();
                 }
-                else if (Input.CurrentTarget == Input.InputTarget.Command) //render input footer
+                else
                 {
-                    Printer.ClearFooter();
-                    Printer.WriteToFooter("maple: ", x: 0, foregroundColor: Styler.AccentColor);
-                    if (Settings.CliNoHighlight)
-                        Printer.WriteToFooter(CommandLine.InputText, x: Styler.VanityFooter.Length + 2, Styler.CliInputDefaultColor);
-                    else
+                    ConsoleColor outputColor = Styler.CliOutputInfoColor;
+                    switch (CommandLine.OType)
                     {
-                        Token[] cliTokens = Lexer.TokenizeCommandLine(CommandLine.InputText);
-                        Printer.MoveCursor(Styler.VanityFooter.Length + 2, Cursor.MaxScreenY);
-                        
-                        for (int i = 0; i < cliTokens.Length; i++)
-                            Printer.WriteToFooter(cliTokens[i].Text, foregroundColor: cliTokens[i].Color);                        
+                        case CommandLine.OutputType.Error:
+                            outputColor = Styler.CliOutputErrorColor;
+                            break;
+                        case CommandLine.OutputType.Success:
+                            outputColor = Styler.CliOutputSuccessColor;
+                            break;
                     }
+                    Printer.DrawFooter(CommandLine.OutputText, foregroundColor: outputColor, backgroundColor: ConsoleColor.Black);
                 }
             }
-            else //render output footer (TODO: don't keep reprinting the output)
-            {                
-                ConsoleColor outputColor = Styler.CliOutputInfoColor;
-                switch (CommandLine.OType)
+            else if (Input.CurrentTarget == Input.InputTarget.Command)
+            {
+                Printer.ClearFooter();
+                Printer.WriteToFooter("maple: ", x: 0, foregroundColor: Styler.AccentColor);
+                if (Settings.CliNoHighlight)
+                    Printer.WriteToFooter(CommandLine.InputText, x: Styler.VanityFooter.Length + 2, Styler.CliInputDefaultColor);
+                else
                 {
-                    case CommandLine.OutputType.Error:
-                        outputColor = Styler.CliOutputErrorColor;
-                        break;
-                    case CommandLine.OutputType.Success:
-                        outputColor = Styler.CliOutputSuccessColor;
-                        break;
+                    Token[] cliTokens = Lexer.TokenizeCommandLine(CommandLine.InputText);
+                    Printer.MoveCursor(Styler.VanityFooter.Length + 2, Cursor.MaxScreenY);
+                    
+                    for (int i = 0; i < cliTokens.Length; i++)
+                        Printer.WriteToFooter(cliTokens[i].Text, foregroundColor: cliTokens[i].Color);                        
                 }
-                Printer.DrawFooter(CommandLine.OutputText, foregroundColor: outputColor, backgroundColor: ConsoleColor.Black);
             }
 
             Printer.ApplyBuffer();
