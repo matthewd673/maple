@@ -136,10 +136,15 @@ namespace maple
 
             if (Settings.SummarizeLog)
             {
+                Console.ForegroundColor = ConsoleColor.Cyan;
                 if (Settings.EnableLogging)
                     Console.WriteLine("{0} important/unusual log event(s) occurred in the last session", Log.ImportantEvents);
                 else
                     Console.WriteLine("Logging was disabled during this session; however, an empty log file still exists");
+                #if DEBUG
+                    Console.WriteLine("The last session was run in a debugger, {0} additional event(s) are available", Log.DebugEvents);
+                #endif
+                Console.ResetColor();
                 Console.WriteLine("Log file is available at: {0}", Log.LogPath);
             }
             

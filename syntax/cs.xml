@@ -1,7 +1,7 @@
 <xml>
     <!--Highlighting RegEx-->
     <syntax type="numberLiteral">(\d+\.?\d*f?)</syntax>
-    <syntax type="alphabetical" insensitive="true">[a-z]+[a-z0-9\.]*</syntax>
+    <syntax type="alphabetical" insensitive="true">[a-z]+[a-z0-9]*</syntax>
     <syntax type="booleanLiteral">(true|false)</syntax>
     <syntax type="break">( |;|,)</syntax>
     <syntax type="grouping">(\(|\)|\{|\}|\[|\])</syntax>
@@ -10,6 +10,7 @@
     <syntax type="comment">(\/\/.*)</syntax>
     <syntax type="operator">(\+|\-|\*|((?&lt;!\/)\/(?!\/))|\=|\%|\&gt;|\&lt;|\||\&amp;|\!)</syntax>
     <syntax type="url" insensitive="true">http(s{0,1}):\/\/[0-9a-z\.\-_~\/\?=&amp;%]+</syntax>
+    <syntax type="function" insensitive="true">[a-z]+[a-z0-9]*(?=\()</syntax>
     <!--Keywords-->
     <keywords>
         <keyword>abstract</keyword>

@@ -234,6 +234,8 @@ namespace maple
                     return Token.TokenType.Operator;
                 case "url":
                     return Token.TokenType.Url;
+                case "function":
+                    return Token.TokenType.Function;
                 case "keyword":
                     return Token.TokenType.Keyword;
                 default:

@@ -12,7 +12,6 @@ namespace maple
             Break,
             Alphabetical,
             Keyword,
-            Function,
             NumberLiteral,
             StringLiteral,
             CharLiteral,
@@ -21,6 +20,7 @@ namespace maple
             Grouping,
             Operator,
             Url,
+            Function,
             //for cli lexer
             CliCommandValid,
             CliCommandInvalid,
@@ -36,7 +36,6 @@ namespace maple
         }
         public String Text { get; private set; }
         public ConsoleColor Color { get; private set; } = ConsoleColor.Gray;
-        public string ColorCode = "\u001b[95m"; //magenta if error
 
         public Token(String text, TokenType tokenType)
         {
@@ -67,6 +66,8 @@ namespace maple
                     Color = Styler.OperatorColor; break;
                 case TokenType.Url:
                     Color = Styler.UrlColor; break;
+                case TokenType.Function:
+                    Color = Styler.FunctionColor; break;
                 case TokenType.CliCommandValid:
                     Color = Styler.CliCommandValidColor; break;
                 case TokenType.CliCommandInvalid:
@@ -77,35 +78,6 @@ namespace maple
                     Color = Styler.CliStringColor; break;
                 default:
                     Color = Styler.TextColor; break;
-            }
-            ColorCode = "\u001b[" + ConsoleColorToCode(Color) + "m";
-        }
-
-        //TEMPORARY, INCOMPLETE
-        static string ConsoleColorToCode(ConsoleColor color)
-        {
-            switch (color)
-            {
-                case ConsoleColor.Black:
-                    return "30";
-                case ConsoleColor.Red:
-                    return "31";
-                case ConsoleColor.Green:
-                    return "32";
-                case ConsoleColor.Yellow:
-                    return "33";
-                case ConsoleColor.Blue:
-                    return "34";
-                case ConsoleColor.Magenta:
-                    return "35";
-                case ConsoleColor.Cyan:
-                    return "36";
-                case ConsoleColor.White:
-                    return "97";
-                case ConsoleColor.Gray:
-                    return "37";
-                default:
-                    return "37";
             }
         }
     }

@@ -9,6 +9,7 @@ namespace maple
         public static string LogPath { get; private set; }
 
         public static int ImportantEvents { get; private set; } = 0;
+        public static int DebugEvents { get; private set; } = 0;
 
         public static void InitializeLogger()
         {
@@ -17,6 +18,9 @@ namespace maple
             LogPath = Settings.MapleDirectory + "\\log.txt";
             File.CreateText(LogPath).Close();
             Write("New logging session started at " + DateTime.Now.ToString("HH:mm:ss"), "logger");
+            #if DEBUG
+                Write("Maple is running under a debugger, additional events may be logged", "logger");
+            #endif
         }
 
         public static void Write(string text, string speaker, bool important = false)
@@ -35,7 +39,8 @@ namespace maple
         {
             if (!Settings.EnableLogging) return;
             #if DEBUG
-                File.AppendAllText(LogPath, String.Format("[DEBUG-{0}]: {1}\n", speaker, text));
+                File.AppendAllText(LogPath, String.Format("DEBUG [{0}]: {1}\n", speaker, text));
+                DebugEvents++;
             #endif
         }
     }

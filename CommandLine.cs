@@ -39,6 +39,7 @@ namespace maple
         private static string lastFindSearch = "";
         private static int lastFindIndex = -1;
         private static bool lastFindLast = false;
+        private static bool lastFindFirst = false;
         private static bool lastFindUpwards = false;
         private static bool lastFindCaseSensitive = false;
 
@@ -486,7 +487,7 @@ namespace maple
             search = search.Trim();
 
             bool findLast = (switches.Contains("--last") || switches.Contains("-l"));
-            // bool findFirstOverride = (switches.Contains("--first") || switches.Contains("-f"));
+            bool findFirst = (switches.Contains("--first") || switches.Contains("-f"));
             bool findUpwards = (switches.Contains("--up") || switches.Contains("-u"));
             bool findCount = (switches.Contains("--count") || switches.Contains("-ct"));
             bool findCaseSensitive = (switches.Contains("--case") || switches.Contains("-c"));
@@ -502,6 +503,7 @@ namespace maple
                 {
                     search = lastFindSearch;
                     if (!findLast) findLast = lastFindLast;
+                    if (!findFirst) findFirst = lastFindFirst;
                     if (!findUpwards) findUpwards = lastFindUpwards;
                     if (!findCaseSensitive) findCaseSensitive = lastFindCaseSensitive;
                 }
@@ -511,6 +513,7 @@ namespace maple
                 lastFindSearch = search;
                 lastFindIndex = -1;
                 lastFindLast = findLast;
+                lastFindFirst = findFirst;
                 lastFindUpwards = findUpwards;
                 lastFindCaseSensitive = findCaseSensitive;
             }
@@ -518,6 +521,7 @@ namespace maple
             //search all lines of document and find all indexes
             List<Point> indexes = new List<Point>();
             int i = 0;
+            int firstAfterCursor = -1;
             foreach (string l in Editor.GetCurrentDoc().GetAllLines())
             {
                 i++;
@@ -538,8 +542,15 @@ namespace maple
                     if (nextIndex == lastIndex)
                         break;
 
-                    Log.Write(nextIndex + " on line " + i, "commandline/find");
+                    // Log.Write(nextIndex + " on line " + i, "commandline/find");
                     indexes.Add(new Point(nextIndex, i - 1));
+
+                    if (firstAfterCursor == -1 && 
+                        (i - 1 > Editor.DocCursor.DY ||
+                            (i - 1 == Editor.DocCursor.DY && nextIndex >= Editor.DocCursor.DX)
+                        ))
+                        firstAfterCursor = indexes.Count - 1;
+
                     lastIndex = nextIndex;
                 }
             }
@@ -554,9 +565,30 @@ namespace maple
                 return;
             }
 
+            //no results
+            if (indexes.Count == 0)
+            {
+                SetOutput(String.Format("There are 0 occurrences of '{0}'", search), "find");
+                return;
+            }
+
+            bool firstSearch = (lastFindIndex == -1);
+
             if (lastFindIndex == -1 && findLast)
             {
-                lastFindIndex = indexes.Count - 1;
+                lastFindIndex = indexes.Count - 2;
+                if (findUpwards)
+                    lastFindIndex += 2;
+            }
+            else if (lastFindIndex == -1 && findFirst)
+            {
+                lastFindIndex = -1;
+                if (findUpwards)
+                    lastFindIndex = 1;
+            }
+            else if (lastFindIndex == -1 && !findLast && !findFirst)
+            {
+                lastFindIndex = firstAfterCursor;
                 if (findUpwards)
                     lastFindIndex++;
             }
@@ -581,6 +613,11 @@ namespace maple
                 if (findIndex >= indexes.Count)
                     findIndex = 0;
             }
+
+            if (indexes.Count == 1)
+                SetOutput("This is the only occurrence", "find");
+
+            Log.WriteDebug("Find index: " + findIndex, "commandline/find");
 
             Editor.DocCursor.Move(indexes[findIndex].X, indexes[findIndex].Y);
 

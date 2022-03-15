@@ -14,8 +14,8 @@
     <color category="keyword">Yellow</color>
     <color category="comment">DarkGray</color>
     <color category="grouping">Gray</color>
-    <color category="operator">Red</color>
-    <color category="url">Blue</color>
+    <color category="operator">Cyan</color>
+    <color category="function">Red</color>
     <!--CLI Colors-->
     <color category="cliInputDefault">Yellow</color>
     <color category="cliOutputInfo">Cyan</color>

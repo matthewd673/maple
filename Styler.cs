@@ -27,6 +27,7 @@ namespace maple
         public static ConsoleColor GroupingColor { get; private set; } = ConsoleColor.White;
         public static ConsoleColor OperatorColor { get; private set; } = ConsoleColor.Red;
         public static ConsoleColor UrlColor { get; private set; } = ConsoleColor.Blue;
+        public static ConsoleColor FunctionColor { get; private set; } = ConsoleColor.DarkMagenta;
 
         //cli colors
         public static ConsoleColor CliInputDefaultColor { get; private set; } = ConsoleColor.Yellow;
@@ -120,6 +121,8 @@ namespace maple
                         OperatorColor = color; break;
                     case "url":
                         UrlColor = color; break;
+                    case "function":
+                        FunctionColor = color; break;
                     case "cliinputdefault":
                         CliInputDefaultColor = color; break;
                     case "clioutputinfo":
