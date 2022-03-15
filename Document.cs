@@ -45,17 +45,10 @@ namespace maple
                 {
                     string fileExtension = Path.GetExtension(filepath).Remove(0, 1);
                     fileExtension = fileExtension.TrimEnd(); //remove trailing whitespace
-                    if (File.Exists(Path.Combine(Settings.SyntaxDirectory, fileExtension + ".xml"))) //load lexer settings if they are available for this filetype
-                    {
-                        Log.Write("Loading lexer settings from '" + Settings.SyntaxDirectory + fileExtension + ".xml'", "document");
-                        Lexer.LoadSyntax(Settings.SyntaxDirectory + fileExtension + ".xml");
-                    }
-                    else
-                        Log.Write("Cannot load lexer settings, syntax file '" + Settings.SyntaxDirectory + fileExtension + ".xml' doesn't exist", "document", important: true);
+                    Lexer.LoadSyntax(Path.Combine(Settings.SyntaxDirectory, fileExtension + ".xml"));
                 }
-                else {
+                else
                     Log.Write("Loaded document is marked as internal", "document");
-                }
 
                 //apply scroll properties
                 CalculateScrollIncrement();

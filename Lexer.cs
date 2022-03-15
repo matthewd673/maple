@@ -27,9 +27,15 @@ namespace maple
 
             if(!File.Exists(syntaxPath))
             {
-                Log.Write("Syntax path doesn't exist at '" + syntaxPath + "', enabling NoHighlight", "lexer", important: true);
-                Settings.NoHighlight = true;
-                return;
+                Log.Write("Syntax path doesn't exist at '" + syntaxPath + "', falling back to default", "lexer");
+
+                //fallback to default
+                syntaxPath = Settings.SyntaxDirectory + "default.xml";
+                if (!File.Exists(syntaxPath))
+                {
+                    Log.Write("Default syntax file doesn't exist at '" + syntaxPath + "'", "lexer", important: true);
+                    return;
+                }                
             }
 
             try
