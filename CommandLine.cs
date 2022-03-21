@@ -18,7 +18,7 @@ namespace maple
         public static string[] CommandMasterList { get; } = new string[] {
             "help", "save", "load", "new", "close", "cls", "top", "bot",
             "redraw", "goto", "selectin", "selectout", "deselect", "readonly",
-            "syntax", "alias", "url", "find"
+            "syntax", "alias", "url", "find", "deindent"
             };
 
         public static string InputText { get; private set; } = "";
@@ -161,6 +161,9 @@ namespace maple
                 case "find":
                     FindCommand(commandArgs, commandSwitches);
                     break;
+                case "deindent":
+                    DeindentCommand();
+                    break;
                 default:
                     UnknownCommand();
                     break;
@@ -191,7 +194,7 @@ namespace maple
                     SetOutput("'help [command]' or 'help all'", "help");
                     break;
                 case "all":
-                    SetOutput("save, load, new, close, cls, top, bot, redraw, goto, find, selectin, selectout, readonly, syntax, alias, url", "help");
+                    SetOutput("save, load, new, close, cls, top, bot, redraw, goto, find, deindent, selectin, selectout, readonly, syntax, alias, url", "help");
                     break;
                 case "save":
                     SetOutput("save [optional filename]: save document to filename", "help");
@@ -243,6 +246,9 @@ namespace maple
                     break;
                 case "find":
                     SetOutput("find [query] [switches]: find the next occurrence of the search phrase, starting from the top", "help");
+                    break;
+                case "deindent":
+                    SetOutput("deindent: deintent the current line or selection", "help");
                     break;
                 default:
                     UnknownCommand();
@@ -345,22 +351,22 @@ namespace maple
 
         static void SelectInCommand()
         {
-            Editor.GetCurrentDoc().MarkSelectionIn(Editor.DocCursor.DX, Editor.DocCursor.DY);
-            if (Editor.GetCurrentDoc().HasSelection()) //only refresh if there is a complete selection
+            Editor.CurrentDoc.MarkSelectionIn(Editor.DocCursor.DX, Editor.DocCursor.DY);
+            if (Editor.CurrentDoc.HasSelection()) //only refresh if there is a complete selection
                 Editor.RefreshAllLines();
         }
 
         static void SelectOutCommand()
         {
-            Editor.GetCurrentDoc().MarkSelectionOut(Editor.DocCursor.DX, Editor.DocCursor.DY);
-            if (Editor.GetCurrentDoc().HasSelection()) //only refresh if there is a complete selection
+            Editor.CurrentDoc.MarkSelectionOut(Editor.DocCursor.DX, Editor.DocCursor.DY);
+            if (Editor.CurrentDoc.HasSelection()) //only refresh if there is a complete selection
                 Editor.RefreshAllLines();
         }
 
         static void DeselectCommand()
         {
-            bool hadSelection = Editor.GetCurrentDoc().HasSelection();
-            Editor.GetCurrentDoc().Deselect();
+            bool hadSelection = Editor.CurrentDoc.HasSelection();
+            Editor.CurrentDoc.Deselect();
             if (hadSelection)
                 Editor.RefreshAllLines();
         }
@@ -404,7 +410,7 @@ namespace maple
 
             Lexer.LoadSyntax(Settings.SyntaxDirectory + args[0] + ".xml");
 
-            Editor.GetCurrentDoc().ForceReTokenize();
+            Editor.CurrentDoc.ForceReTokenize();
             Printer.Clear();
             Editor.RefreshAllLines();
             Editor.RedrawLines();
@@ -457,7 +463,7 @@ namespace maple
 
         static void UrlCommand()
         {
-            Token hoveredToken = Editor.GetCurrentDoc().GetTokenAtPosition(Editor.DocCursor.DX, Editor.DocCursor.DY);
+            Token hoveredToken = Editor.CurrentDoc.GetTokenAtPosition(Editor.DocCursor.DX, Editor.DocCursor.DY);
             if (hoveredToken.TType != Token.TokenType.Url)
             {
                 SetOutput("Selected token isn't a valid URL", "url", OutputType.Error);
@@ -494,7 +500,7 @@ namespace maple
             
             bool forceFindHere = (switches.Contains("--here") || switches.Contains("-h"));
             if (forceFindHere) {
-                search = Editor.GetCurrentDoc().GetTokenAtPosition(Editor.DocCursor.DX, Editor.DocCursor.DY).Text;
+                search = Editor.CurrentDoc.GetTokenAtPosition(Editor.DocCursor.DX, Editor.DocCursor.DY).Text;
                 SetOutput(String.Format("Finding '{0}'", search), "find");
             }
 
@@ -532,7 +538,7 @@ namespace maple
             List<Point> indexes = new List<Point>();
             int i = 0;
             int firstAfterCursor = -1;
-            foreach (string l in Editor.GetCurrentDoc().GetAllLines())
+            foreach (string l in Editor.CurrentDoc.GetAllLines())
             {
                 i++;
                 int lastIndex = -1;
@@ -633,6 +639,43 @@ namespace maple
 
             lastFindIndex = findIndex;
 
+        }
+
+        static void DeindentCommand()
+        {
+            string tabString = "";
+            for (int i = 0; i < Settings.TabSpacesCount; i++)
+                tabString += " ";
+            
+            if (Editor.CurrentDoc.HasSelection())
+            {
+                for (int i = Editor.CurrentDoc.SelectInY; i <= Editor.CurrentDoc.SelectOutY; i++)
+                {
+                    if (Editor.CurrentDoc.GetLine(i).StartsWith(tabString))
+                    {
+                        Editor.CurrentDoc.SetLine(
+                            i,
+                            Editor.CurrentDoc.GetLine(i).Remove(0, Settings.TabSpacesCount)
+                        );
+                        if (i == Editor.CurrentDoc.SelectInY)
+                            Editor.CurrentDoc.MarkSelectionIn(Editor.CurrentDoc.SelectInX - Settings.TabSpacesCount, i);
+                        if (i == Editor.CurrentDoc.SelectOutY)
+                            Editor.CurrentDoc.MarkSelectionOut(Editor.CurrentDoc.SelectInX - Settings.TabSpacesCount, i);
+                    }
+                    Editor.RefreshLine(i);
+                }
+            }
+            else
+            {
+                if (Editor.CurrentDoc.GetLine(Editor.DocCursor.DY).StartsWith(tabString))
+                {
+                    Editor.CurrentDoc.SetLine(
+                            Editor.DocCursor.DY,
+                            Editor.CurrentDoc.GetLine(Editor.DocCursor.DY).Remove(0, Settings.TabSpacesCount)
+                        );
+                    Editor.RefreshLine(Editor.DocCursor.DY);
+                }
+            }
         }
 
         static void UnknownCommand()

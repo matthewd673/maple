@@ -15,4 +15,5 @@
     <alias command="redraw">resize</alias>
     <alias command="close">quit</alias>
     <alias command="find">f</alias>
+    <alias command="deindent">de</alias>
 </xml>

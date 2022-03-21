@@ -7,6 +7,7 @@ namespace maple
     {
         public static Cursor CmdCursor { get; private set; }
         public static DocumentCursor DocCursor { get; private set; }
+        public static Document CurrentDoc { get { return DocCursor.Doc; }}
         static List<int> refreshedLines = new List<int>();
         static bool fullClearNext = false;
         
@@ -94,8 +95,6 @@ namespace maple
             return DocCursor;
         }
 
-        public static Document GetCurrentDoc() { return DocCursor.Doc; }
-
         public static void RefreshLine(int lineIndex)
         {
             refreshedLines.Add(lineIndex);
@@ -106,7 +105,7 @@ namespace maple
         /// </summary>
         public static void RefreshAllLines()
         {
-            for(int i = 0; i <= GetCurrentDoc().GetMaxLine(); i++)
+            for(int i = 0; i <= CurrentDoc.GetMaxLine(); i++)
                 refreshedLines.Add(i);
             fullClearNext = true;
         }
@@ -119,10 +118,10 @@ namespace maple
             //redraw lines that have changed
             foreach(int lineIndex in refreshedLines)
             {
-                if(lineIndex <= GetCurrentDoc().GetMaxLine())
-                    GetCurrentDoc().PrintLine(lineIndex);
+                if(lineIndex <= CurrentDoc.GetMaxLine())
+                    CurrentDoc.PrintLine(lineIndex);
                 else
-                    Printer.ClearLine(lineIndex - GetCurrentDoc().ScrollY);
+                    Printer.ClearLine(lineIndex - CurrentDoc.ScrollY);
             }
 
             Printer.ApplyBuffer();
@@ -141,18 +140,18 @@ namespace maple
                     //draw piece by piece
                     Printer.ClearFooter();
                     string vanityString = String.Format("{0} ", Styler.VanityFooter);
-                    string filepathString = String.Format("{0} ", GetCurrentDoc().Filepath.TrimEnd());
+                    string filepathString = String.Format("{0} ", CurrentDoc.Filepath.TrimEnd());
                     Printer.WriteToFooter(vanityString, 0, Styler.AccentColor, ConsoleColor.Black); //write vanity prefix
                     Printer.WriteToFooter(filepathString, -1, Styler.TextColor, ConsoleColor.Black); //write doc name
                     dynamicFooterStartX = vanityString.Length + filepathString.Length;
 
                     Printer.WriteToFooter(String.Format("ln {0} col {1} ", (DocCursor.DY + 1), (DocCursor.DX + 1)), dynamicFooterStartX, Styler.AccentColor, ConsoleColor.Black); //writer cursor position
-                    if (GetCurrentDoc().HasSelection()) //write selection bounds (if has selection)
-                        Printer.WriteToFooter(String.Format("{0},{1} - {2},{3} ", (GetCurrentDoc().SelectInY + 1), (GetCurrentDoc().SelectInX + 1),
-                            (GetCurrentDoc().SelectOutY + 1), (GetCurrentDoc().SelectOutX + 1)),
+                    if (CurrentDoc.HasSelection()) //write selection bounds (if has selection)
+                        Printer.WriteToFooter(String.Format("{0},{1} - {2},{3} ", (CurrentDoc.SelectInY + 1), (CurrentDoc.SelectInX + 1),
+                            (CurrentDoc.SelectOutY + 1), (CurrentDoc.SelectOutX + 1)),
                             -1, Styler.SelectionColor, ConsoleColor.Black);
-                    else if (GetCurrentDoc().HasSelectionStart()) //write selection in as reminder
-                        Printer.WriteToFooter(String.Format("{0},{1} ...", (GetCurrentDoc().SelectInY + 1), (GetCurrentDoc().SelectInX + 1)),
+                    else if (CurrentDoc.HasSelectionStart()) //write selection in as reminder
+                        Printer.WriteToFooter(String.Format("{0},{1} ...", (CurrentDoc.SelectInY + 1), (CurrentDoc.SelectInX + 1)),
                             -1, Styler.SelectionColor, ConsoleColor.Black);
 
                     if (Input.ReadOnly)

@@ -57,9 +57,13 @@ Execute commands from within maple by toggling to command input with the <kbd>es
 
 **`cls`:** clear previous command output
 
+**`deindent`:** deindent the current line or selection
+
 **`selectin`:** mark the beginning of a selection
 
 **`selectout`:** mark the end of a selection
+
+**`deselect`:** deselect the current selection
 
 **`readonly`:** toggle editor readonly mode
 

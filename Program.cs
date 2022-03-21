@@ -128,10 +128,10 @@ namespace maple
             Console.ForegroundColor = Styler.AccentColor;
             Console.WriteLine("maple session ended");
 
-            if (Editor.GetCurrentDoc().GetAllLines().Count == 1 && Editor.GetCurrentDoc().GetLineLength(0) == 0 && Editor.GetCurrentDoc().NewlyCreated)
+            if (Editor.CurrentDoc.GetAllLines().Count == 1 && Editor.CurrentDoc.GetLineLength(0) == 0 && Editor.CurrentDoc.NewlyCreated)
             {
-                File.Delete(Editor.GetCurrentDoc().Filepath);
-                Log.Write("Cleaned empty, newly-created file '" + Editor.GetCurrentDoc().Filepath + "'", "program", important: true);
+                File.Delete(Editor.CurrentDoc.Filepath);
+                Log.Write("Cleaned empty, newly-created file '" + Editor.CurrentDoc.Filepath + "'", "program", important: true);
             }
 
             if (Settings.SummarizeLog)

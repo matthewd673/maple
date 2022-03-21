@@ -3,20 +3,33 @@
     <color category="text">Gray</color>
     <color category="accent">Cyan</color>
     <color category="error">Red</color>
-    <color category="commandInput">Cyan</color>
-    <color category="commandOutput">Yellow</color>
     <color category="gutter">DarkGray</color>
     <color category="selection">Blue</color>
     <!--Syntax Colors-->
     <color category="numberLiteral">Red</color>
     <color category="stringLiteral">Green</color>
-    <color category="characterLiteral">Yellow</color>
-    <color category="booleanLiteral">Red</color>
+    <color category="characterLiteral">Green</color>
+    <color category="booleanLiteral">Yellow</color>
+    <color category="hexLiteral">Red</color>
     <color category="variable">Gray</color>
     <color category="keyword">Cyan</color>
     <color category="comment">DarkGray</color>
     <color category="grouping">Gray</color>
     <color category="operator">Magenta</color>
+    <color category="function">Blue</color>
+    <!--CLI Colors-->
+    <color category="cliInputDefault">Cyan</color>
+    <color category="cliOutputInfo">Yellow</color>
+    <color category="cliOutputError">Red</color>
+    <color category="cliOutputSuccess">Green</color>
+    <color category="cliPrompt">Cyan</color>
+    <color category="cliCommandValid">Cyan</color>
+    <color category="cliCommandInvalid">Red</color>
+    <color category="cliSwitch">DarkGray</color>
+    <color category="cliString">Green</color>
     <!--Editor Customizations-->
     <string category="vanityFooter">maple</string>
+    <string category="gutterLeftPad">0</string>
+    <string category="gutterBarrier"></string>
+    <string category="overflowIndicator">…</string>
 </xml>
