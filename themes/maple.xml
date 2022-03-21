@@ -17,6 +17,7 @@
     <color category="grouping">Gray</color>
     <color category="operator">Cyan</color>
     <color category="function">Red</color>
+    <color category="specialChar">Cyan</color>
     <!--CLI Colors-->
     <color category="cliInputDefault">Yellow</color>
     <color category="cliOutputInfo">Cyan</color>

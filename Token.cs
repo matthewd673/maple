@@ -22,6 +22,7 @@ namespace maple
             Operator,
             Url,
             Function,
+            SpecialChar,
             //for cli lexer
             CliCommandValid,
             CliCommandInvalid,
@@ -33,7 +34,11 @@ namespace maple
         public TokenType TType
         {
             get { return _ttype; }
-            set { _ttype = value; ApplyColor(); }
+            set
+            {
+                _ttype = value;
+                Color = Styler.GetColor(value);
+            }
         }
         public String Text { get; private set; }
         public ConsoleColor Color { get; private set; } = ConsoleColor.Gray;
@@ -44,43 +49,40 @@ namespace maple
             this.TType = tokenType;
         }
 
-        public void ApplyColor()
+        public static TokenType StringToTokenType(string name)
         {
-            switch(TType)
+            switch (name)
             {
-                case TokenType.NumberLiteral:
-                    Color = Styler.NumberLiteralColor;
-                    break;
-                case TokenType.StringLiteral:
-                    Color = Styler.StringLiteralColor; break;
-                case TokenType.CharLiteral:
-                    Color = Styler.CharLiteralColor; break;
-                case TokenType.BooleanLiteral:
-                    Color = Styler.BooleanLiteralColor; break;
-                case TokenType.HexLiteral:
-                    Color = Styler.HexLiteralColor; break;
-                case TokenType.Keyword:
-                    Color = Styler.KeywordColor; break;
-                case TokenType.Comment:
-                    Color = Styler.CommentColor; break;
-                case TokenType.Grouping:
-                    Color = Styler.GroupingColor; break;
-                case TokenType.Operator:
-                    Color = Styler.OperatorColor; break;
-                case TokenType.Url:
-                    Color = Styler.UrlColor; break;
-                case TokenType.Function:
-                    Color = Styler.FunctionColor; break;
-                case TokenType.CliCommandValid:
-                    Color = Styler.CliCommandValidColor; break;
-                case TokenType.CliCommandInvalid:
-                    Color = Styler.CliCommandInvalidColor; break;
-                case TokenType.CliSwitch:
-                    Color = Styler.CliSwitchColor; break;
-                case TokenType.CliString:
-                    Color = Styler.CliStringColor; break;
+                case "numberliteral":
+                    return Token.TokenType.NumberLiteral;
+                case "alphabetical":
+                    return Token.TokenType.Alphabetical;
+                case "break":
+                    return Token.TokenType.Break;
+                case "grouping":
+                    return Token.TokenType.Grouping;
+                case "stringliteral":
+                    return Token.TokenType.StringLiteral;
+                case "characterliteral":
+                    return Token.TokenType.CharLiteral;
+                case "booleanliteral":
+                    return Token.TokenType.BooleanLiteral;
+                case "hexliteral":
+                    return Token.TokenType.HexLiteral;
+                case "comment":
+                    return Token.TokenType.Comment;
+                case "operator":
+                    return Token.TokenType.Operator;
+                case "url":
+                    return Token.TokenType.Url;
+                case "function":
+                    return Token.TokenType.Function;
+                case "keyword":
+                    return Token.TokenType.Keyword;
+                case "specialchar":
+                    return Token.TokenType.SpecialChar;
                 default:
-                    Color = Styler.TextColor; break;
+                    return Token.TokenType.None;
             }
         }
     }

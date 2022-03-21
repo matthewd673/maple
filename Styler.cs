@@ -9,26 +9,12 @@ namespace maple
     {
 
         //basic colors
-        public static ConsoleColor TextColor { get; private set; } = ConsoleColor.Gray;
+        public static ConsoleColor TextColor { get; private set; } = ConsoleColor.Gray; //default color
         public static ConsoleColor AccentColor { get; private set; } = ConsoleColor.Yellow;
         public static ConsoleColor HighlightColor { get; private set; } = ConsoleColor.Yellow;
         public static ConsoleColor ErrorColor { get; private set; } = ConsoleColor.Red;
         public static ConsoleColor GutterColor { get; private set; } = ConsoleColor.DarkGray;
         public static ConsoleColor SelectionColor { get; private set; } = ConsoleColor.Blue;
-
-        //syntax colors
-        public static ConsoleColor NumberLiteralColor { get; private set; } = ConsoleColor.Magenta;
-        public static ConsoleColor StringLiteralColor { get; private set; } = ConsoleColor.Green;
-        public static ConsoleColor CharLiteralColor { get; private set; } = ConsoleColor.DarkGreen;
-        public static ConsoleColor BooleanLiteralColor { get; private set; } = ConsoleColor.Blue;
-        public static ConsoleColor HexLiteralColor { get; private set; } = ConsoleColor.Magenta;
-        public static ConsoleColor VariableColor { get; private set; } = ConsoleColor.Gray;
-        public static ConsoleColor KeywordColor { get; private set; } = ConsoleColor.Yellow;
-        public static ConsoleColor CommentColor { get; private set; } = ConsoleColor.DarkGray;
-        public static ConsoleColor GroupingColor { get; private set; } = ConsoleColor.White;
-        public static ConsoleColor OperatorColor { get; private set; } = ConsoleColor.Red;
-        public static ConsoleColor UrlColor { get; private set; } = ConsoleColor.Blue;
-        public static ConsoleColor FunctionColor { get; private set; } = ConsoleColor.DarkMagenta;
 
         //cli colors
         public static ConsoleColor CliInputDefaultColor { get; private set; } = ConsoleColor.Yellow;
@@ -40,6 +26,8 @@ namespace maple
         public static ConsoleColor CliCommandInvalidColor { get; private set; } = ConsoleColor.Red;
         public static ConsoleColor CliSwitchColor { get; private set; } = ConsoleColor.DarkGray;
         public static ConsoleColor CliStringColor { get; private set; } = ConsoleColor.Green;
+
+        static Dictionary<Token.TokenType, ConsoleColor> tokenColors = new();
 
         //text customizations
         public static string VanityFooter { get; private set; } = "maple";
@@ -89,64 +77,49 @@ namespace maple
                 }
                 value = node.InnerText.ToLower();
 
-                ConsoleColor color = ColorFromText(value);
-                switch(category)
+                ConsoleColor color = StringToColor(value);
+                Token.TokenType categoryTokenType = Token.StringToTokenType(category);
+
+                if (categoryTokenType != Token.TokenType.None) //its a token type
                 {
-                    case "text":
-                        TextColor = color; break;
-                    case "accent":
-                        AccentColor = color; break;
-                    case "error":
-                        ErrorColor = color; break;
-                    case "gutter":
-                        GutterColor = color; break;
-                    case "selection":
-                        SelectionColor = color; break;
-                    case "numberliteral":
-                        NumberLiteralColor = color; break;
-                    case "stringliteral":
-                        StringLiteralColor = color; break;
-                    case "characterliteral":
-                        CharLiteralColor = color; break;
-                    case "booleanliteral":
-                        BooleanLiteralColor = color; break;
-                    case "hexliteral":
-                        HexLiteralColor = color; break;
-                    case "variable":
-                        VariableColor = color; break;
-                    case "keyword":
-                        KeywordColor = color; break;
-                    case "comment":
-                        CommentColor = color; break;
-                    case "grouping":
-                        GroupingColor = color; break;
-                    case "operator":
-                        OperatorColor = color; break;
-                    case "url":
-                        UrlColor = color; break;
-                    case "function":
-                        FunctionColor = color; break;
-                    case "cliinputdefault":
-                        CliInputDefaultColor = color; break;
-                    case "clioutputinfo":
-                        CliOutputInfoColor = color; break;
-                    case "clioutputerror":
-                        CliOutputErrorColor = color; break;
-                    case "clioutputsuccess":
-                        CliOutputSuccessColor = color; break;
-                    case "cliprompt":
-                        CliPromptColor = color; break;
-                    case "clicommandvalid":
-                        CliCommandValidColor = color; break;
-                    case "clicommandinvalid":
-                        CliCommandInvalidColor = color; break;
-                    case "cliswitch":
-                        CliSwitchColor = color; break;
-                    case "clistring":
-                        CliStringColor = color; break;
-                    default:
-                        Log.Write("Encountered unknown theme category '" + category + "'", "styler", important: true);
-                        break;
+                    tokenColors.Add(categoryTokenType, color);
+                }
+                else //its a different type of category
+                {
+                    switch(category)
+                    {
+                        case "text":
+                            TextColor = color; break;
+                        case "accent":
+                            AccentColor = color; break;
+                        case "error":
+                            ErrorColor = color; break;
+                        case "gutter":
+                            GutterColor = color; break;
+                        case "selection":
+                            SelectionColor = color; break;
+                        case "cliinputdefault":
+                            CliInputDefaultColor = color; break;
+                        case "clioutputinfo":
+                            CliOutputInfoColor = color; break;
+                        case "clioutputerror":
+                            CliOutputErrorColor = color; break;
+                        case "clioutputsuccess":
+                            CliOutputSuccessColor = color; break;
+                        case "cliprompt":
+                            CliPromptColor = color; break;
+                        case "clicommandvalid":
+                            CliCommandValidColor = color; break;
+                        case "clicommandinvalid":
+                            CliCommandInvalidColor = color; break;
+                        case "cliswitch":
+                            CliSwitchColor = color; break;
+                        case "clistring":
+                            CliStringColor = color; break;
+                        default:
+                            Log.Write("Encountered unknown theme category '" + category + "'", "styler", important: true);
+                            break;
+                    }
                 }
             }
         }
@@ -210,7 +183,14 @@ namespace maple
             }
         }
 
-        public static ConsoleColor ColorFromText(string name)
+        public static ConsoleColor GetColor(Token.TokenType tokenType)
+        {
+            if (tokenColors.ContainsKey(tokenType))
+                return tokenColors[tokenType];
+            return TextColor;
+        }
+
+        public static ConsoleColor StringToColor(string name)
         {
             switch(name)
             {

@@ -27,7 +27,7 @@ namespace maple
 
             if(!File.Exists(syntaxPath))
             {
-                Log.Write("Syntax path doesn't exist at '" + syntaxPath + "', falling back to default", "lexer");
+                Log.Write("Syntax path doesn't exist at '" + syntaxPath + "', falling back to default", "lexer", important: true);
 
                 //fallback to default
                 syntaxPath = Settings.SyntaxDirectory + "default.xml";
@@ -37,6 +37,8 @@ namespace maple
                     return;
                 }                
             }
+
+            Log.Write("Loading syntax from '" + syntaxPath + "'", "lexer");
 
             try
             {
@@ -74,7 +76,7 @@ namespace maple
                 if (type.Equals("url"))
                     rules.Add(new LexerRule(Token.TokenType.Url, value, options));
                 else
-                    rules.Insert(0, new LexerRule(GetTokenTypeFromRuleName(type), value, options));
+                    rules.Insert(0, new LexerRule(Token.StringToTokenType(type), value, options));
             }
 
             Log.Write("Loaded " + rules.Count + " lexer rules", "lexer");
@@ -203,46 +205,6 @@ namespace maple
             }
             
             return tokens;
-        }
-
-        /// <summary>
-        /// Given the name of <c>LexerRule</c>, find the <c>TokenType</c> that it searches for.
-        /// </summary>
-        /// <param name="name">The name of the rule to check against.</param>
-        /// <returns>The <c>TokenType</c> that the rule searches for. If invalid, returns <c>TokenType.None</c>.</returns>
-        static Token.TokenType GetTokenTypeFromRuleName(string name)
-        {
-            switch (name)
-            {
-                case "numberliteral":
-                    return Token.TokenType.NumberLiteral;
-                case "alphabetical":
-                    return Token.TokenType.Alphabetical;
-                case "break":
-                    return Token.TokenType.Break;
-                case "grouping":
-                    return Token.TokenType.Grouping;
-                case "stringliteral":
-                    return Token.TokenType.StringLiteral;
-                case "characterliteral":
-                    return Token.TokenType.CharLiteral;
-                case "booleanliteral":
-                    return Token.TokenType.BooleanLiteral;
-                case "hexliteral":
-                    return Token.TokenType.HexLiteral;
-                case "comment":
-                    return Token.TokenType.Comment;
-                case "operator":
-                    return Token.TokenType.Operator;
-                case "url":
-                    return Token.TokenType.Url;
-                case "function":
-                    return Token.TokenType.Function;
-                case "keyword":
-                    return Token.TokenType.Keyword;
-                default:
-                    return Token.TokenType.None;
-            }
         }
 
         struct LexerRule
