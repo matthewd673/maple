@@ -148,11 +148,11 @@ namespace maple
 
                     Printer.WriteToFooter(String.Format("ln {0} col {1} ", (DocCursor.DY + 1), (DocCursor.DX + 1)), dynamicFooterStartX, Styler.AccentColor, ConsoleColor.Black); //writer cursor position
                     if (GetCurrentDoc().HasSelection()) //write selection bounds (if has selection)
-                        Printer.WriteToFooter(String.Format("{0},{1} - {2},{3} ", (GetCurrentDoc().GetSelectionInX() + 1), (GetCurrentDoc().GetSelectionInY() + 1),
-                            (GetCurrentDoc().GetSelectionOutX() + 1), (GetCurrentDoc().GetSelectionOutY() + 1)),
+                        Printer.WriteToFooter(String.Format("{0},{1} - {2},{3} ", (GetCurrentDoc().SelectInY + 1), (GetCurrentDoc().SelectInX + 1),
+                            (GetCurrentDoc().SelectOutY + 1), (GetCurrentDoc().SelectOutX + 1)),
                             -1, Styler.SelectionColor, ConsoleColor.Black);
                     else if (GetCurrentDoc().HasSelectionStart()) //write selection in as reminder
-                        Printer.WriteToFooter(String.Format("{0},{1} ...", (GetCurrentDoc().GetSelectionInX() + 1), (GetCurrentDoc().GetSelectionInY() + 1)),
+                        Printer.WriteToFooter(String.Format("{0},{1} ...", (GetCurrentDoc().SelectInY + 1), (GetCurrentDoc().SelectInX + 1)),
                             -1, Styler.SelectionColor, ConsoleColor.Black);
 
                     if (Input.ReadOnly)

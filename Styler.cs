@@ -21,6 +21,7 @@ namespace maple
         public static ConsoleColor StringLiteralColor { get; private set; } = ConsoleColor.Green;
         public static ConsoleColor CharLiteralColor { get; private set; } = ConsoleColor.DarkGreen;
         public static ConsoleColor BooleanLiteralColor { get; private set; } = ConsoleColor.Blue;
+        public static ConsoleColor HexLiteralColor { get; private set; } = ConsoleColor.Magenta;
         public static ConsoleColor VariableColor { get; private set; } = ConsoleColor.Gray;
         public static ConsoleColor KeywordColor { get; private set; } = ConsoleColor.Yellow;
         public static ConsoleColor CommentColor { get; private set; } = ConsoleColor.DarkGray;
@@ -109,6 +110,8 @@ namespace maple
                         CharLiteralColor = color; break;
                     case "booleanliteral":
                         BooleanLiteralColor = color; break;
+                    case "hexliteral":
+                        HexLiteralColor = color; break;
                     case "variable":
                         VariableColor = color; break;
                     case "keyword":

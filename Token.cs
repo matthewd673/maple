@@ -16,6 +16,7 @@ namespace maple
             StringLiteral,
             CharLiteral,
             BooleanLiteral,
+            HexLiteral,
             Comment,
             Grouping,
             Operator,
@@ -56,6 +57,8 @@ namespace maple
                     Color = Styler.CharLiteralColor; break;
                 case TokenType.BooleanLiteral:
                     Color = Styler.BooleanLiteralColor; break;
+                case TokenType.HexLiteral:
+                    Color = Styler.HexLiteralColor; break;
                 case TokenType.Keyword:
                     Color = Styler.KeywordColor; break;
                 case TokenType.Comment:

@@ -20,6 +20,11 @@ namespace maple
         Point selectIn = new Point(-1, -1);
         Point selectOut = new Point(-1, -1);
 
+        public int SelectInX { get { return selectIn.X; }}
+        public int SelectInY { get { return selectIn.Y; }}
+        public int SelectOutX { get { return selectOut.X; }}
+        public int SelectOutY { get { return selectOut.Y; }}
+
         public int GutterWidth { get; private set; } = 0;
         int gutterPadding = 2;
 
@@ -560,6 +565,8 @@ namespace maple
 
         public void MarkSelectionOut(int x, int y)
         {
+            if (selectIn.X == -1 || selectIn.Y == -1) return;
+            
             selectOut = new Point(x, y);
             ArrangeSelectionPoints();
         }
@@ -635,11 +642,6 @@ namespace maple
         {
             return selectIn.Y != selectOut.Y;
         }
-        
-        public int GetSelectionInX() { return selectIn.X; }
-        public int GetSelectionInY() { return selectIn.Y; }
-        public int GetSelectionOutX() { return selectOut.X; }
-        public int GetSelectionOutY() { return selectOut.Y; }
 
         /// <summary>
         /// Get the text contained within the current selection bounds.

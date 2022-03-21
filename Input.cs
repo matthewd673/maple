@@ -235,7 +235,7 @@ namespace maple
                     //if selected, indent all
                     if (doc.HasSelection())
                     {
-                        for (int i = doc.GetSelectionInY(); i <= doc.GetSelectionOutY(); i++)
+                        for (int i = doc.SelectInY; i <= doc.SelectOutY; i++)
                             doc.AddTextAtPosition(0, i, tabString);
 
                         //rerender all
@@ -414,67 +414,40 @@ namespace maple
 
             if (doc.HasSelection())
             {
-                int lineDelta = doc.GetSelectionOutY() - doc.GetSelectionInY();
-                //multi-line selection
-                if (lineDelta >= 1)
+                if (doc.SelectOutY > doc.SelectInY) //multi-line selection
                 {
-                    //clear fully-selected middle lines
-                    for (int i = doc.GetSelectionInY() + 1; i < doc.GetSelectionInY() + lineDelta; i++)
-                    {
-                        doc.RemoveLine(i);
-                        i--;
-                        lineDelta--;
+                    for (int i = doc.SelectInY; i <= doc.SelectOutY; i++) {
+                        if (i == doc.SelectInY) { //trim end
+                            doc.SetLine(i,
+                                doc.GetLine(i).Remove(doc.SelectInX, doc.GetLineLength(i) - doc.SelectInX)
+                                );                            
+                        }
+                        else if (i == doc.SelectOutY) { //trim start
+                            string lastLineContent = doc.GetLine(i).Remove(0, doc.SelectOutX);
+                            doc.SetLine(i - 1,
+                                        doc.GetLine(i - 1) + lastLineContent
+                                        );
+                        }
+                        else { //remove
+                            doc.RemoveLine(i);
+                            i--;
+                            doc.MarkSelectionOut(doc.SelectOutX, doc.SelectOutY - 1); //move select out down
+                        }
                     }
-                    //clear end of first line
-                    doc.SetLine(
-                        doc.GetSelectionInY(),
-                        doc.GetLine(doc.GetSelectionInY()).Remove(
-                            doc.GetSelectionInX(),
-                            doc.GetLine(doc.GetSelectionInY()).Length - doc.GetSelectionInX()
-                        )
-                    );
-                    //if first line is now empty, remove
-                    if (doc.GetLine(doc.GetSelectionInY()).Equals(""))
-                        doc.RemoveLine(doc.GetSelectionInY());
-                    //clear beginning of last line and append to end of first line
-                    if (lineDelta > 1)
-                    {
-                        doc.SetLine(
-                            doc.GetSelectionInY(),
-                            doc.GetLine(doc.GetSelectionInY()) +
-                            doc.GetLine(doc.GetSelectionInY() + lineDelta - 1).Remove(
-                                0,
-                                doc.GetSelectionOutX()
-                            )
-                        );
-                        doc.RemoveLine(doc.GetSelectionInY() + lineDelta - 1);
-                    }
-                    else
-                    {
-                        doc.SetLine(
-                            doc.GetSelectionInY(),
-                            doc.GetLine(doc.GetSelectionInY()) +
-                            doc.GetLine(doc.GetSelectionInY() + lineDelta).Remove(
-                                0,
-                                doc.GetSelectionOutX()
-                            )
-                        );
-                        doc.RemoveLine(doc.GetSelectionInY() + lineDelta);
-                    }                            
                 }
                 else //one line
                 {
                     //remove from line
                     doc.SetLine(
-                        doc.GetSelectionInY(),
-                        doc.GetLine(doc.GetSelectionInY()).Remove(
-                            doc.GetSelectionInX(), doc.GetSelectionOutX() - doc.GetSelectionInX()
+                        doc.SelectInY,
+                        doc.GetLine(doc.SelectInY).Remove(
+                            doc.SelectInX, doc.SelectOutX - doc.SelectInX
                         )
                     );
                 }
 
                 //reset cursor, clear selection and rerender all
-                docCursor.Move(doc.GetSelectionInX(), doc.GetSelectionInY());
+                docCursor.Move(doc.SelectInX, doc.SelectInY);
                 doc.Deselect();
                 Printer.Clear();
                 Editor.RefreshAllLines();

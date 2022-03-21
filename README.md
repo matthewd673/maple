@@ -47,6 +47,7 @@ Execute commands from within maple by toggling to command input with the <kbd>es
 **`find [query] [switches]`:** search the document for a given word/phrase
   * The query can contain spaces without surrounding it in quotes
   * Run `find` to continue searching with the previous parameters
+  * **`--first`/`-f`:** start at the first occurrence
   * **`--last`/`-l`:** start at the last occurrence
   * **`--up`/`-u`:** step upwards through the occurrences
   * **`--count`/`-ct`:** return the number of occurrences

@@ -10,6 +10,7 @@
     <color category="stringLiteral">Green</color>
     <color category="characterLiteral">Red</color>
     <color category="booleanLiteral">Blue</color>
+    <color category="hexLiteral">Magenta</color>
     <color category="variable">Gray</color>
     <color category="keyword">Yellow</color>
     <color category="comment">DarkGray</color>
