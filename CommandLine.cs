@@ -491,7 +491,14 @@ namespace maple
             bool findUpwards = (switches.Contains("--up") || switches.Contains("-u"));
             bool findCount = (switches.Contains("--count") || switches.Contains("-ct"));
             bool findCaseSensitive = (switches.Contains("--case") || switches.Contains("-c"));
+            
+            bool forceFindHere = (switches.Contains("--here") || switches.Contains("-h"));
+            if (forceFindHere) {
+                search = Editor.GetCurrentDoc().GetTokenAtPosition(Editor.DocCursor.DX, Editor.DocCursor.DY).Text;
+                SetOutput(String.Format("Finding '{0}'", search), "find");
+            }
 
+            bool updateLastSearch = true;
             if (search.Equals("")) //default to the last search
             {
                 if (lastFindSearch.Equals("")) //there is no last search
@@ -501,6 +508,7 @@ namespace maple
                 }
                 else
                 {
+                    updateLastSearch = false;
                     search = lastFindSearch;
                     if (!findLast) findLast = lastFindLast;
                     if (!findFirst) findFirst = lastFindFirst;
@@ -508,7 +516,9 @@ namespace maple
                     if (!findCaseSensitive) findCaseSensitive = lastFindCaseSensitive;
                 }
             }
-            else //update last search if search wasn't blank
+
+
+            if (updateLastSearch)
             {
                 lastFindSearch = search;
                 lastFindIndex = -1;
@@ -546,7 +556,7 @@ namespace maple
                     indexes.Add(new Point(nextIndex, i - 1));
 
                     if (firstAfterCursor == -1 && 
-                        (i - 1 > Editor.DocCursor.DY ||
+                        (i - 1 >= Editor.DocCursor.DY ||
                             (i - 1 == Editor.DocCursor.DY && nextIndex >= Editor.DocCursor.DX)
                         ))
                         firstAfterCursor = indexes.Count - 1;

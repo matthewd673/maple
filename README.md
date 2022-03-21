@@ -52,6 +52,8 @@ Execute commands from within maple by toggling to command input with the <kbd>es
   * **`--up`/`-u`:** step upwards through the occurrences
   * **`--count`/`-ct`:** return the number of occurrences
   * **`--case`/`-c`:** case sensitive search
+  * **`--here`/`-h`:** search for the text at the cursor position
+    * `--here` selects text from the nearest token as determined by the current syntax rules
 
 **`cls`:** clear previous command output
 
