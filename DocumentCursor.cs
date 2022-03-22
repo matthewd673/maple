@@ -29,7 +29,7 @@ namespace maple
                     if(DY > 0)
                     {
                         MoveUp();
-                        Move(Doc.GetLineLength(DY), DY);
+                        Move(Doc.GetLine(DY).Length, DY);
                     }
                 }
             }
@@ -43,7 +43,7 @@ namespace maple
                 Doc.PrintFileLines();
             }
 
-            if(DX < Doc.GetLineLength(DY)) //can move forward
+            if(DX < Doc.GetLine(DY).Length) //can move forward
                 Move(DX + 1, DY);
             else
             {
@@ -86,8 +86,8 @@ namespace maple
 
             if(DX < 0)
                 DX = 0;
-            if(DX > Doc.GetLineLength(DY))
-                DX = Doc.GetLineLength(DY);
+            if(DX > Doc.GetLine(DY).Length)
+                DX = Doc.GetLine(DY).Length;
         }
 
         public void Move(int tX, int tY, bool constrainToDoc = true, bool constrainToScreen = true)

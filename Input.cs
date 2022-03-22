@@ -122,7 +122,7 @@ namespace maple
                         if(docCursor.DY > 0)
                         {
                             string currentLineContent = doc.GetLine(docCursor.DY); //get remaining content on current line
-                            int previousLineMaxX = doc.GetLineLength(docCursor.DY - 1); //get max position on preceding line
+                            int previousLineMaxX = doc.GetLine(docCursor.DY - 1).Length; //get max position on preceding line
                             string combinedLineContent = doc.GetLine(docCursor.DY - 1) + currentLineContent; //combine content
                             doc.SetLine(docCursor.DY - 1, combinedLineContent); //set previous line to combined content
                             doc.RemoveLine(docCursor.DY); //remove current line
@@ -162,7 +162,7 @@ namespace maple
                         break;
                     }
 
-                    if(docCursor.DX == doc.GetLineLength(docCursor.DY)) //deleting at end of line
+                    if(docCursor.DX == doc.GetLine(docCursor.DY).Length) //deleting at end of line
                     {
                         if(docCursor.DY < doc.GetMaxLine()) //there is a following line to append
                         {
@@ -265,7 +265,7 @@ namespace maple
                 case ConsoleKey.End:
                     if (doc.HasSelection())
                         break;
-                    docCursor.Move(doc.GetLineLength(docCursor.DY), docCursor.DY); //move to end of line
+                    docCursor.Move(doc.GetLine(docCursor.DY).Length, docCursor.DY); //move to end of line
                     maxCursorX = docCursor.DX; //update max x position
                     break;
                 case ConsoleKey.PageUp:
@@ -407,7 +407,6 @@ namespace maple
                 CurrentTarget = InputTarget.Document;
         }
 
-        //this function is pretty messy, definitely refactor later
         static void DeleteSelectionText(DocumentCursor docCursor)
         {
             Document doc = docCursor.Doc;
@@ -419,7 +418,7 @@ namespace maple
                     for (int i = doc.SelectInY; i <= doc.SelectOutY; i++) {
                         if (i == doc.SelectInY) { //trim end
                             doc.SetLine(i,
-                                doc.GetLine(i).Remove(doc.SelectInX, doc.GetLineLength(i) - doc.SelectInX)
+                                doc.GetLine(i).Remove(doc.SelectInX, doc.GetLine(i).Length - doc.SelectInX)
                                 );                            
                         }
                         else if (i == doc.SelectOutY) { //trim start

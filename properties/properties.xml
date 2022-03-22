@@ -3,6 +3,7 @@
     <property name="quickCli">False</property>
     <property name="debugTokens">False</property>
     <property name="noHighlight">False</property>
+    <property name="cliNoHighlight">False</property>
     <property name="relativePath">False</property>
     <property name="navigatePastTabs">True</property>
     <property name="deleteEntireTabs">True</property>
@@ -14,4 +15,6 @@
     <property name="themeFile">maple.xml</property>
     <property name="syntaxDirectory">{mapledir}\syntax</property>
     <property name="tabSpacesCount">4</property>
+    <property name="scrollYIncrement">half</property>
+    <property name="scrollXIncrement">half</property>
 </xml>

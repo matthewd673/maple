@@ -128,7 +128,7 @@ namespace maple
             Console.ForegroundColor = Styler.AccentColor;
             Console.WriteLine("maple session ended");
 
-            if (Editor.CurrentDoc.GetAllLines().Count == 1 && Editor.CurrentDoc.GetLineLength(0) == 0 && Editor.CurrentDoc.NewlyCreated)
+            if (Editor.CurrentDoc.GetAllLines().Count == 1 && Editor.CurrentDoc.GetLine(0).Length == 0 && Editor.CurrentDoc.NewlyCreated)
             {
                 File.Delete(Editor.CurrentDoc.Filepath);
                 Log.Write("Cleaned empty, newly-created file '" + Editor.CurrentDoc.Filepath + "'", "program", important: true);

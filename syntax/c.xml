@@ -1,6 +1,6 @@
 <xml>
     <!--Highlighting RegEx-->
-    <syntax type="numberLiteral">(\d+\.?\d*f?)</syntax>
+    <syntax type="numberLiteral">(\d+\.?\d*?)</syntax>
     <syntax type="alphabetical" insensitive="true">[a-z_]+[a-z0-9_]*</syntax>
     <syntax type="booleanLiteral">(true|false)</syntax>
     <syntax type="hexLiteral" insensitive="true">0x[0-9a-f]+</syntax>

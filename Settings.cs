@@ -28,6 +28,8 @@ namespace maple
         public static string ThemeFile { get; private set; } = "maple.xml";
         public static string SyntaxDirectory { get; private set; } = Path.Combine(MapleDirectory, "syntax");
         public static int TabSpacesCount { get; private set; } = 4;
+        public static int ScrollYIncrement { get; private set; } = -1;
+        public static int ScrollXIncrement { get; private set; } = -1;
 
         static List<string> ignoreList = new List<string>(); //stores a list of settings to ignore when loading
 
@@ -129,6 +131,22 @@ namespace maple
                         break;
                     case "tabspacescount":
                         TabSpacesCount = Convert.ToInt32(value);
+                        break;
+                    case "scrollyincrement":
+                        if (value.Equals("half"))
+                            ScrollYIncrement = -1;
+                        else if (value.Equals("full"))
+                            ScrollYIncrement = -2;
+                        else
+                            ScrollYIncrement = Math.Abs(Convert.ToInt32(value));
+                        break;
+                    case "scrollxincrement":
+                        if (value.Equals("half"))
+                            ScrollXIncrement = -1;
+                        else if (value.Equals("full"))
+                            ScrollXIncrement = -2;
+                        else
+                            ScrollXIncrement = Math.Abs(Convert.ToInt32(value));
                         break;
                 }
             }

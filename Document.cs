@@ -65,6 +65,10 @@ namespace maple
 
         }
 
+        /// <summary>
+        /// Pre-process a filepath to substitute in file nicknames.
+        /// <param name="filepath">The path to pre-process.</param>
+        /// </summary>
         public static string ProcessFilepath(string filepath)
         {
             //if it doesn't exist, attempt to adjust
@@ -94,6 +98,10 @@ namespace maple
             return filepath; //nothing to change
         }
 
+        /// <summary>
+        /// Load the contents of a file into the Document (skips filepath pre-processing and loading of any auxiliary files).
+        /// <param name="filepath">The filepath to load from.</param>
+        /// </summary>
         public void LoadDocument(string filepath)
         {
             //clear any lines that may have existed from before
@@ -128,6 +136,10 @@ namespace maple
 
         }
 
+        /// <summary>
+        /// Save the contents of the Document to the given filepath.
+        /// <param name="savePath">The filepath to save to.</param>
+        /// </summary>
         public void SaveDocument(string savePath)
         {
             List<string> allLines = new List<string>();
@@ -137,12 +149,19 @@ namespace maple
             Log.Write("Saved file to '" + savePath + "'", "document");
         }
 
+        /// <summary>
+        /// Print all files currently within the bounds of the screen.
+        /// </summary>
         public void PrintFileLines()
         {
             for(int i = ScrollY; i < Cursor.MaxScreenY + ScrollY; i++)
                 PrintLine(i);
         }
 
+        /// <summary>
+        /// Print a single line of the Document.
+        /// <param name="lineIndex">The index of the line (in the Document, not screen).</param>
+        /// </summary>
         public void PrintLine(int lineIndex)
         {
             //don't, if out of range
@@ -328,7 +347,7 @@ namespace maple
         }
 
         /// <summary>
-        /// Generate the gutter content for a given line according to set preferences.
+        /// Generate the gutter string for a given line according to set preferences.
         /// </summary>
         /// <param name="lineIndex">The index of the line to generate for.</param>
         /// <returns>A String representing the gutter text to render.</returns>
@@ -347,6 +366,9 @@ namespace maple
             return gutterContent;
         }
 
+        /// <summary>
+        /// Calculate the width of the gutter.
+        /// </summary>
         public int CalculateGutterWidth()
         {
             int oldGutterWidth = GutterWidth;
@@ -399,8 +421,19 @@ namespace maple
         /// </summary>
         public void CalculateScrollIncrement()
         {
-            ScrollYIncrement = (Cursor.MaxScreenY - 1) / 2;
-            scrollXIncrement = (Cursor.MaxScreenX - 1) / 2;
+            if (Settings.ScrollYIncrement == -1) //"half"
+                ScrollYIncrement = (Cursor.MaxScreenY - 1) / 2;
+            else if (Settings.ScrollYIncrement == -2) //"full"
+                ScrollYIncrement = (Cursor.MaxScreenY - 1);
+            else
+                ScrollYIncrement = Settings.ScrollYIncrement;
+
+            if (Settings.ScrollXIncrement == -1) //"half"
+                scrollXIncrement = (Cursor.MaxScreenX - 1) / 2;
+            else if (Settings.ScrollXIncrement == -2) //"full"
+                scrollXIncrement = (Cursor.MaxScreenX - 1);
+            else
+                scrollXIncrement = Settings.ScrollXIncrement;
         }
 
         /// <summary>
@@ -428,19 +461,34 @@ namespace maple
             return lines;
         }
 
+        /// <summary>
+        /// Set the content of a line.
+        /// </summary>
+        /// <param name="index">The index of the line to modify.</param>
+        /// <param name="text">The new string content of the line.</param>
         public void SetLine(int index, String text)
         {
             if(index >= 0 && index < fileLines.Count)
                 fileLines[index].LineContent = text;
         }
 
+        /// <summary>
+        /// Attempt to add a string at the given position in the Document.
+        /// </summary>
+        /// <param name="x">The X coordinate.</param>
+        /// <param name="y">The Y coordinate (line index).</param>
+        /// <param name="text">The string to add.</param>
+        /// <returns>Return true if the string was inserted (X and Y bounds were valid).</returns>
         public bool AddTextAtPosition(int x, int y, String text)
         {
             if(x < 0 || y < 0 || y > fileLines.Count)
                 return false;
             
             String currentLine = GetLine(y);
-            currentLine = AddText(currentLine, x, text);
+            if (x > currentLine.Length)
+                return false;
+            
+            currentLine = currentLine.Insert(x, text);
 
             //no change made
             if(GetLine(y) == currentLine)
@@ -452,13 +500,22 @@ namespace maple
 
         }
 
+        /// <summary>
+        /// Attempt to remove a single character at the given position in the Document.
+        /// </summary>
+        /// <param name="x">The X coordinate.</param>
+        /// <param name="y">The Y coordinate (line index).</param>
+        /// <returns>Returns true if the character was deleted (X and Y bounds were valid).</returns>
         public bool RemoveTextAtPosition(int x, int y)
         {
             if(x < 0 || y < 0 || y > fileLines.Count)
                 return false;
 
             String currentLine = GetLine(y);
-            currentLine = RemoveText(currentLine, x);
+            if (x >= currentLine.Length)
+                return false;
+            
+            currentLine = currentLine.Remove(x, 1);
 
             //no change made
             if(GetLine(y) == currentLine)
@@ -469,6 +526,12 @@ namespace maple
             return true;
         }
 
+        /// <summary>
+        /// Get the text at the given position (from the X position to the end of the line).
+        /// </summary>
+        /// <param name="x">The X coordinate.</param>
+        /// <param name="y">The Y coordinate (line index).</param>
+        /// <returns>Returns the text at the position (or an empty string if bounds are invalid).</returns>
         public string GetTextAtPosition(int x, int y)
         {
             if(x < 0 || y < 0 || y > fileLines.Count)
@@ -478,9 +541,15 @@ namespace maple
             return currentLine.Remove(0, x);
         }
 
+        /// <summary>
+        /// Get the Token nearest to the given position.
+        /// </summary>
+        /// <param name="x">The X coordinate.</param>
+        /// <param name="y">The Y coordinate (line index).</param>
+        /// <returns>Returns the Token at the position (or a Token with a null string and TokenType.None if the bounds are invalid or no token exists).</returns>
         public Token GetTokenAtPosition(int x, int y)
         {
-            if (x < 0 || x > GetLineLength(y) || y < 0 || y > fileLines.Count)
+            if (x < 0 || x > GetLine(y).Length || y < 0 || y > fileLines.Count)
                 return new Token(null, Token.TokenType.None);
             
             int totalLength = 0;
@@ -494,6 +563,11 @@ namespace maple
             return new Token(null, Token.TokenType.None);
         }
 
+        /// <summary>
+        /// Insert an empty line at the given index.
+        /// </summary>
+        /// <param name="index">The index to insert at.</param>
+        /// <returns>Returns true if the line was inserted (the index was valid).</returns>
         public bool AddLine(int index)
         {
             if(index < 0 || index > fileLines.Count)
@@ -503,7 +577,12 @@ namespace maple
             CalculateGutterWidth();
             return true;
         }
-        
+
+        /// <summary>
+        /// Remove the line at the given index.
+        /// </summary>
+        /// <param name="index">The index to remove at.</param>
+        /// <returns>Returns true if the line was deleted (the index was valid).</returns>
         public bool RemoveLine(int index)
         {
             if(index < 0 || index > fileLines.Count - 1)
@@ -514,35 +593,20 @@ namespace maple
             return true;
         }
 
-        public static String AddText(String source, int pos, String text)
-        {
-            if(pos >= 0 && pos <= source.Length)
-                return source.Insert(pos, text);
-            else
-                return source;
-        }
-
-        public static String RemoveText(String source, int pos)
-        {
-            if(pos >= 0 && pos <= source.Length - 1)
-                return source.Remove(pos, 1);
-            else
-                return source;
-        }
-
+        /// <summary>
+        /// Get the maximum valid line index (Count - 1).
+        /// </summary>
+        /// <returns>The maximum valid line index.</returns>
         public int GetMaxLine()
         {
             return fileLines.Count - 1;
         }
 
-        public int GetLineLength(int line)
-        {
-            if(line < fileLines.Count)
-                return fileLines[line].LineContent.Length;
-            else
-                return 0;
-        }
-
+        /// <summary>
+        /// Get the number of tokens on a given line.
+        /// </summary>
+        /// <param name="line">The index of the line.</param>
+        /// <returns>The number of tokens on the line (or 0 if the index is invalid).</returns>
         public int GetLineTokenCount(int line)
         {
             if (line < fileLines.Count)
@@ -551,18 +615,31 @@ namespace maple
                 return 0;
         }
 
+        /// <summary>
+        /// Re-tokenize the entire Document.
+        /// </summary>
         public void ForceReTokenize()
         {
             for (int i = 0; i < fileLines.Count; i++)
                 fileLines[i].ForceTokenize();
         }
 
+        /// <summary>
+        /// Set the selection in point.
+        /// </summary>
+        /// <param name="x">The X coordinate.</param>
+        /// <param name="y">The Y coordinate (line index).</param>
         public void MarkSelectionIn(int x, int y)
         {
             selectIn = new Point(x, y);
             ArrangeSelectionPoints();
         }
 
+        /// <summary>
+        /// Set the selection out point.
+        /// </summary>
+        /// <param name="x">The X coordinate.</param>
+        /// <param name="y">The Y coordinate (line index).</param>
         public void MarkSelectionOut(int x, int y)
         {
             if (selectIn.X == -1 || selectIn.Y == -1) return;
@@ -571,13 +648,19 @@ namespace maple
             ArrangeSelectionPoints();
         }
 
+        /// <summary>
+        /// Reset the selection bounds.
+        /// </summary>
         public void Deselect()
         {
             selectIn = new Point(-1, -1);
             selectOut = new Point(-1, -1);
         }
 
-        public void ArrangeSelectionPoints()
+        /// <summary>
+        /// Rearrange the selection points so that the starting point comes before the ending point.
+        /// </summary>
+        void ArrangeSelectionPoints()
         {
 
             if (!HasSelection())
@@ -614,11 +697,19 @@ namespace maple
             return selectIn.X != -1 && selectIn.Y != -1 && selectOut.X != -1 && selectOut.Y != -1;
         }
 
+        /// <summary>
+        /// Check if the Document has a starting selection bound.
+        /// </summary>
+        /// <returns>Returns true if the Document has a starting selection bound.</returns>
         public bool HasSelectionStart()
         {
             return selectIn.X != -1 && selectIn.Y != -1;
         }
 
+        /// <summary>
+        /// Check if the Document has an ending selection bound.
+        /// </summary>
+        /// <returns>Returns true if the Document has an ending selection bound.</returns>
         public bool HasSelectionEnd()
         {
             return selectOut.X != -1 && selectIn.Y != -1;

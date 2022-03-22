@@ -91,6 +91,12 @@ namespace maple
             if(HasOutput) //output is being displayed, reset for the future
                 ClearOutput();
 
+            if (InputText.Equals("")) //skip empty commands
+            {
+                Input.ToggleInputTarget();
+                return;
+            }
+
             CommandHistoryIndex = -1; //reset command history index
             if (CommandHistory.Count == 0 || !CommandHistory[CommandHistory.Count - 1].Equals(InputText))
                 CommandHistory.Insert(0, InputText);
