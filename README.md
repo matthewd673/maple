@@ -71,6 +71,8 @@ Execute commands from within maple by toggling to command input with the <kbd>es
 
 **`syntax`:** render the current file with the syntax rules defined for [extension] files
 
+**`count`:** display stats about the document (`--lines`/`-l` or `--chars`/`-c`)
+
 **`alias [command]`:** view all aliases for a given command
 
 **`url`:** if the cursor is currently hovered on a url, open it in the browser

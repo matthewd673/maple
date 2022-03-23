@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -18,7 +18,7 @@ namespace maple
         public static string[] CommandMasterList { get; } = new string[] {
             "help", "save", "load", "new", "close", "cls", "top", "bot",
             "redraw", "goto", "selectin", "selectout", "deselect", "readonly",
-            "syntax", "alias", "url", "find", "deindent"
+            "syntax", "alias", "url", "find", "deindent", "count"
             };
 
         public static string InputText { get; private set; } = "";
@@ -170,6 +170,9 @@ namespace maple
                 case "deindent":
                     DeindentCommand();
                     break;
+                case "count":
+                    CountCommand(commandArgs, commandSwitches);
+                    break;
                 default:
                     UnknownCommand();
                     break;
@@ -200,7 +203,7 @@ namespace maple
                     SetOutput("'help [command]' or 'help all'", "help");
                     break;
                 case "all":
-                    SetOutput("save, load, new, close, cls, top, bot, redraw, goto, find, deindent, selectin, selectout, readonly, syntax, alias, url", "help");
+                    SetOutput("save, load, new, close, cls, top, bot, redraw, goto, find, deindent, selectin, selectout, readonly, syntax, alias, url, count", "help");
                     break;
                 case "save":
                     SetOutput("save [optional filename]: save document to filename", "help");
@@ -255,6 +258,9 @@ namespace maple
                     break;
                 case "deindent":
                     SetOutput("deindent: deintent the current line or selection", "help");
+                    break;
+                case "count":
+                    SetOutput("count: get stats on the document", "count");
                     break;
                 default:
                     UnknownCommand();
@@ -682,6 +688,33 @@ namespace maple
                     Editor.RefreshLine(Editor.DocCursor.DY);
                 }
             }
+        }
+
+        static void CountCommand(List<string> args, List<string> switches)
+        {
+            string output = "Document contains ";
+            int i = 0;
+            foreach (string s in switches)
+            {
+                if (s.Equals("-l") || s.Equals("--lines"))
+                    output += String.Format("{0} lines", Editor.CurrentDoc.GetMaxLine() + 1);
+                if (s.Equals("-c") || s.Equals("--chars"))
+                {
+                    int charCt = 0;
+                    for (int k = 0; k <= Editor.CurrentDoc.GetMaxLine(); k++)
+                        charCt += Editor.CurrentDoc.GetLine(k).Length;
+                    output += String.Format("{0} characters", charCt);
+                }
+
+                if (i < switches.Count - 1)
+                    output += ", ";
+                i++;
+            }
+
+            if (i > 0)
+                SetOutput(output, "count");
+            else
+                SetOutput("Provide a statistic to count (--lines, --chars)", "count", OutputType.Error);
         }
 
         static void UnknownCommand()
