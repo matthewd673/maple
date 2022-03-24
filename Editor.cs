@@ -13,6 +13,10 @@ namespace maple
         
         static int dynamicFooterStartX = 0;
 
+        /// <summary>
+        /// Load initial cursor properties and perform first draw.
+        /// </summary>
+        /// <param name="filename"></param>
         public static void Initialize(String filename)
         {
             Log.Write("Performing editor initialization", "editor");
@@ -31,9 +35,6 @@ namespace maple
             //load footer lexer
             Log.Write("Building command line input lexer rules", "editor");
             Lexer.LoadCommandLineSyntax();
-            //render initial footer
-            Printer.DrawFooter("maple", foregroundColor: Styler.AccentColor, backgroundColor: ConsoleColor.Black);
-            DocCursor.Move(DocCursor.DX, DocCursor.DY); //reset to original position
 
             //prep for initial full-draw
             Log.Write("Preparing for initial full-draw", "editor");
@@ -46,6 +47,9 @@ namespace maple
             fullClearNext = false;
         }
 
+        /// <summary>
+        /// Enter the input loop.
+        /// </summary>
         public static void BeginInputLoop()
         {
             PrintFooter();
@@ -53,6 +57,9 @@ namespace maple
                 InputLoop();
         }
 
+        /// <summary>
+        /// Accept input and render any updates as appropriate.
+        /// </summary>
         static void InputLoop()
         {
             //set actual cursor position
@@ -85,6 +92,10 @@ namespace maple
                 CmdCursor.Move(CmdCursor.DX, CmdCursor.DY);
         }
 
+        /// <summary>
+        /// Returns the currently active cursor (depending on if input is toggled to Document or cli).
+        /// </summary>
+        /// <returns>The active cursor (this is a DocumentCursor, if the Document is currently active).</returns>
         public static Cursor GetActiveCursor()
         {
             if(Input.CurrentTarget == Input.InputTarget.Document)
@@ -95,6 +106,10 @@ namespace maple
             return DocCursor;
         }
 
+        /// <summary>
+        /// Mark a line to be updated on next draw.
+        /// </summary>
+        /// <param name="lineIndex">The index of the line to update.</param>
         public static void RefreshLine(int lineIndex)
         {
             refreshedLines.Add(lineIndex);
@@ -130,6 +145,9 @@ namespace maple
             fullClearNext = false; //don't full clear again unless told
         }
 
+        /// <summary>
+        /// Print the footer (prints command line input if user is accessing cli).
+        /// </summary>
         public static void PrintFooter()
         {
             //generate footer string

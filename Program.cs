@@ -11,7 +11,7 @@ namespace maple
         {
 
             //initialize logger
-            //note: maple directory will never be relative, since flag is set later (this may be a good thing?)
+            //note: maple directory will never be relative, since flag is set later
             Log.InitializeLogger();
 
             PrepareWindow();
@@ -85,6 +85,10 @@ namespace maple
             //load settings
             Settings.LoadSettings();
             Settings.LoadAliases();
+
+            //delete log file and pretend nothing happened if logging is actually disabled
+            if (!Settings.EnableLogging)
+                Log.DisableLogging();
 
             Log.Write("Loading theme", "program");
             //prepare styler

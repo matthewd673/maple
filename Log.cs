@@ -13,8 +13,6 @@ namespace maple
 
         public static void InitializeLogger()
         {
-            if (!Settings.EnableLogging) return;
-
             LogPath = Settings.MapleDirectory + "\\log.txt";
             File.CreateText(LogPath).Close();
             Write("New logging session started at " + DateTime.Now.ToString("HH:mm:ss"), "logger");
@@ -23,9 +21,15 @@ namespace maple
             #endif
         }
 
+        public static void DisableLogging()
+        {
+            File.Delete(LogPath);
+        }
+
         public static void Write(string text, string speaker, bool important = false)
         {
             if (!Settings.EnableLogging) return;
+
             string template = "[{0}]: {1}\n";
             if (important)
             {
@@ -38,6 +42,7 @@ namespace maple
         public static void WriteDebug(string text, string speaker)
         {
             if (!Settings.EnableLogging) return;
+            
             #if DEBUG
                 File.AppendAllText(LogPath, String.Format("DEBUG [{0}]: {1}\n", speaker, text));
                 DebugEvents++;

@@ -17,6 +17,8 @@ namespace maple
         static List<LexerRule> cliRules = new List<LexerRule>();
         static List<string> cliKeywords = new List<string>();
 
+        public static string CurrentSyntaxFile { get; private set; } = "None";
+
         /// <summary>
         /// Build a set of lexer rules and keywords from a syntax spec file (XML expected).
         /// </summary>
@@ -24,6 +26,10 @@ namespace maple
         public static void LoadSyntax(string syntaxPath)
         {
             XmlDocument document = new XmlDocument();
+
+            //reset
+            rules.Clear();
+            keywords.Clear();
 
             if(!File.Exists(syntaxPath))
             {
@@ -34,11 +40,13 @@ namespace maple
                 if (!File.Exists(syntaxPath))
                 {
                     Log.Write("Default syntax file doesn't exist at '" + syntaxPath + "'", "lexer", important: true);
+                    CurrentSyntaxFile = "None";
                     return;
                 }                
             }
 
             Log.Write("Loading syntax from '" + syntaxPath + "'", "lexer");
+            CurrentSyntaxFile = syntaxPath;
 
             try
             {

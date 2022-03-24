@@ -410,9 +410,9 @@ namespace maple
 
         static void SyntaxCommand(List<string> args, List<string> switches)
         {
-            if (args.Count < 1)
+            if (args.Count < 1) //default to giving info about current syntax
             {
-                SetOutput("No file extension provided", "syntax", oType: OutputType.Error);
+                SetOutput(String.Format("Current syntax file: {0}", Lexer.CurrentSyntaxFile), "syntax");
                 return;
             }
 

@@ -72,6 +72,9 @@ namespace maple
         private static CharInfo[] buf;
         private static SmallRect rect;
 
+        /// <summary>
+        /// Create the Console handle and prepare the buffer for rendering.
+        /// </summary>
         public static void Initialize()
         {
             consoleHandle = CreateFile("CONOUT$", 0x40000000, 2, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
@@ -93,16 +96,43 @@ namespace maple
             rect = new SmallRect() { Left = 0, Top = 0, Right = bufWidth, Bottom = bufHeight };
         }
 
+        /// <summary>
+        /// Get the 1 dimensional buffer index given 2 dimensional coordinates.
+        /// </summary>
+        /// <param name="x">The X coordinate (screen).</param>
+        /// <param name="y">The Y coordinate (screen).</param>
+        /// <returns>The buffer index.</returns>
         private static int GetBufferIndex(int x, int y)
         {
             return y * bufWidth + x;
         }
 
+        /// <summary>
+        /// Get the 1 dimensional buffer index from a Cursor's screen position.
+        /// </summary>
+        /// <param name="cursor">The cursor.</param>
+        /// <returns>The buffer index.</returns>
+        private static int GetBufferIndex(Cursor cursor)
+        {
+            return GetBufferIndex(cursor.SX, cursor.SY);
+        }
+
+        /// <summary>
+        /// Generate a buffer attribute value from a given set of ConsoleColors.
+        /// </summary>
+        /// <param name="foregroundColor">The foreground color.</param>
+        /// <param name="backgroundColor">The background color.</param>
+        /// <returns>A buffer attribute representing the given colors.</returns>
         private static short GetAttributeFromColor(ConsoleColor foregroundColor, ConsoleColor backgroundColor)
         {
             return (short)((short)(GetAttributeFromColor(backgroundColor) << 4) | GetAttributeFromColor(foregroundColor));
         }
 
+        /// <summary>
+        /// Generate a buffer attribute value representing the given color. The attribute represents the color as the foreground color with a black background.
+        /// </summary>
+        /// <param name="color">The foreground color.</param>
+        /// <returns>A buffer attrivute representing the color.</returns>
         private static short GetAttributeFromColor(ConsoleColor color)
         {
             switch (color)
@@ -143,16 +173,20 @@ namespace maple
             return 0x0000;
         }
 
+        /// <summary>
+        /// Get the buffer attribute at a given position on the buffer.
+        /// </summary>
+        /// <param name="x">The X coordinate (screen).</param>
+        /// <param name="y">The Y coordinate (screen).</param>
+        /// <returns>The buffer attribute.</returns>
         public static short GetAttributeAtPosition(int x, int y)
         {
             return buf[GetBufferIndex(x, y)].Attributes;
         }
 
-        private static int GetBufferIndex(Cursor cursor)
-        {
-            return GetBufferIndex(cursor.SX, cursor.SY);
-        }
-
+        /// <summary>
+        /// Render the current buffer contents to the screen. The more frequently this function is called, the less smooth the rendering will appear.
+        /// </summary>
         public static void ApplyBuffer()
         {
             bool b = WriteConsoleOutputW(consoleHandle,
@@ -165,6 +199,9 @@ namespace maple
 
         static Cursor printerCursor = new Cursor(0, 0);
 
+        /// <summary>
+        /// Recreate the buffer array and bounds according to the current Console dimensions.
+        /// </summary>
         public static void Resize()
         {
             bufWidth = (short)Console.WindowWidth;
@@ -174,11 +211,22 @@ namespace maple
             rect = new SmallRect() { Left = 0, Top = 0, Right = bufWidth, Bottom = bufHeight };
         }
 
+        /// <summary>
+        /// Print a string to the buffer in the given colors.
+        /// </summary>
+        /// <param name="word">The string to print.</param>
+        /// <param name="foregroundColor">The foreground color.</param>
+        /// <param name="backgroundColor">The background color.</param>
         public static void PrintWord(string word, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
         {
             PrintWord(word, GetAttributeFromColor(foregroundColor, backgroundColor));
         }
 
+        /// <summary>
+        /// Print a string to the buffer and apply the given attribute to each character.
+        /// </summary>
+        /// <param name="word">The string to print.</param>
+        /// <param name="attribute">The attribute to apply to the entire string.</param>
         public static void PrintWord(string word, short attribute)
         {
             int index = GetBufferIndex(printerCursor);
@@ -194,11 +242,13 @@ namespace maple
             printerCursor.SX += word.Length;
         }
 
-        public static void PrintManually(char c, int sX, int sY, ConsoleColor foregroundColor, ConsoleColor backgroundColor)
-        {
-            PrintManually(c, sX, sY, GetAttributeFromColor(foregroundColor, backgroundColor));
-        }
-
+        /// <summary>
+        /// Manually write character and attribute data to the buffer.
+        /// </summary>
+        /// <param name="c">The character to write.</param>
+        /// <param name="sX">The X coordinate (screen).</param>
+        /// <param name="sY">The Y coordinate (screen).</param>
+        /// <param name="attribute">The buffer attribute info.</param>
         public static void PrintManually(char c, int sX, int sY, short attribute)
         {
             int index = GetBufferIndex(sX, sY);
@@ -206,6 +256,9 @@ namespace maple
             buf[index].Attributes = attribute;
         }
 
+        /// <summary>
+        /// Clear the entire buffer and render it.
+        /// </summary>
         public static void Clear()
         {
             for (int i = 0; i < buf.Length; i++)
@@ -217,38 +270,56 @@ namespace maple
             ApplyBuffer();
         }
 
+        /// <summary>
+        /// Move the internal printer cursor to the given screen coordinates.
+        /// </summary>
+        /// <param name="x">The X coordinate (screen).</param>
+        /// <param name="y">The Y coordinate (screen).</param>
         public static void MoveCursor(int x, int y)
         {
             printerCursor.Move(x, y);
         }
 
-        public static void PrintLineSimple(String message, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
+        /// <summary>
+        /// Print a line of colored text to the Console. Not for use within the Editor.
+        /// </summary>
+        /// <param name="text">The text to print.</param>
+        /// <param name="foregroundColor">The foreground color.</param>
+        /// <param name="backgroundColor">The background color.</param>
+        public static void PrintLineSimple(String text, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
         {
             Console.ForegroundColor = foregroundColor;
             Console.BackgroundColor = backgroundColor;
-            Console.WriteLine(message);
+            Console.WriteLine(text);
         }
 
-        public static void DrawHeader(String content, ConsoleColor foregroundColor = ConsoleColor.Black, ConsoleColor backgroundColor = ConsoleColor.Gray, int offsetTop = 0)
-        {
-            ClearLine(offsetTop);
-            printerCursor.Move(0, offsetTop);
-            Console.BackgroundColor = backgroundColor;
-            Console.ForegroundColor = foregroundColor;
-            Console.WriteLine(content);
-        }
-
+        /// <summary>
+        /// Clear the footer and write colored text to it.
+        /// </summary>
+        /// <param name="content">The text to write.</param>
+        /// <param name="foregroundColor">The foreground color.</param>
+        /// <param name="backgroundColor">The background color.</param>
         public static void DrawFooter(String content, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
         {
             ClearFooter();
             WriteToFooter(content, 0, foregroundColor, backgroundColor);
         }
 
+        /// <summary>
+        /// Clear the Editor's footer region (bottom line of the Console).
+        /// </summary>
         public static void ClearFooter()
         {
             ClearLine(Cursor.MaxScreenY);
         }
 
+        /// <summary>
+        /// Write to the Editor's footer region (bottom line of the Console).
+        /// </summary>
+        /// <param name="text">The text to write.</param>
+        /// <param name="x">The </param>
+        /// <param name="foregroundColor"></param>
+        /// <param name="backgroundColor"></param>
         public static void WriteToFooter(String text, int x = -1, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
         {
             if (x != -1)
@@ -274,6 +345,10 @@ namespace maple
             printerCursor.SX += text.Length;
         }
 
+        /// <summary>
+        /// Clear the given line.
+        /// </summary>
+        /// <param name="line">The line index.</param>
         public static void ClearLine(int line)
         {
             //don't clear if out of range
@@ -288,6 +363,9 @@ namespace maple
             }
         }
 
+        /// <summary>
+        /// Clear the line to the right of the internal printer Cursor.
+        /// </summary>
         public static void ClearRight()
         {
             //don't clear if out of range
