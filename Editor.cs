@@ -24,7 +24,7 @@ namespace maple
             //create doc cursor with document
             Log.Write("Creating document cursor", "editor");
             DocCursor = new DocumentCursor(filename, 0, 0);
-            DocCursor.CalculateGutterWidth();
+            DocCursor.UpdateGutterOffset();
             DocCursor.Move(0, 0);
             DocCursor.ApplyPosition();
 

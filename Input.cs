@@ -44,262 +44,90 @@ namespace maple
             {
                 //MOVEMENT
                 case ConsoleKey.UpArrow:
-                    if (doc.HasSelection()) break;
-                    docCursor.MoveUp();
-                    docCursor.Move(maxCursorX, docCursor.DY); //attempt to move to max x position
-                    //for debugtokens
-                    if (Settings.DebugTokens && docCursor.DY + 1 <= doc.GetMaxLine())
-                        Editor.RefreshLine(docCursor.DY + 1);
+                    if (docCursor.Doc.HasSelection())
+                        break;
+                    
+                    HandleUp(docCursor);
                     break;
                 case ConsoleKey.DownArrow:
-                    if (doc.HasSelection()) break;
-                    docCursor.MoveDown();
-                    docCursor.Move(maxCursorX, docCursor.DY); //attempt to move to max x position
-                    //for debugtokens
-                    if (Settings.DebugTokens && docCursor.DY - 1 >= 0)
-                        Editor.RefreshLine(docCursor.DY - 1);
+                    if (docCursor.Doc.HasSelection())
+                        break;
+                    
+                    HandleDown(docCursor);
                     break;
                 case ConsoleKey.LeftArrow:
-                    if (doc.HasSelection()) break;
-                    docCursor.MoveLeft();
-                    maxCursorX = docCursor.DX; //update max x position
+                    if (docCursor.Doc.HasSelection())
+                        break;
+                    
+                    HandleLeft(docCursor);
                     break;
                 case ConsoleKey.RightArrow:
-                    if (doc.HasSelection()) break;
-                    if (Settings.NavigatePastTabs && docCursor.Doc.GetTextAtPosition(docCursor.DX, docCursor.DY).StartsWith(tabString)) //can skip, do so
-                    {
-                        for (int i = 0; i < Settings.TabSpacesCount; i++)
-                            docCursor.MoveRight();
-                    }
-                    else //can't skip, move normally
-                        docCursor.MoveRight();
-                    maxCursorX = docCursor.DX; //update max x position
+                    if (docCursor.Doc.HasSelection())
+                        break;
+                    
+                    HandleRight(docCursor);
                     break;
                 
                 //LINE MANIPULATION
                 case ConsoleKey.Backspace:
-                    if (ReadOnly) break;
-
-                    if (doc.HasSelection())
-                    {
-                        DeleteSelectionText(docCursor);
-                        break;
-                    }
-
-                    int charsDeleted = 0;
-                    if(docCursor.DX > 0) //not at the beginning of the line
-                    {
-                        if (Settings.DeleteEntireTabs //fancy tab delete
-                            && docCursor.DX >= Settings.TabSpacesCount
-                            && docCursor.Doc.GetTextAtPosition(docCursor.DX - Settings.TabSpacesCount, docCursor.DY).StartsWith(tabString))
-                            {
-                                for(int i = 0; i < Settings.TabSpacesCount; i++)
-                                {
-                                    bool backspaceTriggered = doc.RemoveTextAtPosition(docCursor.DX - 1, docCursor.DY);
-                                    if (backspaceTriggered)
-                                    {
-                                        docCursor.MoveLeft();
-                                        charsDeleted++;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                bool backspaceTriggered = doc.RemoveTextAtPosition(
-                                    docCursor.DX - 1,
-                                    docCursor.DY);
-
-                                if(backspaceTriggered)
-                                {
-                                    docCursor.MoveLeft();
-                                    charsDeleted++;
-                                }
-                            }
-                    }
-                    else //at beginning of line, append current line to previous
-                    {
-                        bool backspaceScrolledUp = false;
-                        if(docCursor.DY > 0)
-                        {
-                            string currentLineContent = doc.GetLine(docCursor.DY); //get remaining content on current line
-                            int previousLineMaxX = doc.GetLine(docCursor.DY - 1).Length; //get max position on preceding line
-                            string combinedLineContent = doc.GetLine(docCursor.DY - 1) + currentLineContent; //combine content
-                            doc.SetLine(docCursor.DY - 1, combinedLineContent); //set previous line to combined content
-                            doc.RemoveLine(docCursor.DY); //remove current line
-                            docCursor.CalculateGutterWidth();
-
-                            docCursor.Move(docCursor.DX, docCursor.DY - 1);
-
-                            //scroll up if necessary
-                            if(docCursor.SY == 0)
-                            {
-                                doc.ScrollUp();
-                                backspaceScrolledUp = true;
-                            }
-
-                            docCursor.Move(previousLineMaxX, docCursor.DY); //move cursor to preceding line
-                        }
-                        //update all lines below
-                        if(!backspaceScrolledUp)
-                        {
-                            for(int i = docCursor.DY; i <= doc.GetMaxLine() + 1; i++) //+1 so that the old line is cleared
-                                Editor.RefreshLine(i);
-                        }
-                        else
-                            Editor.RefreshAllLines();
-                    }
-
-                    Editor.RefreshLine(docCursor.DY);
-
-                    maxCursorX = docCursor.DX; //update max x position
+                    if (ReadOnly)
+                        return;
+                    
+                    HandleBackspace(docCursor);
                     break;
                 case ConsoleKey.Delete:
-                    if (ReadOnly) break;
-
-                    if (doc.HasSelection())
-                    {
-                        DeleteSelectionText(docCursor);
+                    if (ReadOnly)
                         break;
-                    }
 
-                    if(docCursor.DX == doc.GetLine(docCursor.DY).Length) //deleting at end of line
-                    {
-                        if(docCursor.DY < doc.GetMaxLine()) //there is a following line to append
-                        {
-                            string followingLineText = doc.GetLine(docCursor.DY + 1); //get following line content
-                            doc.SetLine(docCursor.DY, doc.GetLine(docCursor.DY) + followingLineText); //append to current
-                            doc.RemoveLine(docCursor.DY + 1); //remove next line
-                            docCursor.CalculateGutterWidth();
-                            for(int i = docCursor.DY; i < doc.GetMaxLine() + 1; i++)
-                                Editor.RefreshLine(i);
-                        }
-                    }
-                    else //basic delete
-                    {
-                        if (Settings.DeleteEntireTabs && docCursor.Doc.GetTextAtPosition(docCursor.DX, docCursor.DY).StartsWith(tabString))
-                        {
-                            for (int i = 0; i < Settings.TabSpacesCount; i++)
-                                doc.RemoveTextAtPosition(docCursor.DX, docCursor.DY);
-                        }
-                        else
-                            doc.RemoveTextAtPosition(docCursor.DX, docCursor.DY); //remove next character
-                        Editor.RefreshLine(docCursor.DY); //update line
-                    }
+                    HandleDelete(docCursor);
                     break;
                 case ConsoleKey.Enter:
-                    if (ReadOnly) break;
+                    if (ReadOnly)
+                        break;
 
-                    //don't break after clearing selection since we still want a newline
-                    if (doc.HasSelection())
-                        DeleteSelectionText(docCursor);
-
-                    doc.AddLine(docCursor.DY + 1); //add new line
-                    docCursor.CalculateGutterWidth(); //update gutter position
-
-                    string followingTextLine = doc.GetLine(docCursor.DY);
-                    string followingText = followingTextLine.Substring(docCursor.DX); //get text following cursor (on current line)
-
-                    doc.AddTextAtPosition(0, docCursor.DY + 1, followingText); //add following text to new line
-
-                    if(docCursor.DX < followingTextLine.Length)
-                        doc.SetLine(docCursor.DY, followingTextLine.Remove(docCursor.DX)); //remove following text on current line
-                    
-                    //scroll down if necessary
-                    bool enterScrolledDown = false;
-                    if(docCursor.SY >= Cursor.MaxScreenY - 1)
-                    {
-                        doc.ScrollDown();
-                        enterScrolledDown = true;
-                    }
-
-                    docCursor.Move(0, docCursor.DY + 1); //move cursor to beginning of new line
-                    Editor.RefreshLine(docCursor.SY);
-
-                    //update all lines below
-                    if(!enterScrolledDown)
-                    {
-                        for(int i = docCursor.DY - 1; i <= doc.GetMaxLine(); i++)
-                            Editor.RefreshLine(i);
-                    }
-                    else
-                        Editor.RefreshAllLines();
-
-                    maxCursorX = docCursor.DX; //update max x position
-                    break;
-                case ConsoleKey.Escape:
-                    ToggleInputTarget();
+                    HandleEnter(docCursor);
                     break;
                 case ConsoleKey.Tab:
-                    if (ReadOnly) break;
-
-                    //if selected, indent all
-                    if (doc.HasSelection())
-                    {
-                        for (int i = doc.SelectInY; i <= doc.SelectOutY; i++)
-                            doc.AddTextAtPosition(0, i, tabString);
-
-                        //rerender all
-                        Printer.Clear();
-                        Editor.RefreshAllLines();
-                        Editor.RedrawLines();
+                    if (ReadOnly)
                         break;
-                    }
-
-                    bool tabTextAdded = doc.AddTextAtPosition(docCursor.DX, docCursor.DY, tabString); //attempt to add tab text
                     
-                    if(tabTextAdded)
-                    {
-                        for(int i = 0; i < Settings.TabSpacesCount; i++) //move cursor forward as appropriate
-                            docCursor.MoveRight();
-                        Editor.RefreshLine(docCursor.DY);
-                    }
+                    HandleTab(docCursor);
+                    break;
 
-                    maxCursorX = docCursor.DX; //update max x position
+                //NAVIGATION
+                case ConsoleKey.Escape:
+                    HandleEscape(docCursor);
                     break;
                 case ConsoleKey.Home:
                     if (doc.HasSelection())
                         break;
-                    docCursor.Move(0, docCursor.DY); //move to beginning of line
-                    maxCursorX = docCursor.DX; //update max x position
+                    
+                    HandleHome(docCursor);
                     break;
                 case ConsoleKey.End:
                     if (doc.HasSelection())
                         break;
-                    docCursor.Move(doc.GetLine(docCursor.DY).Length, docCursor.DY); //move to end of line
-                    maxCursorX = docCursor.DX; //update max x position
-                    break;
-                case ConsoleKey.PageUp:
-                    if (doc.HasSelection())
-                        break;
-                    docCursor.Move(docCursor.DX, docCursor.DY - doc.ScrollYIncrement);
+                    
+                    HandleEnd(docCursor);
                     break;
                 case ConsoleKey.PageDown:
                     if (doc.HasSelection())
                         break;
-                    docCursor.Move(docCursor.DX, docCursor.DY + doc.ScrollYIncrement);
+                    
+                    HandlePageDown(docCursor);
                     break;
+                case ConsoleKey.PageUp:
+                    if (doc.HasSelection())
+                        break;
+
+                    HandlePageUp(docCursor);
+                    break;
+                
                 //TYPING
                 default:
                     if (ReadOnly) break;
 
-                    //clear selection before typing
-                    if (doc.HasSelection())
-                        DeleteSelectionText(docCursor);
-
-                    String typed = keyInfo.KeyChar.ToString();
-                    //continue only if the typed character can be displayed
-                    Regex r = new Regex("\\P{Cc}");
-                    if(!r.Match(typed).Success)
-                        break;
-
-                    int oldTokenCount = doc.GetLineTokenCount(docCursor.DY); //track old token count to determine if redraw is necessary
-                    bool addedText = doc.AddTextAtPosition(docCursor.DX, docCursor.DY, typed);
-                    if(addedText)
-                    {
-                        docCursor.MoveRight();
-                        Editor.RefreshLine(docCursor.DY);
-                    }
-                    maxCursorX = docCursor.DX; //update max x position
+                    HandleTyping(docCursor, keyInfo);
                     break;
             }
         }
@@ -386,6 +214,271 @@ namespace maple
 
                     break;
             }
+        }
+
+        static void HandleUp(DocumentCursor c)
+        {
+            c.MoveUp();
+            c.Move(maxCursorX, c.DY); //attempt to move to max x position
+
+            //for debugtokens
+            if (Settings.DebugTokens && c.DY + 1 <= c.Doc.GetMaxLine())
+                Editor.RefreshLine(c.DY + 1);
+        }
+
+        static void HandleDown(DocumentCursor c)
+        {
+            c.MoveDown();
+            c.Move(maxCursorX, c.DY); //attempt to move to max x position
+
+            //for debugtokens
+            if (Settings.DebugTokens && c.DY - 1 >= 0)
+                Editor.RefreshLine(c.DY - 1);
+        }
+
+        static void HandleLeft(DocumentCursor c)
+        {
+            c.MoveLeft();
+            maxCursorX = c.DX; //update max x position
+        }
+
+        static void HandleRight(DocumentCursor c)
+        {
+            if (Settings.NavigatePastTabs && c.Doc.GetTextAtPosition(c.DX, c.DY).StartsWith(tabString)) //can skip, do so
+            {
+                for (int i = 0; i < Settings.TabSpacesCount; i++)
+                    c.MoveRight();
+            }
+            else //can't skip, move normally
+                c.MoveRight();
+            maxCursorX = c.DX; //update max x position
+        }
+
+        static void HandleBackspace(DocumentCursor c)
+        {
+            if (c.Doc.HasSelection())
+            {
+                DeleteSelectionText(c);
+                return;
+            }
+
+            int charsDeleted = 0;
+            if(c.DX > 0) //not at the beginning of the line
+            {
+                if (Settings.DeleteEntireTabs //fancy tab delete
+                    && c.DX >= Settings.TabSpacesCount
+                    && c.Doc.GetTextAtPosition(c.DX - Settings.TabSpacesCount, c.DY).StartsWith(tabString))
+                    {
+                        for(int i = 0; i < Settings.TabSpacesCount; i++)
+                        {
+                            bool backspaceTriggered = c.Doc.RemoveTextAtPosition(c.DX - 1, c.DY);
+                            if (backspaceTriggered)
+                            {
+                                c.MoveLeft();
+                                charsDeleted++;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        bool backspaceTriggered = c.Doc.RemoveTextAtPosition(
+                            c.DX - 1,
+                            c.DY);
+
+                        if(backspaceTriggered)
+                        {
+                            c.MoveLeft();
+                            charsDeleted++;
+                        }
+                    }
+            }
+            else //at beginning of line, append current line to previous
+            {
+                bool backspaceScrolledUp = false;
+                if(c.DY > 0)
+                {
+                    string currentLineContent = c.Doc.GetLine(c.DY); //get remaining content on current line
+                    int previousLineMaxX = c.Doc.GetLine(c.DY - 1).Length; //get max position on preceding line
+                    string combinedLineContent = c.Doc.GetLine(c.DY - 1) + currentLineContent; //combine content
+                    c.Doc.SetLine(c.DY - 1, combinedLineContent); //set previous line to combined content
+                    c.Doc.RemoveLine(c.DY); //remove current line
+                    c.UpdateGutterOffset();
+
+                    c.Move(c.DX, c.DY - 1);
+
+                    //scroll up if necessary
+                    if(c.SY == 0)
+                    {
+                        c.Doc.ScrollUp();
+                        backspaceScrolledUp = true;
+                    }
+
+                    c.Move(previousLineMaxX, c.DY); //move cursor to preceding line
+                }
+                //update all lines below
+                if(!backspaceScrolledUp)
+                {
+                    for(int i = c.DY; i <= c.Doc.GetMaxLine() + 1; i++) //+1 so that the old line is cleared
+                        Editor.RefreshLine(i);
+                }
+                else
+                    Editor.RefreshAllLines();
+            }
+
+            Editor.RefreshLine(c.DY);
+
+            maxCursorX = c.DX; //update max x position
+        }
+
+        static void HandleDelete(DocumentCursor c)
+        {
+            if (c.Doc.HasSelection())
+            {
+                DeleteSelectionText(c);
+                return;
+            }
+
+            if(c.DX == c.Doc.GetLine(c.DY).Length) //deleting at end of line
+            {
+                if(c.DY < c.Doc.GetMaxLine()) //there is a following line to append
+                {
+                    string followingLineText = c.Doc.GetLine(c.DY + 1); //get following line content
+                    c.Doc.SetLine(c.DY, c.Doc.GetLine(c.DY) + followingLineText); //append to current
+                    c.Doc.RemoveLine(c.DY + 1); //remove next line
+                    c.UpdateGutterOffset();
+                    for(int i = c.DY; i < c.Doc.GetMaxLine() + 1; i++)
+                        Editor.RefreshLine(i);
+                }
+            }
+            else //basic delete
+            {
+                if (Settings.DeleteEntireTabs && c.Doc.GetTextAtPosition(c.DX, c.DY).StartsWith(tabString))
+                {
+                    for (int i = 0; i < Settings.TabSpacesCount; i++)
+                        c.Doc.RemoveTextAtPosition(c.DX, c.DY);
+                }
+                else
+                    c.Doc.RemoveTextAtPosition(c.DX, c.DY); //remove next character
+                Editor.RefreshLine(c.DY); //update line
+            }
+        }
+
+        static void HandleEnter(DocumentCursor c)
+        {
+            //don't break after clearing selection since we still want a newline
+            if (c.Doc.HasSelection())
+                DeleteSelectionText(c);
+
+            c.Doc.AddLine(c.DY + 1); //add new line
+            c.UpdateGutterOffset(); //update gutter position
+
+            string followingTextLine = c.Doc.GetLine(c.DY);
+            string followingText = followingTextLine.Substring(c.DX); //get text following cursor (on current line)
+
+            c.Doc.AddTextAtPosition(0, c.DY + 1, followingText); //add following text to new line
+
+            if(c.DX < followingTextLine.Length)
+                c.Doc.SetLine(c.DY, followingTextLine.Remove(c.DX)); //remove following text on current line
+            
+            //scroll down if necessary
+            bool enterScrolledDown = false;
+            if(c.SY >= Cursor.MaxScreenY - 1)
+            {
+                c.Doc.ScrollDown();
+                enterScrolledDown = true;
+            }
+
+            c.Move(0, c.DY + 1); //move cursor to beginning of new line
+            Editor.RefreshLine(c.SY);
+
+            //update all lines below
+            if(!enterScrolledDown)
+            {
+                for(int i = c.DY - 1; i <= c.Doc.GetMaxLine(); i++)
+                    Editor.RefreshLine(i);
+            }
+            else
+                Editor.RefreshAllLines();
+
+            maxCursorX = c.DX; //update max x position
+        }
+
+        static void HandleEscape(DocumentCursor c)
+        {
+            CommandLine.ClearInput();
+            CommandLine.CommandHistoryIndex = -1;
+            ToggleInputTarget();
+        }
+
+        static void HandleTab(DocumentCursor c)
+        {
+            //if selected, indent all
+            if (c.Doc.HasSelection())
+            {
+                for (int i = c.Doc.SelectInY; i <= c.Doc.SelectOutY; i++)
+                    c.Doc.AddTextAtPosition(0, i, tabString);
+
+                //rerender all
+                Printer.Clear();
+                Editor.RefreshAllLines();
+                Editor.RedrawLines();
+                return;
+            }
+
+            bool tabTextAdded = c.Doc.AddTextAtPosition(c.DX, c.DY, tabString); //attempt to add tab text
+            
+            if(tabTextAdded)
+            {
+                for(int i = 0; i < Settings.TabSpacesCount; i++) //move cursor forward as appropriate
+                    c.MoveRight();
+                Editor.RefreshLine(c.DY);
+            }
+
+            maxCursorX = c.DX; //update max x position
+        }
+
+        static void HandleHome(DocumentCursor c)
+        {
+            c.Move(0, c.DY);
+            maxCursorX = c.DX;
+        }
+
+        static void HandleEnd(DocumentCursor c)
+        {
+            c.Move(c.Doc.GetLine(c.DY).Length, c.DY); //move to end of line
+            maxCursorX = c.DX; //update max x position
+        }
+
+        static void HandlePageUp(DocumentCursor c)
+        {
+            c.Move(c.DX, c.DY - c.Doc.ScrollYIncrement);
+        }
+
+        static void HandlePageDown(DocumentCursor c)
+        {
+            c.Move(c.DX, c.DY + c.Doc.ScrollYIncrement);
+        }
+
+        static void HandleTyping(DocumentCursor c, ConsoleKeyInfo keyInfo)
+        {
+            //clear selection before typing
+            if (c.Doc.HasSelection())
+                DeleteSelectionText(c);
+
+            String typed = keyInfo.KeyChar.ToString();
+            //continue only if the typed character can be displayed
+            Regex r = new Regex("\\P{Cc}");
+            if(!r.Match(typed).Success)
+                return;
+
+            int oldTokenCount = c.Doc.GetLineTokenCount(c.DY); //track old token count to determine if redraw is necessary
+            bool addedText = c.Doc.AddTextAtPosition(c.DX, c.DY, typed);
+            if(addedText)
+            {
+                c.MoveRight();
+                Editor.RefreshLine(c.DY);
+            }
+            maxCursorX = c.DX; //update max x position
         }
 
         public static void ToggleInputTarget()

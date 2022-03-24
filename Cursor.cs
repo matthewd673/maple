@@ -26,6 +26,7 @@ namespace maple
                 return newMaxScreenX;
             }
         }
+
         private static int _oldMaxScreenY = 0;
         public static int MaxScreenY
         {
@@ -46,16 +47,11 @@ namespace maple
         {
             DX = dX;
             DY = dY;
-
-            // CalculateCursorBounds();
         }
-        
-        // public static void CalculateCursorBounds()
-        // {
-        //     MaxScreenX = Console.BufferWidth - 1;
-        //     MaxScreenY = Console.BufferHeight - 1;
-        // }
 
+        /// <summary>
+        /// Force the screen X and Y coordinates to fall within the window constraints
+        /// </summary>
         public void LockToScreenConstraints()
         {
             //keep screen x, y in safe range
@@ -69,6 +65,12 @@ namespace maple
                 SY = MaxScreenY;
         }
 
+        /// <summary>
+        /// Safely move the Cursor to the given coordinates.
+        /// </summary>
+        /// <param name="tX">The new X coordinate (Document).</param>
+        /// <param name="tY">The new Y coordinate (Document).</param>
+        /// <param name="constrainToScreen">Lock the Cursor to the screen constraints after moving.</param>
         public void Move(int tX, int tY, bool constrainToScreen = true)
         {
             DX = tX;
@@ -83,6 +85,9 @@ namespace maple
             Console.SetCursorPosition(SX, SY);
         }
 
+        /// <summary>
+        /// Force the Console's cursor to move to the Cursor's screen coordinates.
+        /// </summary>
         public void ApplyPosition()
         {
             Console.SetCursorPosition(SX, SY);

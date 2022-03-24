@@ -12,6 +12,9 @@ namespace maple
             Doc = new Document(filepath, internalDocument: false);
         }
 
+        /// <summary>
+        /// Safely move the Cursor left by 1 character (Document coordinates).
+        /// </summary>
         public void MoveLeft()
         {
             if(SX == 0 && Doc.ScrollX > 0)
@@ -34,6 +37,9 @@ namespace maple
                 }
             }
         }
+        /// <summary>
+        /// Safely move the Cursor right by 1 character (Document coordinates).
+        /// </summary>
         public void MoveRight()
         {
             if(SY == MaxScreenX - 1)
@@ -54,6 +60,9 @@ namespace maple
                 }
             }
         }
+        /// <summary>
+        /// Safely move the Cursor up 1 line (Document coordinates).
+        /// </summary>
         public void MoveUp()
         {
             if(SY == 0 && Doc.ScrollY > 0)
@@ -65,6 +74,9 @@ namespace maple
             else
                 Move(DX, DY - 1);
         }
+        /// <summary>
+        /// Safely move the Cursor down 1 line (Document coordinates).
+        /// </summary>
         public void MoveDown()
         {
             if(SY == MaxScreenY - 1)
@@ -77,6 +89,9 @@ namespace maple
                 Move(DX, DY + 1);
         }
 
+        /// <summary>
+        /// Force the document X and Y coordinates to fall within the Document's constraints.
+        /// </summary>
         public void LockToDocConstraints()
         {
             if(DY < 0)
@@ -90,6 +105,13 @@ namespace maple
                 DX = Doc.GetLine(DY).Length;
         }
 
+        /// <summary>
+        /// Safely move the Cursor to the given coordinates.
+        /// </summary>
+        /// <param name="tX">The new X coordinate (Document).</param>
+        /// <param name="tY">The new Y coordinate (Document).</param>
+        /// <param name="constrainToDoc">Lock the Cursor to the Document constraints after moving.</param>
+        /// <param name="constrainToScreen">Lock the Cursor to the screen constraints after moving.</param>
         public void Move(int tX, int tY, bool constrainToDoc = true, bool constrainToScreen = true)
         {
             DX = tX;
@@ -133,7 +155,10 @@ namespace maple
             Console.SetCursorPosition(SX, SY);
         }
 
-        public void CalculateGutterWidth()
+        /// <summary>
+        /// Update the Cursor's X offset according to the Document gutter.
+        /// </summary>
+        public void UpdateGutterOffset()
         {
             //get gutter width from doc
             int gutterWidth = Doc.CalculateGutterWidth();

@@ -406,10 +406,6 @@ namespace maple
         static void ReadonlyCommand()
         {
             Input.ReadOnly = !Input.ReadOnly;
-            if (Input.ReadOnly)
-                SetOutput("Editor is now readonly, use 'readonly' command to toggle", "readonly");
-            else
-                SetOutput("Editor is no longer readonly", "readonly");
         }
 
         static void SyntaxCommand(List<string> args, List<string> switches)
