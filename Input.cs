@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text.RegularExpressions;
 
 namespace maple
@@ -39,6 +39,12 @@ namespace maple
         {
             DocumentCursor docCursor = Editor.DocCursor;
             Document doc = docCursor.Doc;
+
+            if (keyInfo.Modifiers == ConsoleModifiers.Control)
+            {
+                HandleShortcut(keyInfo);
+                return;
+            }
 
             switch(keyInfo.Key)
             {
@@ -236,10 +242,15 @@ namespace maple
                 Editor.RefreshLine(c.DY - 1);
         }
 
+        public static void UpdateMaxCursorX(DocumentCursor c)
+        {
+            maxCursorX = c.DX;
+        }
+
         static void HandleLeft(DocumentCursor c)
         {
             c.MoveLeft();
-            maxCursorX = c.DX; //update max x position
+            UpdateMaxCursorX(c); //update max x position
         }
 
         static void HandleRight(DocumentCursor c)
@@ -251,7 +262,7 @@ namespace maple
             }
             else //can't skip, move normally
                 c.MoveRight();
-            maxCursorX = c.DX; //update max x position
+            UpdateMaxCursorX(c); //update max x position
         }
 
         static void HandleBackspace(DocumentCursor c)
@@ -479,6 +490,18 @@ namespace maple
                 Editor.RefreshLine(c.DY);
             }
             maxCursorX = c.DX; //update max x position
+        }
+
+        static void HandleShortcut(ConsoleKeyInfo keyInfo)
+        {
+            //skip if shortcut doesn't exist
+            if (!Settings.Shortcuts.ContainsKey(keyInfo.Key))
+                return;
+
+            //fill in command text and execute
+            CurrentTarget = InputTarget.Command; //simulate user entering cli
+            CommandLine.InputText = Settings.Shortcuts[keyInfo.Key];
+            CommandLine.ExecuteInput();
         }
 
         public static void ToggleInputTarget()

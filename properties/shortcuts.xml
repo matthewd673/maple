@@ -1,0 +1,6 @@
+<xml>
+    <shortcut key="s">save</shortcut>
+    <shortcut key="i">selectin</shortcut>
+    <shortcut key="o">selectout</shortcut>
+    <shortcut key="d">deselect</shortcut>
+</xml>

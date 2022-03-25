@@ -1,4 +1,4 @@
-<xml>
+﻿<xml>
     <!--Switches-->
     <property name="quickCli">False</property>
     <property name="debugTokens">False</property>
@@ -10,6 +10,7 @@
     <property name="readonly">False</property>
     <property name="enableLogging">True</property>
     <property name="summarizeLog">False</property>
+    <property name="saveOnClose">False</property>
     <!--Arguments-->
     <property name="themeDirectory">{mapledir}\themes</property>
     <property name="themeFile">maple.xml</property>

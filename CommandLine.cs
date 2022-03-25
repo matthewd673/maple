@@ -21,7 +21,7 @@ namespace maple
             "syntax", "alias", "url", "find", "deindent", "count"
             };
 
-        public static string InputText { get; private set; } = "";
+        public static string InputText { get; set; } = "";
 
         private static string _outputText = "";
         public static string OutputText
@@ -331,6 +331,8 @@ namespace maple
 
         static void CloseCommand()
         {
+            if (Settings.SaveOnClose) //call save command first
+                SaveCommand(new List<string>(), new List<string>());
             Program.Close();
         }
 
@@ -644,6 +646,7 @@ namespace maple
             Log.WriteDebug("Find index: " + findIndex, "commandline/find");
 
             Editor.DocCursor.Move(indexes[findIndex].X, indexes[findIndex].Y);
+            Input.UpdateMaxCursorX(Editor.DocCursor);
 
             lastFindIndex = findIndex;
 

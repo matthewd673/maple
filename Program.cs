@@ -85,6 +85,7 @@ namespace maple
             //load settings
             Settings.LoadSettings();
             Settings.LoadAliases();
+            Settings.LoadShortcuts();
 
             //delete log file and pretend nothing happened if logging is actually disabled
             if (!Settings.EnableLogging)

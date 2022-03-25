@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
@@ -12,6 +12,7 @@ namespace maple
         public static string MapleDirectory { get; private set; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static string SettingsFile { get; set; } = Path.Combine(MapleDirectory, "properties", "properties.xml");
         public static string AliasesFile { get; set; } = Path.Combine(MapleDirectory, "properties", "aliases.xml");
+        public static string ShortcutsFile { get; set; } = Path.Combine(MapleDirectory, "properties", "shortcuts.xml");
 
         //properties
         public static bool QuickCli { get; set; } = false;
@@ -23,6 +24,7 @@ namespace maple
         public static bool DeleteEntireTabs { get; set; } = true;
         public static bool EnableLogging { get; set; } = true;
         public static bool SummarizeLog { get; set; } = false;
+        public static bool SaveOnClose { get; set; } = false;
 
         public static string ThemeDirectory { get; private set; } = Path.Combine(MapleDirectory, "themes");
         public static string ThemeFile { get; private set; } = "maple.xml";
@@ -33,7 +35,8 @@ namespace maple
 
         static List<string> ignoreList = new List<string>(); //stores a list of settings to ignore when loading
 
-        public static Dictionary<string, string> Aliases { get; private set; } = new Dictionary<string, string>();
+        public static Dictionary<string, string> Aliases { get; private set; } = new();
+        public static Dictionary<ConsoleKey, string> Shortcuts { get; private set; } = new();
 
         public static void IgnoreSetting(string name)
         {
@@ -113,6 +116,10 @@ namespace maple
                     case "summarizelog":
                         SummarizeLog = IsTrue(value);
                         break;
+                    case "saveonclose":
+                        SaveOnClose = IsTrue(value);
+                        break;
+
                     //ARGUMENTS
                     case "themedirectory":
                         ThemeDirectory = value;
@@ -190,6 +197,132 @@ namespace maple
 
                 Aliases.Add(value, command);
             }
+        }
+
+        public static void LoadShortcuts()
+        {
+            XmlDocument document = new XmlDocument();
+
+            if (!File.Exists(ShortcutsFile))
+            {
+                Log.Write("Shortcuts file doesn't exist at '" + ShortcutsFile + "'", "settings", important: true);
+                return;
+            }
+
+            try
+            {
+                document.Load(ShortcutsFile);
+            }
+            catch (Exception e)
+            {
+                CommandLine.SetOutput("Encountered an exception while loading shortcut XML", "internal", oType: CommandLine.OutputType.Error);
+                Log.Write("Encountered exception while loading shortcut XML: " + e.Message, "settings", important: true);
+            }
+
+            XmlNodeList shortcuts = document.GetElementsByTagName("shortcut");
+            foreach (XmlNode node in shortcuts)
+            {
+                ConsoleKey key = ConsoleKey.NoName;
+                string command = "";
+                foreach (XmlAttribute a in node.Attributes)
+                {
+                    if (a.Name.ToLower() != "key")
+                        return;
+                    
+                    key = CharToConsoleKey(a.Value.ToLower().ToCharArray()[0]);
+                }
+
+                command = node.InnerText;
+
+                Shortcuts.Add(key, command);
+            }
+        }
+
+        static ConsoleKey CharToConsoleKey(char c)
+        {
+            switch (c)
+            {
+                case 'A':
+                case 'a':
+                    return ConsoleKey.A;
+                case 'B':
+                case 'b':
+                    return ConsoleKey.B;
+                case 'C':
+                case 'c':
+                    return ConsoleKey.C;
+                case 'D':
+                case 'd':
+                    return ConsoleKey.D;
+                case 'E':
+                case 'e':
+                    return ConsoleKey.E;
+                case 'F':
+                case 'f':
+                    return ConsoleKey.F;
+                case 'G':
+                case 'g':
+                    return ConsoleKey.G;
+                case 'H':
+                case 'h':
+                    return ConsoleKey.H;
+                case 'I':
+                case 'i':
+                    return ConsoleKey.I;
+                case 'J':
+                case 'j':
+                    return ConsoleKey.J;
+                case 'K':
+                case 'k':
+                    return ConsoleKey.K;
+                case 'L':
+                case 'l':
+                    return ConsoleKey.L;
+                case 'M':
+                case 'm':
+                    return ConsoleKey.M;
+                case 'N':
+                case 'n':
+                    return ConsoleKey.N;
+                case 'O':
+                case 'o':
+                    return ConsoleKey.O;
+                case 'P':
+                case 'p':
+                    return ConsoleKey.P;
+                case 'Q':
+                case 'q':
+                    return ConsoleKey.Q;
+                case 'R':
+                case 'r':
+                    return ConsoleKey.R;
+                case 'S':
+                case 's':
+                    return ConsoleKey.S;
+                case 'T':
+                case 't':
+                    return ConsoleKey.T;
+                case 'U':
+                case 'u':
+                    return ConsoleKey.U;
+                case 'V':
+                case 'v':
+                    return ConsoleKey.V;
+                case 'W':
+                case 'w':
+                    return ConsoleKey.W;
+                case 'X':
+                case 'x':
+                    return ConsoleKey.X;
+                case 'Y':
+                case 'y':
+                    return ConsoleKey.Y;
+                case 'Z':
+                case 'z':
+                    return ConsoleKey.Z;
+            }
+
+            return ConsoleKey.NoName; //there is not "null" so this is the best I can do
         }
 
         public static bool IsTrue(string value)
