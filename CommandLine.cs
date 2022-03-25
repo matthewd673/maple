@@ -511,6 +511,7 @@ namespace maple
             bool forceFindHere = (switches.Contains("--here") || switches.Contains("-h"));
             if (forceFindHere) {
                 search = Editor.CurrentDoc.GetTokenAtPosition(Editor.DocCursor.DX, Editor.DocCursor.DY).Text;
+                Log.WriteDebug("Finding --here: '" + search + "'", "commandline/find");
                 SetOutput(String.Format("Finding '{0}'", search), "find");
             }
 
@@ -568,7 +569,6 @@ namespace maple
                     if (nextIndex == lastIndex)
                         break;
 
-                    // Log.Write(nextIndex + " on line " + i, "commandline/find");
                     indexes.Add(new Point(nextIndex, i - 1));
 
                     if (firstAfterCursor == -1 && 

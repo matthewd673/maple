@@ -84,6 +84,12 @@ It is necessary to clear command output before toggling to the command input aga
 
 Maple supports aliases to make entering commands faster or easier to remember. Aliases are contained in `properties/aliases.xml`. Some of the default aliases include **`s`** for `save`, **`go`** for `goto`, and **`ro`** for `readonly`.
 
+### Shortcuts
+
+Maple supports custom keyboard shortcuts (<kbd>Ctrl</kbd> + *key*) defined in `properties/shortcuts.xml`.
+
+Shortcuts fill the command line input with a custom string. They can also be configured to automatically execute their command.
+
 ## Properties & Switches
 
 User preferences are stored in `properties/properties.xml`, which is read on startup.
@@ -136,6 +142,8 @@ For quick access to properties, themes, and other maple files there are a few ni
 **`{propfile}`:** the `properties.xml` file
 
 **`{aliasfile}`:** the `aliases.xml` file
+
+**`{shortcutfile}`:** the `shortcuts.xml` file
 
 **`{mapledir}`:** the maple directory
 

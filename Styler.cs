@@ -50,6 +50,7 @@ namespace maple
         public static void AssignThemeColors(string themePath)
         {
             XmlDocument document = new XmlDocument();
+            document.PreserveWhitespace = true;
 
             try
             {
@@ -127,6 +128,7 @@ namespace maple
         public static void AssignCustomText(string themePath)
         {
             XmlDocument document = new XmlDocument();
+            document.PreserveWhitespace = true;
 
             try
             {

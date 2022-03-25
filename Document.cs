@@ -85,6 +85,8 @@ namespace maple
                         return Settings.SettingsFile;
                     case "{aliasfile}":
                         return Settings.AliasesFile;
+                    case "{shortcutfile}":
+                        return Settings.ShortcutsFile;
                 }
 
                 //check for path substitution

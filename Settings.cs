@@ -36,7 +36,7 @@ namespace maple
         static List<string> ignoreList = new List<string>(); //stores a list of settings to ignore when loading
 
         public static Dictionary<string, string> Aliases { get; private set; } = new();
-        public static Dictionary<ConsoleKey, string> Shortcuts { get; private set; } = new();
+        public static Dictionary<ConsoleKey, ShortcutInfo> Shortcuts { get; private set; } = new();
 
         public static void IgnoreSetting(string name)
         {
@@ -46,6 +46,7 @@ namespace maple
         public static void LoadSettings()
         {
             XmlDocument document = new XmlDocument();
+            document.PreserveWhitespace = true;
 
             if (!File.Exists(SettingsFile))
             {
@@ -163,6 +164,7 @@ namespace maple
         public static void LoadAliases()
         {
             XmlDocument document = new XmlDocument();
+            document.PreserveWhitespace = true;
 
             if (!File.Exists(AliasesFile))
             {
@@ -202,6 +204,7 @@ namespace maple
         public static void LoadShortcuts()
         {
             XmlDocument document = new XmlDocument();
+            document.PreserveWhitespace = true;
 
             if (!File.Exists(ShortcutsFile))
             {
@@ -223,18 +226,20 @@ namespace maple
             foreach (XmlNode node in shortcuts)
             {
                 ConsoleKey key = ConsoleKey.NoName;
+                bool execute = false;
                 string command = "";
+
                 foreach (XmlAttribute a in node.Attributes)
                 {
-                    if (a.Name.ToLower() != "key")
-                        return;
-                    
-                    key = CharToConsoleKey(a.Value.ToLower().ToCharArray()[0]);
+                    if (a.Name.ToLower().Equals("key"))
+                        key = CharToConsoleKey(a.Value.ToLower().ToCharArray()[0]);
+                    else if (a.Name.ToLower().Equals("execute"))
+                        execute = IsTrue(a.Value.ToLower());
                 }
 
                 command = node.InnerText;
 
-                Shortcuts.Add(key, command);
+                Shortcuts.Add(key, new ShortcutInfo(command, execute));
             }
         }
 
@@ -328,6 +333,18 @@ namespace maple
         public static bool IsTrue(string value)
         {
             return value.Equals("true") | value.Equals("t") | value.Equals("1");
+        }
+
+        public struct ShortcutInfo
+        {
+            public string Command { get; set; }
+            public bool Execute { get; set; }
+
+            public ShortcutInfo(string command, bool execute)
+            {
+                Command = command;
+                Execute = execute;
+            }
         }
 
     }

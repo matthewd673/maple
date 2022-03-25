@@ -31,6 +31,6 @@
     <!--Editor Customizations-->
     <string category="vanityFooter">maple</string>
     <string category="gutterLeftPad">0</string>
-    <string category="gutterBarrier"></string>
+    <string category="gutterBarrier"> </string>
     <string category="overflowIndicator">…</string>
 </xml>

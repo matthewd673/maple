@@ -1,6 +1,8 @@
 <xml>
-    <shortcut key="s">save</shortcut>
-    <shortcut key="i">selectin</shortcut>
-    <shortcut key="o">selectout</shortcut>
-    <shortcut key="d">deselect</shortcut>
+    <shortcut key="s" execute="True">save</shortcut>
+    <shortcut key="i" execute="True">selectin</shortcut>
+    <shortcut key="o" execute="True">selectout</shortcut>
+    <shortcut key="d" execute="True">deselect</shortcut>
+    <shortcut key="f">find </shortcut>
+    <shortcut key="l">load </shortcut>
 </xml>

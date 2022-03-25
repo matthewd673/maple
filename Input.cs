@@ -498,10 +498,14 @@ namespace maple
             if (!Settings.Shortcuts.ContainsKey(keyInfo.Key))
                 return;
 
-            //fill in command text and execute
+            Settings.ShortcutInfo shortcutInfo = Settings.Shortcuts[keyInfo.Key];
+
             CurrentTarget = InputTarget.Command; //simulate user entering cli
-            CommandLine.InputText = Settings.Shortcuts[keyInfo.Key];
-            CommandLine.ExecuteInput();
+            CommandLine.InputText = shortcutInfo.Command;
+            Editor.CmdCursor.DX = CommandLine.InputText.Length;
+
+            if (shortcutInfo.Execute)
+                CommandLine.ExecuteInput();
         }
 
         public static void ToggleInputTarget()
