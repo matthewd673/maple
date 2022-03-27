@@ -18,7 +18,8 @@ namespace maple
         public static string[] CommandMasterList { get; } = new string[] {
             "help", "save", "load", "new", "close", "cls", "top", "bot",
             "redraw", "goto", "selectin", "selectout", "deselect", "readonly",
-            "syntax", "alias", "url", "find", "deindent", "count", "copy", "paste", "cut"
+            "syntax", "alias", "url", "find", "deindent", "count", "copy", "paste",
+            "cut", "selectline"
             };
 
         public static string InputText { get; set; } = "";
@@ -182,6 +183,9 @@ namespace maple
                 case "cut":
                     CutCommand();
                     break;
+                case "selectline":
+                    SelectLineCommand();
+                    break;
                 default:
                     UnknownCommand();
                     break;
@@ -270,6 +274,18 @@ namespace maple
                     break;
                 case "count":
                     SetOutput("count: get stats on the document", "count");
+                    break;
+                case "copy":
+                    SetOutput("copy: copy the current selection or line to the internal clipboard", "help");
+                    break;
+                case "paste":
+                    SetOutput("paste: paste the contents of the internal clipboard", "help");
+                    break;
+                case "cut":
+                    SetOutput("cut: cut the current selection or line", "help");
+                    break;
+                case "selectline":
+                    SetOutput("selectline: select the current line", "help");
                     break;
                 default:
                     UnknownCommand();
@@ -778,6 +794,17 @@ namespace maple
                 Editor.CurrentDoc.RemoveLine(Editor.DocCursor.DY);
                 Editor.RefreshAllLines();
             }
+        }
+
+        static void SelectLineCommand()
+        {
+            if (Editor.CurrentDoc.HasSelection())
+                Editor.RefreshAllLines();
+            
+            Editor.CurrentDoc.MarkSelectionIn(0, Editor.DocCursor.DY);
+            Editor.CurrentDoc.MarkSelectionOut(Editor.CurrentDoc.GetLine(Editor.DocCursor.DY).Length, Editor.DocCursor.DY);
+
+            Editor.RefreshLine(Editor.DocCursor.DY);
         }
 
         static void UnknownCommand()

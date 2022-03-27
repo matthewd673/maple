@@ -25,6 +25,7 @@ namespace maple
         public static bool EnableLogging { get; set; } = true;
         public static bool SummarizeLog { get; set; } = false;
         public static bool SaveOnClose { get; set; } = false;
+        public static bool PreserveIndentOnEnter { get; set; } = true;
 
         public static string ThemeDirectory { get; private set; } = Path.Combine(MapleDirectory, "themes");
         public static string ThemeFile { get; private set; } = "maple.xml";
@@ -119,6 +120,9 @@ namespace maple
                         break;
                     case "saveonclose":
                         SaveOnClose = IsTrue(value);
+                        break;
+                    case "preserveidentonenter":
+                        PreserveIndentOnEnter = IsTrue(value);
                         break;
 
                     //ARGUMENTS

@@ -380,13 +380,34 @@ namespace maple
             if (c.Doc.HasSelection())
                 DeleteSelectionText(c);
 
+            //insert tab string at beginning of new line
+            string newLineTabString = "";
+            if (Settings.PreserveIndentOnEnter)
+            {
+                string lineTabSearchString = c.Doc.GetLine(c.DY);
+                while (lineTabSearchString.StartsWith(tabString))
+                {
+                    newLineTabString += tabString;
+                    lineTabSearchString = lineTabSearchString.Remove(0, tabString.Length);
+                }
+            }
+
             c.Doc.AddLine(c.DY + 1); //add new line
             c.UpdateGutterOffset(); //update gutter position
 
             string followingTextLine = c.Doc.GetLine(c.DY);
             string followingText = followingTextLine.Substring(c.DX); //get text following cursor (on current line)
 
-            c.Doc.AddTextAtPosition(0, c.DY + 1, followingText); //add following text to new line
+            //remove tab string from beginning of following line
+            if (Settings.PreserveIndentOnEnter)
+            {
+                while (followingText.StartsWith(tabString))
+                {
+                    followingText = followingText.Remove(0, tabString.Length);
+                }
+            }
+
+            c.Doc.AddTextAtPosition(0, c.DY + 1, newLineTabString + followingText); //add following text to new line
 
             if(c.DX < followingTextLine.Length)
                 c.Doc.SetLine(c.DY, followingTextLine.Remove(c.DX)); //remove following text on current line
@@ -399,7 +420,7 @@ namespace maple
                 enterScrolledDown = true;
             }
 
-            c.Move(0, c.DY + 1); //move cursor to beginning of new line
+            c.Move(newLineTabString.Length, c.DY + 1); //move cursor to beginning of new line
             Editor.RefreshLine(c.SY);
 
             //update all lines below
