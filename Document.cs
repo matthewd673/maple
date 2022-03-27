@@ -745,8 +745,14 @@ namespace maple
             if (selectIn.Y == -1 || selectOut.Y == -1) //skip if no selection
                 return "";
 
+            Log.WriteDebug("Selection bounds: (" + selectIn.X + ", " + selectIn.Y + "), (" + selectOut.X + ", " + selectOut.Y + ")", "document");
+
             if (selectIn.Y == selectOut.Y) //just return substring if on same line
-                return GetLine(selectIn.Y).Substring(selectIn.X, selectOut.X);
+            {
+                string lineContent = GetLine(selectIn.Y).Substring(selectIn.X, selectOut.X - selectIn.X);
+                Log.WriteDebug("Selection text: '" + lineContent + "'", "document");
+                return lineContent;
+            }
 
             //multiple lines
             String text = "";
@@ -761,6 +767,47 @@ namespace maple
             }
 
             return text;
+        }
+
+        /// <summary>
+        /// Delete the text contained within the current selection bounds.
+        /// </summary>
+        public void DeleteSelectionText()
+        {
+            if (HasSelection())
+            {
+                if (SelectOutY > SelectInY) //multi-line selection
+                {
+                    for (int i = SelectInY; i <= SelectOutY; i++) {
+                        if (i == SelectInY) { //trim end
+                            SetLine(i,
+                                GetLine(i).Remove(SelectInX, GetLine(i).Length - SelectInX)
+                                );                            
+                        }
+                        else if (i == SelectOutY) { //trim start
+                            string lastLineContent = GetLine(i).Remove(0, SelectOutX);
+                            SetLine(i - 1,
+                                GetLine(i - 1) + lastLineContent
+                                );
+                        }
+                        else { //remove
+                            RemoveLine(i);
+                            i--;
+                            MarkSelectionOut(SelectOutX, SelectOutY - 1); //move select out down
+                        }
+                    }
+                }
+                else //one line
+                {
+                    //remove from line
+                    SetLine(
+                        SelectInY,
+                        GetLine(SelectInY).Remove(
+                            SelectInX, SelectOutX - SelectInX
+                        )
+                    );
+                }
+            }
         }
 
     }

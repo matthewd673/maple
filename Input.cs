@@ -527,51 +527,20 @@ namespace maple
                 CurrentTarget = InputTarget.Document;
         }
 
-        static void DeleteSelectionText(DocumentCursor docCursor)
+        /// <summary>
+        /// Delete the text contained within the cursor's Document's selection bounds, move the cursor, and refresh the Editor appropriately.
+        /// </summary>
+        /// <param name="docCursor">The DocumentCursor to move. Text will be deleted from the cursor's Document.</param>
+        public static void DeleteSelectionText(DocumentCursor docCursor)
         {
-            Document doc = docCursor.Doc;
+            docCursor.Doc.DeleteSelectionText();
 
-            if (doc.HasSelection())
-            {
-                if (doc.SelectOutY > doc.SelectInY) //multi-line selection
-                {
-                    for (int i = doc.SelectInY; i <= doc.SelectOutY; i++) {
-                        if (i == doc.SelectInY) { //trim end
-                            doc.SetLine(i,
-                                doc.GetLine(i).Remove(doc.SelectInX, doc.GetLine(i).Length - doc.SelectInX)
-                                );                            
-                        }
-                        else if (i == doc.SelectOutY) { //trim start
-                            string lastLineContent = doc.GetLine(i).Remove(0, doc.SelectOutX);
-                            doc.SetLine(i - 1,
-                                        doc.GetLine(i - 1) + lastLineContent
-                                        );
-                        }
-                        else { //remove
-                            doc.RemoveLine(i);
-                            i--;
-                            doc.MarkSelectionOut(doc.SelectOutX, doc.SelectOutY - 1); //move select out down
-                        }
-                    }
-                }
-                else //one line
-                {
-                    //remove from line
-                    doc.SetLine(
-                        doc.SelectInY,
-                        doc.GetLine(doc.SelectInY).Remove(
-                            doc.SelectInX, doc.SelectOutX - doc.SelectInX
-                        )
-                    );
-                }
-
-                //reset cursor, clear selection and rerender all
-                docCursor.Move(doc.SelectInX, doc.SelectInY);
-                doc.Deselect();
-                Printer.Clear();
-                Editor.RefreshAllLines();
-                Editor.RedrawLines();
-            }
+            //reset cursor, clear selection and rerender all
+            docCursor.Move(docCursor.Doc.SelectInX, docCursor.Doc.SelectInY);
+            docCursor.Doc.Deselect();
+            Printer.Clear();
+            Editor.RefreshAllLines();
+            Editor.RedrawLines();
         }
 
     }

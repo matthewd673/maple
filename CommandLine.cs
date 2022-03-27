@@ -18,7 +18,7 @@ namespace maple
         public static string[] CommandMasterList { get; } = new string[] {
             "help", "save", "load", "new", "close", "cls", "top", "bot",
             "redraw", "goto", "selectin", "selectout", "deselect", "readonly",
-            "syntax", "alias", "url", "find", "deindent", "count"
+            "syntax", "alias", "url", "find", "deindent", "count", "copy", "paste", "cut"
             };
 
         public static string InputText { get; set; } = "";
@@ -172,6 +172,15 @@ namespace maple
                     break;
                 case "count":
                     CountCommand(commandArgs, commandSwitches);
+                    break;
+                case "copy":
+                    CopyCommand();
+                    break;
+                case "paste":
+                    PasteCommand();
+                    break;
+                case "cut":
+                    CutCommand();
                     break;
                 default:
                     UnknownCommand();
@@ -714,6 +723,61 @@ namespace maple
                 SetOutput(output, "count");
             else
                 SetOutput("Provide a statistic to count (--lines, --chars)", "count", OutputType.Error);
+        }
+
+        static void CopyCommand()
+        {
+            if (Editor.CurrentDoc.HasSelection())
+                Editor.ClipboardContents = Editor.CurrentDoc.GetSelectionText();
+            else
+            {
+                Editor.ClipboardContents = Editor.CurrentDoc.GetLine(Editor.DocCursor.DY);
+                Editor.ClipboardContents += "\n"; //add newline at end, it feels more natural
+            }
+            Log.WriteDebug("Clipboard: '" + Editor.ClipboardContents + "'", "commandline/copy");
+        }
+
+        static void PasteCommand()
+        {
+            if (Editor.CurrentDoc.HasSelection())
+                Input.DeleteSelectionText(Editor.DocCursor);
+            
+            string[] clipboardLines = Editor.ClipboardContents.Split("\n");
+            string beforePastePoint = Editor.CurrentDoc.GetLine(Editor.DocCursor.DY).Substring(0, Editor.DocCursor.DX);
+            string afterPastePoint = Editor.CurrentDoc.GetLine(Editor.DocCursor.DY).Substring(Editor.DocCursor.DX);
+
+            Editor.CurrentDoc.SetLine(Editor.DocCursor.DY, beforePastePoint + clipboardLines[0]);
+            Editor.DocCursor.DX += clipboardLines[0].Length;
+            Editor.RefreshLine(Editor.DocCursor.DY);
+
+            int startingLine = Editor.DocCursor.DY;
+            for (int i = 1; i < clipboardLines.Length; i++)
+            {
+                Editor.DocCursor.DX = 0;
+                Editor.DocCursor.DY++;
+                Editor.CurrentDoc.AddLine(Editor.DocCursor.DY);
+                Editor.CurrentDoc.SetLine(Editor.DocCursor.DY, clipboardLines[i]);
+            }
+
+            if (startingLine != Editor.DocCursor.DY) //if multiple lines were pasted...
+            {
+                Editor.RefreshAllLines();
+            }
+
+            Editor.CurrentDoc.AddTextAtPosition(Editor.DocCursor.DX, Editor.DocCursor.DY, afterPastePoint);
+        }
+
+        static void CutCommand()
+        {
+            CopyCommand();
+
+            if (Editor.CurrentDoc.HasSelection())
+                Input.DeleteSelectionText(Editor.DocCursor);
+            else
+            {
+                Editor.CurrentDoc.RemoveLine(Editor.DocCursor.DY);
+                Editor.RefreshAllLines();
+            }
         }
 
         static void UnknownCommand()

@@ -13,6 +13,8 @@ namespace maple
         
         static int dynamicFooterStartX = 0;
 
+        public static string ClipboardContents { get; set; }
+
         /// <summary>
         /// Load initial cursor properties and perform first draw.
         /// </summary>
@@ -107,7 +109,7 @@ namespace maple
         }
 
         /// <summary>
-        /// Mark a line to be updated on next draw.
+        /// Mark a line to be updated on next draw (Document line index).
         /// </summary>
         /// <param name="lineIndex">The index of the line to update.</param>
         public static void RefreshLine(int lineIndex)
