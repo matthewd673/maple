@@ -19,7 +19,7 @@ namespace maple
             "help", "save", "load", "new", "close", "cls", "top", "bot",
             "redraw", "goto", "selectin", "selectout", "deselect", "readonly",
             "syntax", "alias", "url", "find", "deindent", "count", "copy", "paste",
-            "cut", "selectline"
+            "cut", "selectline", "shortcut"
             };
 
         public static string InputText { get; set; } = "";
@@ -186,6 +186,9 @@ namespace maple
                 case "selectline":
                     SelectLineCommand();
                     break;
+                case "shortcut":
+                    ShortcutCommand(commandArgs, commandSwitches);
+                    break;
                 default:
                     UnknownCommand();
                     break;
@@ -198,9 +201,12 @@ namespace maple
 
         static void HelpCommand(List<string> args, List<string> switches)
         {
+            string defaultHelpString = "'help [command]', 'help all' for command list, or 'help wiki' to open wiki";
+            string wikiUrl = "https://github.com/matthewd673/maple/wiki";
+            
             if (args.Count < 1)
             {
-                SetOutput("'help [command]' or 'help all'", "help");
+                SetOutput(defaultHelpString, "help");
                 return;
             }
 
@@ -213,10 +219,22 @@ namespace maple
             switch (args[0])
             {
                 case "help":
-                    SetOutput("'help [command]' or 'help all'", "help");
+                    SetOutput(defaultHelpString, "help");
                     break;
                 case "all":
-                    SetOutput("save, load, new, close, cls, top, bot, redraw, goto, find, deindent, selectin, selectout, readonly, syntax, alias, url, count", "help");
+                    string output = "";
+                    for (int i = 0; i < CommandMasterList.Length; i++)
+                    {
+                        output += CommandMasterList[i];
+                        if (i < CommandMasterList.Length - 1)
+                            output += ", ";
+                    }
+                    SetOutput(output, "help");
+                    break;
+                case "wiki":
+                    Process.Start("explorer", wikiUrl);
+                    Log.Write("Launching GitHub wiki: " + wikiUrl, "commandline/help");
+                    SetOutput(String.Format("Navigating to {0}", wikiUrl), "help", OutputType.Success);
                     break;
                 case "save":
                     SetOutput("save [optional filename]: save document to filename", "help");
@@ -286,6 +304,9 @@ namespace maple
                     break;
                 case "selectline":
                     SetOutput("selectline: select the current line", "help");
+                    break;
+                case "shortcut":
+                    SetOutput("shortcut [key]: display the command that is executed when the given shortcut key is pressed", "help");
                     break;
                 default:
                     UnknownCommand();
@@ -679,39 +700,7 @@ namespace maple
 
         static void DeindentCommand()
         {
-            string tabString = "";
-            for (int i = 0; i < Settings.TabSpacesCount; i++)
-                tabString += " ";
-            
-            if (Editor.CurrentDoc.HasSelection())
-            {
-                for (int i = Editor.CurrentDoc.SelectInY; i <= Editor.CurrentDoc.SelectOutY; i++)
-                {
-                    if (Editor.CurrentDoc.GetLine(i).StartsWith(tabString))
-                    {
-                        Editor.CurrentDoc.SetLine(
-                            i,
-                            Editor.CurrentDoc.GetLine(i).Remove(0, Settings.TabSpacesCount)
-                        );
-                        if (i == Editor.CurrentDoc.SelectInY)
-                            Editor.CurrentDoc.MarkSelectionIn(Editor.CurrentDoc.SelectInX - Settings.TabSpacesCount, i);
-                        if (i == Editor.CurrentDoc.SelectOutY)
-                            Editor.CurrentDoc.MarkSelectionOut(Editor.CurrentDoc.SelectInX - Settings.TabSpacesCount, i);
-                    }
-                    Editor.RefreshLine(i);
-                }
-            }
-            else
-            {
-                if (Editor.CurrentDoc.GetLine(Editor.DocCursor.DY).StartsWith(tabString))
-                {
-                    Editor.CurrentDoc.SetLine(
-                            Editor.DocCursor.DY,
-                            Editor.CurrentDoc.GetLine(Editor.DocCursor.DY).Remove(0, Settings.TabSpacesCount)
-                        );
-                    Editor.RefreshLine(Editor.DocCursor.DY);
-                }
-            }
+            Editor.CurrentDoc.Deindent();
         }
 
         static void CountCommand(List<string> args, List<string> switches)
@@ -805,6 +794,30 @@ namespace maple
             Editor.CurrentDoc.MarkSelectionOut(Editor.CurrentDoc.GetLine(Editor.DocCursor.DY).Length, Editor.DocCursor.DY);
 
             Editor.RefreshLine(Editor.DocCursor.DY);
+        }
+
+        static void ShortcutCommand(List<string> args, List<string> switches)
+        {
+            if (args.Count < 1 || args[0].Length != 1)
+            {
+                SetOutput("No shortcut key provided", "shortcut", oType: OutputType.Error);
+                return;
+            }
+
+            args[0] = args[0].ToUpper(); //stylistic
+            ConsoleKey key = Settings.CharToConsoleKey(args[0].ToCharArray()[0]);
+            if (!Settings.Shortcuts.ContainsKey(key))
+            {
+                SetOutput(String.Format("Ctrl+{0} is not a shortcut", args[0]), "shortcut");
+                return;
+            }
+
+            SetOutput(String.Format(
+                "Ctrl+{0} {1} '{2}'",
+                args[0],
+                Settings.Shortcuts[key].Execute ? "executes" : "prefills",
+                Settings.Shortcuts[key].Command),
+                "shortcut");
         }
 
         static void UnknownCommand()

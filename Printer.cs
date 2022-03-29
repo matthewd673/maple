@@ -10,7 +10,7 @@ namespace maple
 
         //source: https://stackoverflow.com/a/2754674/3785038
         //this answer was remarkably helpful in improving performance
-        [DllImport("Kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         static extern SafeFileHandle CreateFile(
             string fileName,
             [MarshalAs(UnmanagedType.U4)] uint fileAccess,
@@ -36,10 +36,10 @@ namespace maple
             public short X;
             public short Y;
 
-            public Coord(short X, short Y)
+            public Coord(short x, short y)
             {
-                this.X = X;
-                this.Y = Y;
+                this.X = x;
+                this.Y = y;
             }
         }
         

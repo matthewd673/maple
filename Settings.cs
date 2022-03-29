@@ -26,6 +26,8 @@ namespace maple
         public static bool SummarizeLog { get; set; } = false;
         public static bool SaveOnClose { get; set; } = false;
         public static bool PreserveIndentOnEnter { get; set; } = true;
+        public static bool ShiftSelect { get; set; } = true;
+        public static bool ShiftDeindent { get; set; } = true;
 
         public static string ThemeDirectory { get; private set; } = Path.Combine(MapleDirectory, "themes");
         public static string ThemeFile { get; private set; } = "maple.xml";
@@ -123,6 +125,12 @@ namespace maple
                         break;
                     case "preserveidentonenter":
                         PreserveIndentOnEnter = IsTrue(value);
+                        break;
+                    case "shiftselect":
+                        ShiftSelect = IsTrue(value);
+                        break;
+                    case "shiftdeindent":
+                        ShiftDeindent = IsTrue(value);
                         break;
 
                     //ARGUMENTS
@@ -247,7 +255,7 @@ namespace maple
             }
         }
 
-        static ConsoleKey CharToConsoleKey(char c)
+        public static ConsoleKey CharToConsoleKey(char c)
         {
             switch (c)
             {

@@ -12,6 +12,8 @@
     <property name="summarizeLog">False</property>
     <property name="saveOnClose">False</property>
     <property name="preserveIndentOnEnter">True</property>
+    <property name="shiftSelect">True</property>
+    <property name="shiftDeindent">True</property>
     <!--Arguments-->
     <property name="themeDirectory">{mapledir}\themes</property>
     <property name="themeFile">maple.xml</property>

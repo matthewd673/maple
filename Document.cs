@@ -631,10 +631,11 @@ namespace maple
         /// </summary>
         /// <param name="x">The X coordinate.</param>
         /// <param name="y">The Y coordinate (line index).</param>
-        public void MarkSelectionIn(int x, int y)
+        /// <returns>Returns true if the selection points were swapped to maintain ordering.</returns>
+        public bool MarkSelectionIn(int x, int y)
         {
             selectIn = new Point(x, y);
-            ArrangeSelectionPoints();
+            return ArrangeSelectionPoints();
         }
 
         /// <summary>
@@ -642,12 +643,13 @@ namespace maple
         /// </summary>
         /// <param name="x">The X coordinate.</param>
         /// <param name="y">The Y coordinate (line index).</param>
-        public void MarkSelectionOut(int x, int y)
+        /// <returns>Returns true if the selection points were swapped to maintain ordering.</returns>
+        public bool MarkSelectionOut(int x, int y)
         {
-            if (selectIn.X == -1 || selectIn.Y == -1) return;
+            if (selectIn.X == -1 || selectIn.Y == -1) return false;
             
             selectOut = new Point(x, y);
-            ArrangeSelectionPoints();
+            return ArrangeSelectionPoints();
         }
 
         /// <summary>
@@ -662,31 +664,36 @@ namespace maple
         /// <summary>
         /// Rearrange the selection points so that the starting point comes before the ending point.
         /// </summary>
-        void ArrangeSelectionPoints()
+        /// <returns>Returns true if the points were swapped, false otherwise.</returns>
+        bool ArrangeSelectionPoints()
         {
 
             if (!HasSelection())
-                return;
+                return false;
 
             if (selectOut.Y < selectIn.Y) //flip start and end if end is on a previous line
             {
                 Point tempIn = new Point(selectIn.X, selectIn.Y);
                 selectIn = new Point(selectOut.X, selectOut.Y);
                 selectOut = tempIn;
+                return true;
             }
             else if (selectOut.Y == selectIn.Y && selectOut.X < selectIn.X) //flip start and end if end occurs first on same line
             {
                 Point tempIn = new Point(selectIn.X, selectIn.Y);
                 selectIn = new Point(selectOut.X, selectOut.Y);
                 selectOut = tempIn;
+                return true;
             }
 
+            return false;
+
             //selecting a 0-width range causes errors (and why would you want to anyway?)
-            if (selectIn.X == selectOut.X && selectIn.Y == selectOut.Y)
-            {
-                selectIn = new Point(-1, -1);
-                selectOut = new Point(-1, -1);
-            }
+            // if (selectIn.X == selectOut.X && selectIn.Y == selectOut.Y)
+            // {
+            //     selectIn = new Point(-1, -1);
+            //     selectOut = new Point(-1, -1);
+            // }
 
         }
         
@@ -806,6 +813,55 @@ namespace maple
                             SelectInX, SelectOutX - SelectInX
                         )
                     );
+                }
+            }
+        }
+
+        /// <summary>
+        /// Deindent the current line or selection in the Document.
+        /// </summary>
+        public void Deindent()
+        {
+            string tabString = "";
+            for (int i = 0; i < Settings.TabSpacesCount; i++)
+                tabString += " ";
+            
+            if (HasSelection())
+            {
+                for (int i = SelectInY; i <= SelectOutY; i++)
+                {
+                    if (GetLine(i).StartsWith(tabString))
+                    {
+                        SetLine(
+                            i,
+                            GetLine(i).Remove(0, tabString.Length)
+                        );
+                        if (i == SelectInY)
+                            MarkSelectionIn(SelectInX - tabString.Length, i);
+                        if (i == SelectOutY)
+                            MarkSelectionOut(SelectInX - tabString.Length, i);
+
+                        if (i == SelectOutY)
+                        {
+                            MarkSelectionOut(SelectOutX - tabString.Length, SelectOutY);
+                            Editor.DocCursor.DX -= tabString.Length;
+                        }
+                    }
+                    Editor.RefreshLine(i);
+                }
+            }
+            else
+            {
+                if (GetLine(Editor.DocCursor.DY).StartsWith(tabString))
+                {
+                    SetLine(
+                            Editor.DocCursor.DY,
+                            GetLine(Editor.DocCursor.DY).Remove(0, tabString.Length)
+                        );
+                    
+                    Editor.DocCursor.DX -= tabString.Length;
+                    
+                    Editor.RefreshLine(Editor.DocCursor.DY);
                 }
             }
         }

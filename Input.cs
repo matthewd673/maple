@@ -17,6 +17,7 @@ namespace maple
         static int maxCursorX = 0;
 
         static string tabString = "";
+        static bool quickSelectOutPoint = true;
 
         public static bool ReadOnly { get; set; } = false;
 
@@ -50,24 +51,128 @@ namespace maple
             {
                 //MOVEMENT
                 case ConsoleKey.UpArrow:
+                    // create / move selection area
+                    if (Settings.ShiftSelect && keyInfo.Modifiers == ConsoleModifiers.Shift)
+                    {
+                        if (!docCursor.Doc.HasSelectionStart())
+                        {
+                            docCursor.Doc.MarkSelectionIn(docCursor.DX, docCursor.DY);
+                            docCursor.Doc.MarkSelectionOut(docCursor.DX, docCursor.DY);
+                            quickSelectOutPoint = false;
+                        }
+                        int oldDY = docCursor.DY;
+                        HandleUp(docCursor);
+
+                        if (quickSelectOutPoint)
+                        {
+                            quickSelectOutPoint = !docCursor.Doc.MarkSelectionOut(docCursor.DX, docCursor.DY);
+                        }
+                        else
+                        {
+                            quickSelectOutPoint = docCursor.Doc.MarkSelectionIn(docCursor.DX, docCursor.DY);
+                        }
+
+                        Editor.RefreshLine(docCursor.DY);
+                        if (oldDY != docCursor.DY)
+                            Editor.RefreshLine(oldDY);
+                    }
+
                     if (docCursor.Doc.HasSelection())
                         break;
                     
                     HandleUp(docCursor);
                     break;
                 case ConsoleKey.DownArrow:
+                    // create / move selection area
+                    if (Settings.ShiftSelect && keyInfo.Modifiers == ConsoleModifiers.Shift)
+                    {
+                        if (!docCursor.Doc.HasSelectionStart())
+                        {
+                            docCursor.Doc.MarkSelectionIn(docCursor.DX, docCursor.DY);
+                            docCursor.Doc.MarkSelectionOut(docCursor.DX, docCursor.DY);
+                            quickSelectOutPoint = true;
+                        }
+                        int oldDY = docCursor.DY;
+                        HandleDown(docCursor);
+                        
+                        if (quickSelectOutPoint)
+                        {
+                            quickSelectOutPoint = !docCursor.Doc.MarkSelectionOut(docCursor.DX, docCursor.DY);
+                        }
+                        else
+                        {
+                            quickSelectOutPoint = docCursor.Doc.MarkSelectionIn(docCursor.DX, docCursor.DY);
+                        }
+
+                        Editor.RefreshLine(docCursor.DY);
+                        if (oldDY != docCursor.DY)
+                            Editor.RefreshLine(oldDY);
+                    }
+
                     if (docCursor.Doc.HasSelection())
                         break;
                     
                     HandleDown(docCursor);
                     break;
                 case ConsoleKey.LeftArrow:
+                    // create / move selection area
+                    if (Settings.ShiftSelect && keyInfo.Modifiers == ConsoleModifiers.Shift)
+                    {
+                        if (!docCursor.Doc.HasSelectionStart())
+                        {
+                            docCursor.Doc.MarkSelectionIn(docCursor.DX, docCursor.DY);
+                            docCursor.Doc.MarkSelectionOut(docCursor.DX, docCursor.DY);
+                            quickSelectOutPoint = false;
+                        }
+                        int oldDY = docCursor.DY;
+                        HandleLeft(docCursor);
+
+                        if (quickSelectOutPoint)
+                        {
+                            quickSelectOutPoint = !docCursor.Doc.MarkSelectionOut(docCursor.DX, docCursor.DY);
+                        }
+                        else
+                        {
+                            quickSelectOutPoint = docCursor.Doc.MarkSelectionIn(docCursor.DX, docCursor.DY);
+                        }
+
+                        Editor.RefreshLine(docCursor.DY);
+                        if (oldDY != docCursor.DY)
+                            Editor.RefreshLine(oldDY);
+                    }
+
                     if (docCursor.Doc.HasSelection())
                         break;
                     
                     HandleLeft(docCursor);
                     break;
                 case ConsoleKey.RightArrow:
+                    // create / move selection area
+                    if (Settings.ShiftSelect && keyInfo.Modifiers == ConsoleModifiers.Shift)
+                    {
+                        if (!docCursor.Doc.HasSelectionStart())
+                        {
+                            docCursor.Doc.MarkSelectionIn(docCursor.DX, docCursor.DY);
+                            docCursor.Doc.MarkSelectionOut(docCursor.DX, docCursor.DY);
+                            quickSelectOutPoint = true;
+                        }
+                        int oldDY = docCursor.DY;
+                        HandleRight(docCursor);
+                        
+                        if (quickSelectOutPoint)
+                        {
+                            quickSelectOutPoint = !docCursor.Doc.MarkSelectionOut(docCursor.DX, docCursor.DY);
+                        }
+                        else
+                        {
+                            quickSelectOutPoint = docCursor.Doc.MarkSelectionIn(docCursor.DX, docCursor.DY);
+                        }
+
+                        Editor.RefreshLine(docCursor.DY);
+                        if (oldDY != docCursor.DY)
+                            Editor.RefreshLine(oldDY);
+                    }
+
                     if (docCursor.Doc.HasSelection())
                         break;
                     
@@ -77,7 +182,7 @@ namespace maple
                 //LINE MANIPULATION
                 case ConsoleKey.Backspace:
                     if (ReadOnly)
-                        return;
+                        break;
                     
                     HandleBackspace(docCursor);
                     break;
@@ -94,6 +199,12 @@ namespace maple
                     HandleEnter(docCursor);
                     break;
                 case ConsoleKey.Tab:
+                    if (Settings.ShiftDeindent && keyInfo.Modifiers == ConsoleModifiers.Shift)
+                    {
+                        docCursor.Doc.Deindent();
+                        break;
+                    }
+
                     if (ReadOnly)
                         break;
                     
