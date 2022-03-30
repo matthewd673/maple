@@ -70,8 +70,9 @@ namespace maple
         /// </summary>
         /// <param name="tX">The new X coordinate (Document).</param>
         /// <param name="tY">The new Y coordinate (Document).</param>
+        /// <param name="applyPosition">Determines if the Console's cursor should be moved to the given position.</param>
         /// <param name="constrainToScreen">Lock the Cursor to the screen constraints after moving.</param>
-        public void Move(int tX, int tY, bool constrainToScreen = true)
+        public void Move(int tX, int tY, bool constrainToScreen = true, bool applyPosition = true)
         {
             DX = tX;
             DY = tY;
@@ -79,10 +80,15 @@ namespace maple
             SX = DX + ContentOffsetX;
             SY = DY + ContentOffsetY;
 
-            if(constrainToScreen)
+            if (constrainToScreen)
+            {
                 LockToScreenConstraints();
+            }
 
-            Console.SetCursorPosition(SX, SY);
+            if (applyPosition)
+            {
+                ApplyPosition();
+            }
         }
 
         /// <summary>

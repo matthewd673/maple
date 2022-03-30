@@ -13,6 +13,8 @@
     <property name="preserveIndentOnEnter">True</property>
     <property name="shiftSelect">True</property>
     <property name="shiftDeindent">True</property>
+    <property name="clearOutputOnToggle">True</property>
+    <property name="colorOutputBackground">True</property>
     <!--Arguments-->
     <property name="themeDirectory">{mapledir}\themes</property>
     <property name="themeFile">maple.xml</property>

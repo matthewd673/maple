@@ -110,15 +110,18 @@ namespace maple
         /// </summary>
         /// <param name="tX">The new X coordinate (Document).</param>
         /// <param name="tY">The new Y coordinate (Document).</param>
+        /// <param name="applyPosition">Determines if the Console's cursor should be moved to the given position.</param>
         /// <param name="constrainToDoc">Lock the Cursor to the Document constraints after moving.</param>
         /// <param name="constrainToScreen">Lock the Cursor to the screen constraints after moving.</param>
-        public void Move(int tX, int tY, bool constrainToDoc = true, bool constrainToScreen = true)
+        public void Move(int tX, int tY, bool constrainToDoc = true, bool constrainToScreen = true, bool applyPosition = true)
         {
             DX = tX;
             DY = tY;
 
             if(constrainToDoc)
+            {
                 LockToDocConstraints();
+            }
 
             //scroll if set position is outside current viewport
             bool hasScrolled = false;
@@ -143,16 +146,23 @@ namespace maple
                 hasScrolled = true;
             }
             //refresh all lines if scroll was performed
-            if(hasScrolled)
+            if (hasScrolled)
+            {
                 Editor.RefreshAllLines();
+            }
 
             SX = DX + ContentOffsetX - Doc.ScrollX;
             SY = DY + ContentOffsetY - Doc.ScrollY;
 
-            if(constrainToScreen)
+            if  (constrainToScreen)
+            {
                 LockToScreenConstraints();
+            }
 
-            Console.SetCursorPosition(SX, SY);
+            if (applyPosition)
+            {
+                ApplyPosition();
+            }
         }
 
         /// <summary>

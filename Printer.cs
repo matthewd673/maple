@@ -277,7 +277,7 @@ namespace maple
         /// <param name="y">The Y coordinate (screen).</param>
         public static void MoveCursor(int x, int y)
         {
-            printerCursor.Move(x, y);
+            printerCursor.Move(x, y, applyPosition: false);
         }
 
         /// <summary>
@@ -316,7 +316,7 @@ namespace maple
         {
             if (x != -1)
             {
-                printerCursor.Move(x, Cursor.MaxScreenY - yOffset);
+                printerCursor.Move(x, Cursor.MaxScreenY - yOffset, applyPosition: false);
             }
 
             int index = GetBufferIndex(printerCursor);
@@ -326,10 +326,10 @@ namespace maple
 
             for (int i = index; i < index + text.Length; i++)
             {
-                if (i >= buf.Length) //overflow
+                if (i == buf.Length || (i > index && i % bufWidth == 0)) //overflow
                 {
-                    buf[buf.Length - 1].Char.UnicodeChar = Styler.OverflowIndicator;
-                    buf[buf.Length - 1].Attributes = GetAttributeFromColor(ConsoleColor.Black, Styler.AccentColor);
+                    buf[i - 1].Char.UnicodeChar = Styler.OverflowIndicator;
+                    buf[i - 1].Attributes = GetAttributeFromColor(foregroundColor, backgroundColor);
                     break;
                 }
 

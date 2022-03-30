@@ -653,15 +653,20 @@ namespace maple
 
         public static void ToggleInputTarget()
         {
-            Editor.PrintFooter();
+            Footer.PrintFooter();
             if(CurrentTarget == InputTarget.Document)
             {
-                CommandLine.ClearOutput();
+                if (Settings.ClearOutputOnToggle)
+                {
+                    CommandLine.ClearOutput();
+                }
                 CurrentTarget = InputTarget.Command; //there is no output, toggle
                 Editor.CmdCursor.Move(0, 0); //reset cursor position
             }
             else if(CurrentTarget == InputTarget.Command)
+            {
                 CurrentTarget = InputTarget.Document;
+            }
         }
 
         /// <summary>

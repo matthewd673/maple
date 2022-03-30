@@ -206,10 +206,14 @@ namespace maple
 
                     //if token comes before scroll x (hidden to left), skip
                     if (lineLen < ScrollX)
+                    {
                         continue;
+                    }
                     //if token comes after scroll x (hidden to right), skip it and all subsequent tokens
                     if (oldLineLen > ScrollX + Cursor.MaxScreenX)
+                    {
                         break;
+                    }
 
                     int tSelectStart = -1;
                     int tSelectEnd = -1;

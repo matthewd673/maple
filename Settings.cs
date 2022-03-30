@@ -27,6 +27,8 @@ namespace maple
         public static bool PreserveIndentOnEnter { get; set; } = true;
         public static bool ShiftSelect { get; set; } = true;
         public static bool ShiftDeindent { get; set; } = true;
+        public static bool ClearOutputOnToggle { get; set; } = true;
+        public static bool ColorOutputBackground { get; set; } = true;
 
         public static string ThemeDirectory { get; private set; } = Path.Combine(MapleDirectory, "themes");
         public static string ThemeFile { get; private set; } = "maple.xml";
@@ -127,6 +129,12 @@ namespace maple
                         break;
                     case "shiftdeindent":
                         ShiftDeindent = IsTrue(value);
+                        break;
+                    case "clearoutputontoggle":
+                        ClearOutputOnToggle = IsTrue(value);
+                        break;
+                    case "coloroutputbackground":
+                        ColorOutputBackground = IsTrue(value);
                         break;
 
                     //ARGUMENTS
