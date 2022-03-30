@@ -81,6 +81,15 @@ namespace maple
                     return Token.TokenType.Keyword;
                 case "specialchar":
                     return Token.TokenType.SpecialChar;
+                //command line
+                case "clicommandvalid":
+                    return Token.TokenType.CliCommandValid;
+                case "clicommandinvalid":
+                    return Token.TokenType.CliCommandInvalid;
+                case "cliswitch":
+                    return Token.TokenType.CliSwitch;
+                case "clistring":
+                    return Token.TokenType.CliString;
                 default:
                     return Token.TokenType.None;
             }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace maple
@@ -13,7 +13,7 @@ namespace maple
         
         static int dynamicFooterStartX = 0;
 
-        public static string ClipboardContents { get; set; }
+        public static string ClipboardContents { get; set; } = "";
 
         /// <summary>
         /// Load initial cursor properties and perform first draw.
@@ -207,7 +207,9 @@ namespace maple
                     Printer.MoveCursor(Styler.VanityFooter.Length + 2, Cursor.MaxScreenY);
                     
                     for (int i = 0; i < cliTokens.Length; i++)
-                        Printer.WriteToFooter(cliTokens[i].Text, foregroundColor: cliTokens[i].Color);                        
+                    {
+                        Printer.WriteToFooter(cliTokens[i].Text, foregroundColor: cliTokens[i].Color);
+                    }             
                 }
             }
 

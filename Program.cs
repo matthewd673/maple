@@ -9,7 +9,6 @@ namespace maple
 
         static void Main(string[] args)
         {
-
             //initialize logger
             //note: maple directory will never be relative, since flag is set later
             Log.InitializeLogger();
@@ -51,22 +50,16 @@ namespace maple
                         Settings.CliNoHighlight = true;
                         Settings.IgnoreSetting("clinohighlight");
                         break;
+                    case "-ro":
                     case "--relative-path":
                         Settings.RelativePath = true;
                         Settings.IgnoreSetting("relativepath");
-                        break;
-                    case "--navigate-past-tabs":
-                        Settings.NavigatePastTabs = true;
-                        Settings.IgnoreSetting("navigatepasttabs");
-                        break;
-                    case "--delete-entire-tabs":
-                        Settings.DeleteEntireTabs = true;
-                        Settings.IgnoreSetting("deleteentiretabs");
                         break;
                     case "--readonly":
                         Input.ReadOnly = true;
                         Settings.IgnoreSetting("readonly");
                         break;
+                    case "-log":
                     case "--enable-logging":
                         Settings.EnableLogging = true;
                         Settings.IgnoreSetting("enablelogging");

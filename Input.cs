@@ -582,7 +582,18 @@ namespace maple
 
         static void HandleHome(DocumentCursor c)
         {
-            c.Move(0, c.DY);
+            string tabSearchString = c.Doc.GetLine(c.DY);
+            int tabSpaceCount = 0;
+            while (tabSearchString.StartsWith(tabString))
+            {
+                tabSpaceCount += tabString.Length;
+                tabSearchString = tabSearchString.Remove(0, tabString.Length);
+            }
+            
+            if (c.DX <= tabSpaceCount) //if document is already at tab string pos, go all the way to 0
+                tabSpaceCount = 0;
+            
+            c.Move(tabSpaceCount, c.DY);
             maxCursorX = c.DX;
         }
 
