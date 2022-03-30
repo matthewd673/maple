@@ -31,9 +31,9 @@ namespace maple
 
         //text customizations
         public static string VanityFooter { get; private set; } = "maple";
-        public static string GutterLeftPad { get; private set; } = "0";
-        public static string GutterBarrier { get; private set; } = " ";
-        public static string OverflowIndicator { get; private set; } = "…";
+        public static char GutterLeftPad { get; private set; } = '0';
+        public static char GutterBarrier { get; private set; } = ' ';
+        public static char OverflowIndicator { get; private set; } = '…';
 
         public static void LoadMapleTheme()
         {
@@ -164,19 +164,19 @@ namespace maple
                         if (value.Length > 1 || value.Length == 0)
                             Log.Write("GutterLeftPad value must be 1 character", "styler", important: true);
                         else
-                            GutterLeftPad = value.ToCharArray()[0].ToString();
+                            GutterLeftPad = value.ToCharArray()[0];
                         break;
                     case "gutterbarrier":
                         if (value.Length > 1 || value.Length == 0)
                             Log.Write("GutterBarrier value must be 1 character", "styler", important: true);
                         else
-                            GutterBarrier = value.ToCharArray()[0].ToString();
+                            GutterBarrier = value.ToCharArray()[0];
                         break;
                     case "overflowindicator":
                         if (value.Length > 1 || value.Length == 0)
                             Log.Write("OverflowIndicator value must be 1 character", "styler", important: true);
                         else
-                            OverflowIndicator = value.ToCharArray()[0].ToString();
+                            OverflowIndicator = value.ToCharArray()[0];
                         break;
                     default:
                         Log.Write("Encountered unknown text category '" + category + "'", "styler", important: true);

@@ -299,18 +299,10 @@ namespace maple
         /// <param name="content">The text to write.</param>
         /// <param name="foregroundColor">The foreground color.</param>
         /// <param name="backgroundColor">The background color.</param>
-        public static void DrawFooter(String content, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
+        public static void DrawFooter(String content, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black, int yOffset = 0)
         {
-            ClearFooter();
-            WriteToFooter(content, 0, foregroundColor, backgroundColor);
-        }
-
-        /// <summary>
-        /// Clear the Editor's footer region (bottom line of the Console).
-        /// </summary>
-        public static void ClearFooter()
-        {
-            ClearLine(Cursor.MaxScreenY);
+            ClearLine(Cursor.MaxScreenY - yOffset, backgroundColor);
+            WriteToFooter(content, 0, foregroundColor, backgroundColor, yOffset);
         }
 
         /// <summary>
@@ -320,20 +312,23 @@ namespace maple
         /// <param name="x">The </param>
         /// <param name="foregroundColor"></param>
         /// <param name="backgroundColor"></param>
-        public static void WriteToFooter(String text, int x = -1, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black)
+        public static void WriteToFooter(String text, int x = -1, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black, int yOffset = 0)
         {
             if (x != -1)
-                printerCursor.Move(x, Cursor.MaxScreenY);
+            {
+                printerCursor.Move(x, Cursor.MaxScreenY - yOffset);
+            }
+
             int index = GetBufferIndex(printerCursor);
 
             char[] textChars = text.ToCharArray();
-            short attribute = GetAttributeFromColor(foregroundColor);
+            short attribute = GetAttributeFromColor(foregroundColor, backgroundColor);
 
             for (int i = index; i < index + text.Length; i++)
             {
                 if (i >= buf.Length) //overflow
                 {
-                    buf[buf.Length - 1].Char.UnicodeChar = '…';
+                    buf[buf.Length - 1].Char.UnicodeChar = Styler.OverflowIndicator;
                     buf[buf.Length - 1].Attributes = GetAttributeFromColor(ConsoleColor.Black, Styler.AccentColor);
                     break;
                 }
@@ -346,20 +341,22 @@ namespace maple
         }
 
         /// <summary>
-        /// Clear the given line.
+        /// Clear the given line (screen coordinates).
         /// </summary>
         /// <param name="line">The line index.</param>
-        public static void ClearLine(int line)
+        public static void ClearLine(int line, ConsoleColor clearColor = ConsoleColor.Black)
         {
             //don't clear if out of range
             if(line < 0 || line > Cursor.MaxScreenY)
                 return;
             
             int startIndex = GetBufferIndex(0, line);
+            
+            short clearAttributes = GetAttributeFromColor(ConsoleColor.Black, clearColor);            
             for (int i = startIndex; i < startIndex + bufWidth; i++)
             {
                 buf[i].Char.UnicodeChar = 0x0020;
-                buf[i].Attributes = 0x0000;
+                buf[i].Attributes = clearAttributes;
             }
         }
 

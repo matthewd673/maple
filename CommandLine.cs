@@ -78,7 +78,9 @@ namespace maple
             OutputText = "";
             HasOutput = false;
             OType = OutputType.Info;
-            Editor.PrintFooter();
+
+            Log.WriteDebug("refresh: " + (Cursor.MaxScreenY - 1 + Editor.CurrentDoc.ScrollY), "commandline");
+            Editor.RefreshLine(Cursor.MaxScreenY - 1 + Editor.CurrentDoc.ScrollY);
         }
 
         public static void ClearInput()

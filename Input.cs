@@ -656,15 +656,9 @@ namespace maple
             Editor.PrintFooter();
             if(CurrentTarget == InputTarget.Document)
             {
-                //check if there is command output to be cleared
-                if(!CommandLine.OutputText.Equals("") && !Settings.QuickCli)
-                    CommandLine.ClearOutput(); //there is output, clear it
-                else
-                {
-                    CommandLine.ClearOutput();
-                    CurrentTarget = InputTarget.Command; //there is no output, toggle
-                    Editor.CmdCursor.Move(0, 0); //reset cursor position
-                }
+                CommandLine.ClearOutput();
+                CurrentTarget = InputTarget.Command; //there is no output, toggle
+                Editor.CmdCursor.Move(0, 0); //reset cursor position
             }
             else if(CurrentTarget == InputTarget.Command)
                 CurrentTarget = InputTarget.Document;

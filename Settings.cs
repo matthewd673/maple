@@ -15,7 +15,6 @@ namespace maple
         public static string ShortcutsFile { get; set; } = Path.Combine(MapleDirectory, "properties", "shortcuts.xml");
 
         //properties
-        public static bool QuickCli { get; set; } = false;
         public static bool DebugTokens { get; set; } = false;
         public static bool NoHighlight { get; set; } = false;
         public static bool CliNoHighlight { get; set; } = false;
@@ -88,9 +87,6 @@ namespace maple
                 switch(name)
                 {
                     //SWITCHES
-                    case "quickcli":
-                        QuickCli = IsTrue(value);
-                        break;
                     case "debugtokens":
                         DebugTokens = IsTrue(value);
                         break;

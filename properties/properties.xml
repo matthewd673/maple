@@ -1,6 +1,5 @@
 ﻿<xml>
     <!--Switches-->
-    <property name="quickCli">False</property>
     <property name="debugTokens">False</property>
     <property name="noHighlight">False</property>
     <property name="cliNoHighlight">False</property>

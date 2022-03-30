@@ -34,10 +34,6 @@ namespace maple
             {
                 switch(sw)
                 {
-                    case "--quick-cli":
-                        Settings.QuickCli = true;
-                        Settings.IgnoreSetting("quickcli");
-                        break;
                     case "--debug-tokens":
                         Settings.DebugTokens = true;
                         Settings.IgnoreSetting("debugtokens");

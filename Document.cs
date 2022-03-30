@@ -313,7 +313,7 @@ namespace maple
                 //print overflow indicator
                 if (lineLen - ScrollX + GutterWidth >= Cursor.MaxScreenX)
                     Printer.PrintManually(
-                        Styler.OverflowIndicator.ToCharArray()[0],
+                        Styler.OverflowIndicator,
                         Cursor.MaxScreenX,
                         lineIndex - ScrollY,
                         (short)(Printer.GetAttributeAtPosition(Cursor.MaxScreenX, lineIndex - ScrollY) << 4 & 0x00F0) //set background to old foreground, and foreground to black
@@ -342,7 +342,6 @@ namespace maple
 
                 if (hovered != null)
                 {
-                    Settings.QuickCli = true; //workaround for handling constant outputs
                     CommandLine.SetOutput(String.Format("({0},{1}) {2}, '{3}'", Editor.DocCursor.DX, Editor.DocCursor.DY, hovered.TType, hovered.Text), "tdebug");
                 }
             }
