@@ -37,7 +37,6 @@ namespace maple
         /// <param name="internalDocument">Indicates if the document is internal, and can therefore operate with limited functionality.</param>
         public Document(string filepath, bool internalDocument = false)
         {
-
             filepath = ProcessFilepath(filepath);
             fileLines = new List<Line>();
 
@@ -62,7 +61,6 @@ namespace maple
             }
 
             LoadDocument(filepath);
-
         }
 
         /// <summary>
@@ -110,7 +108,8 @@ namespace maple
             fileLines.Clear();
 
             //load new document
-            this.Filepath = filepath;
+            Filepath = filepath;
+            Log.Write("Filpath: " + Filepath, "document");
             if(File.Exists(filepath))
             {
                 Log.Write("Loading from '" + filepath + "'", "document");
@@ -131,7 +130,7 @@ namespace maple
                 //create a file
                 File.CreateText(filepath).Close();
                 fileLines = new List<Line>() { new Line("") };
-                CommandLine.SetOutput(String.Format("New file \"{0}\" was created", filepath.Trim()), "maple");
+                CommandLine.SetOutput(String.Format("New file \"{0}\" was created", filepath.Trim()), "maple", renderFooter: false);
                 Log.Write("Initial file doesn't exist, created '" + filepath + "'", "document", important: true);
                 NewlyCreated = true;
             }
@@ -152,7 +151,7 @@ namespace maple
         }
 
         /// <summary>
-        /// Print all files currently within the bounds of the screen.
+        /// Print all lines currently within the bounds of the screen.
         /// </summary>
         public void PrintFileLines()
         {
@@ -167,7 +166,7 @@ namespace maple
         public void PrintLine(int lineIndex)
         {
             //don't, if out of range
-            if(lineIndex < 0 || lineIndex > fileLines.Count - 1 || lineIndex - ScrollY < 0 || lineIndex - ScrollY > Cursor.MaxScreenY - 1)
+            if(lineIndex < 0 || lineIndex > fileLines.Count - 1 || lineIndex - ScrollY < 0 || lineIndex - ScrollY > Cursor.MaxScreenY - Footer.FooterHeight)
                 return;
 
             Line l = fileLines[lineIndex];
@@ -323,9 +322,6 @@ namespace maple
                         lineIndex - ScrollY,
                         (short)(Printer.GetAttributeAtPosition(Cursor.MaxScreenX, lineIndex - ScrollY) << 4 & 0x00F0) //set background to old foreground, and foreground to black
                         );
-
-                // Printer.ApplyBuffer();
-
             }
             else //debug printing:
             {
@@ -843,12 +839,9 @@ namespace maple
                         if (i == SelectInY)
                             MarkSelectionIn(SelectInX - tabString.Length, i);
                         if (i == SelectOutY)
-                            MarkSelectionOut(SelectInX - tabString.Length, i);
-
-                        if (i == SelectOutY)
                         {
-                            MarkSelectionOut(SelectOutX - tabString.Length, SelectOutY);
-                            Editor.DocCursor.DX -= tabString.Length;
+                            MarkSelectionOut(SelectOutX - tabString.Length, i);
+                            Editor.DocCursor.Move(Editor.DocCursor.DX - tabString.Length, Editor.DocCursor.DY);
                         }
                     }
                     Editor.RefreshLine(i);
@@ -863,7 +856,7 @@ namespace maple
                             GetLine(Editor.DocCursor.DY).Remove(0, tabString.Length)
                         );
                     
-                    Editor.DocCursor.DX -= tabString.Length;
+                    Editor.DocCursor.Move(Editor.DocCursor.DX - tabString.Length, Editor.DocCursor.DY);
                     
                     Editor.RefreshLine(Editor.DocCursor.DY);
                 }

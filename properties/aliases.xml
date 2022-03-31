@@ -1,5 +1,6 @@
 <xml>
     <alias command="help">h</alias>
+    <alias command="help">?</alias>
     <alias command="save">s</alias>
     <alias command="load">l</alias>
     <alias command="top">t</alias>

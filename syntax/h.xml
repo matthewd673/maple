@@ -11,7 +11,7 @@
     <syntax type="comment">(\/\/.*)</syntax>
     <syntax type="operator">(\+|\-|\*|((?&lt;!\/)\/(?!\/))|\=|\%|\&gt;|\&lt;|\||\&amp;|\!)</syntax>
     <syntax type="url" insensitive="true">http(s{0,1}):\/\/[0-9a-z\.\-_~\/\?=&amp;%]+</syntax>
-    <syntax type="function" insensitive="true">[a-z_]+[a-z0-9_]*(?=\()</syntax>
+    <syntax type="function" insensitive="true">[a-z_]+[a-z0-9_]* {0,1}(?=\()</syntax>
     <!--Keywords-->
     <!--Sourced from https://en.cppreference.com/w/c/keyword -->
     <keywords>

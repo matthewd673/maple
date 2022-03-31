@@ -371,7 +371,7 @@ namespace maple
 
             int startIndex = GetBufferIndex(printerCursor.SX, printerCursor.SY);
             int width = Cursor.MaxScreenX - printerCursor.SX;
-            for (int i = startIndex; i < startIndex + width; i++)
+            for (int i = startIndex; i <= startIndex + width; i++)
             {
                 buf[i].Char.UnicodeChar = 0x0020;
                 buf[i].Attributes = 0x0000;

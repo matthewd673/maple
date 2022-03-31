@@ -43,7 +43,8 @@ namespace maple
             //full-draw all lines for initial render
             Log.Write("Full-drawing", "editor");
             Printer.Clear();
-            RedrawLines();
+            DrawLines();
+            Printer.ApplyBuffer();
             fullClearNext = false;
         }
 
@@ -76,11 +77,11 @@ namespace maple
             if(fullClearNext)
             {
                 Printer.Clear();
-                RedrawLines();
-                // FullRefreshFooter(); //since the console was cleared
+                DrawLines();
+                Footer.RefreshOutputLine();
             }
             else
-                RedrawLines();
+                DrawLines();
 
             //render footer
             Footer.PrintFooter();
@@ -117,27 +118,47 @@ namespace maple
             for(int i = 0; i <= CurrentDoc.GetMaxLine(); i++)
                 refreshedLines.Add(i);
             fullClearNext = true;
-            Footer.RefreshOutputNext = true;
         }
 
         /// <summary>
         /// Redraw all lines (within window bounds) that are marked for refresh.
         /// </summary>
-        public static void RedrawLines()
+        public static void DrawLines()
         {
             //redraw lines that have changed
             foreach(int lineIndex in refreshedLines)
             {
                 if(lineIndex <= CurrentDoc.GetMaxLine())
+                {
                     CurrentDoc.PrintLine(lineIndex);
+                }
                 else
-                    Printer.ClearLine(lineIndex - CurrentDoc.ScrollY);
+                {
+                    int lineScreenIndex = lineIndex - CurrentDoc.ScrollY;
+                    if (lineScreenIndex < Cursor.MaxScreenY - Footer.FooterHeight)
+                    {
+                        Printer.ClearLine(lineIndex - CurrentDoc.ScrollY);
+                    }
+                }
             }
-
-            Printer.ApplyBuffer();
             
             refreshedLines.Clear(); //clear for next time
             fullClearNext = false; //don't full clear again unless told
+        }
+
+        /// <summary>
+        /// Re-initialize the Printer and fully redraw window contents.
+        /// Very expensive, use only when something has changed / gone wrong with the buffer.
+        /// </summary>
+        public static void RedrawWindow()
+        {
+            Printer.Resize();
+            DocCursor.Doc.CalculateScrollIncrement();
+            DocCursor.Move(DocCursor.DX, DocCursor.DY);
+            DocCursor.LockToScreenConstraints();
+            Editor.RefreshAllLines();
+            Printer.Clear();
+            DrawLines();
         }
     }
 }

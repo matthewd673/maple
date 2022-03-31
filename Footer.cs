@@ -6,7 +6,10 @@ namespace maple
     {
         static int dynamicFooterStartX = 0;
 
-        public static bool RefreshOutputNext { get; set; } = false;
+        public static int FooterHeight { get; private set; }= 1;
+        static bool refreshOutputNext = false;
+
+        static string commandPrompt = "maple> ";
 
         /// <summary>
         /// Print the footer (prints command line input if user is accessing cli).
@@ -15,12 +18,12 @@ namespace maple
         {
             DocumentCursor c = Editor.DocCursor;
 
+            Printer.ClearLine(Cursor.MaxScreenY);
             //generate footer string
             if (Input.CurrentTarget == Input.InputTarget.Document)
             {
                 // Draw footer content
                 //draw piece by piece
-                Printer.ClearLine(Cursor.MaxScreenY);
                 string vanityString = String.Format("{0} ", Styler.VanityFooter);
                 string filepathString = String.Format("{0} ", c.Doc.Filepath.TrimEnd());
                 Printer.WriteToFooter(vanityString, 0, Styler.AccentColor, ConsoleColor.Black); //write vanity prefix
@@ -50,16 +53,15 @@ namespace maple
             }
             else if (Input.CurrentTarget == Input.InputTarget.Command)
             {
-                Printer.ClearLine(Cursor.MaxScreenY);
-                Printer.WriteToFooter("maple: ", x: 0, foregroundColor: Styler.AccentColor);
+                Printer.WriteToFooter(commandPrompt, x: 0, foregroundColor: Styler.AccentColor);
                 if (Settings.CliNoHighlight)
                 {
-                    Printer.WriteToFooter(CommandLine.InputText, x: Styler.VanityFooter.Length + 2, Styler.CliInputDefaultColor);
+                    Printer.WriteToFooter(CommandLine.InputText, x: commandPrompt.Length, Styler.CliInputDefaultColor);
                 }
                 else
                 {
                     Token[] cliTokens = Lexer.TokenizeCommandLine(CommandLine.InputText);
-                    Printer.MoveCursor(Styler.VanityFooter.Length + 2, Cursor.MaxScreenY);
+                    Printer.MoveCursor(commandPrompt.Length, Cursor.MaxScreenY);
                     
                     for (int i = 0; i < cliTokens.Length; i++)
                     {
@@ -68,20 +70,25 @@ namespace maple
                 }
             }
 
-            if (RefreshOutputNext)
+            if (refreshOutputNext)
             {
-                Log.WriteDebug("printing new output", "footer");
                 PrintOutputLine();
-                RefreshOutputNext = false;
+                refreshOutputNext = false;
             }
 
             Printer.ApplyBuffer();
         }
 
+        public static void RefreshOutputLine()
+        {
+            FooterHeight = (CommandLine.HasOutput) ? 2 : 1;
+            refreshOutputNext = true;
+        }
+
         public static void PrintOutputLine()
         {
-            Log.WriteDebug("has output? " + CommandLine.HasOutput, "footer");
             // Draw output text
+            Printer.ClearLine(Cursor.MaxScreenY - 1);
             if (CommandLine.HasOutput)
             {
                 ConsoleColor outputColor = Styler.CliOutputInfoColor;

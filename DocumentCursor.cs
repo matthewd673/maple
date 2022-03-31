@@ -21,8 +21,7 @@ namespace maple
             if(SX == 0 && Doc.ScrollX > 0)
             {
                 Doc.ScrollLeft();
-                Printer.Clear();
-                Doc.PrintFileLines();
+                Editor.RefreshAllLines();
             }
             else
             {
@@ -47,8 +46,7 @@ namespace maple
             if(SY == MaxScreenX - 1)
             {
                 Doc.ScrollRight();
-                Printer.Clear();
-                Doc.PrintFileLines();
+                Editor.RefreshAllLines();
             }
 
             if(DX < Doc.GetLine(DY).Length) //can move forward
@@ -71,8 +69,7 @@ namespace maple
             if(SY == 0 && Doc.ScrollY > 0)
             {
                 Doc.ScrollUp();
-                Printer.Clear();
-                Doc.PrintFileLines();
+                Editor.RefreshAllLines();
             }
             else
                 Move(DX, DY - 1, applyPosition: applyPosition);
@@ -83,11 +80,10 @@ namespace maple
         /// </summary>
         public void MoveDown(bool applyPosition = true)
         {
-            if(SY == MaxScreenY - 1)
+            if(SY == MaxScreenY - Footer.FooterHeight)
             {
                 Doc.ScrollDown();
-                Printer.Clear();
-                Doc.PrintFileLines();
+                Editor.RefreshAllLines();
             }
             else
                 Move(DX, DY + 1, applyPosition: applyPosition);

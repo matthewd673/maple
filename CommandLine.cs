@@ -62,13 +62,16 @@ namespace maple
             return (x >= 0 && x < InputText.Length);
         }
 
-        public static void SetOutput(string text, string speaker, OutputType oType = OutputType.Info)
+        public static void SetOutput(string text, string speaker, OutputType oType = OutputType.Info, bool renderFooter = true)
         {
             OutputText = String.Format("[{0}]: {1}", speaker, text);
             OType = oType;
             HasOutput = true;
-            Footer.RefreshOutputNext = true;
-            Footer.PrintFooter();
+            Footer.RefreshOutputLine();
+            if (renderFooter)
+            {
+                Footer.PrintFooter();
+            }
         }
 
         public static void ClearOutput()
@@ -78,6 +81,7 @@ namespace maple
             OType = OutputType.Info;
 
             //reprint bottom editor line
+            Footer.RefreshOutputLine();
             Editor.RefreshLine(Cursor.MaxScreenY - 1 + Editor.CurrentDoc.ScrollY);
         }
 
@@ -399,14 +403,7 @@ namespace maple
 
         static void RedrawCommand()
         {
-            Printer.Resize();
-            // Cursor.CalculateCursorBounds();
-            Editor.DocCursor.Doc.CalculateScrollIncrement();
-            Editor.DocCursor.Move(Editor.DocCursor.DX, Editor.DocCursor.DY);
-            Editor.DocCursor.LockToScreenConstraints();
-            Editor.RefreshAllLines();
-            Printer.Clear();
-            Editor.RedrawLines();
+            Editor.RedrawWindow();
         }
 
         static void SelectInCommand()
@@ -467,9 +464,9 @@ namespace maple
             Lexer.LoadSyntax(Settings.SyntaxDirectory + args[0] + ".xml");
 
             Editor.CurrentDoc.ForceReTokenize();
-            Printer.Clear();
+            // Printer.Clear();
             Editor.RefreshAllLines();
-            Editor.RedrawLines();
+            // Editor.DrawLines();
         }
 
         static void AliasCommand(List<string> args, List<string> switches)
@@ -739,7 +736,6 @@ namespace maple
                 Editor.ClipboardContents = Editor.CurrentDoc.GetLine(Editor.DocCursor.DY);
                 Editor.ClipboardContents += "\n"; //add newline at end, it feels more natural
             }
-            Log.WriteDebug("Clipboard: '" + Editor.ClipboardContents + "'", "commandline/copy");
         }
 
         static void PasteCommand()

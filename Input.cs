@@ -531,7 +531,7 @@ namespace maple
             
             //scroll down if necessary
             bool enterScrolledDown = false;
-            if(c.SY >= Cursor.MaxScreenY - 1)
+            if(c.SY >= Cursor.MaxScreenY - Footer.FooterHeight)
             {
                 c.Doc.ScrollDown();
                 enterScrolledDown = true;
@@ -565,12 +565,16 @@ namespace maple
             if (c.Doc.HasSelection())
             {
                 for (int i = c.Doc.SelectInY; i <= c.Doc.SelectOutY; i++)
+                {
                     c.Doc.AddTextAtPosition(0, i, tabString);
+                }
+
+                c.Doc.MarkSelectionIn(c.Doc.SelectInX + tabString.Length, c.Doc.SelectInY);
+                c.Doc.MarkSelectionOut(c.Doc.SelectOutX + tabString.Length, c.Doc.SelectOutY);
+                Editor.DocCursor.Move(Editor.DocCursor.DX + tabString.Length, Editor.DocCursor.DY);
 
                 //rerender all
-                Printer.Clear();
                 Editor.RefreshAllLines();
-                Editor.RedrawLines();
                 return;
             }
 
@@ -578,8 +582,7 @@ namespace maple
             
             if(tabTextAdded)
             {
-                for(int i = 0; i < Settings.TabSpacesCount; i++) //move cursor forward as appropriate
-                    c.MoveRight();
+                c.Move(c.DX + tabString.Length, c.DY);
                 Editor.RefreshLine(c.DY);
             }
 
@@ -686,9 +689,7 @@ namespace maple
             //reset cursor, clear selection and rerender all
             docCursor.Move(docCursor.Doc.SelectInX, docCursor.Doc.SelectInY);
             docCursor.Doc.Deselect();
-            Printer.Clear();
             Editor.RefreshAllLines();
-            Editor.RedrawLines();
         }
 
     }
