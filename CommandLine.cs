@@ -24,12 +24,7 @@ namespace maple
 
         public static string InputText { get; set; } = "";
 
-        private static string _outputText = "";
-        public static string OutputText
-        {
-            get { return _outputText; }
-            set { _outputText = value; HasOutput = true; }
-        }
+        public static string OutputText { get; private set; }
         public static OutputType OType = OutputType.Info;
 
         public static bool HasOutput { get; private set; } = false;
@@ -71,6 +66,9 @@ namespace maple
         {
             OutputText = String.Format("[{0}]: {1}", speaker, text);
             OType = oType;
+            HasOutput = true;
+            Footer.RefreshOutputNext = true;
+            Footer.PrintFooter();
         }
 
         public static void ClearOutput()
@@ -79,7 +77,7 @@ namespace maple
             HasOutput = false;
             OType = OutputType.Info;
 
-            Log.WriteDebug("refresh: " + (Cursor.MaxScreenY - 1 + Editor.CurrentDoc.ScrollY), "commandline");
+            //reprint bottom editor line
             Editor.RefreshLine(Cursor.MaxScreenY - 1 + Editor.CurrentDoc.ScrollY);
         }
 
@@ -817,7 +815,7 @@ namespace maple
             SetOutput(String.Format(
                 "Ctrl+{0} {1} '{2}'",
                 args[0],
-                Settings.Shortcuts[key].Execute ? "executes" : "prefills",
+                (Settings.Shortcuts[key].Execute) ? "executes" : "prefills",
                 Settings.Shortcuts[key].Command),
                 "shortcut");
         }

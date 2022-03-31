@@ -325,7 +325,9 @@ namespace maple
                     bool addedText = CommandLine.AddText(Editor.CmdCursor.DX, typed);
 
                     if(addedText)
-                        Editor.CmdCursor.DX++;
+                    {
+                        Editor.CmdCursor.Move(Editor.CmdCursor.DX + 1, 0);
+                    }
 
                     CommandLine.CommandHistoryIndex = -1; //break out of command history
 
@@ -335,7 +337,7 @@ namespace maple
 
         static void HandleUp(DocumentCursor c)
         {
-            c.MoveUp();
+            c.MoveUp(applyPosition: false);
             c.Move(maxCursorX, c.DY); //attempt to move to max x position
 
             //for debugtokens
@@ -345,7 +347,7 @@ namespace maple
 
         static void HandleDown(DocumentCursor c)
         {
-            c.MoveDown();
+            c.MoveDown(applyPosition: false);
             c.Move(maxCursorX, c.DY); //attempt to move to max x position
 
             //for debugtokens
@@ -360,7 +362,8 @@ namespace maple
 
         static void HandleLeft(DocumentCursor c)
         {
-            c.MoveLeft();
+            c.MoveLeft(applyPosition: false);
+            c.ApplyPosition();
             UpdateMaxCursorX(c); //update max x position
         }
 
@@ -368,11 +371,14 @@ namespace maple
         {
             if (Settings.NavigatePastTabs && c.Doc.GetTextAtPosition(c.DX, c.DY).StartsWith(tabString)) //can skip, do so
             {
-                for (int i = 0; i < Settings.TabSpacesCount; i++)
-                    c.MoveRight();
+                c.Move(c.DX + tabString.Length, c.DY, applyPosition: false);
             }
             else //can't skip, move normally
-                c.MoveRight();
+            {
+                c.MoveRight(applyPosition: false);
+            }
+            
+            c.ApplyPosition();
             UpdateMaxCursorX(c); //update max x position
         }
 
@@ -645,7 +651,7 @@ namespace maple
 
             CurrentTarget = InputTarget.Command; //simulate user entering cli
             CommandLine.InputText = shortcutInfo.Command;
-            Editor.CmdCursor.DX = CommandLine.InputText.Length;
+            Editor.CmdCursor.Move(CommandLine.InputText.Length, 0);
 
             if (shortcutInfo.Execute)
                 CommandLine.ExecuteInput();

@@ -54,7 +54,7 @@ namespace maple
             }
             catch (Exception e)
             {
-                CommandLine.SetOutput("Encountered an exception while loading syntax XML", "internal", oType: CommandLine.OutputType.Error);
+                CommandLine.SetOutput("Encountered an exception while loading syntax XML", "maple", oType: CommandLine.OutputType.Error);
                 Log.Write("Encountered exception while loading syntax XML: " + e.Message, "lexer", important: true);
                 return;
             }

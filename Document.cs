@@ -131,7 +131,7 @@ namespace maple
                 //create a file
                 File.CreateText(filepath).Close();
                 fileLines = new List<Line>() { new Line("") };
-                CommandLine.OutputText = String.Format("New file \"{0}\" was created", filepath.Trim());
+                CommandLine.SetOutput(String.Format("New file \"{0}\" was created", filepath.Trim()), "maple");
                 Log.Write("Initial file doesn't exist, created '" + filepath + "'", "document", important: true);
                 NewlyCreated = true;
             }
@@ -173,7 +173,6 @@ namespace maple
             Line l = fileLines[lineIndex];
             
             //clear line on screen
-            Printer.ClearLine(lineIndex - ScrollY);
             Printer.MoveCursor(0, lineIndex - ScrollY);
 
             //build gutter content & print gutter
@@ -314,6 +313,8 @@ namespace maple
                     }
                 }
 
+                Printer.ClearRight();
+
                 //print overflow indicator
                 if (lineLen - ScrollX + GutterWidth >= Cursor.MaxScreenX)
                     Printer.PrintManually(
@@ -323,7 +324,7 @@ namespace maple
                         (short)(Printer.GetAttributeAtPosition(Cursor.MaxScreenX, lineIndex - ScrollY) << 4 & 0x00F0) //set background to old foreground, and foreground to black
                         );
 
-                Printer.ApplyBuffer();
+                // Printer.ApplyBuffer();
 
             }
             else //debug printing:

@@ -6,6 +6,8 @@ namespace maple
     {
         static int dynamicFooterStartX = 0;
 
+        public static bool RefreshOutputNext { get; set; } = false;
+
         /// <summary>
         /// Print the footer (prints command line input if user is accessing cli).
         /// </summary>
@@ -66,6 +68,19 @@ namespace maple
                 }
             }
 
+            if (RefreshOutputNext)
+            {
+                Log.WriteDebug("printing new output", "footer");
+                PrintOutputLine();
+                RefreshOutputNext = false;
+            }
+
+            Printer.ApplyBuffer();
+        }
+
+        public static void PrintOutputLine()
+        {
+            Log.WriteDebug("has output? " + CommandLine.HasOutput, "footer");
             // Draw output text
             if (CommandLine.HasOutput)
             {
@@ -89,8 +104,7 @@ namespace maple
                     Printer.DrawFooter(CommandLine.OutputText, foregroundColor: outputColor, backgroundColor: ConsoleColor.Black, yOffset: 1);
                 }
             }
-
-            Printer.ApplyBuffer();
         }
+
     }
 }

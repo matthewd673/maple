@@ -64,7 +64,7 @@ namespace maple
             }
             catch (Exception e)
             {
-                CommandLine.SetOutput("Encountered an exception while loading properties XML", "internal", oType: CommandLine.OutputType.Error);
+                CommandLine.SetOutput("Encountered an exception while loading properties XML", "maple", oType: CommandLine.OutputType.Error);
                 Log.Write("Encountered exception while loading properties XML: " + e.Message, "settings", important: true);
                 return;
             }
@@ -194,7 +194,7 @@ namespace maple
             }
             catch (Exception e)
             {
-                CommandLine.SetOutput("Encountered an exception while loading alias XML", "internal", oType: CommandLine.OutputType.Error);
+                CommandLine.SetOutput("Encountered an exception while loading alias XML", "maple", oType: CommandLine.OutputType.Error);
                 Log.Write("Encountered exception while loading alias XML: " + e.Message, "settings", important: true);
                 return;
             }
@@ -234,7 +234,7 @@ namespace maple
             }
             catch (Exception e)
             {
-                CommandLine.SetOutput("Encountered an exception while loading shortcut XML", "internal", oType: CommandLine.OutputType.Error);
+                CommandLine.SetOutput("Encountered an exception while loading shortcut XML", "maple", oType: CommandLine.OutputType.Error);
                 Log.Write("Encountered exception while loading shortcut XML: " + e.Message, "settings", important: true);
             }
 

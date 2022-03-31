@@ -14,8 +14,9 @@ namespace maple
 
         /// <summary>
         /// Safely move the Cursor left by 1 character (Document coordinates).
+        /// <param name="applyPosition">Determines if the Console's cursor should be moved to the given position.</param>
         /// </summary>
-        public void MoveLeft()
+        public void MoveLeft(bool applyPosition = true)
         {
             if(SX == 0 && Doc.ScrollX > 0)
             {
@@ -26,21 +27,22 @@ namespace maple
             else
             {
                 if(DX > 0) //can move back
-                    Move(DX - 1, DY);
+                    Move(DX - 1, DY, applyPosition: applyPosition);
                 else
                 {
                     if(DY > 0)
                     {
                         MoveUp();
-                        Move(Doc.GetLine(DY).Length, DY);
+                        Move(Doc.GetLine(DY).Length, DY, applyPosition: applyPosition);
                     }
                 }
             }
         }
         /// <summary>
         /// Safely move the Cursor right by 1 character (Document coordinates).
+        /// <param name="applyPosition">Determines if the Console's cursor should be moved to the given position.</param>
         /// </summary>
-        public void MoveRight()
+        public void MoveRight(bool applyPosition = true)
         {
             if(SY == MaxScreenX - 1)
             {
@@ -55,15 +57,16 @@ namespace maple
             {
                 if(DY < Doc.GetMaxLine())
                 {
-                    MoveDown();
-                    Move(0, DY);
+                    MoveDown(applyPosition);
+                    Move(0, DY, applyPosition: applyPosition);
                 }
             }
         }
         /// <summary>
         /// Safely move the Cursor up 1 line (Document coordinates).
+        /// <param name="applyPosition">Determines if the Console's cursor should be moved to the given position.</param>
         /// </summary>
-        public void MoveUp()
+        public void MoveUp(bool applyPosition = true)
         {
             if(SY == 0 && Doc.ScrollY > 0)
             {
@@ -72,12 +75,13 @@ namespace maple
                 Doc.PrintFileLines();
             }
             else
-                Move(DX, DY - 1);
+                Move(DX, DY - 1, applyPosition: applyPosition);
         }
         /// <summary>
         /// Safely move the Cursor down 1 line (Document coordinates).
+        /// <param name="applyPosition">Determines if the Console's cursor should be moved to the given position.</param>
         /// </summary>
-        public void MoveDown()
+        public void MoveDown(bool applyPosition = true)
         {
             if(SY == MaxScreenY - 1)
             {
@@ -86,7 +90,7 @@ namespace maple
                 Doc.PrintFileLines();
             }
             else
-                Move(DX, DY + 1);
+                Move(DX, DY + 1, applyPosition: applyPosition);
         }
 
         /// <summary>

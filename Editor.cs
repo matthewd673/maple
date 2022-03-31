@@ -84,12 +84,6 @@ namespace maple
 
             //render footer
             Footer.PrintFooter();
-
-            //apply user cursor position
-            if(Input.CurrentTarget == Input.InputTarget.Document)
-                DocCursor.Move(DocCursor.DX, DocCursor.DY);
-            else if(Input.CurrentTarget == Input.InputTarget.Command)
-                CmdCursor.Move(CmdCursor.DX, CmdCursor.DY);
         }
 
         /// <summary>
@@ -123,6 +117,7 @@ namespace maple
             for(int i = 0; i <= CurrentDoc.GetMaxLine(); i++)
                 refreshedLines.Add(i);
             fullClearNext = true;
+            Footer.RefreshOutputNext = true;
         }
 
         /// <summary>

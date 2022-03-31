@@ -58,7 +58,7 @@ namespace maple
             }
             catch (Exception e)
             {
-                CommandLine.SetOutput("Encountered an exception while loading theme XML", "internal", oType: CommandLine.OutputType.Error);
+                CommandLine.SetOutput("Encountered an exception while loading theme XML", "maple", oType: CommandLine.OutputType.Error);
                 Log.Write("Encountered exception while loading theme XML: " + e.Message, "styler", important: true);
                 return;
             }
@@ -136,7 +136,7 @@ namespace maple
             }
             catch (Exception e)
             {
-                CommandLine.SetOutput("Encountered an exception while loading custom text XML", "internal", oType: CommandLine.OutputType.Error);
+                CommandLine.SetOutput("Encountered an exception while loading custom text XML", "maple", oType: CommandLine.OutputType.Error);
                 Log.Write("Encountered exception while loading custom text XML: " + e.Message, "styler", important: true);
                 return;
             }

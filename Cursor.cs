@@ -2,7 +2,7 @@ using System;
 
 namespace maple
 {
-    class Cursor
+    public class Cursor
     {
         public int DX { get; set; }
         public int DY { get; set; }
