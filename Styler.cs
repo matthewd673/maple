@@ -187,7 +187,7 @@ namespace maple
 
         public static ConsoleColor GetColor(Token.TokenType tokenType)
         {
-            if (tokenColors.ContainsKey(tokenType))
+            if (!Settings.NoHighlight && tokenColors.ContainsKey(tokenType))
                 return tokenColors[tokenType];
             return TextColor;
         }

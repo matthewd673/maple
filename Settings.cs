@@ -17,6 +17,7 @@ namespace maple
         //properties
         public static bool DebugTokens { get; set; } = false;
         public static bool NoHighlight { get; set; } = false;
+        public static bool NoTokenize { get; set; } = false;
         public static bool CliNoHighlight { get; set; } = false;
         public static bool RelativePath { get; set; } = false;
         public static bool NavigatePastTabs { get; set; } = true;
@@ -94,6 +95,9 @@ namespace maple
                         break;
                     case "nohighlight":
                         NoHighlight = IsTrue(value);
+                        break;
+                    case "notokenize":
+                        NoTokenize = IsTrue(value);
                         break;
                     case "clinohighlight":
                         CliNoHighlight = IsTrue(value);

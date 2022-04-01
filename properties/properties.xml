@@ -2,6 +2,7 @@
     <!--Switches-->
     <property name="debugTokens">False</property>
     <property name="noHighlight">False</property>
+    <property name="noTokenize">False</property>
     <property name="cliNoHighlight">False</property>
     <property name="relativePath">False</property>
     <property name="navigatePastTabs">True</property>

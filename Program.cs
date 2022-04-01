@@ -42,6 +42,10 @@ namespace maple
                         Settings.NoHighlight = true;
                         Settings.IgnoreSetting("nohighlight");
                         break;
+                    case "--no-tokenize":
+                        Settings.NoTokenize = true;
+                        Settings.IgnoreSetting("notokenize");
+                        break;
                     case "--cli-no-highlight":
                         Settings.CliNoHighlight = true;
                         Settings.IgnoreSetting("clinohighlight");

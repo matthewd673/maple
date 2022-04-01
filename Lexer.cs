@@ -187,7 +187,7 @@ namespace maple
 
         public static Token[] Tokenize(string text)
         {
-            if (Settings.NoHighlight)
+            if (Settings.NoTokenize)
                 return new Token[1] { new Token(text, Token.TokenType.None) };
             else
                 return InternalTokenizer(text, rules, keywords);
