@@ -123,7 +123,7 @@ namespace maple
         /// <param name="foregroundColor">The foreground color.</param>
         /// <param name="backgroundColor">The background color.</param>
         /// <returns>A buffer attribute representing the given colors.</returns>
-        private static short GetAttributeFromColor(ConsoleColor foregroundColor, ConsoleColor backgroundColor)
+        public static short GetAttributeFromColor(ConsoleColor foregroundColor, ConsoleColor backgroundColor)
         {
             return (short)((short)(GetAttributeFromColor(backgroundColor) << 4) | GetAttributeFromColor(foregroundColor));
         }
@@ -133,7 +133,7 @@ namespace maple
         /// </summary>
         /// <param name="color">The foreground color.</param>
         /// <returns>A buffer attrivute representing the color.</returns>
-        private static short GetAttributeFromColor(ConsoleColor color)
+        public static short GetAttributeFromColor(ConsoleColor color)
         {
             switch (color)
             {

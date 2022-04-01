@@ -77,8 +77,8 @@ namespace maple
             if(fullClearNext)
             {
                 Printer.Clear();
-                DrawLines();
                 Footer.RefreshOutputLine();
+                DrawLines();
             }
             else
                 DrawLines();
@@ -135,9 +135,9 @@ namespace maple
                 else
                 {
                     int lineScreenIndex = lineIndex - CurrentDoc.ScrollY;
-                    if (lineScreenIndex < Cursor.MaxScreenY - Footer.FooterHeight)
+                    if (lineScreenIndex <= Cursor.MaxScreenY - Footer.FooterHeight)
                     {
-                        Printer.ClearLine(lineIndex - CurrentDoc.ScrollY);
+                        Printer.ClearLine(lineScreenIndex);
                     }
                 }
             }

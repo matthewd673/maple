@@ -88,9 +88,9 @@ namespace maple
         public static void PrintOutputLine()
         {
             // Draw output text
-            Printer.ClearLine(Cursor.MaxScreenY - 1);
             if (CommandLine.HasOutput)
             {
+                Printer.ClearLine(Cursor.MaxScreenY - 1);
                 ConsoleColor outputColor = Styler.CliOutputInfoColor;
                 switch (CommandLine.OType)
                 {

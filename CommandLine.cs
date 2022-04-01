@@ -113,7 +113,7 @@ namespace maple
             List<string> commandSwitches = commandInfo.Switches;
 
             //swap out alias with actual primary command
-            if (Settings.Aliases.ContainsKey(primaryCommand))
+            if (Settings.Aliases.ContainsKey(primaryCommand) && !CommandMasterList.Contains(primaryCommand))
                 primaryCommand = Settings.Aliases[primaryCommand];
 
             switch(primaryCommand)
@@ -207,16 +207,10 @@ namespace maple
         {
             string defaultHelpString = "'help [command]', 'help all' for command list, or 'help wiki' to open wiki";
             string wikiUrl = "https://github.com/matthewd673/maple/wiki";
-            
+
             if (args.Count < 1)
             {
                 SetOutput(defaultHelpString, "help");
-                return;
-            }
-
-            if (Settings.Aliases.ContainsKey(args[0]))
-            {
-                SetOutput(String.Format("'{0}' is an alias for '{1}'", args[0], Settings.Aliases[args[0]]), "help");
                 return;
             }
 
@@ -313,7 +307,14 @@ namespace maple
                     SetOutput("shortcut [key]: display the command that is executed when the given shortcut key is pressed", "help");
                     break;
                 default:
-                    UnknownCommand();
+                    if (Settings.Aliases.ContainsKey(args[0]))
+                    {
+                        SetOutput(String.Format("'{0}' is an alias for '{1}'", args[0], Settings.Aliases[args[0]]), "help");
+                    }
+                    else
+                    {
+                        UnknownCommand();
+                    }
                     break;
             }
         }
@@ -607,7 +608,6 @@ namespace maple
 
                 while (true)
                 {
-
                     int nextIndex = caseL.IndexOf(caseSearch, (lastIndex == -1)? 0 : lastIndex );
                     if (nextIndex == lastIndex)
                         break;
@@ -657,7 +657,7 @@ namespace maple
             }
             else if (lastFindIndex == -1 && !findLast && !findFirst)
             {
-                lastFindIndex = firstAfterCursor;
+                lastFindIndex = firstAfterCursor - 1;
                 if (findUpwards)
                     lastFindIndex++;
             }
@@ -819,6 +819,19 @@ namespace maple
         static void UnknownCommand()
         {
             SetOutput("Unknown command, try 'help all' or update the alias file", "error", oType: OutputType.Error);
+        }
+
+        public static bool Contains<T>(this T[] array, T item)
+        {
+            foreach (T i in array)
+            {
+                if (i.Equals(item))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
     }

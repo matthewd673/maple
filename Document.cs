@@ -85,6 +85,8 @@ namespace maple
                         return Settings.AliasesFile;
                     case "{shortcutfile}":
                         return Settings.ShortcutsFile;
+                    case "{syntaxfile}":
+                        return Lexer.CurrentSyntaxFile;
                 }
 
                 //check for path substitution
@@ -166,7 +168,10 @@ namespace maple
         public void PrintLine(int lineIndex)
         {
             //don't, if out of range
-            if(lineIndex < 0 || lineIndex > fileLines.Count - 1 || lineIndex - ScrollY < 0 || lineIndex - ScrollY > Cursor.MaxScreenY - Footer.FooterHeight)
+            if(lineIndex < 0 ||
+                lineIndex > fileLines.Count - 1 ||
+                lineIndex - ScrollY < 0 ||
+                lineIndex - ScrollY > Cursor.MaxScreenY - Footer.FooterHeight)
                 return;
 
             Line l = fileLines[lineIndex];
@@ -196,6 +201,7 @@ namespace maple
             {
                 int lineLen = 0;
 
+                short selectColorAttribute = Printer.GetAttributeFromColor(ConsoleColor.Black, Styler.SelectionColor);
                 foreach(Token t in l.Tokens)
                 {
                     //store difference between previous and current line lengths
@@ -262,16 +268,16 @@ namespace maple
                             string preSelectSubstring = printText.Substring(0, tSelectStart);
                             string inSelectSubstring = printText.Substring(tSelectStart, selectLength);
                             string postSelectSubstring = printText.Substring(tSelectEnd);
-                            Printer.PrintWord(preSelectSubstring, foregroundColor: t.Color);
-                            Printer.PrintWord(inSelectSubstring, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.SelectionColor);
-                            Printer.PrintWord(postSelectSubstring, foregroundColor: t.Color);
+                            Printer.PrintWord(preSelectSubstring, t.ColorAttribute);
+                            Printer.PrintWord(inSelectSubstring, selectColorAttribute);
+                            Printer.PrintWord(postSelectSubstring, t.ColorAttribute);
                         }
                         else //no precise selection to print
                         {
                             if (!fullySelected) //normal print
-                                Printer.PrintWord(printText, foregroundColor: t.Color);
+                                Printer.PrintWord(printText, t.ColorAttribute);
                             else //print fully selected
-                                Printer.PrintWord(printText, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.SelectionColor);
+                                Printer.PrintWord(printText, selectColorAttribute);
                         }
                     }
                     else if (lineLen > ScrollX + Cursor.MaxScreenX) //part of token is hidden to right, trim end
@@ -294,16 +300,16 @@ namespace maple
                                 string preSelectSubstring = printText.Substring(0, tSelectStart);
                                 string inSelectSubstring = printText.Substring(tSelectStart, selectLength);
                                 string postSelectSubstring = printText.Substring(tSelectEnd);
-                                Printer.PrintWord(preSelectSubstring, foregroundColor: t.Color);
-                                Printer.PrintWord(inSelectSubstring, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.SelectionColor);
-                                Printer.PrintWord(postSelectSubstring, foregroundColor: t.Color);
+                                Printer.PrintWord(preSelectSubstring, t.ColorAttribute);
+                                Printer.PrintWord(inSelectSubstring, selectColorAttribute);
+                                Printer.PrintWord(postSelectSubstring, t.ColorAttribute);
                             }
                             else //no precise selection to print
                             {
                                 if (!fullySelected)
-                                    Printer.PrintWord(printText, foregroundColor: t.Color);
+                                    Printer.PrintWord(printText, t.ColorAttribute);
                                 else
-                                    Printer.PrintWord(printText, foregroundColor: ConsoleColor.Black, backgroundColor: Styler.SelectionColor);
+                                    Printer.PrintWord(printText, selectColorAttribute);
                             }
 
                         }
@@ -415,7 +421,9 @@ namespace maple
         /// </summary>
         public void ScrollRight()
         {
+            Log.WriteDebug("old scroll x: " + ScrollX, "document");
             ScrollX += scrollXIncrement;
+            Log.WriteDebug("new scroll x: " + ScrollX + " (" + scrollXIncrement + ")", "document");
         }
 
         /// <summary>

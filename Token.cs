@@ -38,10 +38,12 @@ namespace maple
             {
                 _ttype = value;
                 Color = Styler.GetColor(value);
+                ColorAttribute = Printer.GetAttributeFromColor(Color);
             }
         }
         public String Text { get; private set; }
         public ConsoleColor Color { get; private set; } = ConsoleColor.Gray;
+        public short ColorAttribute { get; private set; } = 0x0007;
 
         public Token(String text, TokenType tokenType)
         {

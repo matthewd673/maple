@@ -79,12 +79,7 @@ namespace maple
                 if (insensitive)
                     options = options | RegexOptions.IgnoreCase;
 
-                if (type.Equals("stringliteral")) //always prioritize stringliteral since it sometimes conflicts
-                    rules.Add(new LexerRule(Token.TokenType.StringLiteral, value, options));
-                if (type.Equals("url"))
-                    rules.Add(new LexerRule(Token.TokenType.Url, value, options));
-                else
-                    rules.Insert(0, new LexerRule(Token.StringToTokenType(type), value, options));
+                rules.Insert(0, new LexerRule(Token.StringToTokenType(type), value, options));
             }
 
             Log.Write("Loaded " + rules.Count + " lexer rules", "lexer");
