@@ -32,6 +32,8 @@ namespace maple
             DocCursor.Move(0, 0);
             DocCursor.ApplyPosition();
 
+            Footer.SetFormatString("{vanity}{-}{filepath}{-}{lncol}{-}{selection}{-}{readonly}");
+
             //load footer lexer
             Log.Write("Building command line input lexer rules", "editor");
             Lexer.LoadCommandLineSyntax();
