@@ -2,34 +2,44 @@ using System;
 
 namespace maple
 {
+
+    public enum TokenType
+    {
+        // MISC
+        None,
+
+        // DOCUMENT SYNTAX
+        Misc,
+        Break,
+        Alphabetical,
+        Keyword,
+        NumberLiteral,
+        StringLiteral,
+        CharLiteral,
+        BooleanLiteral,
+        HexLiteral,
+        Comment,
+        Grouping,
+        Operator,
+        Url,
+        Function,
+        SpecialChar,
+        // CLI INPUT
+        CliCommandValid,
+        CliCommandInvalid,
+        CliSwitch,
+        CliString,
+        // FOOTER
+        FooterVanity,
+        FooterSeparator,
+        FooterFilepath,
+        FooterLnCol,
+        FooterSelection,
+        FooterIndicator,
+    }
+
     public class Token
     {
-
-        public enum TokenType
-        {
-            None,
-            Misc,
-            Break,
-            Alphabetical,
-            Keyword,
-            NumberLiteral,
-            StringLiteral,
-            CharLiteral,
-            BooleanLiteral,
-            HexLiteral,
-            Comment,
-            Grouping,
-            Operator,
-            Url,
-            Function,
-            SpecialChar,
-            //for cli lexer
-            CliCommandValid,
-            CliCommandInvalid,
-            CliSwitch,
-            CliString,
-        }
-
         private TokenType _ttype;
         public TokenType TType
         {
@@ -41,7 +51,7 @@ namespace maple
                 ColorAttribute = Printer.GetAttributeFromColor(Color);
             }
         }
-        public String Text { get; private set; }
+        public String Text { get; set; }
         public ConsoleColor Color { get; private set; } = ConsoleColor.Gray;
         public short ColorAttribute { get; private set; } = 0x0007;
 
@@ -56,44 +66,63 @@ namespace maple
             switch (name)
             {
                 case "numberliteral":
-                    return Token.TokenType.NumberLiteral;
+                    return TokenType.NumberLiteral;
                 case "alphabetical":
-                    return Token.TokenType.Alphabetical;
+                    return TokenType.Alphabetical;
                 case "break":
-                    return Token.TokenType.Break;
+                    return TokenType.Break;
                 case "grouping":
-                    return Token.TokenType.Grouping;
+                    return TokenType.Grouping;
                 case "stringliteral":
-                    return Token.TokenType.StringLiteral;
+                    return TokenType.StringLiteral;
                 case "characterliteral":
-                    return Token.TokenType.CharLiteral;
+                    return TokenType.CharLiteral;
                 case "booleanliteral":
-                    return Token.TokenType.BooleanLiteral;
+                    return TokenType.BooleanLiteral;
                 case "hexliteral":
-                    return Token.TokenType.HexLiteral;
+                    return TokenType.HexLiteral;
                 case "comment":
-                    return Token.TokenType.Comment;
+                    return TokenType.Comment;
                 case "operator":
-                    return Token.TokenType.Operator;
+                    return TokenType.Operator;
                 case "url":
-                    return Token.TokenType.Url;
+                    return TokenType.Url;
                 case "function":
-                    return Token.TokenType.Function;
+                    return TokenType.Function;
                 case "keyword":
-                    return Token.TokenType.Keyword;
+                    return TokenType.Keyword;
                 case "specialchar":
-                    return Token.TokenType.SpecialChar;
+                    return TokenType.SpecialChar;
                 //command line
                 case "clicommandvalid":
-                    return Token.TokenType.CliCommandValid;
+                    return TokenType.CliCommandValid;
                 case "clicommandinvalid":
-                    return Token.TokenType.CliCommandInvalid;
+                    return TokenType.CliCommandInvalid;
                 case "cliswitch":
-                    return Token.TokenType.CliSwitch;
+                    return TokenType.CliSwitch;
                 case "clistring":
-                    return Token.TokenType.CliString;
+                    return TokenType.CliString;
+                //footer
+                case "{vanity}":
+                case "footervanity":
+                    return TokenType.FooterVanity;
+                case "{-}":
+                case "footerseparator":
+                    return TokenType.FooterSeparator;
+                case "{filepath}":
+                case "footerfilepath":
+                    return TokenType.FooterFilepath;
+                case "{lncol}":
+                case "footerlncol":
+                    return TokenType.FooterLnCol;
+                case "{selection}":
+                case "footerselection":
+                    return TokenType.FooterSelection;
+                case "{readonly}":
+                case "footerindicator":
+                    return TokenType.FooterIndicator;
                 default:
-                    return Token.TokenType.None;
+                    return TokenType.None;
             }
         }
     }

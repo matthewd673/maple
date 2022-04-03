@@ -323,7 +323,7 @@ namespace maple
                 //print overflow indicator
                 if (lineLen - ScrollX + GutterWidth >= Cursor.MaxScreenX)
                     Printer.PrintManually(
-                        Styler.OverflowIndicator,
+                        Settings.OverflowIndicator,
                         Cursor.MaxScreenX,
                         lineIndex - ScrollY,
                         (short)(Printer.GetAttributeAtPosition(Cursor.MaxScreenX, lineIndex - ScrollY) << 4 & 0x00F0) //set background to old foreground, and foreground to black
@@ -363,12 +363,12 @@ namespace maple
         {
             string gutterContent = (lineIndex + 1).ToString();
             while(gutterContent.Length < GutterWidth - gutterPadding)
-                gutterContent = Styler.GutterLeftPad + gutterContent;
+                gutterContent = Settings.GutterLeftPad + gutterContent;
             while(gutterContent.Length < GutterWidth)
             {
                 gutterContent += " ";
                 if (gutterContent.Length == GutterWidth - 1)
-                    gutterContent += Styler.GutterBarrier;
+                    gutterContent += Settings.GutterBarrier;
             }
 
             return gutterContent;
@@ -560,7 +560,7 @@ namespace maple
         public Token GetTokenAtPosition(int x, int y)
         {
             if (x < 0 || x > GetLine(y).Length || y < 0 || y > fileLines.Count)
-                return new Token(null, Token.TokenType.None);
+                return new Token(null, TokenType.None);
             
             int totalLength = 0;
             foreach(Token t in fileLines[y].Tokens)
@@ -570,7 +570,7 @@ namespace maple
                     return t;
             }
 
-            return new Token(null, Token.TokenType.None);
+            return new Token(null, TokenType.None);
         }
 
         /// <summary>

@@ -95,9 +95,9 @@ namespace maple
         {
             //build rules
             //rules are colored based on existing theme colors (for now)
-            cliRules.Add(new LexerRule(Token.TokenType.Alphabetical, CliFullCommandRule));
-            cliRules.Add(new LexerRule(Token.TokenType.CliSwitch, CliSwitchRule));
-            cliRules.Add(new LexerRule(Token.TokenType.CliString, CliStringRule));
+            cliRules.Add(new LexerRule(TokenType.Alphabetical, CliFullCommandRule));
+            cliRules.Add(new LexerRule(TokenType.CliSwitch, CliSwitchRule));
+            cliRules.Add(new LexerRule(TokenType.CliString, CliStringRule));
 
             Log.Write("Loaded " + cliRules.Count + " command line lexer rules", "lexer");
 
@@ -115,14 +115,14 @@ namespace maple
         /// </summary>
         /// <param name="text">The text to be tokenized.</param>
         /// <returns>An array of <c>Token</c>s</returns>
-        static Token[] InternalTokenizer(string text, List<LexerRule> rules, List<string> keywords)
+        static Token[]  InternalTokenizer(string text, List<LexerRule> rules, List<string> keywords)
         {
             List<Token> tokens = new List<Token>();
 
             while (text.Length > 0)
             {
                 Match nearestMatch = null;
-                Token.TokenType nearestMatchRuleType = Token.TokenType.None;
+                TokenType nearestMatchRuleType = TokenType.None;
 
                 bool foundPerfect = false;
                 for (int i = 0; i < rules.Count; i++)
@@ -135,10 +135,10 @@ namespace maple
 
                     if (firstMatch.Index == 0) //next token matches - jobs done
                     {
-                        Token.TokenType currentType = rule.TType;
+                        TokenType currentType = rule.TType;
                         //if alphabetical, check for keyword
-                        if (rule.TType == Token.TokenType.Alphabetical && keywords.Contains(firstMatch.Value))
-                            currentType = Token.TokenType.Keyword;
+                        if (rule.TType == TokenType.Alphabetical && keywords.Contains(firstMatch.Value))
+                            currentType = TokenType.Keyword;
 
                         tokens.Add(new Token(firstMatch.Value, currentType));
                         text = text.Remove(firstMatch.Index, firstMatch.Value.Length);
@@ -161,21 +161,21 @@ namespace maple
                     {
                         //remove unmatchable text and add "none" token
                         string unmatchSubstring = text.Substring(0, nearestMatch.Index);
-                        tokens.Add(new Token(unmatchSubstring, Token.TokenType.None));
+                        tokens.Add(new Token(unmatchSubstring, TokenType.None));
                         text = text.Remove(0, nearestMatch.Index);
                         //eat first matched token
                         text = text.Remove(0, nearestMatch.Value.Length);
 
-                        Token.TokenType currentType = nearestMatchRuleType;
+                        TokenType currentType = nearestMatchRuleType;
                         //if alphabetical, check for keyword
-                        if (nearestMatchRuleType == Token.TokenType.Alphabetical && keywords.Contains(nearestMatch.Value))
-                            currentType = Token.TokenType.Keyword;
+                        if (nearestMatchRuleType == TokenType.Alphabetical && keywords.Contains(nearestMatch.Value))
+                            currentType = TokenType.Keyword;
 
                         tokens.Add(new Token(nearestMatch.Value, currentType));
                     }
                     else //there is no match anywhere
                     {
-                        tokens.Add(new Token(text, Token.TokenType.None)); //add rest of text with "none" token
+                        tokens.Add(new Token(text, TokenType.None)); //add rest of text with "none" token
                         text = ""; //clear text
                         break;
                     }
@@ -188,7 +188,7 @@ namespace maple
         public static Token[] Tokenize(string text)
         {
             if (Settings.NoTokenize)
-                return new Token[1] { new Token(text, Token.TokenType.None) };
+                return new Token[1] { new Token(text, TokenType.None) };
             else
                 return InternalTokenizer(text, rules, keywords);
         }
@@ -198,13 +198,13 @@ namespace maple
             Token[] tokens = InternalTokenizer(text, cliRules, new List<string>()); //will handle keywords manually, no need
             
             //if first token isn't a keyword, and there's more than 1 token, user is trying an unknown command
-            if (tokens.Length > 1 && tokens[0].TType == Token.TokenType.Alphabetical)
+            if (tokens.Length > 1 && tokens[0].TType == TokenType.Alphabetical)
             {
                 bool firstIsValid = cliKeywords.Contains(tokens[0].Text);
                 if (firstIsValid)
-                    tokens[0].TType = Token.TokenType.CliCommandValid;
+                    tokens[0].TType = TokenType.CliCommandValid;
                 else
-                    tokens[0].TType = Token.TokenType.CliCommandInvalid;
+                    tokens[0].TType = TokenType.CliCommandInvalid;
             }
             
             return tokens;
@@ -212,7 +212,7 @@ namespace maple
 
         struct LexerRule
         {
-            public Token.TokenType TType { get; set; }
+            public TokenType TType { get; set; }
             public Regex Pattern { get; set; }
 
             /// <summary>
@@ -220,7 +220,7 @@ namespace maple
             /// </summary>
             /// <param name="name">The name of the pattern.</param>
             /// <param name="pattern">The RegEx pattern to search.</param>
-            public LexerRule(Token.TokenType tType, string pattern, RegexOptions options = RegexOptions.None)
+            public LexerRule(TokenType tType, string pattern, RegexOptions options = RegexOptions.None)
             {
                 TType = tType;
                 Pattern = new Regex(pattern, options | RegexOptions.Compiled);

@@ -518,7 +518,7 @@ namespace maple
         static void UrlCommand()
         {
             Token hoveredToken = Editor.CurrentDoc.GetTokenAtPosition(Editor.DocCursor.DX, Editor.DocCursor.DY);
-            if (hoveredToken.TType != Token.TokenType.Url)
+            if (hoveredToken.TType != TokenType.Url)
             {
                 SetOutput("Selected token isn't a valid URL", "url", OutputType.Error);
                 Log.Write("Attempted to navigate to '" + hoveredToken.Text + "'", "commandline/url");

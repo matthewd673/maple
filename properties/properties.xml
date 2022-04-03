@@ -23,4 +23,11 @@
     <property name="tabSpacesCount">4</property>
     <property name="scrollYIncrement">half</property>
     <property name="scrollXIncrement">half</property>
+    <!--Editor Customizations-->
+    <property name="vanityFooter">maple</property>
+    <property name="footerFormat">{vanity}{-}{filepath}{-}{lncol}{-}{selection}{-}{readonly}</property>
+    <property name="footerSeparator"> </property>
+    <property name="gutterLeftPad">0</property>
+    <property name="gutterBarrier"> </property>
+    <property name="overflowIndicator">…</property>
 </xml>

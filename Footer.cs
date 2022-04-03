@@ -6,33 +6,14 @@ namespace maple
 {
     static class Footer
     {
-        static int dynamicFooterStartX = 0;
-
         public static int FooterHeight { get; private set; }= 1;
         static bool refreshOutputNext = false;
 
         static string commandPrompt = "maple> ";
 
-        public static string Separator { get; set; } = " - ";
+        public static string Separator { get; set; } = " ";
         static string formatString { get; set; }
-        static List<FooterToken> tokens = new();
-
-        public enum FooterTokenType
-        {
-            None,
-            Separator,
-            Vanity,
-            Filepath,
-            LnCol,
-            Selection,
-            ReadonlyIndicator,
-        }
-
-        struct FooterToken
-        {
-            public FooterTokenType TType { get; set; }
-            public string Text { get; set; }
-        }
+        static List<Token> tokens = new();
 
         public static void SetFormatString(string formatString)
         {
@@ -40,22 +21,22 @@ namespace maple
             tokens = TokenizeFooter();
         }
 
-        static string GetFooterTokenText(FooterTokenType ttype)
+        static string GetFooterTokenText(Token token)
         {
-            switch (ttype)
+            switch (token.TType)
             {
-                case FooterTokenType.None:
-                    return "";
-                case FooterTokenType.Vanity:
-                    return Styler.VanityFooter;
-                case FooterTokenType.Filepath:
+                case TokenType.None:
+                    return token.Text;
+                case TokenType.FooterVanity:
+                    return Settings.VanityFooter;
+                case TokenType.FooterFilepath:
                     return Editor.CurrentDoc.Filepath.TrimEnd();
-                case FooterTokenType.LnCol:
+                case TokenType.FooterLnCol:
                     return String.Format("ln {0} col {1}", Editor.DocCursor.DY + 1, Editor.DocCursor.DX + 1);
-                case FooterTokenType.Selection:
+                case TokenType.FooterSelection:
                     if (Editor.CurrentDoc.HasSelection()) //write selection bounds (if has selection)
                     {
-                        return String.Format("{0},{1} - {2},{3} ", (Editor.CurrentDoc.SelectInY + 1), (Editor.CurrentDoc.SelectInX + 1),
+                        return String.Format("{0},{1} - {2},{3}", (Editor.CurrentDoc.SelectInY + 1), (Editor.CurrentDoc.SelectInX + 1),
                             (Editor.CurrentDoc.SelectOutY + 1), (Editor.CurrentDoc.SelectOutX + 1));
                     }
                     else if (Editor.CurrentDoc.HasSelectionStart()) //write selection in as reminder
@@ -63,69 +44,31 @@ namespace maple
                         return String.Format("{0},{1} …", (Editor.CurrentDoc.SelectInY + 1), (Editor.CurrentDoc.SelectInX + 1));
                     }
                     return "";
-                case FooterTokenType.ReadonlyIndicator:
+                case TokenType.FooterIndicator: //TODO: this only works for readonly indicator
                     return Input.ReadOnly ? "[readonly]" : "";
                 default:
                     return "";
             }
         }
 
-        static bool GetFooterTokenHasOutput(FooterToken t)
+        static bool GetFooterTokenHasOutput(Token t)
         {
             switch (t.TType)
             {
-                case FooterTokenType.Separator:
+                case TokenType.FooterSeparator:
                     return !t.Equals("");
-                case FooterTokenType.Selection:
+                case TokenType.FooterSelection:
                     return Editor.CurrentDoc.HasSelectionStart();
-                case FooterTokenType.ReadonlyIndicator:
+                case TokenType.FooterIndicator: //TODO: this only works for readonly indicator
                     return Input.ReadOnly;
                 default:
                     return true;
             }
         }
 
-        static FooterToken FooterTokenFromString(string text)
+        static List<Token> TokenizeFooter()
         {
-            FooterTokenType ttype = FooterTokenType.None;
-            switch (text)
-            {
-                case "{-}":
-                    ttype = FooterTokenType.Separator;
-                    break;
-                case "{vanity}":
-                    ttype = FooterTokenType.Vanity;
-                    break;
-                case "{filepath}":
-                    ttype = FooterTokenType.Filepath;
-                    break;
-                case "{lncol}":
-                    ttype = FooterTokenType.LnCol;
-                    break;
-                case "{selection}":
-                    ttype = FooterTokenType.Selection;
-                    break;
-                case "{readonly}":
-                    ttype = FooterTokenType.ReadonlyIndicator;
-                    break;
-            }
-
-            string outText = text;
-            if (ttype != FooterTokenType.None && ttype != FooterTokenType.Separator)
-            {
-                text = GetFooterTokenText(ttype);
-            }
-
-            return new FooterToken()
-            {
-                TType = ttype,
-                Text = text
-            };
-        }
-
-        static List<FooterToken> TokenizeFooter()
-        {
-            List<FooterToken> tokens = new();
+            List<Token> tokens = new();
             Regex pattern = new Regex("{[a-z-]+}", RegexOptions.IgnoreCase);
 
             string text = formatString;
@@ -135,11 +78,7 @@ namespace maple
                 // stop if there are no more matches
                 if (!nextMatch.Success)
                 {
-                    tokens.Add(new FooterToken()
-                                {
-                                    TType = FooterTokenType.None,
-                                    Text = text
-                                });
+                    tokens.Add(new Token(text, TokenType.None));
                     break;
                 }
                 
@@ -147,16 +86,15 @@ namespace maple
                 if (nextMatch.Index == 0)
                 {
                     Log.WriteDebug("matched!", "footer");
-                    tokens.Add(FooterTokenFromString(nextMatch.Groups[0].Value));
+                    tokens.Add(new Token(
+                        "",
+                        Token.StringToTokenType(nextMatch.Groups[0].Value)
+                    ));
                     text = text.Remove(nextMatch.Index, nextMatch.Value.Length);
                 }
                 else
                 {
-                    tokens.Add(new FooterToken()
-                                {
-                                    TType = FooterTokenType.None,
-                                    Text = text
-                                });
+                    tokens.Add(new Token(text, TokenType.None));
                     text = text.Remove(nextMatch.Index, nextMatch.Value.Length);
                 }
             }
@@ -176,12 +114,8 @@ namespace maple
                 Printer.MoveCursor(0, Cursor.MaxScreenY); //to manually set initial X
                 for (int i = 0; i < tokens.Count; i++)
                 {
-                    FooterToken t = tokens[i];
-                    if (t.TType != FooterTokenType.Separator)
-                    {
-                        Printer.WriteToFooter(GetFooterTokenText(t.TType));
-                    }
-                    else
+                    Token t = tokens[i];
+                    if (t.TType == TokenType.FooterSeparator)
                     {
                         bool contentPrevious = false;
                         bool contentNext = false;
@@ -195,18 +129,14 @@ namespace maple
                                     break;
                                 }
                             }
-                            // if (!GetFooterTokenHasOutput(tokens[i - 1].TType))
-                            // {
-                            //     continue;
-                            // }
                         }
                         if (i < tokens.Count - 1)
                         {
-                            for (int k = i + 1; k < tokens.Count - 1; k++)
+                            for (int k = i + 1; k < tokens.Count; k++)
                             {
-                                if (t.TType == FooterTokenType.Separator)
+                                if (tokens[k].TType == TokenType.FooterSeparator)
                                 {
-                                    t.Text = "";
+                                    break;
                                 }
                                 if (GetFooterTokenHasOutput(tokens[k]))
                                 {
@@ -214,21 +144,21 @@ namespace maple
                                     break;
                                 }
                             }
-                            // if (!GetFooterTokenHasOutput(tokens[i + 1].TType))
-                            // {
-                            //     continue;
-                            // }
                         }
 
                         if (contentPrevious && contentNext)
                         {
                             t.Text = Separator;
-                            Printer.WriteToFooter(Separator);
+                            Printer.WriteToFooter(Separator, attribute: t.ColorAttribute);
                         }
                         else
                         {
                             t.Text = "";
                         }
+                    }
+                    else
+                    {
+                        Printer.WriteToFooter(GetFooterTokenText(t), attribute: t.ColorAttribute);
                     }
                 }
 

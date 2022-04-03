@@ -314,6 +314,11 @@ namespace maple
         /// <param name="backgroundColor"></param>
         public static void WriteToFooter(String text, int x = -1, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black, int yOffset = 0)
         {
+            WriteToFooter(text, x, GetAttributeFromColor(foregroundColor, backgroundColor), yOffset);
+        }
+
+        public static void WriteToFooter(String text, int x = -1, short attribute = 0x0007, int yOffset = 0)
+        {
             if (x != -1)
             {
                 printerCursor.Move(x, Cursor.MaxScreenY - yOffset, applyPosition: false);
@@ -322,14 +327,13 @@ namespace maple
             int index = GetBufferIndex(printerCursor);
 
             char[] textChars = text.ToCharArray();
-            short attribute = GetAttributeFromColor(foregroundColor, backgroundColor);
 
             for (int i = index; i < index + text.Length; i++)
             {
                 if (i == buf.Length || (i > index && i % bufWidth == 0)) //overflow
                 {
-                    buf[i - 1].Char.UnicodeChar = Styler.OverflowIndicator;
-                    buf[i - 1].Attributes = GetAttributeFromColor(foregroundColor, backgroundColor);
+                    buf[i - 1].Char.UnicodeChar = Settings.OverflowIndicator;
+                    buf[i - 1].Attributes = attribute;
                     break;
                 }
 

@@ -38,6 +38,14 @@ namespace maple
         public static int ScrollYIncrement { get; private set; } = -1;
         public static int ScrollXIncrement { get; private set; } = -1;
 
+        //editor customizations
+        public static string VanityFooter { get; private set; } = "maple";
+        public static string FooterFormat { get; private set; } = "{vanity}{-}{filepath}{-}{lncol}"; //super simple default
+        public static string FooterSeparator { get; private set; } = " ";
+        public static char GutterLeftPad { get; private set; } = '0';
+        public static char GutterBarrier { get; private set; } = ' ';
+        public static char OverflowIndicator { get; private set; } = '…';
+
         static List<string> ignoreList = new List<string>(); //stores a list of settings to ignore when loading
 
         public static Dictionary<string, string> Aliases { get; private set; } = new();
@@ -175,6 +183,39 @@ namespace maple
                             ScrollXIncrement = -2;
                         else
                             ScrollXIncrement = Math.Abs(Convert.ToInt32(value));
+                        break;
+
+                    //EDITOR CUSTOMIZATIONS
+                    case "vanityFooter":
+                        VanityFooter = value;
+                        break;
+                    case "footerFormat":
+                        FooterFormat = value;
+                        break;
+                    case "footerSeparator":
+                        FooterSeparator = value;
+                        break;
+                    case "gutterleftpad":
+                        if (value.Length > 1 || value.Length == 0)
+                            Log.Write("GutterLeftPad value must be 1 character", "styler", important: true);
+                        else
+                            GutterLeftPad = value.ToCharArray()[0];
+                        break;
+                    case "gutterbarrier":
+                        if (value.Length > 1 || value.Length == 0)
+                            Log.Write("GutterBarrier value must be 1 character", "styler", important: true);
+                        else
+                            GutterBarrier = value.ToCharArray()[0];
+                        break;
+                    case "overflowindicator":
+                        if (value.Length > 1 || value.Length == 0)
+                            Log.Write("OverflowIndicator value must be 1 character", "styler", important: true);
+                        else
+                            OverflowIndicator = value.ToCharArray()[0];
+                        break;
+
+                    default:
+                        Log.Write("Encountered unknown property '" + name + "'", "settings", important: true);
                         break;
                 }
             }

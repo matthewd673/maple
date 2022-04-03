@@ -28,9 +28,11 @@
     <color category="cliCommandInvalid">Red</color>
     <color category="cliSwitch">DarkGray</color>
     <color category="cliString">Green</color>
-    <!--Editor Customizations-->
-    <string category="vanityFooter">maple</string>
-    <string category="gutterLeftPad">0</string>
-    <string category="gutterBarrier"> </string>
-    <string category="overflowIndicator">…</string>
+    <!--Footer Colors-->
+    <color category="footerVanity">Yellow</color>
+    <color category="footerSeparator">DarkGray</color>
+    <color category="footerFilepath">Gray</color>
+    <color category="footerLnCol">Yellow</color>
+    <color category="footerSelection">Blue</color>
+    <color category="footerIndicator">Gray</color>
 </xml>
