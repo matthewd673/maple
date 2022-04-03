@@ -157,7 +157,7 @@ namespace maple
         /// </summary>
         public void PrintFileLines()
         {
-            for(int i = ScrollY; i < Cursor.MaxScreenY + ScrollY; i++)
+            for(int i = ScrollY; i < Printer.MaxScreenY + ScrollY; i++)
                 PrintLine(i);
         }
 
@@ -171,7 +171,7 @@ namespace maple
             if(lineIndex < 0 ||
                 lineIndex > fileLines.Count - 1 ||
                 lineIndex - ScrollY < 0 ||
-                lineIndex - ScrollY > Cursor.MaxScreenY - Footer.FooterHeight)
+                lineIndex - ScrollY > Printer.MaxScreenY - Footer.FooterHeight)
                 return;
 
             Line l = fileLines[lineIndex];
@@ -214,7 +214,7 @@ namespace maple
                         continue;
                     }
                     //if token comes after scroll x (hidden to right), skip it and all subsequent tokens
-                    if (oldLineLen > ScrollX + Cursor.MaxScreenX)
+                    if (oldLineLen > ScrollX + Printer.MaxScreenX)
                     {
                         break;
                     }
@@ -280,9 +280,9 @@ namespace maple
                                 Printer.PrintWord(printText, selectColorAttribute);
                         }
                     }
-                    else if (lineLen > ScrollX + Cursor.MaxScreenX) //part of token is hidden to right, trim end
+                    else if (lineLen > ScrollX + Printer.MaxScreenX) //part of token is hidden to right, trim end
                     {
-                        int hiddenCharCt = lineLen - (ScrollX + Cursor.MaxScreenX);
+                        int hiddenCharCt = lineLen - (ScrollX + Printer.MaxScreenX);
                         if (hiddenCharCt > 0)
                         {
                             printText = printText.Remove(printText.Length - 1 - hiddenCharCt, printText.Length);
@@ -321,12 +321,12 @@ namespace maple
                 Printer.ClearRight();
 
                 //print overflow indicator
-                if (lineLen - ScrollX + GutterWidth >= Cursor.MaxScreenX)
+                if (lineLen - ScrollX + GutterWidth >= Printer.MaxScreenX)
                     Printer.PrintManually(
                         Settings.OverflowIndicator,
-                        Cursor.MaxScreenX,
+                        Printer.MaxScreenX,
                         lineIndex - ScrollY,
-                        (short)(Printer.GetAttributeAtPosition(Cursor.MaxScreenX, lineIndex - ScrollY) << 4 & 0x00F0) //set background to old foreground, and foreground to black
+                        (short)(Printer.GetAttributeAtPosition(Printer.MaxScreenX, lineIndex - ScrollY) << 4 & 0x00F0) //set background to old foreground, and foreground to black
                         );
             }
             else //debug printing:
@@ -432,16 +432,16 @@ namespace maple
         public void CalculateScrollIncrement()
         {
             if (Settings.ScrollYIncrement == -1) //"half"
-                ScrollYIncrement = (Cursor.MaxScreenY - 1) / 2;
+                ScrollYIncrement = (Printer.MaxScreenY - 1) / 2;
             else if (Settings.ScrollYIncrement == -2) //"full"
-                ScrollYIncrement = (Cursor.MaxScreenY - 1);
+                ScrollYIncrement = (Printer.MaxScreenY - 1);
             else
                 ScrollYIncrement = Settings.ScrollYIncrement;
 
             if (Settings.ScrollXIncrement == -1) //"half"
-                scrollXIncrement = (Cursor.MaxScreenX - 1) / 2;
+                scrollXIncrement = (Printer.MaxScreenX - 1) / 2;
             else if (Settings.ScrollXIncrement == -2) //"full"
-                scrollXIncrement = (Cursor.MaxScreenX - 1);
+                scrollXIncrement = (Printer.MaxScreenX - 1);
             else
                 scrollXIncrement = Settings.ScrollXIncrement;
         }

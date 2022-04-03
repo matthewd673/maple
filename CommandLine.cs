@@ -82,7 +82,7 @@ namespace maple
 
             //reprint bottom editor line
             Footer.RefreshOutputLine();
-            Editor.RefreshLine(Cursor.MaxScreenY - 1 + Editor.CurrentDoc.ScrollY);
+            Editor.RefreshLine(Printer.MaxScreenY - 1 + Editor.CurrentDoc.ScrollY);
         }
 
         public static void ClearInput()

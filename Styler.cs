@@ -72,7 +72,6 @@ namespace maple
 
                 if (categoryTokenType != TokenType.None) //its a token type
                 {
-                    Log.WriteDebug(categoryTokenType.ToString(), "styler");
                     tokenColors.Add(categoryTokenType, color);
                 }
                 else //its a different type of category

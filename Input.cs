@@ -531,7 +531,7 @@ namespace maple
             
             //scroll down if necessary
             bool enterScrolledDown = false;
-            if(c.SY >= Cursor.MaxScreenY - Footer.FooterHeight)
+            if(c.SY >= Printer.MaxScreenY - Footer.FooterHeight)
             {
                 c.Doc.ScrollDown();
                 enterScrolledDown = true;

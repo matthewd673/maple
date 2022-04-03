@@ -137,7 +137,7 @@ namespace maple
                 else
                 {
                     int lineScreenIndex = lineIndex - CurrentDoc.ScrollY;
-                    if (lineScreenIndex <= Cursor.MaxScreenY - Footer.FooterHeight)
+                    if (lineScreenIndex <= Printer.MaxScreenY - Footer.FooterHeight)
                     {
                         Printer.ClearLine(lineScreenIndex);
                     }

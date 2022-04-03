@@ -96,6 +96,34 @@ namespace maple
             rect = new SmallRect() { Left = 0, Top = 0, Right = bufWidth, Bottom = bufHeight };
         }
 
+        public static int MinScreenX = 0;
+        public static int MinScreenY = 0;
+        private static int _oldMaxScreenX = 0;
+        public static int MaxScreenX
+        {
+            get
+            {
+                int newMaxScreenX = Console.WindowWidth - 1;
+                if (newMaxScreenX != _oldMaxScreenX)
+                    Printer.Resize();
+                _oldMaxScreenX = newMaxScreenX;
+                return newMaxScreenX;
+            }
+        }
+
+        private static int _oldMaxScreenY = 0;
+        public static int MaxScreenY
+        {
+            get
+            {
+                int newMaxScreenY = Console.WindowHeight - 1;
+                if (newMaxScreenY != _oldMaxScreenY)
+                    Printer.Resize();
+                _oldMaxScreenY = newMaxScreenY;
+                return newMaxScreenY;
+            }
+        }
+
         /// <summary>
         /// Get the 1 dimensional buffer index given 2 dimensional coordinates.
         /// </summary>
@@ -301,7 +329,7 @@ namespace maple
         /// <param name="backgroundColor">The background color.</param>
         public static void DrawFooter(String content, ConsoleColor foregroundColor = ConsoleColor.Gray, ConsoleColor backgroundColor = ConsoleColor.Black, int yOffset = 0)
         {
-            ClearLine(Cursor.MaxScreenY - yOffset, backgroundColor);
+            ClearLine(MaxScreenY - yOffset, backgroundColor);
             WriteToFooter(content, 0, foregroundColor, backgroundColor, yOffset);
         }
 
@@ -321,7 +349,7 @@ namespace maple
         {
             if (x != -1)
             {
-                printerCursor.Move(x, Cursor.MaxScreenY - yOffset, applyPosition: false);
+                printerCursor.Move(x, MaxScreenY - yOffset, applyPosition: false);
             }
 
             int index = GetBufferIndex(printerCursor);
@@ -351,7 +379,7 @@ namespace maple
         public static void ClearLine(int line, ConsoleColor clearColor = ConsoleColor.Black)
         {
             //don't clear if out of range
-            if(line < 0 || line > Cursor.MaxScreenY)
+            if(line < 0 || line >    MaxScreenY)
                 return;
             
             int startIndex = GetBufferIndex(0, line);
@@ -370,11 +398,11 @@ namespace maple
         public static void ClearRight()
         {
             //don't clear if out of range
-            if (printerCursor.SY < 0 || printerCursor.SY > Cursor.MaxScreenY)
+            if (printerCursor.SY < 0 || printerCursor.SY > MaxScreenY)
                 return;
 
             int startIndex = GetBufferIndex(printerCursor.SX, printerCursor.SY);
-            int width = Cursor.MaxScreenX - printerCursor.SX;
+            int width = MaxScreenX - printerCursor.SX;
             for (int i = startIndex; i <= startIndex + width; i++)
             {
                 buf[i].Char.UnicodeChar = 0x0020;

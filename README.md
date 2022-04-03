@@ -1,152 +1,29 @@
 ﻿# maple 🍁
 
-Terminal text editor for Windows written in C#
+Maple is a terminal-based editor for Windows written in C#. It is intended to be highly modular and customizeable while still being approachable.
 
-**Try it out: `./maple Program.cs`**
+**[Website](http://www.mattdaly.xyz/maple/)** | **[Downloads](https://github.com/matthewd673/maple/releases)** | **[Wiki](https://github.com/matthewd673/maple/wiki)**
 
 ***NOTE:** maple works best with [**Windows Terminal**](https://aka.ms/terminal)*
 
 ---
 
-## Getting started
-
-`cd [maple project directory]`
-
-`dotnet run -- test.txt`
-
 ## Building
 
-Maple is pretty easy to build since it has no dependencies.
+Maple requires [.NET 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) to build and run. Once that's downloaded, maple is super easy to build:
 
-`cd [maple project directory]`
+```
+git clone https://github.com/matthewd673/maple.git
+cd maple
+dotnet run -- Program.cs
+```
 
-`dotnet build -c Release`
+Maple is now editing itself!
 
-## Commands
+## Documentation
 
-Execute commands from within maple by toggling to command input with the <kbd>esc</kbd> key.
+Documentation for maple commands, themes, properties, etc. is available on [the wiki](https://github.com/matthewd673/maple/wiki).
 
-**`help all`:** display a list of maple commands
+## Language Support
 
-**`help [command]`:** get help for a specific command
-
-**`close`:** close maple without saving
-
-**`save [filename]`:** save the currently open file *(optional filename for "save-as")*
-
-**`load [filename]`:** load a new file into the editor *(changes to existing file not saved)*
-
-**`new [filename]`:** create a new file *(changes to existing file not saved)*
-
-**`top`:** move the cursor to the first line of the document
-
-**`bot`:** move the cursor to the last line of the document
-
-**`goto [line number]`:** move the cursor to the given line
-
-**`find [query] [switches]`:** search the document for a given word/phrase
-  * The query can contain spaces without surrounding it in quotes
-  * Run `find` to continue searching with the previous parameters
-  * **`--first`/`-f`:** start at the first occurrence
-  * **`--last`/`-l`:** start at the last occurrence
-  * **`--up`/`-u`:** step upwards through the occurrences
-  * **`--count`/`-ct`:** return the number of occurrences
-  * **`--case`/`-c`:** case sensitive search
-  * **`--here`/`-h`:** search for the text at the cursor position
-    * `--here` selects text from the nearest token as determined by the current syntax rules
-
-**`cls`:** clear previous command output
-
-**`deindent`:** deindent the current line or selection
-
-**`selectin`:** mark the beginning of a selection
-
-**`selectout`:** mark the end of a selection
-
-**`deselect`:** deselect the current selection
-
-**`readonly`:** toggle editor readonly mode
-
-**`redraw`:** force a full redraw of the editor, usually fixes any rendering errors
-
-**`syntax`:** render the current file with the syntax rules defined for [extension] files
-
-**`count`:** display stats about the document (`--lines`/`-l` or `--chars`/`-c`)
-
-**`alias [command]`:** view all aliases for a given command
-
-**`url`:** if the cursor is currently hovered on a url, open it in the browser
-
-Some commands may display an output upon completion. Clear command output with the <kbd>esc</kbd> key.
-It is necessary to clear command output before toggling to the command input again, unless `--quick-cli` is active.
-
-### Aliases
-
-Maple supports aliases to make entering commands faster or easier to remember. Aliases are contained in `properties/aliases.xml`. Some of the default aliases include **`s`** for `save`, **`go`** for `goto`, and **`ro`** for `readonly`.
-
-### Shortcuts
-
-Maple supports custom keyboard shortcuts (<kbd>Ctrl</kbd> + *key*) defined in `properties/shortcuts.xml`.
-
-Shortcuts fill the command line input with a custom string. They can also be configured to automatically execute their command.
-
-## Properties & Switches
-
-User preferences are stored in `properties/properties.xml`, which is read on startup.
-Each switch has a corresponding property within `properties.xml`, which can be set to `True`/`False` more permanently.
-There are also additional properties which aren't available as switches, (e.g.: `themeFile`).
-
-When running maple, you can include switches to temporarily change editor behavior:
-
-**`--quick-cli`:** `esc` toggles to command input instantly, even if prevous output wasn't cleared
-*(if you really want to clear the command output, run `cls`)*
-
-**`--debug-tokens`:** enter tokenizer debug mode *(for development only)*
-
-**`--no-highlight`:** skip the tokenizer and ignore all syntax highlighting rules
-
-**`--cli-no-highlight`:** skip the cli tokenizer and render command input with `cliInputDefault` color
-
-**`--navigate-past-tabs`:** when navigating with the right arrow key, skip past groups of spaces equal to the current tab size
-
-**`--delete-entire-tabs`:** when pressing <kbd>Backspace</kbd> or <kbd>del</kbd>, remove groups of spaces equal to the current tab size
-
-**`--readonly`:** launch the editor in readonly mode
-
-**`--enable-logging`:** log non-fatal errors and internal status in `log.txt`, enabled by default
-
-**`--summarize-log`:** present a summary of important log events when maple closes
-
-## Themes & Syntax Highlighting
-
-Maple supports syntax highlighting for `.cs` files by default, and has the "maple" theme built in.
-The syntax and theme systems are fully modular, and custom configurations can be created easily.
-
-Syntax files are loaded based on the filetype of the current document
- - Syntax highlighting files are stored as XML within the `syntax` directory
- - `<syntax>` tags define the RegEx patterns for each supported type of token (e.g.: `<syntax type="numberLiteral">([0-9]+\.?[0-9]*f?)</syntax>`)
-   - [regex101.com](https://regex101.com/) makes it significantly easier to develop these syntax rules
- - `<keyword>` tags define the keywords of the language, (e.g.: `<keyword>static</keyword>`)
-
-Theme files are loaded according to the `themeFile` property
- - Theme files are stored as XML within the `themes` directory
- - Each text type can be assigned any valid [Windows console color](https://docs.microsoft.com/en-us/dotnet/api/system.consolecolor?view=net-5.0)
- - Theme categories encompass syntax tokens and maple UI elements, like the footer
-
-## File Nicknames
-
-For quick access to properties, themes, and other maple files there are a few nicknames you can use:
-
-**`{themefile}`:** the theme file currently loaded
-
-**`{propfile}`:** the `properties.xml` file
-
-**`{aliasfile}`:** the `aliases.xml` file
-
-**`{shortcutfile}`:** the `shortcuts.xml` file
-
-**`{mapledir}`:** the maple directory
-
-**`{themedir}`:** the theme directory
-
-**`{syntaxdir}`:** the syntax directory
+Maple's syntax highlighting is designed to be entirely modular. In other words, maple doesn't prefer any one language over another. However, this repo does include a growing list of languages that are included out of the box: **C#, C, Java, Markdown, and XML**.

@@ -10,36 +10,6 @@ namespace maple
         public int SX { get; set; }
         public int SY { get; set; }
 
-        public const int MinScreenX = 0;
-        public const int MinScreenY = 0;
-        
-
-        private static int _oldMaxScreenX = 0;
-        public static int MaxScreenX
-        {
-            get
-            {
-                int newMaxScreenX = Console.WindowWidth - 1;
-                if (newMaxScreenX != _oldMaxScreenX)
-                    Printer.Resize();
-                _oldMaxScreenX = newMaxScreenX;
-                return newMaxScreenX;
-            }
-        }
-
-        private static int _oldMaxScreenY = 0;
-        public static int MaxScreenY
-        {
-            get
-            {
-                int newMaxScreenY = Console.WindowHeight - 1;
-                if (newMaxScreenY != _oldMaxScreenY)
-                    Printer.Resize();
-                _oldMaxScreenY = newMaxScreenY;
-                return newMaxScreenY;
-            }
-        }
-
         public int ContentOffsetX { get; set; } = 0;
         public int ContentOffsetY { get; set; } = 0;
 
@@ -55,14 +25,14 @@ namespace maple
         public void LockToScreenConstraints()
         {
             //keep screen x, y in safe range
-            if(SX < MinScreenX)
-                SX = MinScreenX;
-            if(SX > MaxScreenX)
-                SX = MaxScreenX;
-            if(SY < MinScreenY)
-                SY = MinScreenY;
-            if(SY > MaxScreenY)
-                SY = MaxScreenY;
+            if(SX < Printer.MinScreenX)
+                SX = Printer.MinScreenX;
+            if(SX > Printer.MaxScreenX)
+                SX = Printer.MaxScreenX;
+            if(SY < Printer.MinScreenY)
+                SY = Printer.MinScreenY;
+            if(SY > Printer.MaxScreenY)
+                SY = Printer.MaxScreenY;
         }
 
         /// <summary>

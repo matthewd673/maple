@@ -43,7 +43,7 @@ namespace maple
         /// </summary>
         public void MoveRight(bool applyPosition = true)
         {
-            if(SX == MaxScreenX - 1)
+            if(SX == Printer.MaxScreenX - 1)
             {
                 Log.WriteDebug("scrolling right", "documentcursor");
                 Doc.ScrollRight();
@@ -81,7 +81,7 @@ namespace maple
         /// </summary>
         public void MoveDown(bool applyPosition = true)
         {
-            if(SY == MaxScreenY - Footer.FooterHeight)
+            if(SY == Printer.MaxScreenY - Footer.FooterHeight)
             {
                 Doc.ScrollDown();
                 Editor.RefreshAllLines();
@@ -126,22 +126,22 @@ namespace maple
 
             //scroll if set position is outside current viewport
             bool hasScrolled = false;
-            while (DY - Doc.ScrollY > MaxScreenY - Footer.FooterHeight)
+            while (DY - Doc.ScrollY > Printer.MaxScreenY - Footer.FooterHeight)
             {
                 Doc.ScrollDown();
                 hasScrolled = true;
             }
-            while (DY - Doc.ScrollY < MinScreenY)
+            while (DY - Doc.ScrollY < Printer.MinScreenY)
             {
                 Doc.ScrollUp();
                 hasScrolled = true;
             }
-            while (DX - Doc.ScrollX + Doc.GutterWidth > MaxScreenX)
+            while (DX - Doc.ScrollX + Doc.GutterWidth > Printer.MaxScreenX)
             {
                 Doc.ScrollRight();
                 hasScrolled = true;
             }
-            while (DX - Doc.ScrollX < MinScreenX)
+            while (DX - Doc.ScrollX < Printer.MinScreenX)
             {
                 Doc.ScrollLeft();
                 hasScrolled = true;

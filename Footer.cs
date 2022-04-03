@@ -85,7 +85,6 @@ namespace maple
                 // next token matches, add
                 if (nextMatch.Index == 0)
                 {
-                    Log.WriteDebug("matched!", "footer");
                     tokens.Add(new Token(
                         "",
                         Token.StringToTokenType(nextMatch.Groups[0].Value)
@@ -107,11 +106,11 @@ namespace maple
         /// </summary>
         public static void PrintFooter()
         {
-            Printer.ClearLine(Cursor.MaxScreenY);
+            Printer.ClearLine(Printer.MaxScreenY);
             if (Input.CurrentTarget == Input.InputTarget.Document)
             {
                 // Get content from footer tokens
-                Printer.MoveCursor(0, Cursor.MaxScreenY); //to manually set initial X
+                Printer.MoveCursor(0, Printer.MaxScreenY); //to manually set initial X
                 for (int i = 0; i < tokens.Count; i++)
                 {
                     Token t = tokens[i];
@@ -162,8 +161,6 @@ namespace maple
                     }
                 }
 
-                Log.WriteDebug("footer token count: " + tokens.Count, "footer");
-
                 Printer.ClearRight();
                 Printer.ApplyBuffer();
             }
@@ -177,7 +174,7 @@ namespace maple
                 else
                 {
                     Token[] cliTokens = Lexer.TokenizeCommandLine(CommandLine.InputText);
-                    Printer.MoveCursor(commandPrompt.Length, Cursor.MaxScreenY);
+                    Printer.MoveCursor(commandPrompt.Length, Printer.MaxScreenY);
                     
                     for (int i = 0; i < cliTokens.Length; i++)
                     {
@@ -206,7 +203,7 @@ namespace maple
             // Draw output text
             if (CommandLine.HasOutput)
             {
-                Printer.ClearLine(Cursor.MaxScreenY - 1);
+                Printer.ClearLine(Printer.MaxScreenY - 1);
                 ConsoleColor outputColor = Styler.CliOutputInfoColor;
                 switch (CommandLine.OType)
                 {
