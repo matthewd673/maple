@@ -186,13 +186,13 @@ namespace maple
                         break;
 
                     //EDITOR CUSTOMIZATIONS
-                    case "vanityFooter":
+                    case "vanityfooter":
                         VanityFooter = value;
                         break;
-                    case "footerFormat":
+                    case "footerformat":
                         FooterFormat = value;
                         break;
-                    case "footerSeparator":
+                    case "footerseparator":
                         FooterSeparator = value;
                         break;
                     case "gutterleftpad":

@@ -801,6 +801,7 @@ namespace maple
                         }
                         else if (i == SelectOutY) { //trim start
                             string lastLineContent = GetLine(i).Remove(0, SelectOutX);
+                            RemoveLine(i);
                             SetLine(i - 1,
                                 GetLine(i - 1) + lastLineContent
                                 );

@@ -25,7 +25,7 @@
     <property name="scrollXIncrement">half</property>
     <!--Editor Customizations-->
     <property name="vanityFooter">maple</property>
-    <property name="footerFormat">{vanity}{-}{filepath}{-}{lncol}{-}{selection}{-}{readonly}</property>
+    <property name="footerFormat">{vanity}{-}{filename}{-}{lncol}{-}{selection}{-}{readonly}</property>
     <property name="footerSeparator"> </property>
     <property name="gutterLeftPad">0</property>
     <property name="gutterBarrier"> </property>

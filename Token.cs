@@ -54,6 +54,7 @@ namespace maple
         public String Text { get; set; }
         public ConsoleColor Color { get; private set; } = ConsoleColor.Gray;
         public short ColorAttribute { get; private set; } = 0x0007;
+        public string Annotation { get; set; } = "";
 
         public Token(String text, TokenType tokenType)
         {
@@ -110,6 +111,7 @@ namespace maple
                 case "footerseparator":
                     return TokenType.FooterSeparator;
                 case "{filepath}":
+                case "{filename}":
                 case "footerfilepath":
                     return TokenType.FooterFilepath;
                 case "{lncol}":

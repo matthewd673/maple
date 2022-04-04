@@ -30,7 +30,25 @@ namespace maple
                 case TokenType.FooterVanity:
                     return Settings.VanityFooter;
                 case TokenType.FooterFilepath:
-                    return Editor.CurrentDoc.Filepath.TrimEnd();
+                    switch (token.Annotation)
+                    {
+                        case "{filepath}":
+                            return Editor.CurrentDoc.Filepath.TrimEnd();
+                        case "{filename}":
+                            string[] split;
+                            if (Editor.CurrentDoc.Filepath.IndexOf("\\") > Editor.CurrentDoc.Filepath.IndexOf("/"))
+                            {
+                                split = Editor.CurrentDoc.Filepath.Split("\\");
+                            }
+                            else
+                            {
+                                split = Editor.CurrentDoc.Filepath.Split("/");
+                            }
+
+                            return split[split.Length - 1].Trim();
+                        default:
+                            return "";
+                    }
                 case TokenType.FooterLnCol:
                     return String.Format("ln {0} col {1}", Editor.DocCursor.DY + 1, Editor.DocCursor.DX + 1);
                 case TokenType.FooterSelection:
@@ -45,7 +63,13 @@ namespace maple
                     }
                     return "";
                 case TokenType.FooterIndicator: //TODO: this only works for readonly indicator
-                    return Input.ReadOnly ? "[readonly]" : "";
+                    switch (token.Annotation)
+                    {
+                        case "{readonly}":
+                            return Input.ReadOnly ? "[readonly]" : "";
+                        default:
+                            return "";
+                    }
                 default:
                     return "";
             }
@@ -53,17 +77,7 @@ namespace maple
 
         static bool GetFooterTokenHasOutput(Token t)
         {
-            switch (t.TType)
-            {
-                case TokenType.FooterSeparator:
-                    return !t.Equals("");
-                case TokenType.FooterSelection:
-                    return Editor.CurrentDoc.HasSelectionStart();
-                case TokenType.FooterIndicator: //TODO: this only works for readonly indicator
-                    return Input.ReadOnly;
-                default:
-                    return true;
-            }
+            return GetFooterTokenText(t).Length != 0;
         }
 
         static List<Token> TokenizeFooter()
@@ -85,11 +99,11 @@ namespace maple
                 // next token matches, add
                 if (nextMatch.Index == 0)
                 {
-                    tokens.Add(new Token(
-                        "",
-                        Token.StringToTokenType(nextMatch.Groups[0].Value)
-                    ));
+                    Token newToken = new Token("", Token.StringToTokenType(nextMatch.Value));
+                    newToken.Annotation = nextMatch.Value;
+                    
                     text = text.Remove(nextMatch.Index, nextMatch.Value.Length);
+                    tokens.Add(newToken);
                 }
                 else
                 {

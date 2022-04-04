@@ -124,6 +124,10 @@ namespace maple
             }
         }
 
+        static Cursor printerCursor = new Cursor(0, 0);
+        public static int CursorSX { get { return printerCursor.SX; } }
+        public static int CursorSY { get { return printerCursor.SY; } }
+
         /// <summary>
         /// Get the 1 dimensional buffer index given 2 dimensional coordinates.
         /// </summary>
@@ -224,8 +228,6 @@ namespace maple
                 ref rect
                 );
         }
-
-        static Cursor printerCursor = new Cursor(0, 0);
 
         /// <summary>
         /// Recreate the buffer array and bounds according to the current Console dimensions.
@@ -358,7 +360,13 @@ namespace maple
 
             for (int i = index; i < index + text.Length; i++)
             {
-                if (i == buf.Length || (i > index && i % bufWidth == 0)) //overflow
+                if (i > buf.Length) //complete overflow
+                {
+                    buf[buf.Length - 1].Char.UnicodeChar = Settings.OverflowIndicator;
+                    buf[buf.Length - 1].Attributes = attribute;
+                    break;
+                }
+                if (i == buf.Length || (i > index && i % bufWidth == 0)) //line overflow
                 {
                     buf[i - 1].Char.UnicodeChar = Settings.OverflowIndicator;
                     buf[i - 1].Attributes = attribute;
