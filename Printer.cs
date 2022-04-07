@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.Win32.SafeHandles;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -77,23 +77,35 @@ namespace maple
         /// </summary>
         public static void Initialize()
         {
-            consoleHandle = CreateFile("CONOUT$", 0x40000000, 2, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
-
-            if (consoleHandle.IsInvalid)
+            try
             {
-                Log.Write("Failed to create console handle", "printer", important: true);
-                PrintLineSimple("Printer failed to create console handle", Styler.ErrorColor);
-                Environment.Exit(1); //kinda temporary
-                return;
+                consoleHandle = CreateFile("CONOUT$", 0x40000000, 2, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
+    
+                if (consoleHandle.IsInvalid)
+                {
+                    Log.Write("Failed to create console handle", "printer", important: true);
+                    PrintLineSimple("Printer failed to create console handle", Styler.ErrorColor);
+                    Console.ResetColor();
+                    Environment.Exit(1); //kinda temporary
+                    return;
+                }
+    
+                Log.Write("Successfully created console handle", "printer");
+    
+                bufWidth = (short)Console.WindowWidth;
+                bufHeight = (short)Console.WindowHeight;
+    
+                buf = new CharInfo[bufWidth * bufHeight];
+                rect = new SmallRect() { Left = 0, Top = 0, Right = bufWidth, Bottom = bufHeight };
             }
-
-            Log.Write("Successfully created console handle", "printer");
-
-            bufWidth = (short)Console.WindowWidth;
-            bufHeight = (short)Console.WindowHeight;
-
-            buf = new CharInfo[bufWidth * bufHeight];
-            rect = new SmallRect() { Left = 0, Top = 0, Right = bufWidth, Bottom = bufHeight };
+            catch (DllNotFoundException e)
+            {
+                PrintLineSimple("Printer failed to load kernel32.dll - is maple running on a non-Windows platform?", Styler.ErrorColor);
+                Log.Write("Encountered DLLNotFoundException when initializing printer: " + e.Message, "printer", important: true);
+                Log.Write("Platform: " + Environment.OSVersion, "printer");
+                Console.ResetColor();
+                Environment.Exit(1);
+            }
         }
 
         public static int MinScreenX = 0;
@@ -267,9 +279,10 @@ namespace maple
             {
                 buf[i].Char.UnicodeChar = wordChars[i - index];
                 buf[i].Attributes = attribute;
+                printerCursor.SX++;
             }
 
-            printerCursor.SX += word.Length;
+            // printerCursor.SX += word.Length;
         }
 
         /// <summary>

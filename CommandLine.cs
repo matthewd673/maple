@@ -777,6 +777,14 @@ namespace maple
             else
             {
                 Editor.CurrentDoc.RemoveLine(Editor.DocCursor.DY);
+                if (Editor.DocCursor.DY > 0)
+                {
+                    Editor.DocCursor.Move(Editor.CurrentDoc.GetLine(Editor.DocCursor.DY - 1).Length, Editor.DocCursor.DY - 1);
+                }
+                else
+                {
+                    Editor.DocCursor.Move(0, 0);
+                }
                 Editor.RefreshAllLines();
             }
         }
