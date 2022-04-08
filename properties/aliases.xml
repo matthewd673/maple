@@ -17,4 +17,5 @@
     <alias command="close">quit</alias>
     <alias command="find">f</alias>
     <alias command="deindent">de</alias>
+    <alias command="count">ct</alias>
 </xml>

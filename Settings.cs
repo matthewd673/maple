@@ -28,6 +28,7 @@ namespace maple
         public static bool PreserveIndentOnEnter { get; set; } = true;
         public static bool ShiftSelect { get; set; } = true;
         public static bool ShiftDeindent { get; set; } = true;
+        public static bool ArrowsDeselect { get; set; } = true;
         public static bool ClearOutputOnToggle { get; set; } = true;
         public static bool ColorOutputBackground { get; set; } = true;
 
@@ -141,6 +142,9 @@ namespace maple
                         break;
                     case "shiftdeindent":
                         ShiftDeindent = IsTrue(value);
+                        break;
+                    case "arrowsdeselect":
+                        ArrowsDeselect = IsTrue(value);
                         break;
                     case "clearoutputontoggle":
                         ClearOutputOnToggle = IsTrue(value);

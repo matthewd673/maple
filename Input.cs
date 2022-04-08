@@ -78,7 +78,17 @@ namespace maple
                     }
 
                     if (docCursor.Doc.HasSelection())
-                        break;
+                    {
+                        if (Settings.ArrowsDeselect && keyInfo.Modifiers != ConsoleModifiers.Shift)
+                        {
+                            docCursor.Doc.Deselect();
+                            Editor.RefreshAllLines();
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
                     
                     HandleUp(docCursor);
                     break;
@@ -110,7 +120,17 @@ namespace maple
                     }
 
                     if (docCursor.Doc.HasSelection())
-                        break;
+                    {
+                        if (Settings.ArrowsDeselect && keyInfo.Modifiers != ConsoleModifiers.Shift)
+                        {
+                            docCursor.Doc.Deselect();
+                            Editor.RefreshAllLines();
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
                     
                     HandleDown(docCursor);
                     break;
@@ -142,7 +162,17 @@ namespace maple
                     }
 
                     if (docCursor.Doc.HasSelection())
-                        break;
+                    {
+                        if (Settings.ArrowsDeselect && keyInfo.Modifiers != ConsoleModifiers.Shift)
+                        {
+                            docCursor.Doc.Deselect();
+                            Editor.RefreshAllLines();
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
                     
                     HandleLeft(docCursor);
                     break;
@@ -172,10 +202,20 @@ namespace maple
                         if (oldDY != docCursor.DY)
                             Editor.RefreshLine(oldDY);
                     }
-
-                    if (docCursor.Doc.HasSelection())
-                        break;
                     
+                    if (docCursor.Doc.HasSelection())
+                    {
+                        if (Settings.ArrowsDeselect && keyInfo.Modifiers != ConsoleModifiers.Shift)
+                        {
+                            docCursor.Doc.Deselect();
+                            Editor.RefreshAllLines();
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
                     HandleRight(docCursor);
                     break;
                 
