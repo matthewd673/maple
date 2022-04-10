@@ -20,6 +20,10 @@ namespace maple
         public static void Initialize(String filename)
         {
             Log.Write("Performing editor initialization", "editor");
+            
+            //initialize input signal handlers
+            Input.InitializeSignalHandlers();
+
             //create cursor
             CmdCursor = new Cursor(0, 0);
             CmdCursor.ContentOffsetX = 7; //hardcoded for "maple: "

@@ -748,22 +748,33 @@ namespace maple
             string afterPastePoint = Editor.CurrentDoc.GetLine(Editor.DocCursor.DY).Substring(Editor.DocCursor.DX);
 
             Editor.CurrentDoc.SetLine(Editor.DocCursor.DY, beforePastePoint + clipboardLines[0]);
-            Editor.DocCursor.DX += clipboardLines[0].Length;
+            // Editor.DocCursor.DX += clipboardLines[0].Length - 1;
+            Editor.DocCursor.Move(Editor.DocCursor.DX + clipboardLines[0].Length - 1, Editor.DocCursor.DY, applyPosition: false);
             Editor.RefreshLine(Editor.DocCursor.DY);
 
             int startingLine = Editor.DocCursor.DY;
             for (int i = 1; i < clipboardLines.Length; i++)
             {
-                Editor.DocCursor.DX = 0;
-                Editor.DocCursor.DY++;
+                // Editor.DocCursor.DX = 0;
+                // Editor.DocCursor.DY++;
+                Editor.DocCursor.Move(clipboardLines[i].Length, Editor.DocCursor.DY + 1, applyPosition: false);
                 Editor.CurrentDoc.AddLine(Editor.DocCursor.DY);
                 Editor.CurrentDoc.SetLine(Editor.DocCursor.DY, clipboardLines[i]);
+                Log.Write("paste line: " + Editor.DocCursor.DY, "commandline/paste");
+                // Editor.DocCursor.DX = clipboardLines[i].Length - 1;
+            }
+
+            if (clipboardLines.Length > 1)
+            {
+                Editor.DocCursor.MoveDown(applyPosition: false);
             }
 
             if (startingLine != Editor.DocCursor.DY) //if multiple lines were pasted...
             {
                 Editor.RefreshAllLines();
             }
+
+            Editor.DocCursor.ApplyPosition();
 
             Editor.CurrentDoc.AddTextAtPosition(Editor.DocCursor.DX, Editor.DocCursor.DY, afterPastePoint);
         }

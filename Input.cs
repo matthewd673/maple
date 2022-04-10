@@ -5,7 +5,6 @@ namespace maple
 {
     static class Input
     {
-
         public enum InputTarget
         {
             Document,
@@ -20,6 +19,17 @@ namespace maple
         static bool quickSelectOutPoint = true;
 
         public static bool ReadOnly { get; set; } = false;
+
+        public static void InitializeSignalHandlers()
+        {
+            Console.CancelKeyPress += new ConsoleCancelEventHandler(CancelHandler);
+        }
+
+        static void CancelHandler(object sender, ConsoleCancelEventArgs args)
+        {
+            Log.Write("Recieved cancel event", "input");
+            args.Cancel = Settings.SuppressCancelEvent;
+        }
 
         public static void AcceptInput(ConsoleKeyInfo keyInfo)
         {

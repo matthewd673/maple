@@ -31,6 +31,7 @@ namespace maple
         public static bool ArrowsDeselect { get; set; } = true;
         public static bool ClearOutputOnToggle { get; set; } = true;
         public static bool ColorOutputBackground { get; set; } = true;
+        public static bool SuppressCancelEvent { get; set; } = true;
 
         public static string ThemeDirectory { get; private set; } = Path.Combine(MapleDirectory, "themes");
         public static string ThemeFile { get; private set; } = "maple.xml";
@@ -151,6 +152,9 @@ namespace maple
                         break;
                     case "coloroutputbackground":
                         ColorOutputBackground = IsTrue(value);
+                        break;
+                    case "suppresscancelevent":
+                        SuppressCancelEvent = IsTrue(value);
                         break;
 
                     //ARGUMENTS

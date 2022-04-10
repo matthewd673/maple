@@ -11,7 +11,7 @@ namespace maple
         //source: https://stackoverflow.com/a/2754674/3785038
         //this answer was remarkably helpful in improving performance
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        static extern SafeFileHandle CreateFile(
+        private static extern SafeFileHandle CreateFile(
             string fileName,
             [MarshalAs(UnmanagedType.U4)] uint fileAccess,
             [MarshalAs(UnmanagedType.U4)] uint fileShare,
@@ -22,13 +22,18 @@ namespace maple
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern bool WriteConsoleOutputW(
+        private static extern bool WriteConsoleOutputW(
             SafeFileHandle hConsoleOutput,
             CharInfo[] lpBuffer,
             Coord dwBufferSize,
             Coord dwBufferCoord,
             ref SmallRect lpWriteRegion
         );
+
+        [DllImport("kernel32.dll")]
+        private static extern bool SetConsoleCtrlHandler(SetConsoleCtrlEventHandler handler, bool add);
+
+        private delegate bool SetConsoleCtrlEventHandler(CtrlType sig);
 
         [StructLayout(LayoutKind.Sequential)]
         private struct Coord
@@ -66,6 +71,15 @@ namespace maple
             public short Bottom;
         }
 
+        private enum CtrlType
+        {
+            CTRL_C_EVENT = 0,
+            CTRL_BREAK_EVENT = 1,
+            CTRL_CLOSE_EVENT = 2,
+            CTRL_LOGOFF_EVENT = 5,
+            CTRL_SHUTDOWN_EVENT = 6
+        }
+
         private static SafeFileHandle consoleHandle;
         private static short bufWidth;
         private static short bufHeight;
@@ -97,6 +111,8 @@ namespace maple
     
                 buf = new CharInfo[bufWidth * bufHeight];
                 rect = new SmallRect() { Left = 0, Top = 0, Right = bufWidth, Bottom = bufHeight };
+            
+                SetConsoleCtrlHandler(SigHandler, true);
             }
             catch (DllNotFoundException e)
             {
@@ -428,6 +444,23 @@ namespace maple
             {
                 buf[i].Char.UnicodeChar = 0x0020;
                 buf[i].Attributes = 0x0000;
+            }
+        }
+        
+        private static bool SigHandler(CtrlType sig)
+        {
+            //TODO: this may be implemented further later
+            switch (sig)
+            {
+                case CtrlType.CTRL_C_EVENT:
+                    return false;
+                case CtrlType.CTRL_BREAK_EVENT:
+                case CtrlType.CTRL_LOGOFF_EVENT:
+                case CtrlType.CTRL_SHUTDOWN_EVENT:
+                case CtrlType.CTRL_CLOSE_EVENT:
+                    return false;
+                default:
+                    return false;
             }
         }
     }

@@ -17,6 +17,7 @@
     <property name="arrowsDeselect">True</property>
     <property name="clearOutputOnToggle">True</property>
     <property name="colorOutputBackground">True</property>
+    <property name="suppressCancelEvent">True</property>
     <!--Arguments-->
     <property name="themeDirectory">{mapledir}\themes</property>
     <property name="themeFile">maple.xml</property>
