@@ -137,8 +137,10 @@ namespace maple
                     {
                         TokenType currentType = rule.TType;
                         //if alphabetical, check for keyword
-                        if (rule.TType == TokenType.Alphabetical && keywords.Contains(firstMatch.Value))
+                        if ((rule.TType == TokenType.Alphabetical || rule.TType == TokenType.Function) && keywords.Contains(firstMatch.Value.Trim()))
+                        {
                             currentType = TokenType.Keyword;
+                        }
 
                         tokens.Add(new Token(firstMatch.Value, currentType));
                         text = text.Remove(firstMatch.Index, firstMatch.Value.Length);
@@ -168,8 +170,10 @@ namespace maple
 
                         TokenType currentType = nearestMatchRuleType;
                         //if alphabetical, check for keyword
-                        if (nearestMatchRuleType == TokenType.Alphabetical && keywords.Contains(nearestMatch.Value))
+                        if ((nearestMatchRuleType == TokenType.Alphabetical  || nearestMatchRuleType == TokenType.Function) && keywords.Contains(nearestMatch.Value.Trim()))
+                        {
                             currentType = TokenType.Keyword;
+                        }
 
                         tokens.Add(new Token(nearestMatch.Value, currentType));
                     }
