@@ -25,6 +25,7 @@
     <property name="tabSpacesCount">4</property>
     <property name="scrollYIncrement">half</property>
     <property name="scrollXIncrement">half</property>
+    <property name="defaultEncoding">utf8</property>
     <!--Editor Customizations-->
     <property name="vanityFooter">maple</property>
     <property name="footerFormat">{vanity}{-}{filename}{-}{lncol}{-}{selection}{-}{readonly}</property>

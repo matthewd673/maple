@@ -143,12 +143,12 @@ namespace maple
         /// Save the contents of the Document to the given filepath.
         /// <param name="savePath">The filepath to save to.</param>
         /// </summary>
-        public void SaveDocument(string savePath)
+        public void SaveDocument(string savePath, Encoding encoding)
         {
             List<string> allLines = new List<string>();
             foreach(Line l in fileLines)
                 allLines.Add(l.LineContent);
-            File.WriteAllLines(savePath, allLines, Encoding.UTF8);
+            File.WriteAllLines(savePath, allLines, encoding);
             Log.Write("Saved file to '" + savePath + "'", "document");
         }
 

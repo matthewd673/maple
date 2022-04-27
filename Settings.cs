@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Reflection;
+using System.Text;
 
 namespace maple
 {
@@ -47,6 +48,7 @@ namespace maple
         public static char GutterLeftPad { get; private set; } = '0';
         public static char GutterBarrier { get; private set; } = ' ';
         public static char OverflowIndicator { get; private set; } = '…';
+        public static Encoding DefaultEncoding { get; private set; } = Encoding.UTF8;
 
         static List<string> ignoreList = new List<string>(); //stores a list of settings to ignore when loading
 
@@ -191,6 +193,14 @@ namespace maple
                             ScrollXIncrement = -2;
                         else
                             ScrollXIncrement = Math.Abs(Convert.ToInt32(value));
+                        break;
+                    case "defaultencoding":
+                        if (value.Equals("utf8"))
+                            DefaultEncoding = Encoding.UTF8;
+                        else if (value.Equals("ascii"))
+                            DefaultEncoding = Encoding.ASCII;
+                        else
+                            Log.Write("Invalid DefaultEncoding value", "styler", important: true);
                         break;
 
                     //EDITOR CUSTOMIZATIONS

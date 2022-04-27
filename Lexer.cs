@@ -12,7 +12,7 @@ namespace maple
         static List<string> keywords = new List<string>();
 
         const string CliStringRule = "\".*\"";
-        const string CliSwitchRule = "(-{1,2})([a-zA-Z]|-)+";
+        const string CliSwitchRule = "(-{1,2})([a-zA-Z0-9]|-)+";
         const string CliFullCommandRule = "^[a-zA-Z]+";
         static List<LexerRule> cliRules = new List<LexerRule>();
         static List<string> cliKeywords = new List<string>();

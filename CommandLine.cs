@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 
 namespace maple
 {
@@ -326,7 +327,13 @@ namespace maple
                 savePath = args[0];
             savePath = savePath.Trim('\"');
 
-            Editor.DocCursor.Doc.SaveDocument(savePath);
+            Encoding encoding = Settings.DefaultEncoding;
+            if (switches.Contains("--utf8"))
+                encoding = Encoding.UTF8;
+            else if (switches.Contains("--ascii"))
+                encoding = Encoding.ASCII;
+
+            Editor.DocCursor.Doc.SaveDocument(savePath, encoding);
 
             string existingPath = Editor.DocCursor.Doc.Filepath;
 
