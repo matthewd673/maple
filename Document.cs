@@ -620,7 +620,7 @@ namespace maple
         public int GetLineTokenCount(int line)
         {
             if (line < fileLines.Count)
-                return fileLines[line].Tokens.Length;
+                return fileLines[line].Tokens.Count;
             else
                 return 0;
         }

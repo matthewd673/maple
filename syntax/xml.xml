@@ -2,6 +2,7 @@
     <!--Highlighting RegEx-->
     <syntax type="break"> </syntax>
     <syntax type="keyword" insensitive="true">((?&lt;=&lt;)|(?&lt;=&lt;\/))[a-z]+</syntax>
+    <syntax type="whitespace"> +</syntax>
     <syntax type="stringLiteral">((?&lt;![\\])(\"|'))((?:.(?!(?&lt;![\\])\1))*.?)\1</syntax>
     <syntax type="comment">&lt;\!\-\-.*\-\-&gt;</syntax>
     <syntax type="url" insensitive="true">http(s{0,1}):\/\/[0-9a-z\.\-_~\/\?=&amp;%]+</syntax>

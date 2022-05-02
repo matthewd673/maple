@@ -33,6 +33,7 @@ namespace maple
         public static bool ClearOutputOnToggle { get; set; } = true;
         public static bool ColorOutputBackground { get; set; } = true;
         public static bool SuppressCancelEvent { get; set; } = true;
+        public static bool HighlightTrailingWhitespace { get; set; } = false;
 
         public static string ThemeDirectory { get; private set; } = Path.Combine(MapleDirectory, "themes");
         public static string ThemeFile { get; private set; } = "maple.xml";
@@ -157,6 +158,9 @@ namespace maple
                         break;
                     case "suppresscancelevent":
                         SuppressCancelEvent = IsTrue(value);
+                        break;
+                    case "highlighttrailingwhitespace":
+                        HighlightTrailingWhitespace = IsTrue(value);
                         break;
 
                     //ARGUMENTS

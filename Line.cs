@@ -7,7 +7,7 @@ namespace maple
     class Line
     {
 
-        public Token[] Tokens { get; private set; } = new Token[0];
+        public List<Token> Tokens { get; private set; } = new List<Token>();
 
         private String _lineContent = "";
         public String LineContent {
@@ -33,7 +33,7 @@ namespace maple
             Tokens = GenerateTokensFromString(_lineContent);
         }
 
-        public static Token[] GenerateTokensFromString(String text)
+        public static List<Token> GenerateTokensFromString(String text)
         {
             return Lexer.Tokenize(text);
         }

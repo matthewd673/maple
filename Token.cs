@@ -11,6 +11,7 @@ namespace maple
         // DOCUMENT SYNTAX
         Misc,
         Break,
+        Whitespace,
         Alphabetical,
         Keyword,
         NumberLiteral,
@@ -24,11 +25,13 @@ namespace maple
         Url,
         Function,
         SpecialChar,
+
         // CLI INPUT
         CliCommandValid,
         CliCommandInvalid,
         CliSwitch,
         CliString,
+
         // FOOTER
         FooterVanity,
         FooterSeparator,
@@ -36,6 +39,9 @@ namespace maple
         FooterLnCol,
         FooterSelection,
         FooterIndicator,
+
+        // SPECIAL
+        TrailingWhitespace,
     }
 
     public class Token
@@ -49,6 +55,11 @@ namespace maple
                 _ttype = value;
                 Color = Styler.GetColor(value);
                 ColorAttribute = Printer.GetAttributeFromColor(Color);
+                // TODO: this is a mess
+                if (_ttype == TokenType.TrailingWhitespace)
+                {
+                    ColorAttribute = (short)(ColorAttribute << 4);
+                }
             }
         }
         public String Text { get; set; }
@@ -72,6 +83,10 @@ namespace maple
                     return TokenType.Alphabetical;
                 case "break":
                     return TokenType.Break;
+                case "whitespace":
+                    return TokenType.Whitespace;
+                case "trailingwhitespace":
+                    return TokenType.TrailingWhitespace;
                 case "grouping":
                     return TokenType.Grouping;
                 case "stringliteral":

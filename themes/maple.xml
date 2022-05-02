@@ -35,4 +35,6 @@
     <color category="footerLnCol">Yellow</color>
     <color category="footerSelection">Blue</color>
     <color category="footerIndicator">Gray</color>
+    <!--Special Colors-->
+    <color category="trailingWhitespace">Red</color>
 </xml>

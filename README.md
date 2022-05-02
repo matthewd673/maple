@@ -1,6 +1,6 @@
 ﻿# maple 🍁
 
-Maple is a terminal-based editor for Windows written in C#. It is intended to be highly modular and customizeable while still being approachable.
+Maple is a terminal-based editor for Windows written in C#. It is intended to be highly modular and customizeable without feeling intimidating.
 
 **[Website](http://www.mattdaly.xyz/maple/)** | **[Downloads](https://github.com/matthewd673/maple/releases)** | **[Wiki](https://github.com/matthewd673/maple/wiki)**
 
@@ -22,8 +22,8 @@ Maple is now editing itself!
 
 ## Documentation
 
-Documentation for maple commands, themes, properties, etc. is available on [the wiki](https://github.com/matthewd673/maple/wiki).
+Detailed documentation for maple commands, themes, properties, etc. is available on [the wiki](https://github.com/matthewd673/maple/wiki).
 
 ## Language Support
 
-Maple's syntax highlighting is designed to be entirely modular. In other words, maple doesn't prefer any one language over another. However, this repo does include a growing list of languages that are included out of the box: **C#, C, Java, Markdown, and XML**.
+Maple's syntax highlighting is designed to be entirely modular. In other words, maple doesn't provide better support or extra features for any one language over another. However, this repo does include a growing list of languages that are included out of the box: **C#, C, Java, Markdown, and XML**.

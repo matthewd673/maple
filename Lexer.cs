@@ -114,8 +114,8 @@ namespace maple
         /// Turn a piece of text into a series of <c>Token</c>s according to the given lexer rules.
         /// </summary>
         /// <param name="text">The text to be tokenized.</param>
-        /// <returns>An array of <c>Token</c>s</returns>
-        static Token[]  InternalTokenizer(string text, List<LexerRule> rules, List<string> keywords)
+        /// <returns>A list of <c>Token</c>s</returns>
+        static List<Token> InternalTokenizer(string text, List<LexerRule> rules, List<string> keywords)
         {
             List<Token> tokens = new List<Token>();
 
@@ -130,13 +130,15 @@ namespace maple
                     LexerRule rule = rules[i];
                     Match firstMatch = rule.Pattern.Match(text);
 
-                    if (!firstMatch.Success || firstMatch.Value.Equals("")) //no match, keep checking
+                    if (!firstMatch.Success || firstMatch.Value.Equals("")) // no match, keep checking
+                    {
                         continue;
+                    }
 
-                    if (firstMatch.Index == 0) //next token matches - jobs done
+                    if (firstMatch.Index == 0) // next token matches - jobs done
                     {
                         TokenType currentType = rule.TType;
-                        //if alphabetical, check for keyword
+                        // if alphabetical, check for keyword
                         if ((rule.TType == TokenType.Alphabetical || rule.TType == TokenType.Function) && keywords.Contains(firstMatch.Value.Trim()))
                         {
                             currentType = TokenType.Keyword;
@@ -186,23 +188,30 @@ namespace maple
                 }
             }
 
-            return tokens.ToArray();
+            // post-process
+            // search for trailing whitespace and mark it as such
+            if (Settings.HighlightTrailingWhitespace && tokens.Count > 0 && tokens[tokens.Count - 1].TType == TokenType.Whitespace)
+            {
+                tokens[tokens.Count - 1].TType = TokenType.TrailingWhitespace;
+            }
+
+            return tokens;
         }
 
-        public static Token[] Tokenize(string text)
+        public static List<Token> Tokenize(string text)
         {
             if (Settings.NoTokenize)
-                return new Token[1] { new Token(text, TokenType.None) };
+                return new List<Token> { new Token(text, TokenType.None) };
             else
                 return InternalTokenizer(text, rules, keywords);
         }
 
-        public static Token[] TokenizeCommandLine(string text)
+        public static List<Token> TokenizeCommandLine(string text)
         {
-            Token[] tokens = InternalTokenizer(text, cliRules, new List<string>()); //will handle keywords manually, no need
+            List<Token> tokens = InternalTokenizer(text, cliRules, new List<string>()); //will handle keywords manually, no need
             
             //if first token isn't a keyword, and there's more than 1 token, user is trying an unknown command
-            if (tokens.Length > 1 && tokens[0].TType == TokenType.Alphabetical)
+            if (tokens.Count > 1 && tokens[0].TType == TokenType.Alphabetical)
             {
                 bool firstIsValid = cliKeywords.Contains(tokens[0].Text);
                 if (firstIsValid)

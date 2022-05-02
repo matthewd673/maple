@@ -187,10 +187,10 @@ namespace maple
                 }
                 else
                 {
-                    Token[] cliTokens = Lexer.TokenizeCommandLine(CommandLine.InputText);
+                    List<Token> cliTokens = Lexer.TokenizeCommandLine(CommandLine.InputText);
                     Printer.MoveCursor(commandPrompt.Length, Printer.MaxScreenY);
                     
-                    for (int i = 0; i < cliTokens.Length; i++)
+                    for (int i = 0; i < cliTokens.Count; i++)
                     {
                         Printer.WriteToFooter(cliTokens[i].Text, foregroundColor: cliTokens[i].Color);
                     }

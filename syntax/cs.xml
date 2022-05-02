@@ -5,6 +5,7 @@
     <syntax type="booleanLiteral">(true|false)</syntax>
     <syntax type="hexLiteral" insensitive="true">0x[0-9a-f]+</syntax>
     <syntax type="break">( |;|,)</syntax>
+    <syntax type="whitespace"> +</syntax>
     <syntax type="grouping">(\(|\)|\{|\}|\[|\])</syntax>
     <syntax type="stringLiteral">((?&lt;![\\])\")((?:.(?!(?&lt;![\\])\1))*.?)\1</syntax>
     <syntax type="characterLiteral">((?&lt;![\\])')((?:.(?!(?&lt;![\\])\1))*.?)\1</syntax>
