@@ -34,6 +34,7 @@ namespace maple
         public static bool ColorOutputBackground { get; set; } = true;
         public static bool SuppressCancelEvent { get; set; } = true;
         public static bool HighlightTrailingWhitespace { get; set; } = false;
+        public static bool Autocomplete { get; set; } = true;
 
         public static string ThemeDirectory { get; private set; } = Path.Combine(MapleDirectory, "themes");
         public static string ThemeFile { get; private set; } = "maple.xml";
@@ -50,6 +51,8 @@ namespace maple
         public static char GutterBarrier { get; private set; } = ' ';
         public static char OverflowIndicator { get; private set; } = '…';
         public static Encoding DefaultEncoding { get; private set; } = Encoding.UTF8;
+        public static List<char> AutocompleteOpeningChars { get; private set; } = new List<char>();
+        public static List<char> AutocompleteEndingChars { get; private set; } = new List<char>();
 
         static List<string> ignoreList = new List<string>(); //stores a list of settings to ignore when loading
 
@@ -162,6 +165,9 @@ namespace maple
                     case "highlighttrailingwhitespace":
                         HighlightTrailingWhitespace = IsTrue(value);
                         break;
+                    case "autocomplete":
+                        Autocomplete = IsTrue(value);
+                        break;
 
                     //ARGUMENTS
                     case "themedirectory":
@@ -234,6 +240,19 @@ namespace maple
                             Log.Write("OverflowIndicator value must be 1 character", "styler", important: true);
                         else
                             OverflowIndicator = value.ToCharArray()[0];
+                        break;
+                    case "autocompletepairings":
+                        if (value.Length % 2 == 1)
+                        {
+                            Log.Write("Uneven autocomplete pairings defined, they will not be loaded", "styler", important: true);
+                            break;
+                        }
+                        for (int i = 0; i < value.Length; i++) {
+                            if (i % 2 == 0)
+                                AutocompleteOpeningChars.Add(value[i]);
+                            else
+                                AutocompleteEndingChars.Add(value[i]);
+                        }
                         break;
 
                     default:

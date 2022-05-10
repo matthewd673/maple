@@ -674,24 +674,31 @@ namespace maple
 
         static void HandleTyping(DocumentCursor c, ConsoleKeyInfo keyInfo)
         {
-            //clear selection before typing
+            // clear selection before typing
             if (c.Doc.HasSelection())
                 DeleteSelectionText(c);
 
             String typed = keyInfo.KeyChar.ToString();
-            //continue only if the typed character can be displayed
+            // continue only if the typed character can be displayed
             Regex r = new Regex("\\P{Cc}");
             if(!r.Match(typed).Success)
                 return;
 
-            int oldTokenCount = c.Doc.GetLineTokenCount(c.DY); //track old token count to determine if redraw is necessary
+            int oldTokenCount = c.Doc.GetLineTokenCount(c.DY); // track old token count to determine if redraw is necessary
             bool addedText = c.Doc.AddTextAtPosition(c.DX, c.DY, typed);
             if(addedText)
             {
                 c.MoveRight();
                 Editor.RefreshLine(c.DY);
             }
-            maxCursorX = c.DX; //update max x position
+            // attempt autocomplete, if enabled
+            if (Settings.Autocomplete)
+            {
+                int autocompleteIndex = Settings.AutocompleteOpeningChars.IndexOf(keyInfo.KeyChar);
+                if (autocompleteIndex != -1)
+                    c.Doc.AddTextAtPosition(c.DX, c.DY, Settings.AutocompleteEndingChars[autocompleteIndex].ToString());
+            }
+            maxCursorX = c.DX; // update max x position
         }
 
         static void HandleShortcut(ConsoleKeyInfo keyInfo)

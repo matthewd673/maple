@@ -15,10 +15,11 @@
     <property name="shiftSelect">True</property>
     <property name="shiftDeindent">True</property>
     <property name="arrowsDeselect">True</property>
-    <property name="clearOutputOnToggle">True</property>
+    <property name="clearOutputOnToggle">False</property>
     <property name="colorOutputBackground">True</property>
     <property name="suppressCancelEvent">True</property>
     <property name="highlightTrailingWhitespace">False</property>
+    <property name="autocomplete">True</property>
     <!--Arguments-->
     <property name="themeDirectory">{mapledir}\themes</property>
     <property name="themeFile">maple.xml</property>
@@ -34,4 +35,5 @@
     <property name="gutterLeftPad">0</property>
     <property name="gutterBarrier"> </property>
     <property name="overflowIndicator">…</property>
+    <property name="autocompletePairings">()[]{}""''</property>
 </xml>
