@@ -293,6 +293,8 @@ namespace maple
 
             for (int i = index; i < index + word.Length; i++)
             {
+                if (i > index && i % MaxScreenX == 0) break;
+
                 buf[i].Char.UnicodeChar = wordChars[i - index];
                 buf[i].Attributes = attribute;
                 printerCursor.SX++;

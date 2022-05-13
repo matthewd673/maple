@@ -104,7 +104,7 @@ namespace maple
         /// Load the contents of a file into the Document (skips filepath pre-processing and loading of any auxiliary files).
         /// <param name="filepath">The filepath to load from.</param>
         /// </summary>
-        public void LoadDocument(string filepath)
+        private void LoadDocument(string filepath)
         {
             //clear any lines that may have existed from before
             fileLines.Clear();
