@@ -137,8 +137,16 @@ namespace maple
                 if(lineIndex <= CurrentDoc.GetMaxLine())
                 {
                     CurrentDoc.PrintLine(lineIndex);
+                    if (lineIndex == CurrentDoc.GetMaxLine())
+                    {
+                        int lineScreenIndex = lineIndex - CurrentDoc.ScrollY;
+                        if (lineScreenIndex < Printer.MaxScreenY - Footer.FooterHeight)
+                        {
+                            Printer.ClearLine(lineScreenIndex + 1);
+                        }
+                    }
                 }
-                else
+                else // TODO: is this doing anything?
                 {
                     int lineScreenIndex = lineIndex - CurrentDoc.ScrollY;
                     if (lineScreenIndex <= Printer.MaxScreenY - Footer.FooterHeight)

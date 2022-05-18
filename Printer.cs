@@ -293,8 +293,6 @@ namespace maple
 
             for (int i = index; i < index + word.Length; i++)
             {
-                if (i > index && i % MaxScreenX == 0) break;
-
                 buf[i].Char.UnicodeChar = wordChars[i - index];
                 buf[i].Attributes = attribute;
                 printerCursor.SX++;
@@ -418,7 +416,7 @@ namespace maple
         public static void ClearLine(int line, ConsoleColor clearColor = ConsoleColor.Black)
         {
             //don't clear if out of range
-            if(line < 0 || line >    MaxScreenY)
+            if(line < 0 || line > MaxScreenY)
                 return;
             
             int startIndex = GetBufferIndex(0, line);

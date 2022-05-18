@@ -153,15 +153,6 @@ namespace maple
         }
 
         /// <summary>
-        /// Print all lines currently within the bounds of the screen.
-        /// </summary>
-        public void PrintFileLines()
-        {
-            for(int i = ScrollY; i < Printer.MaxScreenY + ScrollY; i++)
-                PrintLine(i);
-        }
-
-        /// <summary>
         /// Print a single line of the Document.
         /// <param name="lineIndex">The index of the line (in the Document, not screen).</param>
         /// </summary>
@@ -172,7 +163,9 @@ namespace maple
                 lineIndex > fileLines.Count - 1 ||
                 lineIndex - ScrollY < 0 ||
                 lineIndex - ScrollY > Printer.MaxScreenY - Footer.FooterHeight)
+            {
                 return;
+            }
 
             Line l = fileLines[lineIndex];
             
