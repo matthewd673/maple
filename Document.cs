@@ -30,6 +30,8 @@ namespace maple
 
         public bool NewlyCreated { get; private set; } = false;
 
+        private History history;
+
         /// <summary>
         /// <c>Document</c> represents a text file which is either user-facing or for internal use.
         /// </summary>
@@ -58,6 +60,8 @@ namespace maple
                 CalculateScrollIncrement();
                 ScrollY = 0;
                 ScrollX = 0;
+
+                history = new History();
             }
 
             LoadDocument(filepath);
@@ -108,6 +112,7 @@ namespace maple
         {
             //clear any lines that may have existed from before
             fileLines.Clear();
+            history.Clear();
 
             //load new document
             Filepath = filepath;
@@ -863,6 +868,16 @@ namespace maple
                     Editor.RefreshLine(Editor.DocCursor.DY);
                 }
             }
+        }
+
+        public void Undo()
+        {
+
+        }
+
+        public void Redo()
+        {
+
         }
 
     }
