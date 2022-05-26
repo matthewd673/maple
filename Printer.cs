@@ -86,6 +86,62 @@ namespace maple
         private static CharInfo[] buf;
         private static SmallRect rect;
 
+        // https://www.pinvoke.net/default.aspx/kernel32.getstdhandle
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern IntPtr GetStdHandle(int nStdHandle);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern bool GetConsoleMode(
+            IntPtr hConsoleHandle,
+            out uint lpMode
+            );
+        
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern bool SetConsoleMode(
+            IntPtr hConsoleHandle,
+            uint dwMode
+            );
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true, EntryPoint = "ReadConsoleInputW")]
+        static extern bool ReadConsoleInput(
+            IntPtr hConsoleInput,
+            out INPUT_RECORD lpBuffer,
+            uint nLength,
+            out uint lpNumberOfEventsRead);
+
+        struct WINDOW_BUFFER_SIZE_RECORD {
+            public Coord dwSize;
+
+            public WINDOW_BUFFER_SIZE_RECORD(short x, short y)
+            {
+                dwSize = new Coord(x,y);
+            }
+        }
+
+        const byte WINDOW_BUFFER_SIZE_EVENT = 0x4;
+
+        [StructLayout(LayoutKind.Explicit)]
+        public struct INPUT_RECORD
+        {
+            [FieldOffset(0)]
+            public ushort EventType;
+            [FieldOffset(4)]
+            public KEY_EVENT_RECORD KeyEvent;
+            [FieldOffset(4)]
+            public MOUSE_EVENT_RECORD MouseEvent;
+            [FieldOffset(4)]
+            public WINDOW_BUFFER_SIZE_RECORD WindowBufferSizeEvent;
+            [FieldOffset(4)]
+            public MENU_EVENT_RECORD MenuEvent;
+            [FieldOffset(4)]
+            public FOCUS_EVENT_RECORD FocusEvent;
+        };
+
+        private const int STD_INPUT_HANDLE = -10;
+        private const int INVALID_HANDLE_VALUE = -1;
+        private const int ENABLE_WINDOW_INPUT = 0x0008;
+        private const int ENABLE_MOUSE_INPUT = 0x0010;
+
         /// <summary>
         /// Create the Console handle and prepare the buffer for rendering.
         /// </summary>
@@ -93,6 +149,7 @@ namespace maple
         {
             try
             {
+                // create handle to console buffer
                 consoleHandle = CreateFile("CONOUT$", 0x40000000, 2, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
     
                 if (consoleHandle.IsInvalid)
@@ -100,7 +157,7 @@ namespace maple
                     Log.Write("Failed to create console handle", "printer", important: true);
                     PrintLineSimple("Printer failed to create console handle", Styler.ErrorColor);
                     Console.ResetColor();
-                    Environment.Exit(1); //kinda temporary
+                    Environment.Exit(1); // kinda temporary
                     return;
                 }
     
@@ -112,7 +169,30 @@ namespace maple
                 buf = new CharInfo[bufWidth * bufHeight];
                 rect = new SmallRect() { Left = 0, Top = 0, Right = bufWidth, Bottom = bufHeight };
             
+                // set signal handler
                 SetConsoleCtrlHandler(SigHandler, true);
+
+                // create resize handler
+                // https://docs.microsoft.com/en-us/windows/console/reading-input-buffer-events
+                IntPtr hStdin = GetStdHandle(STD_INPUT_HANDLE);
+                uint fdwOldMode; // uint = DWORD
+                uint fdwMode;
+
+                // if (hStdin == INVALID_HANDLE_VALUE)
+                // {
+                //     Log.Write("Failed to create input handle", "printer", important: true);
+                // }
+
+                if (!GetConsoleMode(hStdin, out fdwOldMode))
+                {
+                    Log.Write("Failed to GetConsoleMode", "printer", important: true);
+                }
+
+                fdwMode = ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
+                if (!SetConsoleMode(hStdin, fdwMode))
+                {
+                    Log.Write("Failed to SetConsoleMode", "printer", important: true);
+                }
             }
             catch (DllNotFoundException e)
             {
@@ -122,6 +202,37 @@ namespace maple
                 Console.ResetColor();
                 Environment.Exit(1);
             }
+        }
+
+        public static void HandlePrinterInput()
+        {
+            INPUT_RECORD[] irInBuf = new INPUT_RECORD[128];
+            uint cNumRead;
+
+            if (!ReadConsoleInput(
+                hStdin,
+                irInBuf,
+                128,
+                out cNumRead
+            ))
+            {
+                Log.Write("Printer input handler failed ReadConsoleInput", "printer", important: true);
+            }
+
+            for (int i = 0; i < cNumRead; i++)
+            {
+                switch (irInBuf[i].EventType)
+                {
+                    case WINDOW_BUFFER_SIZE_RECORD:
+                        ResizeEventProc(irInBuf[i].Event.WindowBufferSizeEvent);
+                    // TODO: not error checking other events since we only care about WINDOW_BUFFER_SIZE_RECORD
+                }
+            }
+        }
+
+        private static void ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD wbsr)
+        {
+            Log.WriteDebug("Window buffer size event", "printer");
         }
 
         public static int MinScreenX = 0;
