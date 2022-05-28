@@ -74,6 +74,8 @@ namespace maple
 
             //accept input
             Input.AcceptInput(Console.ReadKey());
+            // low level console events
+            Printer.HandlePrinterInput();
 
             //force line refresh each time if debugging tokens
             if(Settings.DebugTokens)

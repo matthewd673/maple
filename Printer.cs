@@ -105,7 +105,7 @@ namespace maple
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true, EntryPoint = "ReadConsoleInputW")]
         static extern bool ReadConsoleInput(
             IntPtr hConsoleInput,
-            out INPUT_RECORD lpBuffer,
+            out INPUT_RECORD[] lpBuffer,
             uint nLength,
             out uint lpNumberOfEventsRead);
 
@@ -118,29 +118,60 @@ namespace maple
             }
         }
 
-        const byte WINDOW_BUFFER_SIZE_EVENT = 0x4;
+        // https://www.codeproject.com/script/Content/ViewAssociatedFile.aspx?rzp=%2FKB%2Fdotnet%2FConsolePasswordInput%2FConsolePasswordInput_src.ZIP&zep=ConsolePasswordInput%2FConsolePasswordInput.cs&obid=8110&obtid=2&ovid=1
+        [StructLayout(LayoutKind.Sequential, Pack=8)]        
+        struct KEY_EVENT_RECORD
+        {
+            int bKeyDown;
+            ushort wRepeatCount;
+            ushort wVirtualKeyCode;
+            ushort wVirtualScanCode;
+            CharUnion uchar;
+            uint dwControlKeyState;
+        }
+
+        struct MOUSE_EVENT_RECORD
+        {
+            Coord dwMousePosition;
+            uint dwButtonState;
+            uint dwControlKeyState;
+            uint dwEventFlags;
+        }
+
+        struct MENU_EVENT_RECORD
+        {
+            uint dwCommandId;
+        }
+
+        struct FOCUS_EVENT_RECORD
+        {
+            bool bSetFocus;
+        }
 
         [StructLayout(LayoutKind.Explicit)]
-        public struct INPUT_RECORD
+        struct INPUT_RECORD
         {
             [FieldOffset(0)]
             public ushort EventType;
             [FieldOffset(4)]
-            public KEY_EVENT_RECORD KeyEvent;
+            KEY_EVENT_RECORD KeyEvent;
             [FieldOffset(4)]
-            public MOUSE_EVENT_RECORD MouseEvent;
+            MOUSE_EVENT_RECORD MouseEvent;
             [FieldOffset(4)]
             public WINDOW_BUFFER_SIZE_RECORD WindowBufferSizeEvent;
             [FieldOffset(4)]
-            public MENU_EVENT_RECORD MenuEvent;
+            MENU_EVENT_RECORD MenuEvent;
             [FieldOffset(4)]
-            public FOCUS_EVENT_RECORD FocusEvent;
+            FOCUS_EVENT_RECORD FocusEvent;
         };
 
         private const int STD_INPUT_HANDLE = -10;
         private const int INVALID_HANDLE_VALUE = -1;
         private const int ENABLE_WINDOW_INPUT = 0x0008;
         private const int ENABLE_MOUSE_INPUT = 0x0010;
+        private const int WINDOW_BUFFER_SIZE_EVENT = 0x0004;
+
+        private static IntPtr hStdin;
 
         /// <summary>
         /// Create the Console handle and prepare the buffer for rendering.
@@ -174,7 +205,7 @@ namespace maple
 
                 // create resize handler
                 // https://docs.microsoft.com/en-us/windows/console/reading-input-buffer-events
-                IntPtr hStdin = GetStdHandle(STD_INPUT_HANDLE);
+                hStdin = GetStdHandle(STD_INPUT_HANDLE);
                 uint fdwOldMode; // uint = DWORD
                 uint fdwMode;
 
@@ -211,7 +242,7 @@ namespace maple
 
             if (!ReadConsoleInput(
                 hStdin,
-                irInBuf,
+                out irInBuf,
                 128,
                 out cNumRead
             ))
@@ -221,11 +252,10 @@ namespace maple
 
             for (int i = 0; i < cNumRead; i++)
             {
-                switch (irInBuf[i].EventType)
+                Log.WriteDebug("Win32 console input event: " + irInBuf[i].EventType, "printer");
+                if (irInBuf[i].EventType == WINDOW_BUFFER_SIZE_EVENT)
                 {
-                    case WINDOW_BUFFER_SIZE_RECORD:
-                        ResizeEventProc(irInBuf[i].Event.WindowBufferSizeEvent);
-                    // TODO: not error checking other events since we only care about WINDOW_BUFFER_SIZE_RECORD
+                    ResizeEventProc(irInBuf[i].WindowBufferSizeEvent);
                 }
             }
         }
