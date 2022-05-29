@@ -122,6 +122,9 @@ namespace maple
         public static void Close()
         {
             Log.Write("Session ended, cleaning up", "program");
+
+            Printer.RestorePreviousConsoleMode();
+
             Console.Clear();
             Console.ForegroundColor = Styler.AccentColor;
             Console.WriteLine("maple session ended");

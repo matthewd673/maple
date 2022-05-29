@@ -1,6 +1,6 @@
 ﻿# maple 🍁
 
-Maple is a terminal-based editor for Windows written in C#. It is intended to be highly modular and customizeable without feeling intimidating.
+Maple is a terminal-based editor for Windows written in C#. It is intended to be highly modular and customizable without feeling intimidating.
 
 **[Website](http://www.mattdaly.xyz/maple/)** | **[Downloads](https://github.com/matthewd673/maple/releases)** | **[Wiki](https://github.com/matthewd673/maple/wiki)**
 

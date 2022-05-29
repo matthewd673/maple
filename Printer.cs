@@ -1,7 +1,8 @@
 ﻿using System;
-using Microsoft.Win32.SafeHandles;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
+using Microsoft.Win32.SafeHandles;
 
 namespace maple
 {
@@ -102,12 +103,14 @@ namespace maple
             uint dwMode
             );
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true, EntryPoint = "ReadConsoleInputW")]
+        // [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true, EntryPoint = "ReadConsoleInputW")]
+        [DllImport("Kernel32.DLL", EntryPoint = "ReadConsoleInputW", CallingConvention = CallingConvention.StdCall)]
         static extern bool ReadConsoleInput(
             IntPtr hConsoleInput,
-            out INPUT_RECORD[] lpBuffer,
+            [Out] INPUT_RECORD[] lpBuffer,
             uint nLength,
-            out uint lpNumberOfEventsRead);
+            out uint lpNumberOfEventsRead
+            );
 
         struct WINDOW_BUFFER_SIZE_RECORD {
             public Coord dwSize;
@@ -171,7 +174,9 @@ namespace maple
         private const int ENABLE_MOUSE_INPUT = 0x0010;
         private const int WINDOW_BUFFER_SIZE_EVENT = 0x0004;
 
+        // to keep track of input handler / mode
         private static IntPtr hStdin;
+        private static uint fdwOldMode;
 
         /// <summary>
         /// Create the Console handle and prepare the buffer for rendering.
@@ -206,8 +211,9 @@ namespace maple
                 // create resize handler
                 // https://docs.microsoft.com/en-us/windows/console/reading-input-buffer-events
                 hStdin = GetStdHandle(STD_INPUT_HANDLE);
-                uint fdwOldMode; // uint = DWORD
                 uint fdwMode;
+
+                Log.WriteDebug("Got hStdin (=" + hStdin + ")", "printer");
 
                 // if (hStdin == INVALID_HANDLE_VALUE)
                 // {
@@ -224,6 +230,11 @@ namespace maple
                 {
                     Log.Write("Failed to SetConsoleMode", "printer", important: true);
                 }
+
+                // begin input listener thread
+                Log.Write("Creating Win32 console input listener", "printer");
+                Thread inputThread = new Thread(new ThreadStart(ConsoleInputListener));
+                inputThread.Start();
             }
             catch (DllNotFoundException e)
             {
@@ -235,29 +246,40 @@ namespace maple
             }
         }
 
-        public static void HandlePrinterInput()
+        public static void ConsoleInputListener()
         {
-            INPUT_RECORD[] irInBuf = new INPUT_RECORD[128];
-            uint cNumRead;
+            Log.Write("Hello from the console input listener thread!", "printer");
 
-            if (!ReadConsoleInput(
-                hStdin,
-                out irInBuf,
-                128,
-                out cNumRead
-            ))
+            while (true)
             {
-                Log.Write("Printer input handler failed ReadConsoleInput", "printer", important: true);
-            }
+                INPUT_RECORD[] irInBuf = new INPUT_RECORD[128];
+                uint cNumRead = 0;
 
-            for (int i = 0; i < cNumRead; i++)
-            {
-                Log.WriteDebug("Win32 console input event: " + irInBuf[i].EventType, "printer");
-                if (irInBuf[i].EventType == WINDOW_BUFFER_SIZE_EVENT)
+                if (!ReadConsoleInput(
+                    hStdin,
+                    irInBuf,
+                    128,
+                    out cNumRead
+                ))
                 {
-                    ResizeEventProc(irInBuf[i].WindowBufferSizeEvent);
+                    Log.Write("Printer input handler failed ReadConsoleInput", "printer", important: true);
+                    break;
+                }
+
+                for (int i = 0; i < cNumRead; i++)
+                {
+                    Log.WriteDebug("Win32 console input event: " + irInBuf[i].EventType, "printer");
+                    if (irInBuf[i].EventType == WINDOW_BUFFER_SIZE_EVENT)
+                    {
+                        ResizeEventProc(irInBuf[i].WindowBufferSizeEvent);
+                    }
                 }
             }
+        }
+
+        public static void RestorePreviousConsoleMode()
+        {
+            SetConsoleMode(hStdin, fdwOldMode);
         }
 
         private static void ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD wbsr)
