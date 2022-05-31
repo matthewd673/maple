@@ -60,6 +60,7 @@ namespace maple
         public static void BeginInputLoop()
         {
             Footer.PrintFooter();
+            Printer.StartInputThread();
             while(true)
                 InputLoop();
         }
@@ -73,7 +74,7 @@ namespace maple
             GetActiveCursor().ApplyPosition();
 
             //accept input
-            Input.AcceptInput(Console.ReadKey());
+            // Input.AcceptInput(Console.ReadKey());
 
             //force line refresh each time if debugging tokens
             if(Settings.DebugTokens)

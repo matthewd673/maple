@@ -55,6 +55,8 @@ namespace maple
                 LockToScreenConstraints();
             }
 
+            Log.WriteDebug("Cursor move to (" + SX + "," + SY + ")", "cursor");
+
             if (applyPosition)
             {
                 ApplyPosition();
