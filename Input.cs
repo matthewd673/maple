@@ -33,8 +33,6 @@ namespace maple
 
         public static void AcceptInput(ConsoleKeyInfo keyInfo)
         {
-            Log.WriteDebug("Recieved key info: " + keyInfo.Key.ToString(), "input");
-
             // build tab string if necessary
             // TODO: move this somewhere else
             if (tabString.Length == 0)

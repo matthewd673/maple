@@ -1,8 +1,9 @@
 using System;
 using System.IO;
+using System.Threading;
 
 namespace maple
-{
+{    
     static class Log
     {
 
@@ -10,6 +11,10 @@ namespace maple
 
         public static int ImportantEvents { get; private set; } = 0;
         public static int DebugEvents { get; private set; } = 0;
+
+        private static ReaderWriterLock rwLock = new ReaderWriterLock();
+
+        private const int WriterLockTimeout = 500;
 
         public static void InitializeLogger()
         {
@@ -36,7 +41,16 @@ namespace maple
                 template = "!!! " + template;
                 ImportantEvents++;
             }
-            File.AppendAllText(LogPath, String.Format(template, speaker, text));
+
+            try
+            {
+                rwLock.AcquireWriterLock(WriterLockTimeout);
+                File.AppendAllText(LogPath, String.Format(template, speaker, text));
+            }
+            finally
+            {
+                rwLock.ReleaseWriterLock();
+            }
         }
 
         public static void WriteDebug(string text, string speaker)
@@ -44,8 +58,16 @@ namespace maple
             if (!Settings.EnableLogging) return;
             
             #if DEBUG
-                File.AppendAllText(LogPath, String.Format("DEBUG [{0}]: {1}\n", speaker, text));
-                DebugEvents++;
+                try
+                {
+                    rwLock.AcquireWriterLock(WriterLockTimeout);
+                    File.AppendAllText(LogPath, String.Format("DEBUG [{0}]: {1}\n", speaker, text));
+                    DebugEvents++;
+                }
+                finally
+                {
+                    rwLock.ReleaseWriterLock();
+                }
             #endif
         }
     }

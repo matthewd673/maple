@@ -13,6 +13,8 @@ namespace maple
         
         public static string ClipboardContents { get; set; } = "";
 
+        public static bool Busy { get; private set; }
+
         /// <summary>
         /// Load initial cursor properties and perform first draw.
         /// </summary>
@@ -75,6 +77,12 @@ namespace maple
 
             //accept input
             // Input.AcceptInput(Console.ReadKey());
+            lock (Printer.KeyEventQueue)
+            {
+                foreach (ConsoleKeyInfo k in Printer.KeyEventQueue)
+                    Input.AcceptInput(k);
+                Printer.KeyEventQueue.Clear();
+            }
 
             //force line refresh each time if debugging tokens
             if(Settings.DebugTokens)
@@ -92,6 +100,11 @@ namespace maple
 
             //render footer
             Footer.PrintFooter();
+
+            if (Printer.WindowBuffserSizeEventCount > 0)
+            {
+                RedrawWindow();
+            }
         }
 
         /// <summary>
