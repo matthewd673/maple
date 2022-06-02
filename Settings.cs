@@ -32,7 +32,6 @@ namespace maple
         public static bool ArrowsDeselect { get; set; } = true;
         public static bool ClearOutputOnToggle { get; set; } = true;
         public static bool ColorOutputBackground { get; set; } = true;
-        public static bool SuppressCancelEvent { get; set; } = true;
         public static bool HighlightTrailingWhitespace { get; set; } = false;
         public static bool Autocomplete { get; set; } = true;
         public static bool AutoResize { get; set; } = true;
@@ -159,9 +158,6 @@ namespace maple
                         break;
                     case "coloroutputbackground":
                         ColorOutputBackground = IsTrue(value);
-                        break;
-                    case "suppresscancelevent":
-                        SuppressCancelEvent = IsTrue(value);
                         break;
                     case "highlighttrailingwhitespace":
                         HighlightTrailingWhitespace = IsTrue(value);

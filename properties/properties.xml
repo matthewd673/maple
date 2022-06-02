@@ -17,7 +17,6 @@
     <property name="arrowsDeselect">True</property>
     <property name="clearOutputOnToggle">False</property>
     <property name="colorOutputBackground">True</property>
-    <property name="suppressCancelEvent">True</property>
     <property name="highlightTrailingWhitespace">False</property>
     <property name="autocomplete">True</property>
     <property name="autoResize">True</property>

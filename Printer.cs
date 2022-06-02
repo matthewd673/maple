@@ -696,7 +696,6 @@ namespace maple
             switch (sig)
             {
                 case CtrlType.CTRL_C_EVENT:
-                    return false;
                 case CtrlType.CTRL_BREAK_EVENT:
                 case CtrlType.CTRL_LOGOFF_EVENT:
                 case CtrlType.CTRL_SHUTDOWN_EVENT:
