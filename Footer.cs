@@ -83,7 +83,7 @@ namespace maple
         static List<Token> TokenizeFooter()
         {
             List<Token> tokens = new();
-            Regex pattern = new Regex("{[a-z-]+}", RegexOptions.IgnoreCase);
+            Regex pattern = new Regex("{[a-z-]+}", RegexOptions.IgnoreCase); // TODO: just stumbled upon this regex, it looks wrong
 
             string text = formatString;
             while (text.Length > 0)

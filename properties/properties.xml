@@ -20,6 +20,7 @@
     <property name="suppressCancelEvent">True</property>
     <property name="highlightTrailingWhitespace">False</property>
     <property name="autocomplete">True</property>
+    <property name="autoResize">True</property>
     <!--Arguments-->
     <property name="themeDirectory">{mapledir}\themes</property>
     <property name="themeFile">maple.xml</property>

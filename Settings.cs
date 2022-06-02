@@ -35,6 +35,7 @@ namespace maple
         public static bool SuppressCancelEvent { get; set; } = true;
         public static bool HighlightTrailingWhitespace { get; set; } = false;
         public static bool Autocomplete { get; set; } = true;
+        public static bool AutoResize { get; set; } = true;
 
         public static string ThemeDirectory { get; private set; } = Path.Combine(MapleDirectory, "themes");
         public static string ThemeFile { get; private set; } = "maple.xml";
@@ -167,6 +168,9 @@ namespace maple
                         break;
                     case "autocomplete":
                         Autocomplete = IsTrue(value);
+                        break;
+                    case "autoresize":
+                        AutoResize = IsTrue(value);
                         break;
 
                     //ARGUMENTS

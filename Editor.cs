@@ -72,10 +72,10 @@ namespace maple
         /// </summary>
         static void InputLoop()
         {
-            //set actual cursor position
+            // set actual cursor position
             GetActiveCursor().ApplyPosition();
 
-            //accept input
+            // accept input
             // Input.AcceptInput(Console.ReadKey());
             lock (Printer.KeyEventQueue)
             {
@@ -84,11 +84,17 @@ namespace maple
                 Printer.KeyEventQueue.Clear();
             }
 
-            //force line refresh each time if debugging tokens
+            // auto-resize buffer, if enabled
+            if (Printer.WindowBuffserSizeEventCount > 0 && Settings.AutoResize)
+            {
+                RedrawWindow();
+            }
+
+            // force line refresh each time if debugging tokens
             if(Settings.DebugTokens)
                 RefreshLine(DocCursor.DY);
 
-            //redraw lines that have changed
+            // redraw lines that have changed
             if(fullClearNext)
             {
                 Printer.Clear();
@@ -98,13 +104,8 @@ namespace maple
             else
                 DrawLines();
 
-            //render footer
+            // render footer
             Footer.PrintFooter();
-
-            if (Printer.WindowBuffserSizeEventCount > 0)
-            {
-                RedrawWindow();
-            }
         }
 
         /// <summary>
@@ -185,6 +186,7 @@ namespace maple
             DocCursor.Move(DocCursor.DX, DocCursor.DY);
             DocCursor.LockToScreenConstraints();
             Editor.RefreshAllLines();
+            Footer.RefreshOutputLine();
             Printer.Clear();
             DrawLines();
         }

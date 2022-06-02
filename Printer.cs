@@ -352,7 +352,6 @@ namespace maple
             }
             ConsoleKey key = (ConsoleKey)record.wVirtualKeyCode;
             char keyChar = (char)record.uchar.UnicodeChar;
-            // Log.WriteDebug("KEY_EVENT: " + ((ConsoleKey)record.wVirtualKeyCode).ToString() + " = " + (char)record.uchar.UnicodeChar + " (" + record.bKeyDown + ")", "printer");
 
             // skip keyup events
             if (record.bKeyDown == 0) return;
@@ -374,10 +373,8 @@ namespace maple
 
         private static void ResizeEventProc(WINDOW_BUFFER_SIZE_RECORD record)
         {
-            Log.WriteDebug("WINDOW_BUFFER_SIZE_EVENT", "printer");
             // don't need to lock this
             WindowBuffserSizeEventCount++;
-            Log.WriteDebug("Size: " + Console.WindowWidth + ", " + Console.WindowHeight, "printer");
         }
 
         public static int MinScreenX = 0;
@@ -386,7 +383,7 @@ namespace maple
         {
             get
             {
-                return Console.WindowWidth - 1;
+                return bufWidth - 1;
             }
         }
 
@@ -394,7 +391,7 @@ namespace maple
         {
             get
             {
-                return Console.WindowHeight - 1;
+                return bufHeight - 1;
             }
         }
 
