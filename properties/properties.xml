@@ -20,6 +20,7 @@
     <property name="highlightTrailingWhitespace">False</property>
     <property name="autocomplete">True</property>
     <property name="autoResize">True</property>
+    <property name="enableHistoryDebugLog">True</property>
     <!--Arguments-->
     <property name="themeDirectory">{mapledir}\themes</property>
     <property name="themeFile">maple.xml</property>
@@ -28,6 +29,7 @@
     <property name="scrollYIncrement">half</property>
     <property name="scrollXIncrement">half</property>
     <property name="defaultEncoding">utf8</property>
+    <property name="historyMaxSize">5000</property>
     <!--Editor Customizations-->
     <property name="vanityFooter">maple</property>
     <property name="footerFormat">{vanity}{-}{filename}{-}{lncol}{-}{selection}{-}{readonly}</property>

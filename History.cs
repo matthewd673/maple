@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading;
 
 namespace maple
 {
@@ -15,11 +17,47 @@ namespace maple
         private List<HistoryEvent> events = new();
         private List<HistoryEvent> redoEvents = new();
 
-        public History() { }
+        private static ReaderWriterLock rwLock = new ReaderWriterLock();
+        private const int WriterLockTimeout = 500;
+
+        public History()
+        {
+            if (Settings.EnableHistoryDebugLog)
+            {
+                File.CreateText(Settings.MapleDirectory + "\\history.txt").Close();
+            }
+        }
 
         public void PushEvent(HistoryEvent e)
         {
             events.Add(e);
+            redoEvents.Clear();
+
+            if (Settings.EnableHistoryDebugLog)
+            {
+                string logLine = "";
+                switch (e.EventType)
+                {
+                    case HistoryEventType.Add:
+                        logLine += "ADD ";
+                        break;
+                    case HistoryEventType.Remove:
+                        logLine += "DEL ";
+                        break;
+                }
+                logLine += "\"" + e.TextDelta + "\" ";
+                logLine += "(" + e.DeltaPos.X + ", " + e.DeltaPos.Y + ")\n";
+
+                try
+                {
+                    rwLock.AcquireWriterLock(WriterLockTimeout);
+                    File.AppendAllText(Settings.MapleDirectory + "\\history.txt", logLine);
+                }
+                finally
+                {
+                    rwLock.ReleaseWriterLock();
+                }
+            }
         }
 
         public HistoryEvent PopEvent()
@@ -31,12 +69,22 @@ namespace maple
             return e;
         }
 
+        public bool HasNext()
+        {
+            return events.Count > 0;
+        }
+
         public HistoryEvent PopRedoEvent()
         {
             HistoryEvent e = redoEvents[^1];
             redoEvents.RemoveAt(redoEvents.Count - 1);
 
             return e;
+        }
+
+        public bool HasNextRedo()
+        {
+            return redoEvents.Count > 0;
         }
 
         public void Clear()
@@ -51,9 +99,9 @@ namespace maple
     {
         public HistoryEventType EventType { get; set; }
         public string TextDelta { get; set; }
-        public string DeltaPos { get; set; }
+        public Point DeltaPos { get; set; }
 
-        public HistoryEvent(HistoryEventType eventType, string textDelta, string deltaPos)
+        public HistoryEvent(HistoryEventType eventType, string textDelta, Point deltaPos)
         {
             EventType = eventType;
             TextDelta = textDelta;

@@ -513,25 +513,26 @@ namespace maple
         /// </summary>
         /// <param name="x">The X coordinate.</param>
         /// <param name="y">The Y coordinate (line index).</param>
-        /// <returns>Returns true if the character was deleted (X and Y bounds were valid).</returns>
-        public bool RemoveTextAtPosition(int x, int y)
+        /// <returns>Returns a string of the character that was removed. If the character was not removed, returns a 0-length string (X and Y bounds were invalid).</returns>
+        public string RemoveTextAtPosition(int x, int y)
         {
             if(x < 0 || y < 0 || y > fileLines.Count)
-                return false;
+                return "";
 
             String currentLine = GetLine(y);
             if (x >= currentLine.Length)
-                return false;
+                return "";
             
+            string removed = currentLine[x].ToString();
             currentLine = currentLine.Remove(x, 1);
 
-            //no change made
-            if(GetLine(y) == currentLine)
-                return false;
+            // no change made
+            // if(GetLine(y) == currentLine)
+            //     return "";
             
             SetLine(y, currentLine);
 
-            return true;
+            return removed;
         }
 
         /// <summary>
@@ -870,9 +871,40 @@ namespace maple
             }
         }
 
+        public void LogHistoryEvent(HistoryEventType eventType, string textDelta, Point deltaPos)
+        {
+            history.PushEvent(new HistoryEvent(eventType, textDelta, deltaPos));
+        }
+
         public void Undo()
         {
+            if (!history.HasNext()) // nothing to undo
+            {
+                CommandLine.SetOutput("No changes to undo", "undo");
+                return;
+            }
 
+            HistoryEvent last = history.PopEvent();
+            int lineIndex = last.DeltaPos.Y;
+            int lineX = last.DeltaPos.X;
+            string text = last.TextDelta;
+
+            Log.WriteDebug("undo pos: " + lineX + ", " + lineIndex, "document");
+
+            if (last.EventType == HistoryEventType.Add) // did add, now remove
+            {
+                SetLine(lineIndex, 
+                    GetLine(lineIndex).Remove(lineX, text.Length));
+                Editor.DocCursor.Move(lineX, lineIndex);
+                Editor.RefreshLine(lineIndex);
+            }
+            else if (last.EventType == HistoryEventType.Remove) // did remove, now add
+            {
+                SetLine(lineIndex,
+                    GetLine(lineIndex).Insert(lineX, text));
+                Editor.DocCursor.Move(lineX + text.Length, lineIndex);
+                Editor.RefreshLine(lineIndex);
+            }
         }
 
         public void Redo()

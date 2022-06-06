@@ -20,7 +20,7 @@ namespace maple
             "help", "save", "load", "new", "close", "cls", "top", "bot",
             "redraw", "goto", "selectin", "selectout", "deselect", "readonly",
             "syntax", "alias", "url", "find", "deindent", "count", "copy", "paste",
-            "cut", "selectline", "shortcut"
+            "cut", "selectline", "shortcut", "undo", "redo"
             };
 
         public static string InputText { get; set; } = "";
@@ -193,6 +193,12 @@ namespace maple
                     break;
                 case "shortcut":
                     ShortcutCommand(commandArgs, commandSwitches);
+                    break;
+                case "undo":
+                    UndoCommand();
+                    break;
+                case "redo":
+                    RedoCommand();
                     break;
                 default:
                     UnknownCommand();
@@ -840,6 +846,16 @@ namespace maple
                 (Settings.Shortcuts[key].Execute) ? "executes" : "prefills",
                 Settings.Shortcuts[key].Command),
                 "shortcut");
+        }
+
+        static void UndoCommand()
+        {
+            Editor.CurrentDoc.Undo();
+        }
+
+        static void RedoCommand()
+        {
+            Editor.CurrentDoc.Redo();
         }
 
         static void UnknownCommand()

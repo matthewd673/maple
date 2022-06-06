@@ -9,13 +9,13 @@ namespace maple
 {
     static class Settings
     {
-
+        // directories, these aren't user-defined
         public static string MapleDirectory { get; private set; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        public static string SettingsFile { get; set; } = Path.Combine(MapleDirectory, "properties", "properties.xml");
-        public static string AliasesFile { get; set; } = Path.Combine(MapleDirectory, "properties", "aliases.xml");
-        public static string ShortcutsFile { get; set; } = Path.Combine(MapleDirectory, "properties", "shortcuts.xml");
+        public static string SettingsFile { get; } = Path.Combine(MapleDirectory, "properties", "properties.xml");
+        public static string AliasesFile { get; } = Path.Combine(MapleDirectory, "properties", "aliases.xml");
+        public static string ShortcutsFile { get; } = Path.Combine(MapleDirectory, "properties", "shortcuts.xml");
 
-        //properties
+        // properties
         public static bool DebugTokens { get; set; } = false;
         public static bool NoHighlight { get; set; } = false;
         public static bool NoTokenize { get; set; } = false;
@@ -35,17 +35,20 @@ namespace maple
         public static bool HighlightTrailingWhitespace { get; set; } = false;
         public static bool Autocomplete { get; set; } = true;
         public static bool AutoResize { get; set; } = true;
+        public static bool EnableHistoryDebugLog { get; set; } = false;
 
+        // non-true/false properties
         public static string ThemeDirectory { get; private set; } = Path.Combine(MapleDirectory, "themes");
         public static string ThemeFile { get; private set; } = "maple.xml";
         public static string SyntaxDirectory { get; private set; } = Path.Combine(MapleDirectory, "syntax");
         public static int TabSpacesCount { get; private set; } = 4;
         public static int ScrollYIncrement { get; private set; } = -1;
         public static int ScrollXIncrement { get; private set; } = -1;
+        public static int HistoryMaxSize { get; private set; } = 5000; // arbitrary
 
-        //editor customizations
+        // editor customizations
         public static string VanityFooter { get; private set; } = "maple";
-        public static string FooterFormat { get; private set; } = "{vanity}{-}{filepath}{-}{lncol}"; //super simple default
+        public static string FooterFormat { get; private set; } = "{vanity}{-}{filepath}{-}{lncol}"; // super simple default
         public static string FooterSeparator { get; private set; } = " ";
         public static char GutterLeftPad { get; private set; } = '0';
         public static char GutterBarrier { get; private set; } = ' ';
@@ -54,7 +57,7 @@ namespace maple
         public static List<char> AutocompleteOpeningChars { get; private set; } = new List<char>();
         public static List<char> AutocompleteEndingChars { get; private set; } = new List<char>();
 
-        static List<string> ignoreList = new List<string>(); //stores a list of settings to ignore when loading
+        static List<string> ignoreList = new List<string>(); // stores a list of settings to ignore when loading
 
         public static Dictionary<string, string> Aliases { get; private set; } = new();
         public static Dictionary<ConsoleKey, ShortcutInfo> Shortcuts { get; private set; } = new();
@@ -168,6 +171,9 @@ namespace maple
                     case "autoresize":
                         AutoResize = IsTrue(value);
                         break;
+                    case "enablehistorydebuglog":
+                        EnableHistoryDebugLog = IsTrue(value);
+                        break;
 
                     //ARGUMENTS
                     case "themedirectory":
@@ -211,6 +217,9 @@ namespace maple
                             DefaultEncoding = Encoding.ASCII;
                         else
                             Log.Write("Invalid DefaultEncoding value", "styler", important: true);
+                        break;
+                    case "historymaxsize":
+                        HistoryMaxSize = Math.Abs(Convert.ToInt32(value));
                         break;
 
                     //EDITOR CUSTOMIZATIONS

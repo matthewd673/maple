@@ -2,9 +2,8 @@ using System;
 
 namespace maple
 {
-    class Point
+    public struct Point
     {
-
         public int X { get; set; }
         public int Y { get; set; }
 
@@ -13,6 +12,5 @@ namespace maple
             X = x;
             Y = y;
         }
-
     }
 }

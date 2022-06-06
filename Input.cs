@@ -431,37 +431,48 @@ namespace maple
             }
 
             int charsDeleted = 0;
-            if(c.DX > 0) //not at the beginning of the line
+            if(c.DX > 0) // not at the beginning of the line
             {
-                if (Settings.DeleteEntireTabs //fancy tab delete
+                if (Settings.DeleteEntireTabs // fancy tab delete
                     && c.DX >= Settings.TabSpacesCount
                     && c.Doc.GetTextAtPosition(c.DX - Settings.TabSpacesCount, c.DY).StartsWith(tabString))
                     {
+                        string deletedChars = "";
                         for(int i = 0; i < Settings.TabSpacesCount; i++)
                         {
-                            bool backspaceTriggered = c.Doc.RemoveTextAtPosition(c.DX - 1, c.DY);
-                            if (backspaceTriggered)
+                            string backspaceChar = c.Doc.RemoveTextAtPosition(c.DX - 1, c.DY);
+                            if (backspaceChar.Length != 0) // success!
                             {
-                                c.MoveLeft();
+                                deletedChars = deletedChars + backspaceChar;
+                                c.MoveLeft(applyPosition: false);
                                 charsDeleted++;
                             }
                         }
+
+                        c.ApplyPosition();
+
+                        // log history event
+                        c.Doc.LogHistoryEvent(HistoryEventType.Remove, deletedChars, new Point(c.DX, c.DY));
                     }
-                    else
+                    else // normal delete
                     {
-                        bool backspaceTriggered = c.Doc.RemoveTextAtPosition(
+                        string backspaceChar = c.Doc.RemoveTextAtPosition(
                             c.DX - 1,
                             c.DY);
 
-                        if(backspaceTriggered)
+                        if(backspaceChar.Length != 0) // success!
                         {
                             c.MoveLeft();
                             charsDeleted++;
+
+                            // log history event
+                            c.Doc.LogHistoryEvent(HistoryEventType.Remove, backspaceChar, new Point(c.DX, c.DY));
                         }
                     }
             }
-            else //at beginning of line, append current line to previous
+            else // at beginning of line, append current line to previous
             {
+                // TODO: add undo support
                 bool backspaceScrolledUp = false;
                 if(c.DY > 0)
                 {
@@ -474,16 +485,16 @@ namespace maple
 
                     c.Move(c.DX, c.DY - 1);
 
-                    //scroll up if necessary
+                    // scroll up if necessary
                     if(c.SY == 0)
                     {
                         c.Doc.ScrollUp();
                         backspaceScrolledUp = true;
                     }
 
-                    c.Move(previousLineMaxX, c.DY); //move cursor to preceding line
+                    c.Move(previousLineMaxX, c.DY); // move cursor to preceding line
                 }
-                //update all lines below
+                // visually update all lines below
                 if(!backspaceScrolledUp)
                 {
                     for(int i = c.DY; i <= c.Doc.GetMaxLine() + 1; i++) //+1 so that the old line is cleared
@@ -495,7 +506,7 @@ namespace maple
 
             Editor.RefreshLine(c.DY);
 
-            maxCursorX = c.DX; //update max x position
+            maxCursorX = c.DX; // update max x position
         }
 
         static void HandleDelete(DocumentCursor c)
@@ -503,36 +514,41 @@ namespace maple
             if (c.Doc.HasSelection())
             {
                 DeleteSelectionText(c);
+                // TODO: add undo support
                 return;
             }
 
-            if(c.DX == c.Doc.GetLine(c.DY).Length) //deleting at end of line
+            if(c.DX == c.Doc.GetLine(c.DY).Length) // deleting at end of line
             {
-                if(c.DY < c.Doc.GetMaxLine()) //there is a following line to append
+                // TODO: add undo support
+                if(c.DY < c.Doc.GetMaxLine()) // there is a following line to append
                 {
                     string followingLineText = c.Doc.GetLine(c.DY + 1); //get following line content
                     c.Doc.SetLine(c.DY, c.Doc.GetLine(c.DY) + followingLineText); //append to current
-                    c.Doc.RemoveLine(c.DY + 1); //remove next line
+                    c.Doc.RemoveLine(c.DY + 1); // remove next line
                     c.UpdateGutterOffset();
                     for(int i = c.DY; i < c.Doc.GetMaxLine() + 1; i++)
                         Editor.RefreshLine(i);
                 }
             }
-            else //basic delete
+            else // basic delete
             {
+                string deletedChars = "";
                 if (Settings.DeleteEntireTabs && c.Doc.GetTextAtPosition(c.DX, c.DY).StartsWith(tabString))
                 {
                     for (int i = 0; i < Settings.TabSpacesCount; i++)
-                        c.Doc.RemoveTextAtPosition(c.DX, c.DY);
+                        deletedChars = deletedChars + c.Doc.RemoveTextAtPosition(c.DX, c.DY);
                 }
                 else
-                    c.Doc.RemoveTextAtPosition(c.DX, c.DY); //remove next character
-                Editor.RefreshLine(c.DY); //update line
+                    deletedChars = c.Doc.RemoveTextAtPosition(c.DX, c.DY); // remove next character
+                c.Doc.LogHistoryEvent(HistoryEventType.Remove, deletedChars, new Point(c.DX, c.DY));
+                Editor.RefreshLine(c.DY); // update line
             }
         }
 
         static void HandleEnter(DocumentCursor c)
         {
+            // TODO: add undo support
             //don't break after clearing selection since we still want a newline
             if (c.Doc.HasSelection())
                 DeleteSelectionText(c);
@@ -615,6 +631,9 @@ namespace maple
 
                 //rerender all
                 Editor.RefreshAllLines();
+
+                // TODO: add undo support
+
                 return;
             }
 
@@ -622,6 +641,7 @@ namespace maple
             
             if(tabTextAdded)
             {
+                c.Doc.LogHistoryEvent(HistoryEventType.Add, tabString, new Point(c.DX, c.DY));
                 c.Move(c.DX + tabString.Length, c.DY);
                 Editor.RefreshLine(c.DY);
             }
@@ -666,7 +686,7 @@ namespace maple
         {
             // clear selection before typing
             if (c.Doc.HasSelection())
-                DeleteSelectionText(c);
+                DeleteSelectionText(c); // TODO: add undo support
 
             String typed = keyInfo.KeyChar.ToString();
             // continue only if the typed character can be displayed
@@ -678,6 +698,7 @@ namespace maple
             bool addedText = c.Doc.AddTextAtPosition(c.DX, c.DY, typed);
             if(addedText)
             {
+                c.Doc.LogHistoryEvent(HistoryEventType.Add, typed, new Point(c.DX, c.DY));
                 c.MoveRight();
                 Editor.RefreshLine(c.DY);
             }
@@ -686,7 +707,12 @@ namespace maple
             {
                 int autocompleteIndex = Settings.AutocompleteOpeningChars.IndexOf(keyInfo.KeyChar);
                 if (autocompleteIndex != -1)
-                    c.Doc.AddTextAtPosition(c.DX, c.DY, Settings.AutocompleteEndingChars[autocompleteIndex].ToString());
+                {
+                    string autocompleteText = Settings.AutocompleteEndingChars[autocompleteIndex].ToString();
+                    c.Doc.AddTextAtPosition(c.DX, c.DY, autocompleteText);
+                    // autocomplete events are logged in history separately
+                    c.Doc.LogHistoryEvent(HistoryEventType.Add, autocompleteText, new Point(c.DX, c.DY));
+                }
             }
             maxCursorX = c.DX; // update max x position
         }
