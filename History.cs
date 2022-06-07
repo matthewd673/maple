@@ -10,6 +10,10 @@ namespace maple
     {
         Add,
         Remove,
+        AddLine,
+        RemoveLine,
+        AddSelection,
+        RemoveSelection,
     }
 
     public class History
@@ -100,12 +104,14 @@ namespace maple
         public HistoryEventType EventType { get; set; }
         public string TextDelta { get; set; }
         public Point DeltaPos { get; set; }
+        public Point[] SelectionPoints { get; set; }
 
-        public HistoryEvent(HistoryEventType eventType, string textDelta, Point deltaPos)
+        public HistoryEvent(HistoryEventType eventType, string textDelta, Point deltaPos, Point[] selectionPoints = null)
         {
             EventType = eventType;
             TextDelta = textDelta;
             DeltaPos = deltaPos;
+            SelectionPoints = selectionPoints;
         }
     }
 

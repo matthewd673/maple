@@ -790,37 +790,59 @@ namespace maple
         {
             if (HasSelection())
             {
-                if (SelectOutY > SelectInY) //multi-line selection
+                if (SelectOutY > SelectInY) // multi-line selection
                 {
+                    string removedText = GetSelectionText();
+                    Point[] prevSelectionPoints = new Point[] {
+                            selectIn,
+                            selectOut
+                        };
+
                     for (int i = SelectInY; i <= SelectOutY; i++) {
-                        if (i == SelectInY) { //trim end
+                        if (i == SelectInY) { // trim end
                             SetLine(i,
                                 GetLine(i).Remove(SelectInX, GetLine(i).Length - SelectInX)
                                 );                            
                         }
-                        else if (i == SelectOutY) { //trim start
+                        else if (i == SelectOutY) { // trim start
                             string lastLineContent = GetLine(i).Remove(0, SelectOutX);
                             RemoveLine(i);
                             SetLine(i - 1,
                                 GetLine(i - 1) + lastLineContent
                                 );
                         }
-                        else { //remove
+                        else { // remove
                             RemoveLine(i);
                             i--;
-                            MarkSelectionOut(SelectOutX, SelectOutY - 1); //move select out down
+                            MarkSelectionOut(SelectOutX, SelectOutY - 1); // move select out down
                         }
                     }
+
+                    // log history event
+                    LogHistoryEvent(
+                        HistoryEventType.RemoveSelection,
+                        removedText,
+                        new Point(SelectInX, SelectInY),
+                        prevSelectionPoints
+                    );
                 }
-                else //one line
+                else // one line
                 {
-                    //remove from line
+                    // remove from line
+                    string removedText = GetSelectionText();
                     SetLine(
                         SelectInY,
                         GetLine(SelectInY).Remove(
                             SelectInX, SelectOutX - SelectInX
                         )
                     );
+                    // log history event
+                    LogHistoryEvent(
+                        HistoryEventType.RemoveSelection,
+                        removedText,
+                        new Point(SelectInX, SelectInY),
+                        selectionPoints: new Point[] { selectIn, selectOut }
+                        );
                 }
             }
         }
@@ -871,9 +893,9 @@ namespace maple
             }
         }
 
-        public void LogHistoryEvent(HistoryEventType eventType, string textDelta, Point deltaPos)
+        public void LogHistoryEvent(HistoryEventType eventType, string textDelta, Point deltaPos, Point[] selectionPoints = null)
         {
-            history.PushEvent(new HistoryEvent(eventType, textDelta, deltaPos));
+            history.PushEvent(new HistoryEvent(eventType, textDelta, deltaPos, selectionPoints));
         }
 
         public void Undo()
@@ -904,6 +926,42 @@ namespace maple
                     GetLine(lineIndex).Insert(lineX, text));
                 Editor.DocCursor.Move(lineX + text.Length, lineIndex);
                 Editor.RefreshLine(lineIndex);
+            }
+            else if (last.EventType == HistoryEventType.RemoveSelection) // did remove selection, now add
+            {
+                string[] textLines = last.TextDelta.Split('\n');
+                if (textLines.Length == 1) // single line, similar to normal removal
+                {
+                    SetLine(lineIndex,
+                        GetLine(lineIndex).Insert(lineX, textLines[0]));
+                    Editor.DocCursor.Move(lineX + text.Length, lineIndex);
+                    Editor.RefreshLine(lineIndex);
+                    // recreate selection
+                    selectIn = last.SelectionPoints[0];
+                    selectOut = last.SelectionPoints[1];
+                }
+                else // multiline
+                {
+                    AddLine(lineIndex);
+                    for (int i = 0; i < textLines.Length; i++)
+                    {
+                        string l = textLines[i];
+                        if (l.Equals("") && i == textLines.Length - 1)
+                            break;
+                            
+                        SetLine(lineIndex,
+                            GetLine(lineIndex).Insert(lineX, l));
+
+                        if (i < textLines.Length - 1)
+                            AddLine(lineIndex + 1);
+                        lineIndex++;
+                    }
+                    Editor.DocCursor.Move(last.SelectionPoints[1].X, last.SelectionPoints[1].Y);
+                    Editor.RefreshAllLines();
+                    // recreate selection
+                    selectIn = last.SelectionPoints[0];
+                    selectOut = last.SelectionPoints[1];
+                }
             }
         }
 

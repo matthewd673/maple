@@ -313,6 +313,12 @@ namespace maple
                 case "shortcut":
                     SetOutput("shortcut [key]: display the command that is executed when the given shortcut key is pressed", "help");
                     break;
+                case "undo":
+                    SetOutput("Undo the last edit made to the document", "help");
+                    break;
+                case "redo":
+                    SetOutput("Redo the last edit in the undo history", "help");
+                    break;
                 default:
                     if (Settings.Aliases.ContainsKey(args[0]))
                     {
