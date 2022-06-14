@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace maple
 {
@@ -59,9 +60,12 @@ namespace maple
         public static void BeginInputLoop()
         {
             Footer.PrintFooter();
+            Printer.ApplyBuffer();
             Printer.StartInputThread();
             while(true)
+            {
                 InputLoop();
+            }
         }
 
         /// <summary>
@@ -73,12 +77,15 @@ namespace maple
             GetActiveCursor().ApplyPosition();
 
             // accept input
-            // Input.AcceptInput(Console.ReadKey());
+            while (Printer.KeyEventQueueLength == 0) { }
             lock (Printer.KeyEventQueue)
             {
                 foreach (ConsoleKeyInfo k in Printer.KeyEventQueue)
+                {
                     Input.AcceptInput(k);
+                }
                 Printer.KeyEventQueue.Clear();
+                Printer.KeyEventQueueLength = 0;
             }
 
             // auto-resize buffer, if enabled
@@ -96,13 +103,11 @@ namespace maple
             {
                 Printer.Clear();
                 Footer.RefreshOutputLine();
-                DrawLines();
             }
-            else
-                DrawLines();
 
-            // render footer
+            DrawLines();
             Footer.PrintFooter();
+            Printer.ApplyBuffer();
         }
 
         /// <summary>

@@ -176,7 +176,7 @@ namespace maple
                 }
 
                 Printer.ClearRight();
-                Printer.ApplyBuffer();
+                // Printer.ApplyBuffer();
             }
             else if (Input.CurrentTarget == Input.InputTarget.Command)
             {
@@ -203,7 +203,7 @@ namespace maple
                 refreshOutputNext = false;
             }
 
-            Printer.ApplyBuffer();
+            // Printer.ApplyBuffer();
         }
 
         public static void RefreshOutputLine()

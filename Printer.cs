@@ -190,10 +190,11 @@ namespace maple
         private static bool altKeyDown = false;
 
         private static Thread inputThread;
-        private const int InputLoopDelay = 50;
+        private const int InputLoopDelay = 17;
 
         private static int keyEvents = 0;
 
+        public static int KeyEventQueueLength { get; set; } = 0;
         public static List<ConsoleKeyInfo> KeyEventQueue { get; private set; } = new();
         private static int _windowBuffserSizeEventCount = 0;
         public static int WindowBuffserSizeEventCount
@@ -315,7 +316,7 @@ namespace maple
                 }
 
                 // delay loop
-                // Thread.Sleep(InputLoopDelay);
+                Thread.Sleep(InputLoopDelay);
             }
         }
 
@@ -326,6 +327,7 @@ namespace maple
 
         private static void KeyEventProc(KEY_EVENT_RECORD record)
         {
+
             // ignore initial enter keypress
             if (keyEvents == 0)
             {
@@ -334,8 +336,9 @@ namespace maple
                     keyEvents++;
                     return;
                 }
-                keyEvents++;
             }
+
+            keyEvents++;
 
             // update state of modifier keys
             switch (record.wVirtualKeyCode)
@@ -368,6 +371,7 @@ namespace maple
             lock (KeyEventQueue)
             {
                 KeyEventQueue.Add(keyInfo);
+                KeyEventQueueLength++;
             }
         }
 
@@ -492,6 +496,7 @@ namespace maple
         /// </summary>
         public static void ApplyBuffer()
         {
+            Log.WriteDebug("Printing buffer", "printer");
             bool b = WriteConsoleOutputW(consoleHandle,
                 buf,
                 new Coord() { X = bufWidth, Y = bufHeight },
