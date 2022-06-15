@@ -741,13 +741,106 @@ namespace maple
             return selectIn.Y <= lineIndex && selectOut.Y >= lineIndex;
         }
 
-        /// <summary>
-        /// Check if the current document selection spans multiple lines.
-        /// </summary>
-        /// <returns>Returns true if the current selection starts and ends on different lines.</returns>
-        bool IsMultilineSelection()
+        private string GetBlockText(int aX, int aY, int bX, int bY)
         {
-            return selectIn.Y != selectOut.Y;
+            String text = "";
+            for (int i = aY; i <= bY; i++)
+            {
+                if (i == aY && i == bY)
+                {
+                    text += GetLine(i).Substring(aX, bX - aX);
+                }
+                else if (i == aY)
+                {
+                    text += GetLine(i).Substring(aX) + "\n";
+                }
+                else if (i == bY)
+                {
+                    text += GetLine(i).Substring(0, bX);
+                }
+                else
+                {
+                    text += GetLine(i) + "\n";
+                }
+            }
+
+            return text;
+        }
+
+        private string RemoveBlockText(int aX, int aY, int bX, int bY)
+        {
+            string text = "";
+
+            for (int i = aY; i <= bY; i++)
+            {
+                if (i == aY && i == bY)
+                {
+                    text += GetLine(i).Substring(aX, bX - aX);
+                    SetLine(i, GetLine(i).Remove(aX, bX - aX));
+                }
+                else if (i == aY) // trim end
+                {
+                    text += GetLine(i).Substring(aX) + "\n";
+                    SetLine(i, GetLine(i).Remove(aX));
+                }
+                else if (i == bY)
+                {
+                    string lineContent = GetLine(i).Remove(0, bX);
+                    text += GetLine(i).Substring(0, bX);
+                    SetLine(i - 1, GetLine(i - 1) + lineContent);
+                    RemoveLine(i);
+                }
+                else
+                {
+                    text += GetLine(i) + "\n";
+                    RemoveLine(i);
+                    bY--;
+                    i--;
+                }
+            }
+
+            return text;
+        }
+
+        private Point AddBlockText(int x, int y, string text)
+        {
+            string[] lines = text.Split('\n');
+            
+            string followingText = GetLine(y).Substring(x);
+            SetLine(y, GetLine(y).Remove(x));
+
+            int outX = x;
+            int outY = y;
+
+            int i = y;
+            foreach (string l in lines)
+            {
+                if (i == y && i == y + lines.Length - 1)
+                {
+                    outX = GetLine(i).Length + l.Length;
+                    SetLine(i, GetLine(i) + l + followingText);
+                }
+                else if (i == y)
+                {
+                    SetLine(i, GetLine(i) + l);
+                    AddLine(i + 1);
+                }
+                else if (i == y + lines.Length - 1)
+                {
+                    outX = l.Length;
+                    outY = i;
+                    SetLine(i, l + followingText + GetLine(i));
+                }
+                else
+                {
+                    SetLine(i, l);
+                    AddLine(i + 1);
+                }
+
+                i++;
+            }
+
+            return new Point(outX, outY);
         }
 
         /// <summary>
@@ -759,91 +852,23 @@ namespace maple
             if (selectIn.Y == -1 || selectOut.Y == -1) //skip if no selection
                 return "";
 
-            Log.WriteDebug("Selection bounds: (" + selectIn.X + ", " + selectIn.Y + "), (" + selectOut.X + ", " + selectOut.Y + ")", "document");
-
-            if (selectIn.Y == selectOut.Y) //just return substring if on same line
-            {
-                string lineContent = GetLine(selectIn.Y).Substring(selectIn.X, selectOut.X - selectIn.X);
-                Log.WriteDebug("Selection text: '" + lineContent + "'", "document");
-                return lineContent;
-            }
-
-            //multiple lines
-            String text = "";
-            for (int y = selectIn.Y; y <= selectOut.Y; y++)
-            {
-                if (y == selectIn.Y)
-                    text += GetLine(y).Substring(selectIn.X) + "\n";
-                else if (y == selectOut.Y)
-                    text += GetLine(y).Substring(0, selectOut.X);
-                else
-                    text += GetLine(y) + "\n";
-            }
-
-            return text;
+            return GetBlockText(SelectInX, SelectInY, SelectOutX, SelectOutY);
         }
 
         /// <summary>
         /// Delete the text contained within the current selection bounds.
         /// </summary>
-        public void DeleteSelectionText()
+        public void RemoveSelectionText()
         {
             if (HasSelection())
             {
-                if (SelectOutY > SelectInY) // multi-line selection
-                {
-                    string removedText = GetSelectionText();
-                    Point[] prevSelectionPoints = new Point[] {
-                            selectIn,
-                            selectOut
-                        };
-
-                    for (int i = SelectInY; i <= SelectOutY; i++) {
-                        if (i == SelectInY) { // trim end
-                            SetLine(i,
-                                GetLine(i).Remove(SelectInX, GetLine(i).Length - SelectInX)
-                                );                            
-                        }
-                        else if (i == SelectOutY) { // trim start
-                            string lastLineContent = GetLine(i).Remove(0, SelectOutX);
-                            RemoveLine(i);
-                            SetLine(i - 1,
-                                GetLine(i - 1) + lastLineContent
-                                );
-                        }
-                        else { // remove
-                            RemoveLine(i);
-                            i--;
-                            MarkSelectionOut(SelectOutX, SelectOutY - 1); // move select out down
-                        }
-                    }
-
-                    // log history event
-                    LogHistoryEvent(
-                        HistoryEventType.RemoveSelection,
-                        removedText,
-                        new Point(SelectInX, SelectInY),
-                        prevSelectionPoints
-                    );
-                }
-                else // one line
-                {
-                    // remove from line
-                    string removedText = GetSelectionText();
-                    SetLine(
-                        SelectInY,
-                        GetLine(SelectInY).Remove(
-                            SelectInX, SelectOutX - SelectInX
-                        )
-                    );
-                    // log history event
-                    LogHistoryEvent(
-                        HistoryEventType.RemoveSelection,
-                        removedText,
-                        new Point(SelectInX, SelectInY),
-                        selectionPoints: new Point[] { selectIn, selectOut }
-                        );
-                }
+                string removed = RemoveBlockText(SelectInX, SelectInY, SelectOutX, SelectOutY);
+                LogHistoryEvent(
+                    HistoryEventType.RemoveSelection,
+                    removed,
+                    new Point(SelectInX, SelectInY),
+                    new Point[] { selectIn, selectOut }
+                );
             }
         }
 
@@ -929,39 +954,11 @@ namespace maple
             }
             else if (last.EventType == HistoryEventType.RemoveSelection) // did remove selection, now add
             {
-                string[] textLines = last.TextDelta.Split('\n');
-                if (textLines.Length == 1) // single line, similar to normal removal
-                {
-                    SetLine(lineIndex,
-                        GetLine(lineIndex).Insert(lineX, textLines[0]));
-                    Editor.DocCursor.Move(lineX + text.Length, lineIndex);
-                    Editor.RefreshLine(lineIndex);
-                    // recreate selection
-                    selectIn = last.SelectionPoints[0];
-                    selectOut = last.SelectionPoints[1];
-                }
-                else // multiline
-                {
-                    AddLine(lineIndex);
-                    for (int i = 0; i < textLines.Length; i++)
-                    {
-                        string l = textLines[i];
-                        if (l.Equals("") && i == textLines.Length - 1)
-                            break;
-                            
-                        SetLine(lineIndex,
-                            GetLine(lineIndex).Insert(lineX, l));
-
-                        if (i < textLines.Length - 1)
-                            AddLine(lineIndex + 1);
-                        lineIndex++;
-                    }
-                    Editor.DocCursor.Move(last.SelectionPoints[1].X, last.SelectionPoints[1].Y);
-                    Editor.RefreshAllLines();
-                    // recreate selection
-                    selectIn = last.SelectionPoints[0];
-                    selectOut = last.SelectionPoints[1];
-                }
+                Point addOutPoint = AddBlockText(last.DeltaPos.X, last.DeltaPos.Y, last.TextDelta);
+                selectIn = last.SelectionPoints[0];
+                selectOut = last.SelectionPoints[1];
+                Editor.DocCursor.Move(addOutPoint.X, addOutPoint.Y);
+                Editor.RefreshAllLines();
             }
         }
 

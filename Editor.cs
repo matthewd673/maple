@@ -77,7 +77,16 @@ namespace maple
             GetActiveCursor().ApplyPosition();
 
             // accept input
-            while (Printer.KeyEventQueueLength == 0) { }
+            while (Printer.KeyEventQueueLength == 0)
+            {
+                // auto-resize buffer, if enabled
+                if (Printer.WindowBuffserSizeEventCount > 0 && Settings.AutoResize)
+                {
+                    RedrawWindow();
+                    break;
+                }
+                Thread.Sleep(10); // TODO: there's a better way to write this threading
+            }
             lock (Printer.KeyEventQueue)
             {
                 foreach (ConsoleKeyInfo k in Printer.KeyEventQueue)
@@ -86,12 +95,6 @@ namespace maple
                 }
                 Printer.KeyEventQueue.Clear();
                 Printer.KeyEventQueueLength = 0;
-            }
-
-            // auto-resize buffer, if enabled
-            if (Printer.WindowBuffserSizeEventCount > 0 && Settings.AutoResize)
-            {
-                RedrawWindow();
             }
 
             // force line refresh each time if debugging tokens

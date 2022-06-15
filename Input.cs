@@ -219,7 +219,7 @@ namespace maple
                     HandleRight(docCursor);
                     break;
                 
-                //LINE MANIPULATION
+                // LINE MANIPULATION
                 case ConsoleKey.Backspace:
                     if (ReadOnly)
                         break;
@@ -251,7 +251,7 @@ namespace maple
                     HandleTab(docCursor);
                     break;
 
-                //NAVIGATION
+                // NAVIGATION
                 case ConsoleKey.Escape:
                     HandleEscape(docCursor);
                     break;
@@ -280,10 +280,9 @@ namespace maple
                     HandlePageUp(docCursor);
                     break;
                 
-                //TYPING
+                // TYPING
                 default:
                     if (ReadOnly) break;
-
                     HandleTyping(docCursor, keyInfo);
                     break;
             }
@@ -296,7 +295,7 @@ namespace maple
 
             switch(keyInfo.Key)
             {
-                //MOVEMENT
+                // MOVEMENT
                 case ConsoleKey.LeftArrow:
                     int newLeftX = cmdCursor.DX - 1;
                     if(CommandLine.IsSafeCursorX(newLeftX))
@@ -308,7 +307,7 @@ namespace maple
                         cmdCursor.Move(newRightX, 0);
                     break;
 
-                //HISTORY
+                // HISTORY
                 case ConsoleKey.UpArrow:
                     if (CommandLine.CommandHistoryIndex >= CommandLine.CommandHistory.Count - 1)
                         break;
@@ -330,7 +329,7 @@ namespace maple
                     cmdCursor.Move(CommandLine.InputText.Length, 0);
                     break;
 
-                //LINE MANIPULATION
+                // LINE MANIPULATION
                 case ConsoleKey.Backspace:
                     bool backspaceTriggered = CommandLine.RemoveText(cmdCursor.DX - 1);
                     
@@ -343,7 +342,7 @@ namespace maple
                     CommandLine.RemoveText(cmdCursor.DX);
                     break;
 
-                //COMMANDS
+                // COMMANDS
                 case ConsoleKey.Enter:
                     CommandLine.ExecuteInput();
                     break;
@@ -353,11 +352,11 @@ namespace maple
                     ToggleInputTarget();
                     break;
                 
-                //TYPING
+                // TYPING
                 default:                    
                     String typed = keyInfo.KeyChar.ToString();
 
-                    //continue only if the typed character can be displayed
+                    // continue only if the typed character can be displayed
                     Regex r = new Regex("\\P{Cc}");
                     if(!r.Match(typed).Success)
                         break;
@@ -370,7 +369,6 @@ namespace maple
                     }
 
                     CommandLine.CommandHistoryIndex = -1; //break out of command history
-
                     break;
             }
         }
@@ -684,15 +682,15 @@ namespace maple
 
         static void HandleTyping(DocumentCursor c, ConsoleKeyInfo keyInfo)
         {
-            // clear selection before typing
-            if (c.Doc.HasSelection())
-                DeleteSelectionText(c); // TODO: add undo support
-
             String typed = keyInfo.KeyChar.ToString();
             // continue only if the typed character can be displayed
             Regex r = new Regex("\\P{Cc}");
             if(!r.Match(typed).Success)
                 return;
+
+            // clear selection before typing
+            if (c.Doc.HasSelection())
+                DeleteSelectionText(c); // TODO: add undo support
 
             int oldTokenCount = c.Doc.GetLineTokenCount(c.DY); // track old token count to determine if redraw is necessary
             bool addedText = c.Doc.AddTextAtPosition(c.DX, c.DY, typed);
@@ -757,7 +755,7 @@ namespace maple
         /// <param name="docCursor">The DocumentCursor to move. Text will be deleted from the cursor's Document.</param>
         public static void DeleteSelectionText(DocumentCursor docCursor)
         {
-            docCursor.Doc.DeleteSelectionText();
+            docCursor.Doc.RemoveSelectionText();
 
             //reset cursor, clear selection and rerender all
             docCursor.Move(docCursor.Doc.SelectInX, docCursor.Doc.SelectInY);

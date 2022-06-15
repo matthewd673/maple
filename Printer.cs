@@ -190,7 +190,7 @@ namespace maple
         private static bool altKeyDown = false;
 
         private static Thread inputThread;
-        private const int InputLoopDelay = 17;
+        private const int InputLoopDelay = 10;
 
         private static int keyEvents = 0;
 
@@ -344,13 +344,13 @@ namespace maple
             switch (record.wVirtualKeyCode)
             {
                 case 16:
-                    shiftKeyDown = !shiftKeyDown;
+                    shiftKeyDown = (record.bKeyDown != 0);
                     break;
                 case 17:
-                    controlKeyDown = !controlKeyDown;
+                    controlKeyDown = (record.bKeyDown != 0);
                     break;
                 case 18:
-                    altKeyDown = !altKeyDown;
+                    altKeyDown = (record.bKeyDown != 0);
                     break;
             }
             ConsoleKey key = (ConsoleKey)record.wVirtualKeyCode;
@@ -370,6 +370,7 @@ namespace maple
             // Input.AcceptInput(keyInfo);
             lock (KeyEventQueue)
             {
+                // Log.WriteDebug(String.Format("{0} ({1}) [s:{2}] [c:{3}] [a:{4}]", keyInfo.Key, keyInfo.KeyChar, shiftKeyDown, controlKeyDown, altKeyDown), "printer");
                 KeyEventQueue.Add(keyInfo);
                 KeyEventQueueLength++;
             }
@@ -496,7 +497,6 @@ namespace maple
         /// </summary>
         public static void ApplyBuffer()
         {
-            Log.WriteDebug("Printing buffer", "printer");
             bool b = WriteConsoleOutputW(consoleHandle,
                 buf,
                 new Coord() { X = bufWidth, Y = bufHeight },
