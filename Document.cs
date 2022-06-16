@@ -694,14 +694,6 @@ namespace maple
             }
 
             return false;
-
-            //selecting a 0-width range causes errors (and why would you want to anyway?)
-            // if (selectIn.X == selectOut.X && selectIn.Y == selectOut.Y)
-            // {
-            //     selectIn = new Point(-1, -1);
-            //     selectOut = new Point(-1, -1);
-            // }
-
         }
         
         /// <summary>
@@ -802,7 +794,7 @@ namespace maple
             return text;
         }
 
-        private Point AddBlockText(int x, int y, string text)
+        public Point AddBlockText(int x, int y, string text)
         {
             string[] lines = text.Split('\n');
             
@@ -953,6 +945,16 @@ namespace maple
                 selectIn = last.SelectionPoints[0];
                 selectOut = last.SelectionPoints[1];
                 Editor.DocCursor.Move(addOutPoint.X, addOutPoint.Y);
+                Editor.RefreshAllLines();
+            }
+            else if (last.EventType == HistoryEventType.AddSelection) // did add selection, now remove
+            {
+                string[] textDeltaLines = last.TextDelta.Split('\n');
+                RemoveBlockText(last.DeltaPos.X,
+                                last.DeltaPos.Y,
+                                textDeltaLines[^1].Length,
+                                last.DeltaPos.Y + textDeltaLines.Length - 1
+                                );
                 Editor.RefreshAllLines();
             }
             else if (last.EventType == HistoryEventType.AddLine) // did add line, now remove

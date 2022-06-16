@@ -26,7 +26,7 @@ namespace maple
 
             //create cursor
             CmdCursor = new Cursor(0, 0);
-            CmdCursor.ContentOffsetX = 7; //hardcoded for "maple: "
+            CmdCursor.ContentOffsetX = Footer.CommandPromptText.Length;
             CmdCursor.ContentOffsetY = Int32.MaxValue;
 
             //create doc cursor with document

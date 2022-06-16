@@ -759,43 +759,26 @@ namespace maple
 
         static void PasteCommand()
         {
+            bool deletedSelection = false;
             if (Editor.CurrentDoc.HasSelection())
-                Input.DeleteSelectionText(Editor.DocCursor);
-            
-            string[] clipboardLines = Editor.ClipboardContents.Split("\n");
-            string beforePastePoint = Editor.CurrentDoc.GetLine(Editor.DocCursor.DY).Substring(0, Editor.DocCursor.DX);
-            string afterPastePoint = Editor.CurrentDoc.GetLine(Editor.DocCursor.DY).Substring(Editor.DocCursor.DX);
-
-            Editor.CurrentDoc.SetLine(Editor.DocCursor.DY, beforePastePoint + clipboardLines[0]);
-            // Editor.DocCursor.DX += clipboardLines[0].Length - 1;
-            Editor.DocCursor.Move(Editor.DocCursor.DX + clipboardLines[0].Length - 1, Editor.DocCursor.DY, applyPosition: false);
-            Editor.RefreshLine(Editor.DocCursor.DY);
-
-            int startingLine = Editor.DocCursor.DY;
-            for (int i = 1; i < clipboardLines.Length; i++)
             {
-                // Editor.DocCursor.DX = 0;
-                // Editor.DocCursor.DY++;
-                Editor.DocCursor.Move(clipboardLines[i].Length, Editor.DocCursor.DY + 1, applyPosition: false);
-                Editor.CurrentDoc.AddLine(Editor.DocCursor.DY);
-                Editor.CurrentDoc.SetLine(Editor.DocCursor.DY, clipboardLines[i]);
-                Log.Write("paste line: " + Editor.DocCursor.DY, "commandline/paste");
-                // Editor.DocCursor.DX = clipboardLines[i].Length - 1;
+                Input.DeleteSelectionText(Editor.DocCursor); // TODO: undo doesn't work correctly
+                deletedSelection = true;
             }
 
-            if (clipboardLines.Length > 1)
-            {
-                Editor.DocCursor.MoveDown(applyPosition: false);
-            }
+            Log.WriteDebug(Editor.ClipboardContents, "commandline/paste");
 
-            if (startingLine != Editor.DocCursor.DY) //if multiple lines were pasted...
-            {
-                Editor.RefreshAllLines();
-            }
+            Editor.CurrentDoc.AddBlockText(Editor.DocCursor.DX, Editor.DocCursor.DY, Editor.ClipboardContents);
+            int clipboardLinesLength = Editor.ClipboardContents.Length;
 
-            Editor.DocCursor.ApplyPosition();
+            Editor.CurrentDoc.LogHistoryEvent(
+                HistoryEventType.AddSelection,
+                Editor.ClipboardContents,
+                new Point(Editor.DocCursor.DX, Editor.DocCursor.DY),
+                combined: deletedSelection
+            );
 
-            Editor.CurrentDoc.AddTextAtPosition(Editor.DocCursor.DX, Editor.DocCursor.DY, afterPastePoint);
+            Editor.RefreshAllLines();
         }
 
         static void CutCommand()
@@ -803,9 +786,21 @@ namespace maple
             CopyCommand();
 
             if (Editor.CurrentDoc.HasSelection())
+            {
                 Input.DeleteSelectionText(Editor.DocCursor);
+            }
             else
             {
+                Editor.CurrentDoc.LogHistoryEvent(
+                    HistoryEventType.RemoveSelection,
+                    Editor.CurrentDoc.GetLine(Editor.DocCursor.DY) + "\n",
+                    new Point(0, Editor.DocCursor.DY),
+                    new Point[] {
+                        new Point(0, Editor.DocCursor.DY),
+                        new Point(0, Editor.DocCursor.DY + 1)
+                        }
+                );
+
                 Editor.CurrentDoc.RemoveLine(Editor.DocCursor.DY);
                 if (Editor.DocCursor.DY > 0)
                 {

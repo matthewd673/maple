@@ -370,7 +370,7 @@ namespace maple
             // Input.AcceptInput(keyInfo);
             lock (KeyEventQueue)
             {
-                // Log.WriteDebug(String.Format("{0} ({1}) [s:{2}] [c:{3}] [a:{4}]", keyInfo.Key, keyInfo.KeyChar, shiftKeyDown, controlKeyDown, altKeyDown), "printer");
+                Log.WriteDebug(String.Format("{0} ({1}) [s:{2}] [c:{3}] [a:{4}]", keyInfo.Key, keyInfo.KeyChar, shiftKeyDown, controlKeyDown, altKeyDown), "printer");
                 KeyEventQueue.Add(keyInfo);
                 KeyEventQueueLength++;
             }

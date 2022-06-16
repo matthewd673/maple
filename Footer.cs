@@ -9,7 +9,7 @@ namespace maple
         public static int FooterHeight { get; private set; }= 1;
         static bool refreshOutputNext = false;
 
-        static string commandPrompt = "maple> ";
+        public static string CommandPromptText { get; } = "maple $ ";
 
         public static string Separator { get; set; } = " ";
         static string formatString { get; set; }
@@ -180,15 +180,15 @@ namespace maple
             }
             else if (Input.CurrentTarget == Input.InputTarget.Command)
             {
-                Printer.WriteToFooter(commandPrompt, x: 0, foregroundColor: Styler.AccentColor);
+                Printer.WriteToFooter(CommandPromptText, x: 0, foregroundColor: Styler.AccentColor);
                 if (Settings.CliNoHighlight)
                 {
-                    Printer.WriteToFooter(CommandLine.InputText, x: commandPrompt.Length, Styler.CliInputDefaultColor);
+                    Printer.WriteToFooter(CommandLine.InputText, x: CommandPromptText.Length, Styler.CliInputDefaultColor);
                 }
                 else
                 {
                     List<Token> cliTokens = Lexer.TokenizeCommandLine(CommandLine.InputText);
-                    Printer.MoveCursor(commandPrompt.Length, Printer.MaxScreenY);
+                    Printer.MoveCursor(CommandPromptText.Length, Printer.MaxScreenY);
                     
                     for (int i = 0; i < cliTokens.Count; i++)
                     {
