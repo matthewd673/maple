@@ -49,7 +49,7 @@ namespace maple
 
             switch(keyInfo.Key)
             {
-                //MOVEMENT
+                // MOVEMENT
                 case ConsoleKey.UpArrow:
                     // create / move selection area
                     if (Settings.ShiftSelect && keyInfo.Modifiers == ConsoleModifiers.Shift)
@@ -239,16 +239,10 @@ namespace maple
                     HandleEnter(docCursor);
                     break;
                 case ConsoleKey.Tab:
-                    if (Settings.ShiftDeindent && keyInfo.Modifiers == ConsoleModifiers.Shift)
-                    {
-                        docCursor.Doc.Deindent();
-                        break;
-                    }
-
                     if (ReadOnly)
                         break;
                     
-                    HandleTab(docCursor);
+                    HandleTab(docCursor, keyInfo);
                     break;
 
                 // NAVIGATION
@@ -425,6 +419,7 @@ namespace maple
             if (c.Doc.HasSelection())
             {
                 DeleteSelectionText(c);
+                // undo event is logged in Document.RemoveSelectionText
                 return;
             }
 
@@ -470,15 +465,13 @@ namespace maple
             }
             else // at beginning of line, append current line to previous
             {
-                // TODO: add undo support
-                bool backspaceScrolledUp = false;
                 if(c.DY > 0)
                 {
-                    string currentLineContent = c.Doc.GetLine(c.DY); //get remaining content on current line
-                    int previousLineMaxX = c.Doc.GetLine(c.DY - 1).Length; //get max position on preceding line
-                    string combinedLineContent = c.Doc.GetLine(c.DY - 1) + currentLineContent; //combine content
-                    c.Doc.SetLine(c.DY - 1, combinedLineContent); //set previous line to combined content
-                    c.Doc.RemoveLine(c.DY); //remove current line
+                    string currentLineContent = c.Doc.GetLine(c.DY); // get remaining content on current line
+                    int previousLineMaxX = c.Doc.GetLine(c.DY - 1).Length; // get max position on preceding line
+                    string combinedLineContent = c.Doc.GetLine(c.DY - 1) + currentLineContent; // combine content
+                    c.Doc.SetLine(c.DY - 1, combinedLineContent); // set previous line to combined content
+                    c.Doc.RemoveLine(c.DY); // remove current line
                     c.UpdateGutterOffset();
 
                     c.Move(c.DX, c.DY - 1);
@@ -487,19 +480,18 @@ namespace maple
                     if(c.SY == 0)
                     {
                         c.Doc.ScrollUp();
-                        backspaceScrolledUp = true;
                     }
 
-                    c.Move(previousLineMaxX, c.DY); // move cursor to preceding line
-                }
-                // visually update all lines below
-                if(!backspaceScrolledUp)
-                {
-                    for(int i = c.DY; i <= c.Doc.GetMaxLine() + 1; i++) //+1 so that the old line is cleared
-                        Editor.RefreshLine(i);
-                }
-                else
+                    // update
+                    c.Move(previousLineMaxX, c.DY);
                     Editor.RefreshAllLines();
+
+                    c.Doc.LogHistoryEvent(
+                        HistoryEventType.RemoveLine,
+                        "",
+                        new Point(c.DX, c.DY)
+                    );
+                }
             }
 
             Editor.RefreshLine(c.DY);
@@ -512,21 +504,27 @@ namespace maple
             if (c.Doc.HasSelection())
             {
                 DeleteSelectionText(c);
-                // TODO: add undo support
+                // undo event is logged in Document.RemoveSelectionText
                 return;
             }
 
             if(c.DX == c.Doc.GetLine(c.DY).Length) // deleting at end of line
             {
-                // TODO: add undo support
                 if(c.DY < c.Doc.GetMaxLine()) // there is a following line to append
                 {
-                    string followingLineText = c.Doc.GetLine(c.DY + 1); //get following line content
-                    c.Doc.SetLine(c.DY, c.Doc.GetLine(c.DY) + followingLineText); //append to current
+                    string followingLineText = c.Doc.GetLine(c.DY + 1); // get following line content
+                    c.Doc.SetLine(c.DY, c.Doc.GetLine(c.DY) + followingLineText); // append to current
                     c.Doc.RemoveLine(c.DY + 1); // remove next line
+                    
+                    // update
                     c.UpdateGutterOffset();
-                    for(int i = c.DY; i < c.Doc.GetMaxLine() + 1; i++)
-                        Editor.RefreshLine(i);
+                    Editor.RefreshAllLines();
+
+                    c.Doc.LogHistoryEvent(
+                        HistoryEventType.RemoveLine,
+                        "",
+                        new Point(c.DX, c.DY)
+                    );
                 }
             }
             else // basic delete
@@ -546,10 +544,14 @@ namespace maple
 
         static void HandleEnter(DocumentCursor c)
         {
-            // TODO: add undo support
             //don't break after clearing selection since we still want a newline
+            bool deletedSelection = false;
             if (c.Doc.HasSelection())
+            {
                 DeleteSelectionText(c);
+                deletedSelection = true;
+                // undo event is logged in Document.RemoveSelectionText
+            }
 
             //insert tab string at beginning of new line
             string newLineTabString = "";
@@ -563,13 +565,13 @@ namespace maple
                 }
             }
 
-            c.Doc.AddLine(c.DY + 1); //add new line
-            c.UpdateGutterOffset(); //update gutter position
+            c.Doc.AddLine(c.DY + 1); // add new line
+            c.UpdateGutterOffset(); // update gutter position
 
             string followingTextLine = c.Doc.GetLine(c.DY);
-            string followingText = followingTextLine.Substring(c.DX); //get text following cursor (on current line)
+            string followingText = followingTextLine.Substring(c.DX); // get text following cursor (on current line)
 
-            //remove tab string from beginning of following line
+            // remove tab string from beginning of following line
             if (Settings.PreserveIndentOnEnter)
             {
                 while (followingText.StartsWith(tabString))
@@ -578,32 +580,29 @@ namespace maple
                 }
             }
 
-            c.Doc.AddTextAtPosition(0, c.DY + 1, newLineTabString + followingText); //add following text to new line
+            c.Doc.AddTextAtPosition(0, c.DY + 1, newLineTabString + followingText); // add following text to new line
 
             if(c.DX < followingTextLine.Length)
-                c.Doc.SetLine(c.DY, followingTextLine.Remove(c.DX)); //remove following text on current line
+                c.Doc.SetLine(c.DY, followingTextLine.Remove(c.DX)); // remove following text on current line
             
-            //scroll down if necessary
-            bool enterScrolledDown = false;
+            // scroll down if necessary
             if(c.SY >= Printer.MaxScreenY - Footer.FooterHeight)
             {
                 c.Doc.ScrollDown();
-                enterScrolledDown = true;
             }
 
-            c.Move(newLineTabString.Length, c.DY + 1); //move cursor to beginning of new line
-            Editor.RefreshLine(c.SY);
+            // update
+            c.Move(newLineTabString.Length, c.DY + 1);
+            Editor.RefreshAllLines();
+            maxCursorX = c.DX;
 
-            //update all lines below
-            if(!enterScrolledDown)
-            {
-                for(int i = c.DY - 1; i <= c.Doc.GetMaxLine(); i++)
-                    Editor.RefreshLine(i);
-            }
-            else
-                Editor.RefreshAllLines();
+            c.Doc.LogHistoryEvent(
+                HistoryEventType.AddLine,
+                c.Doc.GetLine(c.DY),
+                new Point(c.DX, c.DY),
+                combined: deletedSelection
+            );
 
-            maxCursorX = c.DX; //update max x position
         }
 
         static void HandleEscape(DocumentCursor c)
@@ -613,8 +612,20 @@ namespace maple
             ToggleInputTarget();
         }
 
-        static void HandleTab(DocumentCursor c)
+        static void HandleTab(DocumentCursor c, ConsoleKeyInfo keyInfo)
         {
+            if (Settings.ShiftDeindent && keyInfo.Modifiers == ConsoleModifiers.Shift)
+            {
+                c.Doc.Deindent();
+                c.Doc.LogHistoryEvent(
+                    HistoryEventType.DeindentLine,
+                    "",
+                    new Point(c.DX, c.DY),
+                    new Point[] { new Point(c.Doc.SelectInX, c.Doc.SelectInY), new Point(c.Doc.SelectOutX, c.Doc.SelectOutY) }
+                );
+                return;
+            }
+
             //if selected, indent all
             if (c.Doc.HasSelection())
             {
@@ -631,6 +642,12 @@ namespace maple
                 Editor.RefreshAllLines();
 
                 // TODO: add undo support
+                c.Doc.LogHistoryEvent(
+                    HistoryEventType.IndentLine,
+                    "",
+                    new Point(c.DX, c.DY),
+                    new Point[] { new Point(c.Doc.SelectInX, c.Doc.SelectInY), new Point(c.Doc.SelectOutX, c.Doc.SelectOutY) }
+                );
 
                 return;
             }
@@ -689,14 +706,19 @@ namespace maple
                 return;
 
             // clear selection before typing
+            bool deletedSelection = false;
             if (c.Doc.HasSelection())
-                DeleteSelectionText(c); // TODO: add undo support
+            {
+                DeleteSelectionText(c);
+                // undo event is logged in Document.RemoveSelectionText
+                deletedSelection = true;
+            }
 
             int oldTokenCount = c.Doc.GetLineTokenCount(c.DY); // track old token count to determine if redraw is necessary
             bool addedText = c.Doc.AddTextAtPosition(c.DX, c.DY, typed);
             if(addedText)
             {
-                c.Doc.LogHistoryEvent(HistoryEventType.Add, typed, new Point(c.DX, c.DY));
+                c.Doc.LogHistoryEvent(HistoryEventType.Add, typed, new Point(c.DX, c.DY), combined: deletedSelection);
                 c.MoveRight();
                 Editor.RefreshLine(c.DY);
             }

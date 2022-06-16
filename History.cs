@@ -14,6 +14,8 @@ namespace maple
         RemoveLine,
         AddSelection,
         RemoveSelection,
+        IndentLine,
+        DeindentLine,
     }
 
     public class History
@@ -47,6 +49,24 @@ namespace maple
                         break;
                     case HistoryEventType.Remove:
                         logLine += "DEL ";
+                        break;
+                    case HistoryEventType.AddLine:
+                        logLine += "ALN ";
+                        break;
+                    case HistoryEventType.RemoveLine:
+                        logLine += "RLN ";
+                        break;
+                    case HistoryEventType.AddSelection:
+                        logLine += "ASL ";
+                        break;
+                    case HistoryEventType.RemoveSelection:
+                        logLine += "RSL ";
+                        break;
+                    case HistoryEventType.IndentLine:
+                        logLine += "INL ";
+                        break;
+                    case HistoryEventType.DeindentLine:
+                        logLine += "DIL ";
                         break;
                 }
                 logLine += "\"" + e.TextDelta + "\" ";
@@ -105,13 +125,15 @@ namespace maple
         public string TextDelta { get; set; }
         public Point DeltaPos { get; set; }
         public Point[] SelectionPoints { get; set; }
+        public bool Combined { get; set; }
 
-        public HistoryEvent(HistoryEventType eventType, string textDelta, Point deltaPos, Point[] selectionPoints = null)
+        public HistoryEvent(HistoryEventType eventType, string textDelta, Point deltaPos, Point[] selectionPoints = null, bool combined = false)
         {
             EventType = eventType;
             TextDelta = textDelta;
             DeltaPos = deltaPos;
             SelectionPoints = selectionPoints;
+            Combined = combined;
         }
     }
 

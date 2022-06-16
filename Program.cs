@@ -9,14 +9,14 @@ namespace maple
 
         static void Main(string[] args)
         {
-            //initialize logger
-            //note: maple directory will never be relative, since flag is set later
+            // initialize logger
+            // NOTE: maple directory will never be relative, since flag is set later
             Log.InitializeLogger();
 
             PrepareWindow();
 
             Log.Write("Parsing arguments", "program");
-            //turn args into string for parser
+            // turn args into string for parser
             string argString = "";
             foreach(string s in args)
                 argString += s + " ";

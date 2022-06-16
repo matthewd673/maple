@@ -918,9 +918,9 @@ namespace maple
             }
         }
 
-        public void LogHistoryEvent(HistoryEventType eventType, string textDelta, Point deltaPos, Point[] selectionPoints = null)
+        public void LogHistoryEvent(HistoryEventType eventType, string textDelta, Point deltaPos, Point[] selectionPoints = null, bool combined = false)
         {
-            history.PushEvent(new HistoryEvent(eventType, textDelta, deltaPos, selectionPoints));
+            history.PushEvent(new HistoryEvent(eventType, textDelta, deltaPos, selectionPoints, combined));
         }
 
         public void Undo()
@@ -932,25 +932,20 @@ namespace maple
             }
 
             HistoryEvent last = history.PopEvent();
-            int lineIndex = last.DeltaPos.Y;
-            int lineX = last.DeltaPos.X;
-            string text = last.TextDelta;
-
-            Log.WriteDebug("undo pos: " + lineX + ", " + lineIndex, "document");
 
             if (last.EventType == HistoryEventType.Add) // did add, now remove
             {
-                SetLine(lineIndex, 
-                    GetLine(lineIndex).Remove(lineX, text.Length));
-                Editor.DocCursor.Move(lineX, lineIndex);
-                Editor.RefreshLine(lineIndex);
+                SetLine(last.DeltaPos.Y, 
+                    GetLine(last.DeltaPos.Y).Remove(last.DeltaPos.X, last.TextDelta.Length));
+                Editor.DocCursor.Move(last.DeltaPos.X, last.DeltaPos.Y);
+                Editor.RefreshLine(last.DeltaPos.Y);
             }
             else if (last.EventType == HistoryEventType.Remove) // did remove, now add
             {
-                SetLine(lineIndex,
-                    GetLine(lineIndex).Insert(lineX, text));
-                Editor.DocCursor.Move(lineX + text.Length, lineIndex);
-                Editor.RefreshLine(lineIndex);
+                SetLine(last.DeltaPos.Y,
+                    GetLine(last.DeltaPos.Y).Insert(last.DeltaPos.X, last.TextDelta));
+                Editor.DocCursor.Move(last.DeltaPos.X + last.TextDelta.Length, last.DeltaPos.Y);
+                Editor.RefreshLine(last.DeltaPos.Y);
             }
             else if (last.EventType == HistoryEventType.RemoveSelection) // did remove selection, now add
             {
@@ -959,6 +954,45 @@ namespace maple
                 selectOut = last.SelectionPoints[1];
                 Editor.DocCursor.Move(addOutPoint.X, addOutPoint.Y);
                 Editor.RefreshAllLines();
+            }
+            else if (last.EventType == HistoryEventType.AddLine) // did add line, now remove
+            {
+                RemoveLine(last.DeltaPos.Y);
+                Editor.DocCursor.Move(GetLine(last.DeltaPos.Y - 1).Length, last.DeltaPos.Y - 1);
+                SetLine(last.DeltaPos.Y - 1, GetLine(last.DeltaPos.Y - 1) + last.TextDelta);
+                Editor.RefreshAllLines();
+            }
+            else if (last.EventType == HistoryEventType.RemoveLine) // did remove line, now add
+            {
+                AddLine(last.DeltaPos.Y + 1);
+                SetLine(last.DeltaPos.Y + 1, GetLine(last.DeltaPos.Y).Substring(last.DeltaPos.X));
+                SetLine(last.DeltaPos.Y, GetLine(last.DeltaPos.Y).Remove(last.DeltaPos.X));
+                Editor.DocCursor.Move(0, last.DeltaPos.Y + 1);
+                Editor.RefreshAllLines();
+            }
+            else if (last.EventType == HistoryEventType.IndentLine) // did indent line, now deindent
+            {
+                selectIn = last.SelectionPoints[0];
+                selectOut = last.SelectionPoints[1];
+                Deindent();
+                Editor.DocCursor.Move(last.SelectionPoints[1].X, last.SelectionPoints[1].Y);
+                Editor.RefreshAllLines();
+            }
+            else if (last.EventType == HistoryEventType.DeindentLine) // did deindent line, now indent
+            {
+                string tabString = "";
+                for (int i = 0; i < Settings.TabSpacesCount; i++) tabString += " ";
+                for (int i = last.SelectionPoints[0].Y; i <= last.SelectionPoints[1].Y; i++)
+                {
+                    SetLine(i, tabString + GetLine(i));
+                }
+                Editor.RefreshAllLines();
+            }
+
+            // if combined event, trigger last event automatically
+            if (last.Combined)
+            {
+                Undo();
             }
         }
 
