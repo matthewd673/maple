@@ -950,9 +950,14 @@ namespace maple
             else if (last.EventType == HistoryEventType.AddSelection) // did add selection, now remove
             {
                 string[] textDeltaLines = last.TextDelta.Split('\n');
+                int blockEndX = textDeltaLines[^1].Length;
+                if (textDeltaLines.Length == 1)
+                {
+                    blockEndX += last.DeltaPos.X;
+                }
                 RemoveBlockText(last.DeltaPos.X,
                                 last.DeltaPos.Y,
-                                textDeltaLines[^1].Length,
+                                blockEndX,
                                 last.DeltaPos.Y + textDeltaLines.Length - 1
                                 );
                 Editor.RefreshAllLines();
