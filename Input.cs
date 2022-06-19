@@ -423,6 +423,7 @@ namespace maple
                 return;
             }
 
+            Point initialCursorPos = new Point(c.DX, c.DY);
             int charsDeleted = 0;
             if(c.DX > 0) // not at the beginning of the line
             {
@@ -445,7 +446,12 @@ namespace maple
                         c.ApplyPosition();
 
                         // log history event
-                        c.Doc.LogHistoryEvent(HistoryEventType.Remove, deletedChars, new Point(c.DX, c.DY));
+                        c.Doc.LogHistoryEvent(new HistoryEvent(
+                            HistoryEventType.Remove,
+                            deletedChars,
+                            new Point(c.DX, c.DY),
+                            initialCursorPos
+                        ));
                     }
                     else // normal delete
                     {
@@ -459,7 +465,12 @@ namespace maple
                             charsDeleted++;
 
                             // log history event
-                            c.Doc.LogHistoryEvent(HistoryEventType.Remove, backspaceChar, new Point(c.DX, c.DY));
+                            c.Doc.LogHistoryEvent(new HistoryEvent(
+                                HistoryEventType.Remove,
+                                backspaceChar,
+                                new Point(c.DX, c.DY),
+                                initialCursorPos
+                            ));
                         }
                     }
             }
@@ -486,11 +497,12 @@ namespace maple
                     c.Move(previousLineMaxX, c.DY);
                     Editor.RefreshAllLines();
 
-                    c.Doc.LogHistoryEvent(
+                    c.Doc.LogHistoryEvent(new HistoryEvent(
                         HistoryEventType.RemoveLine,
                         "",
-                        new Point(c.DX, c.DY)
-                    );
+                        new Point(c.DX, c.DY),
+                        initialCursorPos
+                    ));
                 }
             }
 
@@ -508,6 +520,7 @@ namespace maple
                 return;
             }
 
+            Point initialCursorPos = new Point(c.DX, c.DY);
             if(c.DX == c.Doc.GetLine(c.DY).Length) // deleting at end of line
             {
                 if(c.DY < c.Doc.GetMaxLine()) // there is a following line to append
@@ -520,11 +533,12 @@ namespace maple
                     c.UpdateGutterOffset();
                     Editor.RefreshAllLines();
 
-                    c.Doc.LogHistoryEvent(
+                    c.Doc.LogHistoryEvent(new HistoryEvent(
                         HistoryEventType.RemoveLine,
                         "",
-                        new Point(c.DX, c.DY)
-                    );
+                        new Point(c.DX, c.DY),
+                        initialCursorPos
+                    ));
                 }
             }
             else // basic delete
@@ -537,7 +551,12 @@ namespace maple
                 }
                 else
                     deletedChars = c.Doc.RemoveTextAtPosition(c.DX, c.DY); // remove next character
-                c.Doc.LogHistoryEvent(HistoryEventType.Remove, deletedChars, new Point(c.DX, c.DY));
+                c.Doc.LogHistoryEvent(new HistoryEvent(
+                    HistoryEventType.Remove,
+                    deletedChars,
+                    new Point(c.DX, c.DY),
+                    initialCursorPos
+                ));
                 Editor.RefreshLine(c.DY); // update line
             }
         }
@@ -552,6 +571,8 @@ namespace maple
                 deletedSelection = true;
                 // undo event is logged in Document.RemoveSelectionText
             }
+
+            Point initialCursorPos = new Point(c.DX, c.DY);
 
             //insert tab string at beginning of new line
             string newLineTabString = "";
@@ -596,12 +617,13 @@ namespace maple
             Editor.RefreshAllLines();
             maxCursorX = c.DX;
 
-            c.Doc.LogHistoryEvent(
+            c.Doc.LogHistoryEvent(new HistoryEvent(
                 HistoryEventType.AddLine,
                 c.Doc.GetLine(c.DY),
                 new Point(c.DX, c.DY),
+                initialCursorPos,
                 combined: deletedSelection
-            );
+            ));
 
         }
 
@@ -614,15 +636,21 @@ namespace maple
 
         static void HandleTab(DocumentCursor c, ConsoleKeyInfo keyInfo)
         {
+            Point initialCursorPos = new Point(c.DX, c.DY);
             if (Settings.ShiftDeindent && keyInfo.Modifiers == ConsoleModifiers.Shift)
             {
                 c.Doc.Deindent();
-                c.Doc.LogHistoryEvent(
+                c.Doc.LogHistoryEvent(new HistoryEvent(
                     HistoryEventType.DeindentLine,
                     "",
                     new Point(c.DX, c.DY),
-                    new Point[] { new Point(c.Doc.SelectInX, c.Doc.SelectInY), new Point(c.Doc.SelectOutX, c.Doc.SelectOutY) }
-                );
+                    initialCursorPos,
+                    new Point[] {
+                        new Point(c.Doc.SelectInX, c.Doc.SelectInY),
+                        new Point(c.Doc.SelectOutX, c.Doc.SelectOutY)
+                    }
+                ));
+
                 return;
             }
 
@@ -642,12 +670,16 @@ namespace maple
                 Editor.RefreshAllLines();
 
                 // TODO: add undo support
-                c.Doc.LogHistoryEvent(
+                c.Doc.LogHistoryEvent(new HistoryEvent(
                     HistoryEventType.IndentLine,
                     "",
                     new Point(c.DX, c.DY),
-                    new Point[] { new Point(c.Doc.SelectInX, c.Doc.SelectInY), new Point(c.Doc.SelectOutX, c.Doc.SelectOutY) }
-                );
+                    initialCursorPos,
+                    new Point[] {
+                        new Point(c.Doc.SelectInX, c.Doc.SelectInY),
+                        new Point(c.Doc.SelectOutX, c.Doc.SelectOutY)
+                    }
+                ));
 
                 return;
             }
@@ -656,7 +688,12 @@ namespace maple
             
             if(tabTextAdded)
             {
-                c.Doc.LogHistoryEvent(HistoryEventType.Add, tabString, new Point(c.DX, c.DY));
+                c.Doc.LogHistoryEvent(new HistoryEvent(
+                    HistoryEventType.Add,
+                    tabString,
+                    new Point(c.DX, c.DY),
+                    initialCursorPos
+                ));
                 c.Move(c.DX + tabString.Length, c.DY);
                 Editor.RefreshLine(c.DY);
             }
@@ -705,6 +742,8 @@ namespace maple
             if(!r.Match(typed).Success)
                 return;
 
+            Point initialCursorPos = new Point(c.DX, c.DY);
+
             // clear selection before typing
             bool deletedSelection = false;
             if (c.Doc.HasSelection())
@@ -718,7 +757,13 @@ namespace maple
             bool addedText = c.Doc.AddTextAtPosition(c.DX, c.DY, typed);
             if(addedText)
             {
-                c.Doc.LogHistoryEvent(HistoryEventType.Add, typed, new Point(c.DX, c.DY), combined: deletedSelection);
+                c.Doc.LogHistoryEvent(new HistoryEvent(
+                    HistoryEventType.Add,
+                    typed,
+                    new Point(c.DX, c.DY),
+                    initialCursorPos,
+                    combined: deletedSelection
+                ));
                 c.MoveRight();
                 Editor.RefreshLine(c.DY);
             }
@@ -731,7 +776,12 @@ namespace maple
                     string autocompleteText = Settings.AutocompleteEndingChars[autocompleteIndex].ToString();
                     c.Doc.AddTextAtPosition(c.DX, c.DY, autocompleteText);
                     // autocomplete events are logged in history separately
-                    c.Doc.LogHistoryEvent(HistoryEventType.Add, autocompleteText, new Point(c.DX, c.DY));
+                    c.Doc.LogHistoryEvent(new HistoryEvent(
+                        HistoryEventType.Add,
+                        autocompleteText,
+                        new Point(c.DX, c.DY),
+                        initialCursorPos
+                    ));
                 }
             }
             maxCursorX = c.DX; // update max x position

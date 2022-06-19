@@ -855,12 +855,13 @@ namespace maple
             if (HasSelection())
             {
                 string removed = RemoveBlockText(SelectInX, SelectInY, SelectOutX, SelectOutY);
-                LogHistoryEvent(
+                LogHistoryEvent(new HistoryEvent(
                     HistoryEventType.RemoveSelection,
                     removed,
                     new Point(SelectInX, SelectInY),
+                    new Point(Editor.DocCursor.DX, Editor.DocCursor.DY),
                     new Point[] { selectIn, selectOut }
-                );
+                ));
             }
         }
 
@@ -910,44 +911,64 @@ namespace maple
             }
         }
 
-        public void LogHistoryEvent(HistoryEventType eventType, string textDelta, Point deltaPos, Point[] selectionPoints = null, bool combined = false)
+        public void LogHistoryEvent(HistoryEvent historyEvent)
         {
-            history.PushEvent(new HistoryEvent(eventType, textDelta, deltaPos, selectionPoints, combined));
+            history.PushEvent(historyEvent);
         }
 
-        public void Undo()
+        public void Undo(bool redo = false)
         {
-            if (!history.HasNext()) // nothing to undo
+            HistoryEvent last;
+            if (!redo)
             {
-                CommandLine.SetOutput("No changes to undo", "undo");
-                return;
+                if (!history.HasNext()) // nothing to undo
+                {
+                    CommandLine.SetOutput("No changes to undo", "undo");
+                    return;
+                }
+                last = history.PopEvent();
+            }
+            else
+            {
+                if (!history.HasNextRedo())
+                {
+                    CommandLine.SetOutput("No changes to redo", "redo");
+                    return;
+                }
+                last = history.PopRedoEvent();
             }
 
-            HistoryEvent last = history.PopEvent();
-
-            if (last.EventType == HistoryEventType.Add) // did add, now remove
+            if ((!redo && last.EventType == HistoryEventType.Add) ||
+                (redo && last.EventType == HistoryEventType.Remove)) // did add, now remove
             {
                 SetLine(last.DeltaPos.Y, 
                     GetLine(last.DeltaPos.Y).Remove(last.DeltaPos.X, last.TextDelta.Length));
-                Editor.DocCursor.Move(last.DeltaPos.X, last.DeltaPos.Y);
+                
+                Editor.DocCursor.Move(last.CursorPos.X, last.CursorPos.Y);
                 Editor.RefreshLine(last.DeltaPos.Y);
             }
-            else if (last.EventType == HistoryEventType.Remove) // did remove, now add
+            else if ((!redo && last.EventType == HistoryEventType.Remove) ||
+                    (redo && last.EventType == HistoryEventType.Add)) // did remove, now add
             {
                 SetLine(last.DeltaPos.Y,
                     GetLine(last.DeltaPos.Y).Insert(last.DeltaPos.X, last.TextDelta));
-                Editor.DocCursor.Move(last.DeltaPos.X + last.TextDelta.Length, last.DeltaPos.Y);
+                
+                Editor.DocCursor.Move(last.CursorPos.X, last.CursorPos.Y);
                 Editor.RefreshLine(last.DeltaPos.Y);
             }
-            else if (last.EventType == HistoryEventType.RemoveSelection) // did remove selection, now add
+            // TODO: redo
+            else if ((!redo && last.EventType == HistoryEventType.RemoveSelection) ||
+                    (redo && last.EventType == HistoryEventType.AddSelection)) // did remove selection, now add
             {
                 Point addOutPoint = AddBlockText(last.DeltaPos.X, last.DeltaPos.Y, last.TextDelta);
                 selectIn = last.SelectionPoints[0];
                 selectOut = last.SelectionPoints[1];
-                Editor.DocCursor.Move(addOutPoint.X, addOutPoint.Y);
+
+                Editor.DocCursor.Move(last.CursorPos.X, last.CursorPos.Y);
                 Editor.RefreshAllLines();
             }
-            else if (last.EventType == HistoryEventType.AddSelection) // did add selection, now remove
+            else if ((!redo && last.EventType == HistoryEventType.AddSelection) ||
+                    (redo && last.EventType == HistoryEventType.RemoveSelection)) // did add selection, now remove
             {
                 string[] textDeltaLines = last.TextDelta.Split('\n');
                 int blockEndX = textDeltaLines[^1].Length;
@@ -960,32 +981,40 @@ namespace maple
                                 blockEndX,
                                 last.DeltaPos.Y + textDeltaLines.Length - 1
                                 );
+
+                if (redo) Deselect();
+                
+                Editor.DocCursor.Move(last.CursorPos.X, last.CursorPos.Y);
                 Editor.RefreshAllLines();
             }
-            else if (last.EventType == HistoryEventType.AddLine) // did add line, now remove
+            else if (!redo && last.EventType == HistoryEventType.AddLine) // did add line, now remove
             {
                 RemoveLine(last.DeltaPos.Y);
-                Editor.DocCursor.Move(GetLine(last.DeltaPos.Y - 1).Length, last.DeltaPos.Y - 1);
+                // Editor.DocCursor.Move(GetLine(last.DeltaPos.Y - 1).Length, last.DeltaPos.Y - 1);
                 SetLine(last.DeltaPos.Y - 1, GetLine(last.DeltaPos.Y - 1) + last.TextDelta);
+                
+                Editor.DocCursor.Move(last.CursorPos.X, last.CursorPos.Y);
                 Editor.RefreshAllLines();
             }
-            else if (last.EventType == HistoryEventType.RemoveLine) // did remove line, now add
+            else if (!redo && last.EventType == HistoryEventType.RemoveLine) // did remove line, now add
             {
                 AddLine(last.DeltaPos.Y + 1);
                 SetLine(last.DeltaPos.Y + 1, GetLine(last.DeltaPos.Y).Substring(last.DeltaPos.X));
                 SetLine(last.DeltaPos.Y, GetLine(last.DeltaPos.Y).Remove(last.DeltaPos.X));
-                Editor.DocCursor.Move(0, last.DeltaPos.Y + 1);
+                
+                Editor.DocCursor.Move(last.CursorPos.X, last.CursorPos.Y);
                 Editor.RefreshAllLines();
             }
-            else if (last.EventType == HistoryEventType.IndentLine) // did indent line, now deindent
+            else if (!redo && last.EventType == HistoryEventType.IndentLine) // did indent line, now deindent
             {
                 selectIn = last.SelectionPoints[0];
                 selectOut = last.SelectionPoints[1];
                 Deindent();
-                Editor.DocCursor.Move(last.SelectionPoints[1].X, last.SelectionPoints[1].Y);
+
+                Editor.DocCursor.Move(last.CursorPos.X, last.CursorPos.Y);
                 Editor.RefreshAllLines();
             }
-            else if (last.EventType == HistoryEventType.DeindentLine) // did deindent line, now indent
+            else if (!redo && last.EventType == HistoryEventType.DeindentLine) // did deindent line, now indent
             {
                 string tabString = "";
                 for (int i = 0; i < Settings.TabSpacesCount; i++) tabString += " ";
@@ -993,6 +1022,8 @@ namespace maple
                 {
                     SetLine(i, tabString + GetLine(i));
                 }
+
+                Editor.DocCursor.Move(last.CursorPos.X, last.CursorPos.Y);
                 Editor.RefreshAllLines();
             }
 
@@ -1002,11 +1033,5 @@ namespace maple
                 Undo();
             }
         }
-
-        public void Redo()
-        {
-
-        }
-
     }
 }

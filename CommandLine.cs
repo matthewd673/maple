@@ -771,12 +771,13 @@ namespace maple
             Editor.CurrentDoc.AddBlockText(Editor.DocCursor.DX, Editor.DocCursor.DY, Editor.ClipboardContents);
             int clipboardLinesLength = Editor.ClipboardContents.Length;
 
-            Editor.CurrentDoc.LogHistoryEvent(
+            Editor.CurrentDoc.LogHistoryEvent(new HistoryEvent(
                 HistoryEventType.AddSelection,
                 Editor.ClipboardContents,
                 new Point(Editor.DocCursor.DX, Editor.DocCursor.DY),
+                new Point(Editor.DocCursor.DX, Editor.DocCursor.DY),
                 combined: deletedSelection
-            );
+            ));
 
             Editor.RefreshAllLines();
         }
@@ -791,15 +792,16 @@ namespace maple
             }
             else
             {
-                Editor.CurrentDoc.LogHistoryEvent(
+                Editor.CurrentDoc.LogHistoryEvent(new HistoryEvent(
                     HistoryEventType.RemoveSelection,
                     Editor.CurrentDoc.GetLine(Editor.DocCursor.DY) + "\n",
                     new Point(0, Editor.DocCursor.DY),
+                    new Point(Editor.DocCursor.DX, Editor.DocCursor.DY),
                     new Point[] {
                         new Point(0, Editor.DocCursor.DY),
                         new Point(0, Editor.DocCursor.DY + 1)
                         }
-                );
+                ));
 
                 Editor.CurrentDoc.RemoveLine(Editor.DocCursor.DY);
                 if (Editor.DocCursor.DY > 0)
@@ -856,7 +858,7 @@ namespace maple
 
         static void RedoCommand()
         {
-            Editor.CurrentDoc.Redo();
+            Editor.CurrentDoc.Undo(redo: true);
         }
 
         static void UnknownCommand()

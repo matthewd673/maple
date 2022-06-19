@@ -88,7 +88,15 @@ namespace maple
         {
             HistoryEvent e = events[^1];
             events.RemoveAt(events.Count - 1);
-            redoEvents.Add(e);
+
+            redoEvents.Add(new HistoryEvent(
+                e.EventType,
+                e.TextDelta,
+                e.DeltaPos,
+                new Point(Editor.DocCursor.DX, Editor.DocCursor.DY),
+                e.SelectionPoints,
+                e.Combined
+            ));
 
             return e;
         }
@@ -102,6 +110,15 @@ namespace maple
         {
             HistoryEvent e = redoEvents[^1];
             redoEvents.RemoveAt(redoEvents.Count - 1);
+
+            events.Add(new HistoryEvent(
+                e.EventType,
+                e.TextDelta,
+                e.DeltaPos,
+                new Point(Editor.DocCursor.DX, Editor.DocCursor.DY),
+                e.SelectionPoints,
+                e.Combined
+            ));
 
             return e;
         }
@@ -124,14 +141,16 @@ namespace maple
         public HistoryEventType EventType { get; set; }
         public string TextDelta { get; set; }
         public Point DeltaPos { get; set; }
+        public Point CursorPos { get; set; }
         public Point[] SelectionPoints { get; set; }
         public bool Combined { get; set; }
 
-        public HistoryEvent(HistoryEventType eventType, string textDelta, Point deltaPos, Point[] selectionPoints = null, bool combined = false)
+        public HistoryEvent(HistoryEventType eventType, string textDelta, Point deltaPos, Point cursorPos, Point[] selectionPoints = null, bool combined = false)
         {
             EventType = eventType;
             TextDelta = textDelta;
             DeltaPos = deltaPos;
+            CursorPos = cursorPos;
             SelectionPoints = selectionPoints;
             Combined = combined;
         }
