@@ -41,7 +41,11 @@ namespace maple
             DocumentCursor docCursor = Editor.DocCursor;
             Document doc = docCursor.Doc;
 
-            if (keyInfo.Modifiers == ConsoleModifiers.Control)
+            // allow shortcuts to be triggered while alt-key is pressed
+            // when alt-tabbing, alt key will become pressed and never register
+            // as unpressed
+            if (keyInfo.Modifiers == ConsoleModifiers.Control ||
+                keyInfo.Modifiers == (ConsoleModifiers.Control | ConsoleModifiers.Alt))
             {
                 HandleShortcut(keyInfo);
                 return;
@@ -620,11 +624,10 @@ namespace maple
             c.Doc.LogHistoryEvent(new HistoryEvent(
                 HistoryEventType.AddLine,
                 c.Doc.GetLine(c.DY),
-                new Point(c.DX, c.DY),
+                initialCursorPos,
                 initialCursorPos,
                 combined: deletedSelection
             ));
-
         }
 
         static void HandleEscape(DocumentCursor c)
