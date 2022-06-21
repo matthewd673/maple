@@ -29,7 +29,6 @@
     <color category="cliSwitch">DarkGray</color>
     <color category="cliString">Green</color>
     <!--Footer Colors-->
-    <color category="footerVanity">Yellow</color>
     <color category="footerSeparator">DarkGray</color>
     <color category="footerFilepath">Gray</color>
     <color category="footerLnCol">Yellow</color>

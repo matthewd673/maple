@@ -27,8 +27,6 @@ namespace maple
             {
                 case TokenType.None:
                     return token.Text;
-                case TokenType.FooterVanity:
-                    return Settings.VanityFooter;
                 case TokenType.FooterFilepath:
                     switch (token.Annotation)
                     {

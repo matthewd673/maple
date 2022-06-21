@@ -6,7 +6,7 @@
     <shortcut key="f">find </shortcut>
     <shortcut key="l">load </shortcut>
     <shortcut key="c" execute="True">copy</shortcut>
-    <shortcut key="v" execute="True">paste</shortcut>
+    <shortcut key="p" execute="True">paste</shortcut>
     <shortcut key="x" execute="True">cut</shortcut>
     <shortcut key="q">close</shortcut>
     <shortcut key="z" execute="True">undo</shortcut>

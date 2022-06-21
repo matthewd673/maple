@@ -291,6 +291,16 @@ namespace maple
 
             Cursor cmdCursor = Editor.CmdCursor;
 
+            // allow shortcuts to be triggered while alt-key is pressed
+            // when alt-tabbing, alt key will become pressed and never register
+            // as unpressed
+            if (keyInfo.Modifiers == ConsoleModifiers.Control ||
+                keyInfo.Modifiers == (ConsoleModifiers.Control | ConsoleModifiers.Alt))
+            {
+                HandleShortcut(keyInfo);
+                return;
+            }
+
             switch(keyInfo.Key)
             {
                 // MOVEMENT
@@ -792,18 +802,21 @@ namespace maple
 
         static void HandleShortcut(ConsoleKeyInfo keyInfo)
         {
-            //skip if shortcut doesn't exist
+            // skip if shortcut doesn't exist
             if (!Settings.Shortcuts.ContainsKey(keyInfo.Key))
                 return;
 
             Settings.ShortcutInfo shortcutInfo = Settings.Shortcuts[keyInfo.Key];
 
-            CurrentTarget = InputTarget.Command; //simulate user entering cli
+            InputTarget previousInputTarget = CurrentTarget;
+            CurrentTarget = InputTarget.Command; // simulate user entering cli
             CommandLine.InputText = shortcutInfo.Command;
             Editor.CmdCursor.Move(CommandLine.InputText.Length, 0);
 
-            if (shortcutInfo.Execute)
+            if (shortcutInfo.Execute && previousInputTarget == InputTarget.Document)
+            {
                 CommandLine.ExecuteInput();
+            }
         }
 
         public static void ToggleInputTarget()

@@ -33,7 +33,6 @@ namespace maple
         CliString,
 
         // FOOTER
-        FooterVanity,
         FooterSeparator,
         FooterFilepath,
         FooterLnCol,
@@ -119,9 +118,6 @@ namespace maple
                 case "clistring":
                     return TokenType.CliString;
                 //footer
-                case "{vanity}":
-                case "footervanity":
-                    return TokenType.FooterVanity;
                 case "{-}":
                 case "footerseparator":
                     return TokenType.FooterSeparator;

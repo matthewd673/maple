@@ -47,8 +47,7 @@ namespace maple
         public static int HistoryMaxSize { get; private set; } = 5000; // arbitrary
 
         // editor customizations
-        public static string VanityFooter { get; private set; } = "maple";
-        public static string FooterFormat { get; private set; } = "{vanity}{-}{filepath}{-}{lncol}"; // super simple default
+        public static string FooterFormat { get; private set; } = "maple{-}{filepath}{-}{lncol}"; // super simple default
         public static string FooterSeparator { get; private set; } = " ";
         public static char GutterLeftPad { get; private set; } = '0';
         public static char GutterBarrier { get; private set; } = ' ';
@@ -223,9 +222,6 @@ namespace maple
                         break;
 
                     //EDITOR CUSTOMIZATIONS
-                    case "vanityfooter":
-                        VanityFooter = value;
-                        break;
                     case "footerformat":
                         FooterFormat = value;
                         break;
