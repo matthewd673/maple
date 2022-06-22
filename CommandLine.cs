@@ -212,7 +212,7 @@ namespace maple
 
         static void HelpCommand(List<string> args, List<string> switches)
         {
-            string defaultHelpString = "'help [command]', 'help all' for command list, or 'help wiki' to open wiki";
+            string defaultHelpString = "\"help [command]\", \"help all\" for command list, or \"help wiki\" to open wiki";
             string wikiUrl = "https://github.com/matthewd673/maple/wiki";
 
             if (args.Count < 1)
@@ -322,7 +322,7 @@ namespace maple
                 default:
                     if (Settings.Aliases.ContainsKey(args[0]))
                     {
-                        SetOutput(String.Format("'{0}' is an alias for '{1}'", args[0], Settings.Aliases[args[0]]), "help");
+                        SetOutput(String.Format("\"{0}\" is an alias for \"{1}\"", args[0], Settings.Aliases[args[0]]), "help");
                     }
                     else
                     {
@@ -350,14 +350,14 @@ namespace maple
             string existingPath = Editor.DocCursor.Doc.Filepath;
 
             if(savePath != existingPath)
-                SetOutput(String.Format("Copy of file saved to {0}", savePath), "save");
+                SetOutput(String.Format("Copy of file saved to \"{0}\"", savePath), "save");
             else
-                SetOutput(String.Format("File saved to {0}", savePath), "save");
+                SetOutput(String.Format("File saved to \"{0}\"", savePath), "save");
         }
 
         static void LoadCommand(List<string> args, List<string> switches)
         {
-            if(args.Count < 1)
+            if (args.Count < 1)
             {
                 SetOutput("No filepath provided", "load", oType: OutputType.Error);
                 return;
@@ -365,14 +365,17 @@ namespace maple
 
             string filepath = args[0];
             //trim quotes if it was in a block
-            if(filepath.StartsWith("\""))
+            if (filepath.StartsWith("\""))
                 filepath = filepath.Trim('\"');
+
+            if (filepath.Equals(""))
+                filepath = Editor.CurrentDoc.Filepath;
 
             //initialize new editor
             if (File.Exists(Document.ProcessFilepath(filepath)))
                 Editor.Initialize(filepath);
             else
-                SetOutput(String.Format("File '{0}' doesn't exist, use 'new' to create a new file", filepath), "load", OutputType.Error);
+                SetOutput(String.Format("File \"{0}\" doesn't exist, use \"new\" to create a new file", filepath), "load", OutputType.Error);
         }
 
         static void NewCommand(List<string> args, List<string> switches)
@@ -390,11 +393,11 @@ namespace maple
 
             //initialize new editor
             if (File.Exists(Document.ProcessFilepath(filepath)))
-                SetOutput(String.Format("File '{0}' already exists, use 'load' to load an existing file", filepath), "new", OutputType.Error);
+                SetOutput(String.Format("File \"{0}\" already exists, use \"load\" to load an existing file", filepath), "new", OutputType.Error);
             else
             {
                 Editor.Initialize(filepath);
-                SetOutput(String.Format("Created a new file at '{0}'", filepath), "new", OutputType.Success);
+                SetOutput(String.Format("Created a new file at \"{0}\"", filepath), "new", OutputType.Success);
             }
         
         }
@@ -477,7 +480,7 @@ namespace maple
         {
             if (args.Count < 1) //default to giving info about current syntax
             {
-                SetOutput(String.Format("Current syntax file: {0}", Lexer.CurrentSyntaxFile), "syntax");
+                SetOutput(String.Format("Current syntax file: \"{0}\"", Lexer.CurrentSyntaxFile), "syntax");
                 return;
             }
 
@@ -500,14 +503,14 @@ namespace maple
             //it may be an alias, though that isn't what this command is really for
             if (Settings.Aliases.ContainsKey(args[0]))
             {
-                SetOutput(String.Format("'{0}' is an alias for '{1}'", args[0], Settings.Aliases[args[0]]), "alias");
+                SetOutput(String.Format("\"{0}\" is an alias for \"{1}\"", args[0], Settings.Aliases[args[0]]), "alias");
                 return;
             }
 
             //it must be a command, not an alias
             if (!Settings.Aliases.ContainsValue(args[0]))
             {
-                SetOutput(String.Format("'{0}' does not have any aliases", args[0]), "alias");
+                SetOutput(String.Format("\"{0}\" does not have any aliases", args[0]), "alias");
                 return;
             }
 
@@ -518,7 +521,7 @@ namespace maple
                     commandAliases.Add(k);
             }
 
-            string output = String.Format("{0} has {1} ", args[0], commandAliases.Count);
+            string output = String.Format("\"{0}\" has {1} ", args[0], commandAliases.Count);
             if (commandAliases.Count == 1)
                 output += "alias: ";
             else
@@ -526,7 +529,7 @@ namespace maple
             
             for (int i = 0; i < commandAliases.Count; i++)
             {
-                output += "'" + commandAliases[i] + "'";
+                output += "\"" + commandAliases[i] + "\"";
                 if (i < commandAliases.Count - 1)
                     output += ", ";
             }
@@ -540,7 +543,7 @@ namespace maple
             if (hoveredToken.TType != TokenType.Url)
             {
                 SetOutput("Selected token isn't a valid URL", "url", OutputType.Error);
-                Log.Write("Attempted to navigate to '" + hoveredToken.Text + "'", "commandline/url");
+                Log.Write("Attempted to navigate to " + hoveredToken.Text, "commandline/url");
                 return;
             }
 
@@ -575,7 +578,7 @@ namespace maple
             if (forceFindHere) {
                 search = Editor.CurrentDoc.GetTokenAtPosition(Editor.DocCursor.DX, Editor.DocCursor.DY).Text;
                 Log.WriteDebug("Finding --here: '" + search + "'", "commandline/find");
-                SetOutput(String.Format("Finding '{0}'", search), "find");
+                SetOutput(String.Format("Finding \"{0}\"", search), "find");
             }
 
             bool updateLastSearch = true;
@@ -646,9 +649,9 @@ namespace maple
             //count and then stop, if selected
             if (findCount)
             {
-                string template = "There are {0} occurrences of '{1}'";
+                string template = "There are {0} occurrences of \"{1}\"";
                 if (indexes.Count == 1)
-                    template = "There is {0} occurrence of '{1}'";
+                    template = "There is {0} occurrence of \"{1}\"";
                 SetOutput(String.Format(template, indexes.Count, search), "find");
                 return;
             }
@@ -656,7 +659,7 @@ namespace maple
             //no results
             if (indexes.Count == 0)
             {
-                SetOutput(String.Format("There are 0 occurrences of '{0}'", search), "find");
+                SetOutput(String.Format("There are 0 occurrences of \"{0}\"", search), "find");
                 return;
             }
 
@@ -771,6 +774,14 @@ namespace maple
             Editor.CurrentDoc.AddBlockText(Editor.DocCursor.DX, Editor.DocCursor.DY, Editor.ClipboardContents);
             int clipboardLinesLength = Editor.ClipboardContents.Length;
 
+            string[] clipboardLinesSplit = Editor.ClipboardContents.Split('\n');
+            int newCursorX = clipboardLinesSplit[^1].Length;
+            int newCursorY = Editor.DocCursor.DY + clipboardLinesSplit.Length - 1;
+            if (newCursorY == Editor.DocCursor.DY)
+            {
+                newCursorX += Editor.DocCursor.DX;
+            }
+
             Editor.CurrentDoc.LogHistoryEvent(new HistoryEvent(
                 HistoryEventType.AddSelection,
                 Editor.ClipboardContents,
@@ -778,6 +789,8 @@ namespace maple
                 new Point(Editor.DocCursor.DX, Editor.DocCursor.DY),
                 combined: deletedSelection
             ));
+
+            Editor.DocCursor.Move(newCursorX, newCursorY);
 
             Editor.RefreshAllLines();
         }
@@ -844,7 +857,7 @@ namespace maple
             }
 
             SetOutput(String.Format(
-                "Ctrl+{0} {1} '{2}'",
+                "Ctrl+{0} {1} \"{2}\"",
                 args[0],
                 (Settings.Shortcuts[key].Execute) ? "executes" : "prefills",
                 Settings.Shortcuts[key].Command),
@@ -863,7 +876,7 @@ namespace maple
 
         static void UnknownCommand()
         {
-            SetOutput("Unknown command, try 'help all' or update the alias file", "error", oType: OutputType.Error);
+            SetOutput("Unknown command, try \"help all\" or update the alias file", "error", oType: OutputType.Error);
         }
 
         public static bool Contains<T>(this T[] array, T item)

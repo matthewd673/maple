@@ -980,6 +980,9 @@ namespace maple
                 {
                     blockEndX += last.DeltaPos.X;
                 }
+
+                Log.WriteDebug(last.DeltaPos.X + ", " + last.DeltaPos.Y, "document/undo");
+
                 RemoveBlockText(last.DeltaPos.X,
                                 last.DeltaPos.Y,
                                 blockEndX,

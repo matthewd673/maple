@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.IO;
 
 namespace maple
 {
@@ -11,6 +12,7 @@ namespace maple
         public static Document CurrentDoc { get { return DocCursor.Doc; }}
         static List<int> refreshedLines = new List<int>();
         static bool fullClearNext = false;
+        static long fileLastModifiedTime = 0;
         
         public static string ClipboardContents { get; set; } = "";
 
@@ -85,6 +87,20 @@ namespace maple
                     RedrawWindow();
                     break;
                 }
+
+                // check for changes to file
+                DateTime fileModifiedTime = File.GetLastWriteTime(CurrentDoc.Filepath);
+                if (fileModifiedTime.ToFileTime() != fileLastModifiedTime)
+                {
+                    // file changed, apply update
+                    if (fileLastModifiedTime != 0)
+                    {
+                        CommandLine.SetOutput("File has been modified externally, use \"load\" to reload", "document");
+                        Printer.ApplyBuffer();
+                    }
+                    fileLastModifiedTime = fileModifiedTime.ToFileTime();
+                }
+
                 Thread.Sleep(10); // TODO: there's a better way to write this threading
             }
             lock (Printer.KeyEventQueue)
