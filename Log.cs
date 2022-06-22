@@ -33,7 +33,7 @@ namespace maple
 
         public static void Write(string text, string speaker, bool important = false)
         {
-            if (!Settings.EnableLogging) return;
+            if (!Settings.Properties.EnableLogging) return;
 
             string template = "[{0}]: {1}\n";
             if (important)
@@ -55,7 +55,7 @@ namespace maple
 
         public static void WriteDebug(string text, string speaker)
         {
-            if (!Settings.EnableLogging) return;
+            if (!Settings.Properties.EnableLogging) return;
             
             #if DEBUG
                 try

@@ -38,7 +38,7 @@ namespace maple
             DocCursor.Move(0, 0);
             DocCursor.ApplyPosition();
 
-            Footer.SetFormatString(Settings.FooterFormat);
+            Footer.SetFormatString(Settings.Properties.FooterFormat);
 
             //load footer lexer
             Log.Write("Building command line input lexer rules", "editor");
@@ -82,7 +82,7 @@ namespace maple
             while (Printer.KeyEventQueueLength == 0)
             {
                 // auto-resize buffer, if enabled
-                if (Printer.WindowBuffserSizeEventCount > 0 && Settings.AutoResize)
+                if (Printer.WindowBuffserSizeEventCount > 0 && Settings.Properties.AutoResize)
                 {
                     RedrawWindow();
                     break;
@@ -114,7 +114,7 @@ namespace maple
             }
 
             // force line refresh each time if debugging tokens
-            if(Settings.DebugTokens)
+            if(Settings.Properties.DebugTokens)
                 RefreshLine(DocCursor.DY);
 
             // redraw lines that have changed

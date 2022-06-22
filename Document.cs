@@ -51,7 +51,7 @@ namespace maple
                 {
                     string fileExtension = Path.GetExtension(filepath).Remove(0, 1);
                     fileExtension = fileExtension.TrimEnd(); //remove trailing whitespace
-                    Lexer.LoadSyntax(Path.Combine(Settings.SyntaxDirectory, fileExtension + ".xml"));
+                    Lexer.LoadSyntax(Path.Combine(Settings.Properties.SyntaxDirectory, fileExtension + ".xml"));
                 }
                 else
                     Log.Write("Loaded document is marked as internal", "document");
@@ -82,9 +82,9 @@ namespace maple
                 switch (filepath)
                 {
                     case "{themefile}":
-                        return Path.Combine(Settings.ThemeDirectory, Settings.ThemeFile);
+                        return Path.Combine(Settings.Properties.ThemeDirectory, Settings.Properties.ThemeFile);
                     case "{propfile}":
-                        return Settings.SettingsFile;
+                        return Settings.PropertiesFile;
                     case "{aliasfile}":
                         return Settings.AliasesFile;
                     case "{shortcutfile}":
@@ -97,9 +97,9 @@ namespace maple
                 if (filepath.Contains("{mapledir}"))
                     return filepath.Replace("{mapledir}", Settings.MapleDirectory);
                 if (filepath.Contains("{themedir}"))
-                    return filepath.Replace("{themedir}", Settings.ThemeDirectory);
+                    return filepath.Replace("{themedir}", Settings.Properties.ThemeDirectory);
                 if (filepath.Contains("{syntaxdir}"))
-                    return filepath.Replace("{syntaxdir}", Settings.SyntaxDirectory);
+                    return filepath.Replace("{syntaxdir}", Settings.Properties.SyntaxDirectory);
             }
             return filepath; //nothing to change
         }
@@ -195,7 +195,7 @@ namespace maple
                 fullySelected = true;
 
             //print all tokens in line
-            if(!Settings.DebugTokens) //ordinary printing:
+            if(!Settings.Properties.DebugTokens) //ordinary printing:
             {
                 int lineLen = 0;
 
@@ -321,7 +321,7 @@ namespace maple
                 //print overflow indicator
                 if (lineLen - ScrollX + GutterWidth >= Printer.MaxScreenX)
                     Printer.PrintManually(
-                        Settings.OverflowIndicator,
+                        Settings.Properties.OverflowIndicatorChar,
                         Printer.MaxScreenX,
                         lineIndex - ScrollY,
                         (short)(Printer.GetAttributeAtPosition(Printer.MaxScreenX, lineIndex - ScrollY) << 4 & 0x00F0) //set background to old foreground, and foreground to black
@@ -361,12 +361,14 @@ namespace maple
         {
             string gutterContent = (lineIndex + 1).ToString();
             while(gutterContent.Length < GutterWidth - gutterPadding)
-                gutterContent = Settings.GutterLeftPad + gutterContent;
+            {
+                gutterContent = Settings.Properties.GutterLeftPadChar + gutterContent;
+            }
             while(gutterContent.Length < GutterWidth)
             {
                 gutterContent += " ";
                 if (gutterContent.Length == GutterWidth - 1)
-                    gutterContent += Settings.GutterBarrier;
+                    gutterContent += Settings.Properties.GutterBarrier;
             }
 
             return gutterContent;
@@ -429,19 +431,59 @@ namespace maple
         /// </summary>
         public void CalculateScrollIncrement()
         {
-            if (Settings.ScrollYIncrement == -1) //"half"
+            if (Settings.Properties.ScrollYIncrement.Equals("half"))
+            {
                 ScrollYIncrement = (Printer.MaxScreenY - 1) / 2;
-            else if (Settings.ScrollYIncrement == -2) //"full"
+            }
+            else if (Settings.Properties.ScrollYIncrement.Equals("full"))
+            {
                 ScrollYIncrement = (Printer.MaxScreenY - 1);
+            }
             else
-                ScrollYIncrement = Settings.ScrollYIncrement;
+            {
+                int parsedScrollY = 0;
+                bool couldParse = Int32.TryParse(
+                    Settings.Properties.ScrollYIncrement,
+                    System.Globalization.NumberStyles.Integer,
+                    null,
+                    out parsedScrollY
+                    );
+                if (couldParse)
+                {
+                    ScrollYIncrement = parsedScrollY;
+                }
+                else
+                {
+                    Log.Write("Failed to parse ScrollYIncrement, invalid value", "document", important: true);
+                }
+            }
 
-            if (Settings.ScrollXIncrement == -1) //"half"
+            if (Settings.Properties.ScrollXIncrement.Equals("half"))
+            {
                 scrollXIncrement = (Printer.MaxScreenX - 1) / 2;
-            else if (Settings.ScrollXIncrement == -2) //"full"
+            }
+            else if (Settings.Properties.ScrollXIncrement.Equals("full"))
+            {
                 scrollXIncrement = (Printer.MaxScreenX - 1);
+            }
             else
-                scrollXIncrement = Settings.ScrollXIncrement;
+            {
+                int parsedScrollX = 0;
+                bool couldParse = Int32.TryParse(
+                    Settings.Properties.ScrollXIncrement,
+                    System.Globalization.NumberStyles.Integer,
+                    null,
+                    out parsedScrollX
+                    );
+                if (couldParse)
+                {
+                    scrollXIncrement = parsedScrollX;
+                }
+                else
+                {
+                    Log.Write("Failed to parse ScrollXIncrement, invalid value", "document", important: true);
+                }
+            }
         }
 
         /// <summary>
@@ -871,7 +913,7 @@ namespace maple
         public void Deindent()
         {
             string tabString = "";
-            for (int i = 0; i < Settings.TabSpacesCount; i++)
+            for (int i = 0; i < Settings.Properties.TabSpacesCount; i++)
                 tabString += " ";
             
             if (HasSelection())
@@ -1042,7 +1084,7 @@ namespace maple
                     (redo && last.EventType == HistoryEventType.IndentLine))
             {
                 string tabString = "";
-                for (int i = 0; i < Settings.TabSpacesCount; i++) tabString += " ";
+                for (int i = 0; i < Settings.Properties.TabSpacesCount; i++) tabString += " ";
                 for (int i = last.SelectionPoints[0].Y; i <= last.SelectionPoints[1].Y; i++)
                 {
                     SetLine(i, tabString + GetLine(i));

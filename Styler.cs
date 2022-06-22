@@ -27,7 +27,7 @@ namespace maple
 
         public static void LoadMapleTheme()
         {
-            string mapleThemePath = Settings.ThemeDirectory + Settings.ThemeFile;
+            string mapleThemePath = Settings.Properties.ThemeDirectory + Settings.Properties.ThemeFile;
             if (File.Exists(mapleThemePath))
             {
                 AssignThemeColors(mapleThemePath);
@@ -108,7 +108,7 @@ namespace maple
 
         public static ConsoleColor GetColor(TokenType tokenType)
         {
-            if (!Settings.NoHighlight && tokenColors.ContainsKey(tokenType))
+            if (!Settings.Properties.NoHighlight && tokenColors.ContainsKey(tokenType))
                 return tokenColors[tokenType];
             return TextColor;
         }

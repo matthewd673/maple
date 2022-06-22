@@ -26,7 +26,7 @@ namespace maple
             // TODO: move this somewhere else
             if (tabString.Length == 0)
             {
-                for (int i = 0; i < Settings.TabSpacesCount; i++)
+                for (int i = 0; i < Settings.Properties.TabSpacesCount; i++)
                     tabString += " ";
             }
 
@@ -56,7 +56,7 @@ namespace maple
                 // MOVEMENT
                 case ConsoleKey.UpArrow:
                     // create / move selection area
-                    if (Settings.ShiftSelect && keyInfo.Modifiers == ConsoleModifiers.Shift)
+                    if (Settings.Properties.ShiftSelect && keyInfo.Modifiers == ConsoleModifiers.Shift)
                     {
                         if (!docCursor.Doc.HasSelectionStart())
                         {
@@ -83,7 +83,7 @@ namespace maple
 
                     if (docCursor.Doc.HasSelection())
                     {
-                        if (Settings.ArrowsDeselect && keyInfo.Modifiers != ConsoleModifiers.Shift)
+                        if (Settings.Properties.ArrowsDeselect && keyInfo.Modifiers != ConsoleModifiers.Shift)
                         {
                             docCursor.Doc.Deselect();
                             Editor.RefreshAllLines();
@@ -98,7 +98,7 @@ namespace maple
                     break;
                 case ConsoleKey.DownArrow:
                     // create / move selection area
-                    if (Settings.ShiftSelect && keyInfo.Modifiers == ConsoleModifiers.Shift)
+                    if (Settings.Properties.ShiftSelect && keyInfo.Modifiers == ConsoleModifiers.Shift)
                     {
                         if (!docCursor.Doc.HasSelectionStart())
                         {
@@ -125,7 +125,7 @@ namespace maple
 
                     if (docCursor.Doc.HasSelection())
                     {
-                        if (Settings.ArrowsDeselect && keyInfo.Modifiers != ConsoleModifiers.Shift)
+                        if (Settings.Properties.ArrowsDeselect && keyInfo.Modifiers != ConsoleModifiers.Shift)
                         {
                             docCursor.Doc.Deselect();
                             Editor.RefreshAllLines();
@@ -140,7 +140,7 @@ namespace maple
                     break;
                 case ConsoleKey.LeftArrow:
                     // create / move selection area
-                    if (Settings.ShiftSelect && keyInfo.Modifiers == ConsoleModifiers.Shift)
+                    if (Settings.Properties.ShiftSelect && keyInfo.Modifiers == ConsoleModifiers.Shift)
                     {
                         if (!docCursor.Doc.HasSelectionStart())
                         {
@@ -167,7 +167,7 @@ namespace maple
 
                     if (docCursor.Doc.HasSelection())
                     {
-                        if (Settings.ArrowsDeselect && keyInfo.Modifiers != ConsoleModifiers.Shift)
+                        if (Settings.Properties.ArrowsDeselect && keyInfo.Modifiers != ConsoleModifiers.Shift)
                         {
                             docCursor.Doc.Deselect();
                             Editor.RefreshAllLines();
@@ -182,7 +182,7 @@ namespace maple
                     break;
                 case ConsoleKey.RightArrow:
                     // create / move selection area
-                    if (Settings.ShiftSelect && keyInfo.Modifiers == ConsoleModifiers.Shift)
+                    if (Settings.Properties.ShiftSelect && keyInfo.Modifiers == ConsoleModifiers.Shift)
                     {
                         if (!docCursor.Doc.HasSelectionStart())
                         {
@@ -209,7 +209,7 @@ namespace maple
                     
                     if (docCursor.Doc.HasSelection())
                     {
-                        if (Settings.ArrowsDeselect && keyInfo.Modifiers != ConsoleModifiers.Shift)
+                        if (Settings.Properties.ArrowsDeselect && keyInfo.Modifiers != ConsoleModifiers.Shift)
                         {
                             docCursor.Doc.Deselect();
                             Editor.RefreshAllLines();
@@ -387,7 +387,7 @@ namespace maple
             c.Move(maxCursorX, c.DY); //attempt to move to max x position
 
             //for debugtokens
-            if (Settings.DebugTokens && c.DY + 1 <= c.Doc.GetMaxLine())
+            if (Settings.Properties.DebugTokens && c.DY + 1 <= c.Doc.GetMaxLine())
                 Editor.RefreshLine(c.DY + 1);
         }
 
@@ -397,7 +397,7 @@ namespace maple
             c.Move(maxCursorX, c.DY); //attempt to move to max x position
 
             //for debugtokens
-            if (Settings.DebugTokens && c.DY - 1 >= 0)
+            if (Settings.Properties.DebugTokens && c.DY - 1 >= 0)
                 Editor.RefreshLine(c.DY - 1);
         }
 
@@ -415,7 +415,7 @@ namespace maple
 
         static void HandleRight(DocumentCursor c)
         {
-            if (Settings.NavigatePastTabs && c.Doc.GetTextAtPosition(c.DX, c.DY).StartsWith(tabString)) //can skip, do so
+            if (Settings.Properties.NavigatePastTabs && c.Doc.GetTextAtPosition(c.DX, c.DY).StartsWith(tabString)) //can skip, do so
             {
                 c.Move(c.DX + tabString.Length, c.DY, applyPosition: false);
             }
@@ -441,12 +441,12 @@ namespace maple
             int charsDeleted = 0;
             if(c.DX > 0) // not at the beginning of the line
             {
-                if (Settings.DeleteEntireTabs // fancy tab delete
-                    && c.DX >= Settings.TabSpacesCount
-                    && c.Doc.GetTextAtPosition(c.DX - Settings.TabSpacesCount, c.DY).StartsWith(tabString))
+                if (Settings.Properties.DeleteEntireTabs // fancy tab delete
+                    && c.DX >= Settings.Properties.TabSpacesCount
+                    && c.Doc.GetTextAtPosition(c.DX - Settings.Properties.TabSpacesCount, c.DY).StartsWith(tabString))
                     {
                         string deletedChars = "";
-                        for(int i = 0; i < Settings.TabSpacesCount; i++)
+                        for(int i = 0; i < Settings.Properties.TabSpacesCount; i++)
                         {
                             string backspaceChar = c.Doc.RemoveTextAtPosition(c.DX - 1, c.DY);
                             if (backspaceChar.Length != 0) // success!
@@ -558,9 +558,9 @@ namespace maple
             else // basic delete
             {
                 string deletedChars = "";
-                if (Settings.DeleteEntireTabs && c.Doc.GetTextAtPosition(c.DX, c.DY).StartsWith(tabString))
+                if (Settings.Properties.DeleteEntireTabs && c.Doc.GetTextAtPosition(c.DX, c.DY).StartsWith(tabString))
                 {
-                    for (int i = 0; i < Settings.TabSpacesCount; i++)
+                    for (int i = 0; i < Settings.Properties.TabSpacesCount; i++)
                         deletedChars = deletedChars + c.Doc.RemoveTextAtPosition(c.DX, c.DY);
                 }
                 else
@@ -590,7 +590,7 @@ namespace maple
 
             //insert tab string at beginning of new line
             string newLineTabString = "";
-            if (Settings.PreserveIndentOnEnter)
+            if (Settings.Properties.PreserveIndentOnEnter)
             {
                 string lineTabSearchString = c.Doc.GetLine(c.DY);
                 while (lineTabSearchString.StartsWith(tabString))
@@ -607,7 +607,7 @@ namespace maple
             string followingText = followingTextLine.Substring(c.DX); // get text following cursor (on current line)
 
             // remove tab string from beginning of following line
-            if (Settings.PreserveIndentOnEnter)
+            if (Settings.Properties.PreserveIndentOnEnter)
             {
                 while (followingText.StartsWith(tabString))
                 {
@@ -650,7 +650,7 @@ namespace maple
         static void HandleTab(DocumentCursor c, ConsoleKeyInfo keyInfo)
         {
             Point initialCursorPos = new Point(c.DX, c.DY);
-            if (Settings.ShiftDeindent && keyInfo.Modifiers == ConsoleModifiers.Shift)
+            if (Settings.Properties.ShiftDeindent && keyInfo.Modifiers == ConsoleModifiers.Shift)
             {
                 c.Doc.Deindent();
                 c.Doc.LogHistoryEvent(new HistoryEvent(
@@ -781,12 +781,12 @@ namespace maple
                 Editor.RefreshLine(c.DY);
             }
             // attempt autocomplete, if enabled
-            if (Settings.Autocomplete)
+            if (Settings.Properties.Autocomplete)
             {
-                int autocompleteIndex = Settings.AutocompleteOpeningChars.IndexOf(keyInfo.KeyChar);
+                int autocompleteIndex = Settings.Properties.AutocompleteOpeningChars.IndexOf(keyInfo.KeyChar);
                 if (autocompleteIndex != -1)
                 {
-                    string autocompleteText = Settings.AutocompleteEndingChars[autocompleteIndex].ToString();
+                    string autocompleteText = Settings.Properties.AutocompleteEndingChars[autocompleteIndex].ToString();
                     c.Doc.AddTextAtPosition(c.DX, c.DY, autocompleteText);
                     // autocomplete events are logged in history separately
                     c.Doc.LogHistoryEvent(new HistoryEvent(
@@ -824,7 +824,7 @@ namespace maple
             Footer.PrintFooter();
             if(CurrentTarget == InputTarget.Document)
             {
-                if (Settings.ClearOutputOnToggle)
+                if (Settings.Properties.ClearOutputOnToggle)
                 {
                     CommandLine.ClearOutput();
                 }

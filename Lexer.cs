@@ -36,7 +36,7 @@ namespace maple
                 Log.Write("Syntax path doesn't exist at '" + syntaxPath + "', falling back to default", "lexer", important: true);
 
                 //fallback to default
-                syntaxPath = Settings.SyntaxDirectory + "default.xml";
+                syntaxPath = Settings.Properties.SyntaxDirectory + "default.xml";
                 if (!File.Exists(syntaxPath))
                 {
                     Log.Write("Default syntax file doesn't exist at '" + syntaxPath + "'", "lexer", important: true);
@@ -190,7 +190,7 @@ namespace maple
 
             // post-process
             // search for trailing whitespace and mark it as such
-            if (Settings.HighlightTrailingWhitespace && tokens.Count > 0 && tokens[tokens.Count - 1].TType == TokenType.Whitespace)
+            if (Settings.Properties.HighlightTrailingWhitespace && tokens.Count > 0 && tokens[tokens.Count - 1].TType == TokenType.Whitespace)
             {
                 tokens[tokens.Count - 1].TType = TokenType.TrailingWhitespace;
             }
@@ -200,7 +200,7 @@ namespace maple
 
         public static List<Token> Tokenize(string text)
         {
-            if (Settings.NoTokenize)
+            if (Settings.Properties.NoTokenize)
                 return new List<Token> { new Token(text, TokenType.None) };
             else
                 return InternalTokenizer(text, rules, keywords);

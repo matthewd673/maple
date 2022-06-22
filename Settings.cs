@@ -2,270 +2,173 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
+using System.Xml.Serialization;
 using System.Reflection;
 using System.Text;
 
 namespace maple
 {
+
+    public class Properties
+    {
+        public bool DebugTokens { get; set; } = false;
+        public bool NoHighlight { get; set; } = false;
+        public bool NoTokenize { get; set; } = false;
+        public bool CliNoHighlight { get; set; } = false;
+        public bool RelativePath { get; set; } = false;
+        public bool NavigatePastTabs { get; set; } = true;
+        public bool DeleteEntireTabs { get; set; } = true;
+        public bool ReadOnly
+        {
+            get { return Input.ReadOnly; }
+            set { Input.ReadOnly = value; }
+        }
+        public bool EnableLogging { get; set; } = true;
+        public bool SummarizeLog { get; set; } = false;
+        public bool SaveOnClose { get; set; } = false;
+        public bool PreserveIndentOnEnter { get; set; } = true;
+        public bool ShiftSelect { get; set; } = true;
+        public bool ShiftDeindent { get; set; } = true;
+        public bool ArrowsDeselect { get; set; } = true;
+        public bool ClearOutputOnToggle { get; set; } = true;
+        public bool ColorOutputBackground { get; set; } = true;
+        public bool HighlightTrailingWhitespace { get; set; } = false;
+        public bool Autocomplete { get; set; } = true;
+        public bool AutoResize { get; set; } = true;
+
+        private string _themeDirectory = Path.Combine(Settings.MapleDirectory, "themes");
+        public string ThemeDirectory
+        {
+            get { return _themeDirectory; }
+            set
+            {
+                _themeDirectory = value.Replace("{mapledir}", Settings.MapleDirectory);
+            }
+        }
+        public string ThemeFile { get; set; } = "maple.xml";
+        private string _syntaxDirectory = Path.Combine(Settings.MapleDirectory, "syntax");
+        public string SyntaxDirectory
+        {
+            get { return _syntaxDirectory; }
+            set
+            {
+                _syntaxDirectory = value.Replace("{mapledir}", Settings.MapleDirectory);
+            }
+        }
+        public int TabSpacesCount { get; set; } = 4;
+        public string ScrollYIncrement { get; set; } = "half";
+        public string ScrollXIncrement { get; set; } = "half";
+        public int HistoryMaxSize { get; set; } = 5000; // arbitrary
+
+        public string FooterFormat { get; set; } = "maple {filepath}{-}{lncol}"; // super simple default
+        public string FooterSeparator { get; set; } = " ";
+        public string GutterLeftPad { get; set; } = "0";
+        public char GutterLeftPadChar { get { return GutterLeftPad[0]; }}
+
+        public string GutterBarrier { get; set; } = " ";
+        public char GutterBarrierChar { get { return GutterBarrier[0]; }}
+        public string OverflowIndicator { get; set; } = "…";
+        public char OverflowIndicatorChar { get { return OverflowIndicator[0]; }}
+        public string DefaultEncoding { get; set; } = "utf8";
+        public List<char> AutocompleteOpeningChars { get; set; } = new List<char>();
+        public List<char> AutocompleteEndingChars { get; set; } = new List<char>();
+    }
+
     static class Settings
     {
         // directories, these aren't user-defined
         public static string MapleDirectory { get; private set; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        public static string SettingsFile { get; } = Path.Combine(MapleDirectory, "properties", "properties.xml");
+        public static string PropertiesFile { get; } = Path.Combine(MapleDirectory, "properties", "properties.xml");
         public static string AliasesFile { get; } = Path.Combine(MapleDirectory, "properties", "aliases.xml");
         public static string ShortcutsFile { get; } = Path.Combine(MapleDirectory, "properties", "shortcuts.xml");
 
-        // properties
-        public static bool DebugTokens { get; set; } = false;
-        public static bool NoHighlight { get; set; } = false;
-        public static bool NoTokenize { get; set; } = false;
-        public static bool CliNoHighlight { get; set; } = false;
-        public static bool RelativePath { get; set; } = false;
-        public static bool NavigatePastTabs { get; set; } = true;
-        public static bool DeleteEntireTabs { get; set; } = true;
-        public static bool EnableLogging { get; set; } = true;
-        public static bool SummarizeLog { get; set; } = false;
-        public static bool SaveOnClose { get; set; } = false;
-        public static bool PreserveIndentOnEnter { get; set; } = true;
-        public static bool ShiftSelect { get; set; } = true;
-        public static bool ShiftDeindent { get; set; } = true;
-        public static bool ArrowsDeselect { get; set; } = true;
-        public static bool ClearOutputOnToggle { get; set; } = true;
-        public static bool ColorOutputBackground { get; set; } = true;
-        public static bool HighlightTrailingWhitespace { get; set; } = false;
-        public static bool Autocomplete { get; set; } = true;
-        public static bool AutoResize { get; set; } = true;
-        public static bool EnableHistoryDebugLog { get; set; } = false;
-
-        // non-true/false properties
-        public static string ThemeDirectory { get; private set; } = Path.Combine(MapleDirectory, "themes");
-        public static string ThemeFile { get; private set; } = "maple.xml";
-        public static string SyntaxDirectory { get; private set; } = Path.Combine(MapleDirectory, "syntax");
-        public static int TabSpacesCount { get; private set; } = 4;
-        public static int ScrollYIncrement { get; private set; } = -1;
-        public static int ScrollXIncrement { get; private set; } = -1;
-        public static int HistoryMaxSize { get; private set; } = 5000; // arbitrary
-
-        // editor customizations
-        public static string FooterFormat { get; private set; } = "maple{-}{filepath}{-}{lncol}"; // super simple default
-        public static string FooterSeparator { get; private set; } = " ";
-        public static char GutterLeftPad { get; private set; } = '0';
-        public static char GutterBarrier { get; private set; } = ' ';
-        public static char OverflowIndicator { get; private set; } = '…';
-        public static Encoding DefaultEncoding { get; private set; } = Encoding.UTF8;
-        public static List<char> AutocompleteOpeningChars { get; private set; } = new List<char>();
-        public static List<char> AutocompleteEndingChars { get; private set; } = new List<char>();
-
-        static List<string> ignoreList = new List<string>(); // stores a list of settings to ignore when loading
+        private static Dictionary<string, ConsoleKey> stringToConsoleKeyTable = new()
+        {
+            { "A", ConsoleKey.A },
+            { "a", ConsoleKey.A },
+            { "B", ConsoleKey.B },
+            { "b", ConsoleKey.B },
+            { "C", ConsoleKey.C },
+            { "c", ConsoleKey.C },
+            { "D", ConsoleKey.D },
+            { "d", ConsoleKey.D },
+            { "E", ConsoleKey.E },
+            { "e", ConsoleKey.E },
+            { "F", ConsoleKey.F },
+            { "f", ConsoleKey.F },
+            { "G", ConsoleKey.G },
+            { "g", ConsoleKey.G },
+            { "H", ConsoleKey.H },
+            { "h", ConsoleKey.H },
+            { "I", ConsoleKey.I },
+            { "i", ConsoleKey.I },
+            { "J", ConsoleKey.J },
+            { "j", ConsoleKey.J },
+            { "K", ConsoleKey.K },
+            { "k", ConsoleKey.K },
+            { "L", ConsoleKey.L },
+            { "l", ConsoleKey.L },
+            { "M", ConsoleKey.M },
+            { "m", ConsoleKey.M },
+            { "N", ConsoleKey.N },
+            { "n", ConsoleKey.N },
+            { "O", ConsoleKey.O },
+            { "o", ConsoleKey.O },
+            { "P", ConsoleKey.P },
+            { "p", ConsoleKey.P },
+            { "Q", ConsoleKey.Q },
+            { "q", ConsoleKey.Q },
+            { "R", ConsoleKey.R },
+            { "r", ConsoleKey.R },
+            { "S", ConsoleKey.S },
+            { "s", ConsoleKey.S },
+            { "T", ConsoleKey.T },
+            { "t", ConsoleKey.T },
+            { "U", ConsoleKey.U },
+            { "u", ConsoleKey.U },
+            { "V", ConsoleKey.V },
+            { "v", ConsoleKey.V },
+            { "W", ConsoleKey.W },
+            { "w", ConsoleKey.W },
+            { "X", ConsoleKey.X },
+            { "x", ConsoleKey.X },
+            { "Y", ConsoleKey.Y },
+            { "y", ConsoleKey.Y },
+            { "Z", ConsoleKey.Z },
+            { "z", ConsoleKey.Z }
+        };
 
         public static Dictionary<string, string> Aliases { get; private set; } = new();
         public static Dictionary<ConsoleKey, ShortcutInfo> Shortcuts { get; private set; } = new();
 
-        public static void IgnoreSetting(string name)
+        public static Properties Properties { get; private set; } = new Properties();
+
+        public static Properties ReadProperties(string filename)
         {
-            ignoreList.Add(name.ToLower());
+            XmlSerializer serializer = new XmlSerializer(typeof(Properties));
+
+            serializer.UnknownNode += new XmlNodeEventHandler(serializer_UnknownNode);
+            serializer.UnknownAttribute += new XmlAttributeEventHandler(serializer_UnknownAttribute);
+
+            FileStream stream = new FileStream(filename, FileMode.Open);
+            return (Properties)serializer.Deserialize(stream);
+        }
+
+        private static void serializer_UnknownNode(object sender, XmlNodeEventArgs e)
+        {
+            Log.Write(String.Format("Encounted an unknwon node while deserializing (line {0})", e.LineNumber), "settings", important: true);
+            CommandLine.SetOutput("Encountered an unknown node while deserializing", "settings", oType: CommandLine.OutputType.Error);
+        }
+
+        private static void serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e)
+        {
+            Log.Write(String.Format("Encounted an unknwon attribute while deserializing (line {0})", e.LineNumber), "settings", important: true);
+            CommandLine.SetOutput("Encountered an unknwon attribute while deserializing", "settings", oType: CommandLine.OutputType.Error);
         }
 
         public static void LoadSettings()
         {
-            XmlDocument document = new XmlDocument();
-            document.PreserveWhitespace = true;
-
-            if (!File.Exists(SettingsFile))
-            {
-                Log.Write("Settings file doesn't exist at '" + SettingsFile + "'", "settings", important: true);
-                return;
-            }
-
-            try
-            {
-                document.Load(SettingsFile);
-            }
-            catch (Exception e)
-            {
-                CommandLine.SetOutput("Encountered an exception while loading properties XML", "maple", oType: CommandLine.OutputType.Error);
-                Log.Write("Encountered exception while loading properties XML: " + e.Message, "settings", important: true);
-                return;
-            }
-
-            XmlNodeList properties = document.GetElementsByTagName("property");
-            foreach(XmlNode node in properties)
-            {
-                string name = "";
-                string value = "";
-                foreach(XmlAttribute a in node.Attributes)
-                {
-                    if(a.Name.ToLower() != "name")
-                        return;
-                    
-                    name = a.Value.ToLower();
-                }
-                value = node.InnerText.ToLower();
-
-                if (ignoreList.Contains(name)) //skip all settings in ignore list
-                    continue;
-
-                switch(name)
-                {
-                    //SWITCHES
-                    case "debugtokens":
-                        DebugTokens = IsTrue(value);
-                        break;
-                    case "nohighlight":
-                        NoHighlight = IsTrue(value);
-                        break;
-                    case "notokenize":
-                        NoTokenize = IsTrue(value);
-                        break;
-                    case "clinohighlight":
-                        CliNoHighlight = IsTrue(value);
-                        break;
-                    case "relativepath":
-                        RelativePath = IsTrue(value);
-                        if (RelativePath)
-                            MapleDirectory = Directory.GetCurrentDirectory();
-                        break;
-                    case "navigatepasttabs":
-                        NavigatePastTabs = IsTrue(value);
-                        break;
-                    case "deleteentiretabs":
-                        DeleteEntireTabs = IsTrue(value);
-                        break;
-                    case "readonly":
-                        Input.ReadOnly = IsTrue(value);
-                        break;
-                    case "enablelogging":
-                        EnableLogging = IsTrue(value);
-                        break;
-                    case "summarizelog":
-                        SummarizeLog = IsTrue(value);
-                        break;
-                    case "saveonclose":
-                        SaveOnClose = IsTrue(value);
-                        break;
-                    case "preserveidentonenter":
-                        PreserveIndentOnEnter = IsTrue(value);
-                        break;
-                    case "shiftselect":
-                        ShiftSelect = IsTrue(value);
-                        break;
-                    case "shiftdeindent":
-                        ShiftDeindent = IsTrue(value);
-                        break;
-                    case "arrowsdeselect":
-                        ArrowsDeselect = IsTrue(value);
-                        break;
-                    case "clearoutputontoggle":
-                        ClearOutputOnToggle = IsTrue(value);
-                        break;
-                    case "coloroutputbackground":
-                        ColorOutputBackground = IsTrue(value);
-                        break;
-                    case "highlighttrailingwhitespace":
-                        HighlightTrailingWhitespace = IsTrue(value);
-                        break;
-                    case "autocomplete":
-                        Autocomplete = IsTrue(value);
-                        break;
-                    case "autoresize":
-                        AutoResize = IsTrue(value);
-                        break;
-                    case "enablehistorydebuglog":
-                        EnableHistoryDebugLog = IsTrue(value);
-                        break;
-
-                    //ARGUMENTS
-                    case "themedirectory":
-                        ThemeDirectory = value;
-                        if(!ThemeDirectory.EndsWith("/"))
-                            ThemeDirectory += "/";
-                        ThemeDirectory = ThemeDirectory.Replace("{mapledir}", MapleDirectory);
-                        break;
-                    case "themefile":
-                        ThemeFile = value;
-                        break;
-                    case "syntaxdirectory":
-                        SyntaxDirectory = value;
-                        if (!SyntaxDirectory.EndsWith("/"))
-                            SyntaxDirectory += "/";
-                        SyntaxDirectory = SyntaxDirectory.Replace("{mapledir}", MapleDirectory);
-                        break;
-                    case "tabspacescount":
-                        TabSpacesCount = Convert.ToInt32(value);
-                        break;
-                    case "scrollyincrement":
-                        if (value.Equals("half"))
-                            ScrollYIncrement = -1;
-                        else if (value.Equals("full"))
-                            ScrollYIncrement = -2;
-                        else
-                            ScrollYIncrement = Math.Abs(Convert.ToInt32(value));
-                        break;
-                    case "scrollxincrement":
-                        if (value.Equals("half"))
-                            ScrollXIncrement = -1;
-                        else if (value.Equals("full"))
-                            ScrollXIncrement = -2;
-                        else
-                            ScrollXIncrement = Math.Abs(Convert.ToInt32(value));
-                        break;
-                    case "defaultencoding":
-                        if (value.Equals("utf8"))
-                            DefaultEncoding = Encoding.UTF8;
-                        else if (value.Equals("ascii"))
-                            DefaultEncoding = Encoding.ASCII;
-                        else
-                            Log.Write("Invalid DefaultEncoding value", "styler", important: true);
-                        break;
-                    case "historymaxsize":
-                        HistoryMaxSize = Math.Abs(Convert.ToInt32(value));
-                        break;
-
-                    //EDITOR CUSTOMIZATIONS
-                    case "footerformat":
-                        FooterFormat = value;
-                        break;
-                    case "footerseparator":
-                        FooterSeparator = value;
-                        break;
-                    case "gutterleftpad":
-                        if (value.Length > 1 || value.Length == 0)
-                            Log.Write("GutterLeftPad value must be 1 character", "styler", important: true);
-                        else
-                            GutterLeftPad = value.ToCharArray()[0];
-                        break;
-                    case "gutterbarrier":
-                        if (value.Length > 1 || value.Length == 0)
-                            Log.Write("GutterBarrier value must be 1 character", "styler", important: true);
-                        else
-                            GutterBarrier = value.ToCharArray()[0];
-                        break;
-                    case "overflowindicator":
-                        if (value.Length > 1 || value.Length == 0)
-                            Log.Write("OverflowIndicator value must be 1 character", "styler", important: true);
-                        else
-                            OverflowIndicator = value.ToCharArray()[0];
-                        break;
-                    case "autocompletepairings":
-                        if (value.Length % 2 == 1)
-                        {
-                            Log.Write("Uneven autocomplete pairings defined, they will not be loaded", "styler", important: true);
-                            break;
-                        }
-                        for (int i = 0; i < value.Length; i++) {
-                            if (i % 2 == 0)
-                                AutocompleteOpeningChars.Add(value[i]);
-                            else
-                                AutocompleteEndingChars.Add(value[i]);
-                        }
-                        break;
-
-                    default:
-                        Log.Write("Encountered unknown property '" + name + "'", "settings", important: true);
-                        break;
-                }
-            }
-
+            Properties = ReadProperties(PropertiesFile);
         }
 
         public static void LoadAliases()
@@ -339,7 +242,7 @@ namespace maple
                 foreach (XmlAttribute a in node.Attributes)
                 {
                     if (a.Name.ToLower().Equals("key"))
-                        key = CharToConsoleKey(a.Value.ToLower().ToCharArray()[0]);
+                        key = StringToConsoleKey(a.Value);
                     else if (a.Name.ToLower().Equals("execute"))
                         execute = IsTrue(a.Value.ToLower());
                 }
@@ -350,91 +253,16 @@ namespace maple
             }
         }
 
-        public static ConsoleKey CharToConsoleKey(char c)
+        public static ConsoleKey StringToConsoleKey(string s)
         {
-            switch (c)
+            try
             {
-                case 'A':
-                case 'a':
-                    return ConsoleKey.A;
-                case 'B':
-                case 'b':
-                    return ConsoleKey.B;
-                case 'C':
-                case 'c':
-                    return ConsoleKey.C;
-                case 'D':
-                case 'd':
-                    return ConsoleKey.D;
-                case 'E':
-                case 'e':
-                    return ConsoleKey.E;
-                case 'F':
-                case 'f':
-                    return ConsoleKey.F;
-                case 'G':
-                case 'g':
-                    return ConsoleKey.G;
-                case 'H':
-                case 'h':
-                    return ConsoleKey.H;
-                case 'I':
-                case 'i':
-                    return ConsoleKey.I;
-                case 'J':
-                case 'j':
-                    return ConsoleKey.J;
-                case 'K':
-                case 'k':
-                    return ConsoleKey.K;
-                case 'L':
-                case 'l':
-                    return ConsoleKey.L;
-                case 'M':
-                case 'm':
-                    return ConsoleKey.M;
-                case 'N':
-                case 'n':
-                    return ConsoleKey.N;
-                case 'O':
-                case 'o':
-                    return ConsoleKey.O;
-                case 'P':
-                case 'p':
-                    return ConsoleKey.P;
-                case 'Q':
-                case 'q':
-                    return ConsoleKey.Q;
-                case 'R':
-                case 'r':
-                    return ConsoleKey.R;
-                case 'S':
-                case 's':
-                    return ConsoleKey.S;
-                case 'T':
-                case 't':
-                    return ConsoleKey.T;
-                case 'U':
-                case 'u':
-                    return ConsoleKey.U;
-                case 'V':
-                case 'v':
-                    return ConsoleKey.V;
-                case 'W':
-                case 'w':
-                    return ConsoleKey.W;
-                case 'X':
-                case 'x':
-                    return ConsoleKey.X;
-                case 'Y':
-                case 'y':
-                    return ConsoleKey.Y;
-                case 'Z':
-                case 'z':
-                    return ConsoleKey.Z;
+                return stringToConsoleKeyTable[s];
             }
-
-            return ConsoleKey.NoName; //there is not "null" so this is the best I can do
+            catch (Exception)
+            {
+                return ConsoleKey.NoName;
+            }
         }
 
         public static bool IsTrue(string value)

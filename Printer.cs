@@ -639,13 +639,13 @@ namespace maple
             {
                 if (i > buf.Length) //complete overflow
                 {
-                    buf[buf.Length - 1].Char.UnicodeChar = Settings.OverflowIndicator;
+                    buf[buf.Length - 1].Char.UnicodeChar = Settings.Properties.OverflowIndicatorChar;
                     buf[buf.Length - 1].Attributes = attribute;
                     break;
                 }
                 if (i == buf.Length || (i > index && i % bufWidth == 0)) //line overflow
                 {
-                    buf[i - 1].Char.UnicodeChar = Settings.OverflowIndicator;
+                    buf[i - 1].Char.UnicodeChar = Settings.Properties.OverflowIndicatorChar;
                     buf[i - 1].Attributes = attribute;
                     break;
                 }

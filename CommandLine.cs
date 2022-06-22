@@ -339,11 +339,24 @@ namespace maple
                 savePath = args[0];
             savePath = savePath.Trim('\"');
 
-            Encoding encoding = Settings.DefaultEncoding;
-            if (switches.Contains("--utf8"))
+            Encoding encoding = Encoding.UTF8;
+            if (Settings.Properties.DefaultEncoding.Equals("utf8"))
+            {
                 encoding = Encoding.UTF8;
-            else if (switches.Contains("--ascii"))
+            }
+            else if (Settings.Properties.DefaultEncoding.Equals("ascii"))
+            {
                 encoding = Encoding.ASCII;
+            }
+
+            if (switches.Contains("--utf8"))
+            {
+                encoding = Encoding.UTF8;
+            }
+            else if (switches.Contains("--ascii"))
+            {
+                encoding = Encoding.ASCII;
+            }
 
             Editor.DocCursor.Doc.SaveDocument(savePath, encoding);
 
@@ -404,7 +417,7 @@ namespace maple
 
         static void CloseCommand()
         {
-            if (Settings.SaveOnClose) //call save command first
+            if (Settings.Properties.SaveOnClose) //call save command first
                 SaveCommand(new List<string>(), new List<string>());
             Program.Close();
         }
@@ -484,7 +497,7 @@ namespace maple
                 return;
             }
 
-            Lexer.LoadSyntax(Settings.SyntaxDirectory + args[0] + ".xml");
+            Lexer.LoadSyntax(Settings.Properties.SyntaxDirectory + args[0] + ".xml");
 
             Editor.CurrentDoc.ForceReTokenize();
             // Printer.Clear();
@@ -848,8 +861,8 @@ namespace maple
                 return;
             }
 
-            args[0] = args[0].ToUpper(); //stylistic
-            ConsoleKey key = Settings.CharToConsoleKey(args[0].ToCharArray()[0]);
+            args[0] = args[0].ToUpper(); // stylistic
+            ConsoleKey key = Settings.StringToConsoleKey(args[0]);
             if (!Settings.Shortcuts.ContainsKey(key))
             {
                 SetOutput(String.Format("Ctrl+{0} is not a shortcut", args[0]), "shortcut");

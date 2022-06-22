@@ -1,40 +1,35 @@
-﻿<xml>
-    <!--Switches-->
-    <property name="debugTokens">False</property>
-    <property name="noHighlight">False</property>
-    <property name="noTokenize">False</property>
-    <property name="cliNoHighlight">False</property>
-    <property name="relativePath">False</property>
-    <property name="navigatePastTabs">True</property>
-    <property name="deleteEntireTabs">True</property>
-    <property name="readonly">False</property>
-    <property name="enableLogging">True</property>
-    <property name="summarizeLog">False</property>
-    <property name="saveOnClose">False</property>
-    <property name="preserveIndentOnEnter">True</property>
-    <property name="shiftSelect">True</property>
-    <property name="shiftDeindent">True</property>
-    <property name="arrowsDeselect">True</property>
-    <property name="clearOutputOnToggle">False</property>
-    <property name="colorOutputBackground">True</property>
-    <property name="highlightTrailingWhitespace">False</property>
-    <property name="autocomplete">True</property>
-    <property name="autoResize">True</property>
-    <property name="enableHistoryDebugLog">True</property>
-    <!--Arguments-->
-    <property name="themeDirectory">{mapledir}\themes</property>
-    <property name="themeFile">maple.xml</property>
-    <property name="syntaxDirectory">{mapledir}\syntax</property>
-    <property name="tabSpacesCount">4</property>
-    <property name="scrollYIncrement">half</property>
-    <property name="scrollXIncrement">half</property>
-    <property name="defaultEncoding">utf8</property>
-    <property name="historyMaxSize">5000</property>
-    <!--Editor Customizations-->
-    <property name="footerFormat">maple {filename}{-}{lncol}{-}{selection}{-}{readonly}</property>
-    <property name="footerSeparator"> </property>
-    <property name="gutterLeftPad">0</property>
-    <property name="gutterBarrier"> </property>
-    <property name="overflowIndicator">…</property>
-    <property name="autocompletePairings">()[]{}""''</property>
-</xml>
+﻿<Properties>
+    <DebugTokens>false</DebugTokens>
+    <NoHighlight>false</NoHighlight>
+    <NoTokenize>false</NoTokenize>
+    <CliNoHighlight>false</CliNoHighlight>
+    <RelativePath>false</RelativePath>
+    <NavigatePastTabs>true</NavigatePastTabs>
+    <DeleteEntireTabs>true</DeleteEntireTabs>
+    <ReadOnly>false</ReadOnly>
+    <EnableLogging>true</EnableLogging>
+    <SummarizeLog>false</SummarizeLog>
+    <SaveOnClose>false</SaveOnClose>
+    <PreserveIndentOnEnter>true</PreserveIndentOnEnter>
+    <ShiftSelect>true</ShiftSelect>
+    <ShiftDeindent>true</ShiftDeindent>
+    <ArrowsDeselect>true</ArrowsDeselect>
+    <ClearOutputOnToggle>false</ClearOutputOnToggle>
+    <ColorOutputBackground>true</ColorOutputBackground>
+    <HighlightTrailingWhitespace>false</HighlightTrailingWhitespace>
+    <Autocomplete>true</Autocomplete>
+    <AutoResize>true</AutoResize>
+    
+    <ThemeDirectory>{mapledir}\themes\</ThemeDirectory>
+    <ThemeFile>maple.xml</ThemeFile>
+    <SyntaxDirectory>{mapledir}\syntax\</SyntaxDirectory>
+    <TabSpacesCount>4</TabSpacesCount>
+    <ScrollYIncrement>half</ScrollYIncrement>
+    <ScrollXIncrement>half</ScrollXIncrement>
+    <DefaultEncoding>utf8</DefaultEncoding>
+    <HistoryMaxSize>5000</HistoryMaxSize>
+
+    <GutterLeftPad>0</GutterLeftPad>
+    <GutterBarrier> </GutterBarrier>
+    <OverflowIndicator>…</OverflowIndicator>
+</Properties>

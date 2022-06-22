@@ -29,44 +29,36 @@ namespace maple
                 );
 
             Log.Write("Loading settings from switches", "program");
-            //load settings from switches
+            // load settings from switches
             foreach(string sw in runInfo.Switches)
             {
                 switch(sw)
                 {
                     case "--debug-tokens":
-                        Settings.DebugTokens = true;
-                        Settings.IgnoreSetting("debugtokens");
+                        Settings.Properties.DebugTokens = true;
                         break;
                     case "--no-highlight":
-                        Settings.NoHighlight = true;
-                        Settings.IgnoreSetting("nohighlight");
+                        Settings.Properties.NoHighlight = true;
                         break;
                     case "--no-tokenize":
-                        Settings.NoTokenize = true;
-                        Settings.IgnoreSetting("notokenize");
+                        Settings.Properties.NoTokenize = true;
                         break;
                     case "--cli-no-highlight":
-                        Settings.CliNoHighlight = true;
-                        Settings.IgnoreSetting("clinohighlight");
+                        Settings.Properties.CliNoHighlight = true;
                         break;
                     case "-ro":
                     case "--relative-path":
-                        Settings.RelativePath = true;
-                        Settings.IgnoreSetting("relativepath");
+                        Settings.Properties.RelativePath = true;
                         break;
                     case "--readonly":
                         Input.ReadOnly = true;
-                        Settings.IgnoreSetting("readonly");
                         break;
                     case "-log":
                     case "--enable-logging":
-                        Settings.EnableLogging = true;
-                        Settings.IgnoreSetting("enablelogging");
+                        Settings.Properties.EnableLogging = true;
                         break;
                     case "--summarize-log":
-                        Settings.EnableLogging = true;
-                        Settings.IgnoreSetting("summarizelog");
+                        Settings.Properties.EnableLogging = true;
                         break;
                     default:
                         Log.Write("Encountered unknown switch '" + sw + "'", "program", important: true);
@@ -75,27 +67,27 @@ namespace maple
             }
 
             Log.Write("Loading settings & aliases", "program");
-            //load settings
+            // load settings
             Settings.LoadSettings();
             Settings.LoadAliases();
             Settings.LoadShortcuts();
 
-            //delete log file and pretend nothing happened if logging is actually disabled
-            if (!Settings.EnableLogging)
+            // delete log file and pretend nothing happened if logging is actually disabled
+            if (!Settings.Properties.EnableLogging)
                 Log.DisableLogging();
 
             Log.Write("Loading theme", "program");
-            //prepare styler
+            // prepare styler
             Styler.LoadMapleTheme();
 
-            //handle input
-            //load file
+            // handle input
+            // load file
             if (args.Length > 0)
             {
                 Log.Write("Initializing editor with file '" + runInfo.Args[0] + "'", "program");
                 Editor.Initialize(runInfo.Args[0]);
             }
-            else //no argument provided
+            else // no argument provided
             {
                 Log.Write("No file provided in args, defaulting to about", "program", important: true);
                 Printer.PrintLineSimple("maple - terminal text editor | https://github.com/matthewd673/maple", Styler.AccentColor);
@@ -104,7 +96,7 @@ namespace maple
                 return;
             }
 
-            //send control to editor
+            // send control to editor
             Log.Write("Entering editor input loop", "program");
             Editor.BeginInputLoop();
 
@@ -135,10 +127,10 @@ namespace maple
                 Log.Write("Cleaned empty, newly-created file '" + Editor.CurrentDoc.Filepath + "'", "program", important: true);
             }
 
-            if (Settings.SummarizeLog)
+            if (Settings.Properties.SummarizeLog)
             {
                 Console.ForegroundColor = ConsoleColor.Cyan;
-                if (Settings.EnableLogging)
+                if (Settings.Properties.EnableLogging)
                     Console.WriteLine("{0} important/unusual log event(s) occurred in the last session", Log.ImportantEvents);
                 else
                     Console.WriteLine("Logging was disabled during this session; however, an empty log file still exists");

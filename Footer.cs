@@ -179,7 +179,7 @@ namespace maple
             else if (Input.CurrentTarget == Input.InputTarget.Command)
             {
                 Printer.WriteToFooter(CommandPromptText, x: 0, foregroundColor: Styler.AccentColor);
-                if (Settings.CliNoHighlight)
+                if (Settings.Properties.CliNoHighlight)
                 {
                     Printer.WriteToFooter(CommandLine.InputText, x: CommandPromptText.Length, Styler.CliInputDefaultColor);
                 }
@@ -227,7 +227,7 @@ namespace maple
                         break;
                 }
 
-                if (Settings.ColorOutputBackground)
+                if (Settings.Properties.ColorOutputBackground)
                 {
                     Printer.DrawFooter(CommandLine.OutputText, foregroundColor: ConsoleColor.Black, backgroundColor: outputColor, yOffset: 1);
                 }

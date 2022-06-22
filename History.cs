@@ -26,62 +26,12 @@ namespace maple
         private static ReaderWriterLock rwLock = new ReaderWriterLock();
         private const int WriterLockTimeout = 500;
 
-        public History()
-        {
-            if (Settings.EnableHistoryDebugLog)
-            {
-                File.CreateText(Settings.MapleDirectory + "\\history.txt").Close();
-            }
-        }
+        public History() { }
 
         public void PushEvent(HistoryEvent e)
         {
             events.Add(e);
             redoEvents.Clear();
-
-            if (Settings.EnableHistoryDebugLog)
-            {
-                string logLine = "";
-                switch (e.EventType)
-                {
-                    case HistoryEventType.Add:
-                        logLine += "ADD ";
-                        break;
-                    case HistoryEventType.Remove:
-                        logLine += "DEL ";
-                        break;
-                    case HistoryEventType.AddLine:
-                        logLine += "ALN ";
-                        break;
-                    case HistoryEventType.RemoveLine:
-                        logLine += "RLN ";
-                        break;
-                    case HistoryEventType.AddSelection:
-                        logLine += "ASL ";
-                        break;
-                    case HistoryEventType.RemoveSelection:
-                        logLine += "RSL ";
-                        break;
-                    case HistoryEventType.IndentLine:
-                        logLine += "INL ";
-                        break;
-                    case HistoryEventType.DeindentLine:
-                        logLine += "DIL ";
-                        break;
-                }
-                logLine += "\"" + e.TextDelta + "\" ";
-                logLine += "(" + e.DeltaPos.X + ", " + e.DeltaPos.Y + ")\n";
-
-                try
-                {
-                    rwLock.AcquireWriterLock(WriterLockTimeout);
-                    File.AppendAllText(Settings.MapleDirectory + "\\history.txt", logLine);
-                }
-                finally
-                {
-                    rwLock.ReleaseWriterLock();
-                }
-            }
         }
 
         public HistoryEvent PopEvent()
