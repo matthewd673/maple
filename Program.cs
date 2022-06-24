@@ -74,11 +74,13 @@ namespace maple
 
             // delete log file and pretend nothing happened if logging is actually disabled
             if (!Settings.Properties.EnableLogging)
+            {
                 Log.DisableLogging();
+            }
 
-            Log.Write("Loading theme", "program");
+            // Log.Write("Loading theme", "program");
             // prepare styler
-            Styler.LoadMapleTheme();
+            // Styler.LoadMapleTheme();
 
             // handle input
             // load file
@@ -90,8 +92,8 @@ namespace maple
             else // no argument provided
             {
                 Log.Write("No file provided in args, defaulting to about", "program", important: true);
-                Printer.PrintLineSimple("maple - terminal text editor | https://github.com/matthewd673/maple", Styler.AccentColor);
-                Printer.PrintLineSimple("No arguments provided: 'maple [filename]' to begin editing", Styler.ErrorColor);
+                Printer.PrintLineSimple("maple - terminal text editor | https://github.com/matthewd673/maple", Settings.Theme.AccentColor);
+                Printer.PrintLineSimple("No arguments provided: 'maple [filename]' to begin editing", Settings.Theme.ErrorColor);
                 Console.ResetColor();
                 return;
             }
@@ -118,7 +120,7 @@ namespace maple
             Printer.RestorePreviousConsoleMode();
 
             Console.Clear();
-            Console.ForegroundColor = Styler.AccentColor;
+            Console.ForegroundColor = Settings.Theme.AccentColor;
             Console.WriteLine("maple session ended");
 
             if (Editor.CurrentDoc.GetAllLines().Count == 1 && Editor.CurrentDoc.GetLine(0).Length == 0 && Editor.CurrentDoc.NewlyCreated)

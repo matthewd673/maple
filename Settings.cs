@@ -9,6 +9,15 @@ using System.Text;
 namespace maple
 {
 
+
+    [Serializable]
+    [XmlType("TokenColor")]
+    public struct TokenColor
+    {
+        public string TokenType { get; set; }
+        public string Color { get; set; }
+    }
+
     public class Properties
     {
         public bool DebugTokens { get; set; } = false;
@@ -74,6 +83,72 @@ namespace maple
         public List<char> AutocompleteEndingChars { get; set; } = new List<char>();
     }
 
+    public class Theme
+    {
+        public ConsoleColor TextColor { get; set; } = ConsoleColor.Gray;
+        public string Text
+        {
+            get { return TextColor.ToString(); }
+            set { TextColor = Settings.StringToConsoleColor(value); }
+        }
+        public ConsoleColor AccentColor { get; set; } = ConsoleColor.Yellow;
+        public string Accent
+        {
+            get { return Accent.ToString(); }
+            set { AccentColor = Settings.StringToConsoleColor(value); }
+        }
+        public ConsoleColor ErrorColor { get; set; } = ConsoleColor.Red;
+        public string Error
+        {
+            get { return ErrorColor.ToString(); }
+            set { ErrorColor = Settings.StringToConsoleColor(value); }
+        }
+        public ConsoleColor GutterColor { get; set; } = ConsoleColor.DarkGray;
+        public string Gutter
+        {
+            get { return GutterColor.ToString(); }
+            set { GutterColor = Settings.StringToConsoleColor(value); }
+        }
+        public ConsoleColor SelectionColor { get; set; } = ConsoleColor.Blue;
+        public string Selection
+        {
+            get { return SelectionColor.ToString(); }
+            set { SelectionColor = Settings.StringToConsoleColor(value); }
+        }
+
+        //cli colors
+        public ConsoleColor CliInputDefaultColor { get; set; } = ConsoleColor.Yellow;
+        public string CliInputDefault
+        {
+            get { return CliInputDefaultColor.ToString(); }
+            set { CliInputDefaultColor = Settings.StringToConsoleColor(value); }
+        }
+        public ConsoleColor CliOutputInfoColor { get; set; } = ConsoleColor.Cyan;
+        public string CliOutputInfo
+        {
+            get { return CliOutputInfoColor.ToString(); }
+            set { CliOutputInfoColor = Settings.StringToConsoleColor(value); }
+        }
+        public ConsoleColor CliOutputErrorColor { get; set; } = ConsoleColor.Red;
+        public string CliOutputError
+        {
+            get { return CliOutputErrorColor.ToString(); }
+            set { CliOutputErrorColor = Settings.StringToConsoleColor(value); }
+        }
+        public ConsoleColor CliOutputSuccessColor { get; set; } = ConsoleColor.Green;
+        public string CliOutputSuccess
+        {
+            get { return CliOutputSuccessColor.ToString(); }
+            set { CliOutputSuccessColor = Settings.StringToConsoleColor(value); }
+        }
+        public ConsoleColor CliPromptColor { get; set; } = ConsoleColor.Yellow;
+        public string CliPrompt
+        {
+            get { return CliPromptColor.ToString(); }
+            set { CliPromptColor = Settings.StringToConsoleColor(value); }
+        }
+    }
+
     static class Settings
     {
         // directories, these aren't user-defined
@@ -81,6 +156,7 @@ namespace maple
         public static string PropertiesFile { get; } = Path.Combine(MapleDirectory, "properties", "properties.xml");
         public static string AliasesFile { get; } = Path.Combine(MapleDirectory, "properties", "aliases.xml");
         public static string ShortcutsFile { get; } = Path.Combine(MapleDirectory, "properties", "shortcuts.xml");
+        public static string ThemeFile { get { return Path.Combine(Properties.ThemeDirectory, Properties.ThemeFile); } }
 
         private static Dictionary<string, ConsoleKey> stringToConsoleKeyTable = new()
         {
@@ -137,38 +213,72 @@ namespace maple
             { "Z", ConsoleKey.Z },
             { "z", ConsoleKey.Z }
         };
+        private static Dictionary<string, ConsoleColor> stringToConsoleColorTable = new()
+        {
+            { "black", ConsoleColor.Black },
+            { "darkblue", ConsoleColor.DarkBlue },
+            { "darkgreen", ConsoleColor.DarkGreen },
+            { "darkcyan", ConsoleColor.DarkCyan },
+            { "darkred", ConsoleColor.DarkRed },
+            { "darkmagenta", ConsoleColor.DarkMagenta },
+            { "darkyellow", ConsoleColor.DarkYellow },
+            { "darkgray", ConsoleColor.DarkGray },
+            { "gray", ConsoleColor.Gray },
+            { "blue", ConsoleColor.Blue },
+            { "green", ConsoleColor.Green },
+            { "cyan", ConsoleColor.Cyan },
+            { "red", ConsoleColor.Red },
+            { "magenta", ConsoleColor.Magenta },
+            { "yellow", ConsoleColor.Yellow },
+            { "white", ConsoleColor.White }
+        };
 
         public static Dictionary<string, string> Aliases { get; private set; } = new();
         public static Dictionary<ConsoleKey, ShortcutInfo> Shortcuts { get; private set; } = new();
 
         public static Properties Properties { get; private set; } = new Properties();
+        public static Theme Theme { get; private set; } = new Theme();
 
-        public static Properties ReadProperties(string filename)
+        public static TSettings ReadSettingsFile<TSettings>(string filename)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(Properties));
+            Log.Write(String.Format("Loading XML from \"{0}\"", filename), "settings");
+            XmlSerializer serializer = new XmlSerializer(typeof(TSettings));
 
             serializer.UnknownNode += new XmlNodeEventHandler(serializer_UnknownNode);
             serializer.UnknownAttribute += new XmlAttributeEventHandler(serializer_UnknownAttribute);
 
             FileStream stream = new FileStream(filename, FileMode.Open);
-            return (Properties)serializer.Deserialize(stream);
+            try
+            {
+                TSettings settings = (TSettings)serializer.Deserialize(stream);
+                stream.Close();
+                return settings;
+            }
+            catch (Exception e)
+            {
+                Log.Write(e.Message, "settings", important: true);
+                CommandLine.SetOutput("Encountered an error while deserializing", "settings", oType: CommandLine.OutputType.Error);
+                stream.Close();
+                return default(TSettings);
+            }
         }
 
         private static void serializer_UnknownNode(object sender, XmlNodeEventArgs e)
         {
-            Log.Write(String.Format("Encounted an unknwon node while deserializing (line {0})", e.LineNumber), "settings", important: true);
+            Log.Write(String.Format("Encountered an unknwon node while deserializing (line {0})", e.LineNumber), "settings", important: true);
             CommandLine.SetOutput("Encountered an unknown node while deserializing", "settings", oType: CommandLine.OutputType.Error);
         }
 
         private static void serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e)
         {
-            Log.Write(String.Format("Encounted an unknwon attribute while deserializing (line {0})", e.LineNumber), "settings", important: true);
+            Log.Write(String.Format("Encountered an unknwon attribute while deserializing (line {0})", e.LineNumber), "settings", important: true);
             CommandLine.SetOutput("Encountered an unknwon attribute while deserializing", "settings", oType: CommandLine.OutputType.Error);
         }
 
         public static void LoadSettings()
         {
-            Properties = ReadProperties(PropertiesFile);
+            Properties = ReadSettingsFile<Properties>(PropertiesFile);
+            Theme = ReadSettingsFile<Theme>(ThemeFile);
         }
 
         public static void LoadAliases()
@@ -265,6 +375,18 @@ namespace maple
             }
         }
 
+        public static ConsoleColor StringToConsoleColor(string s)
+        {
+            try
+            {
+                return stringToConsoleColorTable[s.ToLower()];
+            }
+            catch (Exception)
+            {
+                return ConsoleColor.Gray;
+            }
+        }
+
         public static bool IsTrue(string value)
         {
             return value.Equals("true") | value.Equals("t") | value.Equals("1");
@@ -280,7 +402,7 @@ namespace maple
                 Command = command;
                 Execute = execute;
             }
-        }
+        } 
 
     }
 }

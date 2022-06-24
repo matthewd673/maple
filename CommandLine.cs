@@ -334,7 +334,7 @@ namespace maple
 
         static void SaveCommand(List<string> args, List<string> switches)
         {
-            string savePath = Editor.DocCursor.Doc.Filepath;
+            string savePath = Editor.CurrentDoc.Filepath;
             if(args.Count > 0)
                 savePath = args[0];
             savePath = savePath.Trim('\"');
@@ -358,14 +358,15 @@ namespace maple
                 encoding = Encoding.ASCII;
             }
 
-            Editor.DocCursor.Doc.SaveDocument(savePath, encoding);
+            Editor.CurrentDoc.SaveDocument(savePath, encoding);
+            Editor.CurrentDoc.LastModifiedTime = File.GetLastWriteTime(Editor.CurrentDoc.Filepath).ToFileTime();
 
-            string existingPath = Editor.DocCursor.Doc.Filepath;
+            string existingPath = Editor.CurrentDoc.Filepath;
 
             if(savePath != existingPath)
-                SetOutput(String.Format("Copy of file saved to \"{0}\"", savePath), "save");
+                SetOutput(String.Format("Copy of file saved to \"{0}\"", savePath.Trim()), "save");
             else
-                SetOutput(String.Format("File saved to \"{0}\"", savePath), "save");
+                SetOutput(String.Format("File saved to \"{0}\"", savePath.Trim()), "save");
         }
 
         static void LoadCommand(List<string> args, List<string> switches)

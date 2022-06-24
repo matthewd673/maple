@@ -30,6 +30,8 @@ namespace maple
 
         public bool NewlyCreated { get; private set; } = false;
 
+        public long LastModifiedTime { get; set; } = 0;
+
         private History history;
 
         /// <summary>
@@ -179,7 +181,7 @@ namespace maple
 
             //build gutter content & print gutter
             String gutterContent = BuildGutter(lineIndex);
-            Printer.PrintWord(gutterContent, foregroundColor: Styler.GutterColor);
+            Printer.PrintWord(gutterContent, foregroundColor: Settings.Theme.GutterColor);
 
             bool lineContainsSelection = LineContainsSelection(lineIndex);
             //find start and end relative to line
@@ -199,7 +201,7 @@ namespace maple
             {
                 int lineLen = 0;
 
-                short selectColorAttribute = Printer.GetAttributeFromColor(ConsoleColor.Black, Styler.SelectionColor);
+                short selectColorAttribute = Printer.GetAttributeFromColor(ConsoleColor.Black, Settings.Theme.SelectionColor);
                 foreach(Token t in l.Tokens)
                 {
                     //store difference between previous and current line lengths

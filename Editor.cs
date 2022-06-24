@@ -12,7 +12,6 @@ namespace maple
         public static Document CurrentDoc { get { return DocCursor.Doc; }}
         static List<int> refreshedLines = new List<int>();
         static bool fullClearNext = false;
-        static long fileLastModifiedTime = 0;
         
         public static string ClipboardContents { get; set; } = "";
 
@@ -90,15 +89,15 @@ namespace maple
 
                 // check for changes to file
                 DateTime fileModifiedTime = File.GetLastWriteTime(CurrentDoc.Filepath);
-                if (fileModifiedTime.ToFileTime() != fileLastModifiedTime)
+                if (fileModifiedTime.ToFileTime() != Editor.CurrentDoc.LastModifiedTime)
                 {
                     // file changed, apply update
-                    if (fileLastModifiedTime != 0)
+                    if (Editor.CurrentDoc.LastModifiedTime != 0)
                     {
                         CommandLine.SetOutput("File has been modified externally, use \"load\" to reload", "document");
                         Printer.ApplyBuffer();
                     }
-                    fileLastModifiedTime = fileModifiedTime.ToFileTime();
+                    Editor.CurrentDoc.LastModifiedTime = fileModifiedTime.ToFileTime();
                 }
 
                 Thread.Sleep(10); // TODO: there's a better way to write this threading

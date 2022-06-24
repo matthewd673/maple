@@ -178,10 +178,10 @@ namespace maple
             }
             else if (Input.CurrentTarget == Input.InputTarget.Command)
             {
-                Printer.WriteToFooter(CommandPromptText, x: 0, foregroundColor: Styler.AccentColor);
+                Printer.WriteToFooter(CommandPromptText, x: 0, foregroundColor: Settings.Theme.AccentColor);
                 if (Settings.Properties.CliNoHighlight)
                 {
-                    Printer.WriteToFooter(CommandLine.InputText, x: CommandPromptText.Length, Styler.CliInputDefaultColor);
+                    Printer.WriteToFooter(CommandLine.InputText, x: CommandPromptText.Length, Settings.Theme.CliInputDefaultColor);
                 }
                 else
                 {
@@ -216,14 +216,14 @@ namespace maple
             if (CommandLine.HasOutput)
             {
                 Printer.ClearLine(Printer.MaxScreenY - 1);
-                ConsoleColor outputColor = Styler.CliOutputInfoColor;
+                ConsoleColor outputColor = Settings.Theme.CliOutputInfoColor;
                 switch (CommandLine.OType)
                 {
                     case CommandLine.OutputType.Error:
-                        outputColor = Styler.CliOutputErrorColor;
+                        outputColor = Settings.Theme.CliOutputErrorColor;
                         break;
                     case CommandLine.OutputType.Success:
-                        outputColor = Styler.CliOutputSuccessColor;
+                        outputColor = Settings.Theme.CliOutputSuccessColor;
                         break;
                 }
 

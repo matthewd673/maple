@@ -224,7 +224,7 @@ namespace maple
                 if (consoleHandle.IsInvalid)
                 {
                     Log.Write("Failed to create console handle", "printer", important: true);
-                    PrintLineSimple("Printer failed to create console handle", Styler.ErrorColor);
+                    PrintLineSimple("Printer failed to create console handle", Settings.Theme.ErrorColor);
                     Console.ResetColor();
                     Environment.Exit(1); // kinda temporary
                     return;
@@ -270,7 +270,7 @@ namespace maple
             }
             catch (DllNotFoundException e)
             {
-                PrintLineSimple("Printer failed to load kernel32.dll - is maple running on a non-Windows platform?", Styler.ErrorColor);
+                PrintLineSimple("Printer failed to load kernel32.dll - is maple running on a non-Windows platform?", Settings.Theme.ErrorColor);
                 Log.Write("Encountered DLLNotFoundException when initializing printer: " + e.Message, "printer", important: true);
                 Log.Write("Platform: " + Environment.OSVersion, "printer");
                 Console.ResetColor();
