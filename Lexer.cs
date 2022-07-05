@@ -79,7 +79,7 @@ namespace maple
                 if (insensitive)
                     options = options | RegexOptions.IgnoreCase;
 
-                rules.Insert(0, new LexerRule(Token.StringToTokenType(type), value, options));
+                rules.Insert(0, new LexerRule(Settings.StringToTokenTypeTable[type], value, options));
             }
 
             Log.Write("Loaded " + rules.Count + " lexer rules", "lexer");

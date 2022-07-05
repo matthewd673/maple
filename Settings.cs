@@ -8,16 +8,6 @@ using System.Text;
 
 namespace maple
 {
-
-
-    [Serializable]
-    [XmlType("TokenColor")]
-    public struct TokenColor
-    {
-        public string TokenType { get; set; }
-        public string Color { get; set; }
-    }
-
     public class Properties
     {
         public bool DebugTokens { get; set; } = false;
@@ -83,6 +73,14 @@ namespace maple
         public List<char> AutocompleteEndingChars { get; set; } = new List<char>();
     }
 
+    public class TokenColor
+    {
+        [XmlAttribute(AttributeName = "type")]
+        public string TokenType { get; set; }
+        [XmlText]
+        public string Color { get; set; }
+    }
+
     public class Theme
     {
         public ConsoleColor TextColor { get; set; } = ConsoleColor.Gray;
@@ -94,7 +92,7 @@ namespace maple
         public ConsoleColor AccentColor { get; set; } = ConsoleColor.Yellow;
         public string Accent
         {
-            get { return Accent.ToString(); }
+            get { return AccentColor.ToString(); }
             set { AccentColor = Settings.StringToConsoleColor(value); }
         }
         public ConsoleColor ErrorColor { get; set; } = ConsoleColor.Red;
@@ -116,7 +114,7 @@ namespace maple
             set { SelectionColor = Settings.StringToConsoleColor(value); }
         }
 
-        //cli colors
+        // cli colors
         public ConsoleColor CliInputDefaultColor { get; set; } = ConsoleColor.Yellow;
         public string CliInputDefault
         {
@@ -147,6 +145,14 @@ namespace maple
             get { return CliPromptColor.ToString(); }
             set { CliPromptColor = Settings.StringToConsoleColor(value); }
         }
+
+        // token colors
+        [XmlIgnore]
+        public Dictionary<TokenType, ConsoleColor> TokenColorTable { get; set; } = new();
+
+        [XmlArray(ElementName = "TokenColors")]
+        [XmlArrayItem(ElementName = "Token")]
+        public List<TokenColor> Tokens { get; set; } = new List<TokenColor>();
     }
 
     static class Settings
@@ -158,7 +164,7 @@ namespace maple
         public static string ShortcutsFile { get; } = Path.Combine(MapleDirectory, "properties", "shortcuts.xml");
         public static string ThemeFile { get { return Path.Combine(Properties.ThemeDirectory, Properties.ThemeFile); } }
 
-        private static Dictionary<string, ConsoleKey> stringToConsoleKeyTable = new()
+        public static Dictionary<string, ConsoleKey> StringToConsoleKeyTable { get; } = new()
         {
             { "A", ConsoleKey.A },
             { "a", ConsoleKey.A },
@@ -213,7 +219,7 @@ namespace maple
             { "Z", ConsoleKey.Z },
             { "z", ConsoleKey.Z }
         };
-        private static Dictionary<string, ConsoleColor> stringToConsoleColorTable = new()
+        public static Dictionary<string, ConsoleColor> StringToConsoleColorTable { get; } = new()
         {
             { "black", ConsoleColor.Black },
             { "darkblue", ConsoleColor.DarkBlue },
@@ -230,7 +236,43 @@ namespace maple
             { "red", ConsoleColor.Red },
             { "magenta", ConsoleColor.Magenta },
             { "yellow", ConsoleColor.Yellow },
-            { "white", ConsoleColor.White }
+            { "white", ConsoleColor.White },
+
+            // Windows Terminal-style, why not?
+            { "purple", ConsoleColor.Magenta },
+            { "darkpurple", ConsoleColor.DarkMagenta },
+        };
+        public static Dictionary<String, TokenType> StringToTokenTypeTable { get; } = new()
+        {
+            { "misc", TokenType.Misc },
+            { "break", TokenType.Break },
+            { "whitespace", TokenType.Whitespace },
+            { "alphabetical", TokenType.Alphabetical },
+            { "keyword", TokenType.Keyword },
+            { "numberliteral", TokenType.NumberLiteral },
+            { "stringliteral", TokenType.StringLiteral },
+            { "characterliteral", TokenType.CharLiteral },
+            { "booleanliteral", TokenType.BooleanLiteral },
+            { "hexliteral", TokenType.HexLiteral },
+            { "comment", TokenType.Comment },
+            { "grouping", TokenType.Grouping },
+            { "operator", TokenType.Operator },
+            { "url", TokenType.Url },
+            { "function", TokenType.Function },
+            { "specialchar", TokenType.SpecialChar },
+            
+            { "clicommandvalid", TokenType.CliCommandValid },
+            { "clicommandinvalid", TokenType.CliCommandInvalid },
+            { "cliswitch", TokenType.CliSwitch },
+            { "clistring", TokenType.CliString },
+
+            { "footerseparator", TokenType.FooterSeparator },
+            { "footerfilepath", TokenType.FooterFilepath },
+            { "footerlncol", TokenType.FooterLnCol },
+            { "footerselection", TokenType.FooterSelection },
+            { "footerindicator", TokenType.FooterIndicator },
+
+            { "trailingwhitespace", TokenType.TrailingWhitespace },
         };
 
         public static Dictionary<string, string> Aliases { get; private set; } = new();
@@ -278,7 +320,9 @@ namespace maple
         public static void LoadSettings()
         {
             Properties = ReadSettingsFile<Properties>(PropertiesFile);
+            
             Theme = ReadSettingsFile<Theme>(ThemeFile);
+            PopulateTokenColorsDictionary(Theme);
         }
 
         public static void LoadAliases()
@@ -367,7 +411,7 @@ namespace maple
         {
             try
             {
-                return stringToConsoleKeyTable[s];
+                return StringToConsoleKeyTable[s];
             }
             catch (Exception)
             {
@@ -379,11 +423,19 @@ namespace maple
         {
             try
             {
-                return stringToConsoleColorTable[s.ToLower()];
+                return StringToConsoleColorTable[s.ToLower()];
             }
             catch (Exception)
             {
                 return ConsoleColor.Gray;
+            }
+        }
+
+        public static void PopulateTokenColorsDictionary(Theme theme)
+        {
+            foreach (TokenColor t in theme.Tokens)
+            {
+                theme.TokenColorTable.Add(StringToTokenTypeTable[t.TokenType.ToLower()], StringToConsoleColorTable[t.Color.ToLower()]);
             }
         }
 

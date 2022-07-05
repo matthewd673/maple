@@ -97,7 +97,7 @@ namespace maple
                 // next token matches, add
                 if (nextMatch.Index == 0)
                 {
-                    Token newToken = new Token("", Token.StringToTokenType(nextMatch.Value));
+                    Token newToken = new Token("", Settings.StringToTokenTypeTable[nextMatch.Value]);
                     newToken.Annotation = nextMatch.Value;
                     
                     text = text.Remove(nextMatch.Index, nextMatch.Value.Length);

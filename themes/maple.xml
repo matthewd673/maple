@@ -10,4 +10,24 @@
     <CliOutputError>Red</CliOutputError>
     <CliOutputSuccess>Green</CliOutputSuccess>
     <CliPrompt>Yellow</CliPrompt>
+
+    <TokenColors>
+        <Token type="NumberLiteral">Magenta</Token>
+        <Token type="StringLiteral">Green</Token>
+        <Token type="CharacterLiteral">Red</Token>
+        <Token type="BooleanLiteral">Blue</Token>
+        <Token type="HexLiteral">Magenta</Token>
+        <Token type="Alphabetical">Gray</Token>
+        <Token type="Keyword">Yellow</Token>
+        <Token type="Comment">DarkGray</Token>
+        <Token type="Grouping">Gray</Token>
+        <Token type="Operator">Cyan</Token>
+        <Token type="Function">Red</Token>
+        <Token type="SpecialChar">Cyan</Token>
+
+        <Token type="CliCommandValid">Yellow</Token>
+        <Token type="CliCommandInvalid">Red</Token>
+        <Token type="CliSwitch">DarkGray</Token>
+        <Token type="CliString">Green</Token>
+    </TokenColors>
 </Theme>

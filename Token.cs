@@ -52,7 +52,13 @@ namespace maple
             set
             {
                 _ttype = value;
-                Color = Styler.GetColor(value);
+                if (Settings.Theme.TokenColorTable.ContainsKey(value))
+                    Color = Settings.Theme.TokenColorTable[value];
+                else
+                {
+                    Log.Write("Theme missing TokenType: " + value, "token", important: true);
+                    Color = ConsoleColor.Gray;
+                }
                 ColorAttribute = Printer.GetAttributeFromColor(Color);
                 // TODO: this is a mess
                 if (_ttype == TokenType.TrailingWhitespace)
@@ -70,73 +76,6 @@ namespace maple
         {
             this.Text = text;
             this.TType = tokenType;
-        }
-
-        public static TokenType StringToTokenType(string name)
-        {
-            switch (name)
-            {
-                case "numberliteral":
-                    return TokenType.NumberLiteral;
-                case "alphabetical":
-                    return TokenType.Alphabetical;
-                case "break":
-                    return TokenType.Break;
-                case "whitespace":
-                    return TokenType.Whitespace;
-                case "trailingwhitespace":
-                    return TokenType.TrailingWhitespace;
-                case "grouping":
-                    return TokenType.Grouping;
-                case "stringliteral":
-                    return TokenType.StringLiteral;
-                case "characterliteral":
-                    return TokenType.CharLiteral;
-                case "booleanliteral":
-                    return TokenType.BooleanLiteral;
-                case "hexliteral":
-                    return TokenType.HexLiteral;
-                case "comment":
-                    return TokenType.Comment;
-                case "operator":
-                    return TokenType.Operator;
-                case "url":
-                    return TokenType.Url;
-                case "function":
-                    return TokenType.Function;
-                case "keyword":
-                    return TokenType.Keyword;
-                case "specialchar":
-                    return TokenType.SpecialChar;
-                //command line
-                case "clicommandvalid":
-                    return TokenType.CliCommandValid;
-                case "clicommandinvalid":
-                    return TokenType.CliCommandInvalid;
-                case "cliswitch":
-                    return TokenType.CliSwitch;
-                case "clistring":
-                    return TokenType.CliString;
-                //footer
-                case "{-}":
-                case "footerseparator":
-                    return TokenType.FooterSeparator;
-                case "{filepath}":
-                case "{filename}":
-                case "footerfilepath":
-                    return TokenType.FooterFilepath;
-                case "{lncol}":
-                case "footerlncol":
-                    return TokenType.FooterLnCol;
-                case "{selection}":
-                case "footerselection":
-                    return TokenType.FooterSelection;
-                case "{readonly}":
-                case "footerindicator":
-                    return TokenType.FooterIndicator;
-                default:
-                    return TokenType.None;
-            }
         }
     }
 }

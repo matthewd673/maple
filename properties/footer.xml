@@ -1,0 +1,26 @@
+<xml>
+    <block>
+        <blocktype>text</blocktype>
+        <content>maple</content>
+        <color>Yellow</color>
+    </block>
+    <block>
+        <blocktype>separator</blocktype>
+    </block>
+    <block>
+        <blocktype>filename</blocktype>
+        <color>Yellow</color>
+    </block>
+    <block>
+        <blocktype>lncol</blocktype>
+        <color>Yellow</color>
+    </block>
+    <block>
+        <blocktype>selection</blocktype>
+        <color>Blue</color>
+    </block>
+    <block>
+        <blocktype>readonly</blocktype>
+        <color>DarkGray</color>
+    </block>
+</xml>
