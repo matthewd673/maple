@@ -104,7 +104,7 @@ namespace maple
             //build command list
             foreach (string c in CommandLine.CommandMasterList)
                 cliKeywords.Add(c);
-            foreach (string a in Settings.Aliases.Keys)
+            foreach (string a in Settings.Properties.AliasesTable.Keys)
                 cliKeywords.Add(a);
 
             Log.Write("Loaded " + cliKeywords.Count + " command line keywords", "lexer");

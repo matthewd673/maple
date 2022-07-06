@@ -32,4 +32,37 @@
     <GutterLeftPad>0</GutterLeftPad>
     <GutterBarrier> </GutterBarrier>
     <OverflowIndicator>…</OverflowIndicator>
+
+    <Aliases>
+        <Alias command="help">h</Alias>
+        <Alias command="help">?</Alias>
+        <Alias command="save">s</Alias>
+        <Alias command="load">l</Alias>
+        <Alias command="load">open</Alias>
+        <Alias command="top">t</Alias>
+        <Alias command="bot">b</Alias>
+        <Alias command="bot">bottom</Alias>
+        <Alias command="selectin">i</Alias>
+        <Alias command="selectout">o</Alias>
+        <Alias command="deselect">d</Alias>
+        <Alias command="readonly">ro</Alias>
+        <Alias command="goto">go</Alias>
+        <Alias command="goto">g</Alias>
+        <Alias command="goto">line</Alias>
+        <Alias command="close">quit</Alias>
+        <Alias command="find">f</Alias>
+        <Alias command="deindent">de</Alias>
+        <Alias command="count">ct</Alias>
+    </Aliases>
+
+    <Shortcuts>
+        <Shortcut key="s" execute="true">save</Shortcut>
+        <Shortcut key="f" execute="false">find </Shortcut>
+        <Shortcut key="c" execute="true">copy</Shortcut>
+        <Shortcut key="p" execute="true">paste</Shortcut>
+        <Shortcut key="x" execute="true">cut</Shortcut>
+        <Shortcut key="q" execute="false">close</Shortcut>
+        <Shortcut key="z" execute="true">undo</Shortcut>
+        <Shortcut key="y" execute="true">redo</Shortcut>
+    </Shortcuts>
 </Properties>

@@ -66,11 +66,10 @@ namespace maple
                 }
             }
 
-            Log.Write("Loading settings & aliases", "program");
+            Log.Write("Loading settings", "program");
+
             // load settings
             Settings.LoadSettings();
-            Settings.LoadAliases();
-            Settings.LoadShortcuts();
 
             // delete log file and pretend nothing happened if logging is actually disabled
             if (!Settings.Properties.EnableLogging)

@@ -803,10 +803,10 @@ namespace maple
         static void HandleShortcut(ConsoleKeyInfo keyInfo)
         {
             // skip if shortcut doesn't exist
-            if (!Settings.Shortcuts.ContainsKey(keyInfo.Key))
+            if (!Settings.Properties.ShortcutsTable.ContainsKey(keyInfo.Key))
                 return;
 
-            Settings.ShortcutInfo shortcutInfo = Settings.Shortcuts[keyInfo.Key];
+            Shortcut shortcutInfo = Settings.Properties.ShortcutsTable[keyInfo.Key];
 
             InputTarget previousInputTarget = CurrentTarget;
             CurrentTarget = InputTarget.Command; // simulate user entering cli

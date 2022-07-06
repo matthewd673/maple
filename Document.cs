@@ -87,10 +87,6 @@ namespace maple
                         return Path.Combine(Settings.Properties.ThemeDirectory, Settings.Properties.ThemeFile);
                     case "{propfile}":
                         return Settings.PropertiesFile;
-                    case "{aliasfile}":
-                        return Settings.AliasesFile;
-                    case "{shortcutfile}":
-                        return Settings.ShortcutsFile;
                     case "{syntaxfile}":
                         return Lexer.CurrentSyntaxFile;
                 }

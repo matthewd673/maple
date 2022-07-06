@@ -114,8 +114,8 @@ namespace maple
             List<string> commandSwitches = commandInfo.Switches;
 
             //swap out alias with actual primary command
-            if (Settings.Aliases.ContainsKey(primaryCommand) && !CommandMasterList.Contains(primaryCommand))
-                primaryCommand = Settings.Aliases[primaryCommand];
+            if (Settings.Properties.AliasesTable.ContainsKey(primaryCommand) && !CommandMasterList.Contains(primaryCommand))
+                primaryCommand = Settings.Properties.AliasesTable[primaryCommand];
 
             switch(primaryCommand)
             {
@@ -320,9 +320,9 @@ namespace maple
                     SetOutput("Redo the last edit in the undo history", "help");
                     break;
                 default:
-                    if (Settings.Aliases.ContainsKey(args[0]))
+                    if (Settings.Properties.AliasesTable.ContainsKey(args[0]))
                     {
-                        SetOutput(String.Format("\"{0}\" is an alias for \"{1}\"", args[0], Settings.Aliases[args[0]]), "help");
+                        SetOutput(String.Format("\"{0}\" is an alias for \"{1}\"", args[0], Settings.Properties.AliasesTable[args[0]]), "help");
                     }
                     else
                     {
@@ -515,23 +515,23 @@ namespace maple
             }
 
             //it may be an alias, though that isn't what this command is really for
-            if (Settings.Aliases.ContainsKey(args[0]))
+            if (Settings.Properties.AliasesTable.ContainsKey(args[0]))
             {
-                SetOutput(String.Format("\"{0}\" is an alias for \"{1}\"", args[0], Settings.Aliases[args[0]]), "alias");
+                SetOutput(String.Format("\"{0}\" is an alias for \"{1}\"", args[0], Settings.Properties.AliasesTable[args[0]]), "alias");
                 return;
             }
 
             //it must be a command, not an alias
-            if (!Settings.Aliases.ContainsValue(args[0]))
+            if (!Settings.Properties.AliasesTable.ContainsValue(args[0]))
             {
                 SetOutput(String.Format("\"{0}\" does not have any aliases", args[0]), "alias");
                 return;
             }
 
             List<string> commandAliases = new List<string>();
-            foreach (string k in Settings.Aliases.Keys)
+            foreach (string k in Settings.Properties.AliasesTable.Keys)
             {
-                if (Settings.Aliases[k].Equals(args[0]))
+                if (Settings.Properties.AliasesTable[k].Equals(args[0]))
                     commandAliases.Add(k);
             }
 
@@ -863,8 +863,8 @@ namespace maple
             }
 
             args[0] = args[0].ToUpper(); // stylistic
-            ConsoleKey key = Settings.StringToConsoleKey(args[0]);
-            if (!Settings.Shortcuts.ContainsKey(key))
+            ConsoleKey key = Settings.StringToConsoleKeyTable[args[0]];
+            if (!Settings.Properties.ShortcutsTable.ContainsKey(key))
             {
                 SetOutput(String.Format("Ctrl+{0} is not a shortcut", args[0]), "shortcut");
                 return;
@@ -873,8 +873,8 @@ namespace maple
             SetOutput(String.Format(
                 "Ctrl+{0} {1} \"{2}\"",
                 args[0],
-                (Settings.Shortcuts[key].Execute) ? "executes" : "prefills",
-                Settings.Shortcuts[key].Command),
+                (Settings.Properties.ShortcutsTable[key].Execute) ? "executes" : "prefills",
+                Settings.Properties.ShortcutsTable[key].Command),
                 "shortcut");
         }
 

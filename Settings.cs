@@ -8,6 +8,24 @@ using System.Text;
 
 namespace maple
 {
+    public class Alias
+    {
+        [XmlAttribute(AttributeName = "command")]
+        public string Command { get; set; }
+        [XmlText]
+        public string AliasString { get; set; }
+    }
+
+    public class Shortcut
+    {
+        [XmlAttribute(AttributeName = "key")]
+        public string Key { get; set; }
+        [XmlText]
+        public string Command { get; set; }
+        [XmlAttribute(AttributeName = "execute")]
+        public bool Execute { get; set; }
+    }
+
     public class Properties
     {
         public bool DebugTokens { get; set; } = false;
@@ -71,6 +89,14 @@ namespace maple
         public string DefaultEncoding { get; set; } = "utf8";
         public List<char> AutocompleteOpeningChars { get; set; } = new List<char>();
         public List<char> AutocompleteEndingChars { get; set; } = new List<char>();
+
+        [XmlIgnore]
+        public Dictionary<string, string> AliasesTable { get; set; }= new();
+        public List<Alias> Aliases { get; set; } = new();
+
+        [XmlIgnore]
+        public Dictionary<ConsoleKey, Shortcut> ShortcutsTable { get; set; } = new();
+        public List<Shortcut> Shortcuts { get; set; } = new();
     }
 
     public class TokenColor
@@ -160,8 +186,6 @@ namespace maple
         // directories, these aren't user-defined
         public static string MapleDirectory { get; private set; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static string PropertiesFile { get; } = Path.Combine(MapleDirectory, "properties", "properties.xml");
-        public static string AliasesFile { get; } = Path.Combine(MapleDirectory, "properties", "aliases.xml");
-        public static string ShortcutsFile { get; } = Path.Combine(MapleDirectory, "properties", "shortcuts.xml");
         public static string ThemeFile { get { return Path.Combine(Properties.ThemeDirectory, Properties.ThemeFile); } }
 
         public static Dictionary<string, ConsoleKey> StringToConsoleKeyTable { get; } = new()
@@ -275,9 +299,6 @@ namespace maple
             { "trailingwhitespace", TokenType.TrailingWhitespace },
         };
 
-        public static Dictionary<string, string> Aliases { get; private set; } = new();
-        public static Dictionary<ConsoleKey, ShortcutInfo> Shortcuts { get; private set; } = new();
-
         public static Properties Properties { get; private set; } = new Properties();
         public static Theme Theme { get; private set; } = new Theme();
 
@@ -320,105 +341,14 @@ namespace maple
         public static void LoadSettings()
         {
             Properties = ReadSettingsFile<Properties>(PropertiesFile);
+            PopulateAliasesTable(Properties);
+            PopulateShortcutsTable(Properties);
             
             Theme = ReadSettingsFile<Theme>(ThemeFile);
-            PopulateTokenColorsDictionary(Theme);
+            PopulateTokenColorsTable(Theme);
         }
 
-        public static void LoadAliases()
-        {
-            XmlDocument document = new XmlDocument();
-            document.PreserveWhitespace = true;
-
-            if (!File.Exists(AliasesFile))
-            {
-                Log.Write("Aliases file doesn't exist at '" + AliasesFile + "'", "settings", important: true);
-                return;
-            }
-
-            try
-            {
-                document.Load(AliasesFile);
-            }
-            catch (Exception e)
-            {
-                CommandLine.SetOutput("Encountered an exception while loading alias XML", "maple", oType: CommandLine.OutputType.Error);
-                Log.Write("Encountered exception while loading alias XML: " + e.Message, "settings", important: true);
-                return;
-            }
-
-            XmlNodeList aliases = document.GetElementsByTagName("alias");
-            foreach (XmlNode node in aliases)
-            {
-                string command = "";
-                string value = "";
-                foreach (XmlAttribute a in node.Attributes)
-                {
-                    if (a.Name.ToLower() != "command")
-                        return;
-                    
-                    command = a.Value.ToLower();
-                }
-                value = node.InnerText;
-
-                Aliases.Add(value, command);
-            }
-        }
-
-        public static void LoadShortcuts()
-        {
-            XmlDocument document = new XmlDocument();
-            document.PreserveWhitespace = true;
-
-            if (!File.Exists(ShortcutsFile))
-            {
-                Log.Write("Shortcuts file doesn't exist at '" + ShortcutsFile + "'", "settings", important: true);
-                return;
-            }
-
-            try
-            {
-                document.Load(ShortcutsFile);
-            }
-            catch (Exception e)
-            {
-                CommandLine.SetOutput("Encountered an exception while loading shortcut XML", "maple", oType: CommandLine.OutputType.Error);
-                Log.Write("Encountered exception while loading shortcut XML: " + e.Message, "settings", important: true);
-            }
-
-            XmlNodeList shortcuts = document.GetElementsByTagName("shortcut");
-            foreach (XmlNode node in shortcuts)
-            {
-                ConsoleKey key = ConsoleKey.NoName;
-                bool execute = false;
-                string command = "";
-
-                foreach (XmlAttribute a in node.Attributes)
-                {
-                    if (a.Name.ToLower().Equals("key"))
-                        key = StringToConsoleKey(a.Value);
-                    else if (a.Name.ToLower().Equals("execute"))
-                        execute = IsTrue(a.Value.ToLower());
-                }
-
-                command = node.InnerText;
-
-                Shortcuts.Add(key, new ShortcutInfo(command, execute));
-            }
-        }
-
-        public static ConsoleKey StringToConsoleKey(string s)
-        {
-            try
-            {
-                return StringToConsoleKeyTable[s];
-            }
-            catch (Exception)
-            {
-                return ConsoleKey.NoName;
-            }
-        }
-
+        // TODO: remove
         public static ConsoleColor StringToConsoleColor(string s)
         {
             try
@@ -431,7 +361,7 @@ namespace maple
             }
         }
 
-        public static void PopulateTokenColorsDictionary(Theme theme)
+        public static void PopulateTokenColorsTable(Theme theme)
         {
             foreach (TokenColor t in theme.Tokens)
             {
@@ -439,22 +369,26 @@ namespace maple
             }
         }
 
+        public static void PopulateAliasesTable(Properties properties)
+        {
+            foreach (Alias a in properties.Aliases)
+            {
+                properties.AliasesTable.Add(a.AliasString, a.Command);
+            }
+        }
+
+        public static void PopulateShortcutsTable(Properties properties)
+        {
+            foreach (Shortcut s in properties.Shortcuts)
+            {
+                properties.ShortcutsTable.Add(StringToConsoleKeyTable[s.Key], s);
+            }
+        }
+
         public static bool IsTrue(string value)
         {
             return value.Equals("true") | value.Equals("t") | value.Equals("1");
         }
-
-        public struct ShortcutInfo
-        {
-            public string Command { get; set; }
-            public bool Execute { get; set; }
-
-            public ShortcutInfo(string command, bool execute)
-            {
-                Command = command;
-                Execute = execute;
-            }
-        } 
 
     }
 }
