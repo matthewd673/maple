@@ -99,7 +99,18 @@ namespace maple
          XmlArrayItem(ElementName = "LnCol", Type = typeof(FooterBlockLnCol)),
          XmlArrayItem(ElementName = "Selection", Type = typeof(FooterBlockSelection)),
          XmlArrayItem(ElementName = "ReadOnly", Type = typeof(FooterBlockReadOnly))]
-        public List<FooterBlock> BlockGroup { get; set; } = new();
+        public List<FooterBlock> BlockGroup { get; set; } = new()
+        {
+            new FooterBlockText() { Content = "maple", Color = "Yellow"},
+            new FooterBlockSeparator(),
+            new FooterBlockFilepath() { Color = "Gray" },
+            new FooterBlockSeparator(),
+            new FooterBlockLnCol() { Color = "Yellow" },
+            new FooterBlockSeparator(),
+            new FooterBlockSelection() { Color = "Blue" },
+            new FooterBlockSeparator(),
+            new FooterBlockReadOnly() { Color = "DarkGray" },
+        };
     }
 
     static class Footer
@@ -109,7 +120,7 @@ namespace maple
 
         public static string CommandPromptText { get; } = "maple $ ";
 
-        static FooterLayout layout;
+        static FooterLayout layout = new FooterLayout();
 
         public static void LoadFooterLayout()
         {

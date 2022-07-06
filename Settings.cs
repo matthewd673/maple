@@ -318,6 +318,13 @@ namespace maple
             serializer.UnknownNode += new XmlNodeEventHandler(serializer_UnknownNode);
             serializer.UnknownAttribute += new XmlAttributeEventHandler(serializer_UnknownAttribute);
 
+            if (!File.Exists(filename))
+            {
+                Log.Write(String.Format("Settings file \"{0}\" does not exist", filename), "settings", important: true);
+                CommandLine.SetOutput(String.Format("Settings file \"{0}\" does not exist", filename), "settings", oType: CommandLine.OutputType.Error);
+                return default(TSettings);
+            }
+
             FileStream stream = new FileStream(filename, FileMode.Open);
             try
             {
