@@ -71,6 +71,15 @@ namespace maple
                 _syntaxDirectory = value.Replace("{mapledir}", Settings.MapleDirectory);
             }
         }
+        private string _footerLayoutFile = Path.Combine(Settings.MapleDirectory, "properties", "footer.xml");
+        public string FooterLayoutFile
+        {
+            get { return _footerLayoutFile; }
+            set
+            {
+                _footerLayoutFile = value.Replace("{mapledir}", Settings.MapleDirectory);
+            }
+        }
         public int TabSpacesCount { get; set; } = 4;
         public string ScrollYIncrement { get; set; } = "half";
         public string ScrollXIncrement { get; set; } = "half";
@@ -327,13 +336,13 @@ namespace maple
 
         private static void serializer_UnknownNode(object sender, XmlNodeEventArgs e)
         {
-            Log.Write(String.Format("Encountered an unknown node while deserializing (line {0})", e.LineNumber), "settings", important: true);
+            Log.Write(String.Format("Encountered an unknown node while deserializing (\"{0}\" line {1})", e.Name, e.LineNumber), "settings", important: true);
             CommandLine.SetOutput("Encountered an unknown node while deserializing", "settings", oType: CommandLine.OutputType.Error);
         }
 
         private static void serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e)
         {
-            Log.Write(String.Format("Encountered an unknown attribute while deserializing (line {0})", e.LineNumber), "settings", important: true);
+            Log.Write(String.Format("Encountered an unknown attribute while deserializing (\"{0}\" line {1})", e.Attr, e.LineNumber), "settings", important: true);
             CommandLine.SetOutput("Encountered an unknown attribute while deserializing", "settings", oType: CommandLine.OutputType.Error);
         }
 

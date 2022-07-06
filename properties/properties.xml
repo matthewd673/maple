@@ -23,6 +23,7 @@
     <ThemeDirectory>{mapledir}\themes\</ThemeDirectory>
     <ThemeFile>maple.xml</ThemeFile>
     <SyntaxDirectory>{mapledir}\syntax\</SyntaxDirectory>
+    <FooterLayoutFile>{mapledir}\properties\footer.xml</FooterLayoutFile>
     <TabSpacesCount>4</TabSpacesCount>
     <ScrollYIncrement>half</ScrollYIncrement>
     <ScrollXIncrement>half</ScrollXIncrement>

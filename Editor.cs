@@ -37,7 +37,8 @@ namespace maple
             DocCursor.Move(0, 0);
             DocCursor.ApplyPosition();
 
-            Footer.SetFormatString(Settings.Properties.FooterFormat);
+            Log.Write("Loading footer layout", "editor");
+            Footer.LoadFooterLayout();
 
             //load footer lexer
             Log.Write("Building command line input lexer rules", "editor");

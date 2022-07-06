@@ -1,9 +1,107 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Xml.Serialization;
 
 namespace maple
 {
+    public abstract class FooterBlock
+    {
+        [XmlIgnore]
+        public short ColorAttribute { get; private set; }
+
+        private string _color = "Gray";
+        public string Color
+        {
+            get { return _color; }
+            set
+            {
+                _color = value;
+                ColorAttribute = Printer.GetAttributeFromColor(
+                    Settings.StringToConsoleColor(value)
+                );
+            }
+        }
+        
+        public abstract string GetText();
+    }
+
+    public class FooterBlockText : FooterBlock
+    {
+        public string Content { get; set; }
+
+        public override string GetText()
+        {
+            return Content;
+        }
+    }
+
+    public class FooterBlockSeparator : FooterBlock
+    {
+        public override string GetText()
+        {
+            return "-";
+        }
+    }
+
+    public class FooterBlockFilepath : FooterBlock
+    {
+        public override string GetText()
+        {
+            return Editor.CurrentDoc.Filepath.Trim();
+        }
+    }
+
+    public class FooterBlockLnCol : FooterBlock
+    {
+        public override string GetText()
+        {
+            return String.Format("ln {0} col {1}", Editor.DocCursor.DY + 1, Editor.DocCursor.DX + 1);
+        }
+    }
+
+    public class FooterBlockSelection : FooterBlock
+    {
+        public override string GetText()
+        {
+            if (Editor.CurrentDoc.HasSelection())
+            {
+                return String.Format("{0},{1} - {2},{3}",
+                    Editor.CurrentDoc.SelectInY + 1,
+                    Editor.CurrentDoc.SelectInX + 1,
+                    Editor.CurrentDoc.SelectOutY + 1,
+                    Editor.CurrentDoc.SelectOutX + 1);
+            }
+            else if (Editor.CurrentDoc.HasSelectionStart())
+            {
+                return String.Format("{0},{1} …",
+                    Editor.CurrentDoc.SelectInY + 1,
+                    Editor.CurrentDoc.SelectInX + 1);
+            }
+            
+            return "";
+        }
+    }
+
+    public class FooterBlockReadOnly : FooterBlock
+    {
+        public override string GetText()
+        {
+            return (Input.ReadOnly) ? "[readonly]" : "";
+        }
+    }
+
+    public class FooterLayout
+    {
+        [XmlArrayItem(ElementName = "Text", Type = typeof(FooterBlockText)),
+         XmlArrayItem(ElementName = "Separator", Type = typeof(FooterBlockSeparator)),
+         XmlArrayItem(ElementName = "Filepath", Type = typeof(FooterBlockFilepath)),
+         XmlArrayItem(ElementName = "LnCol", Type = typeof(FooterBlockLnCol)),
+         XmlArrayItem(ElementName = "Selection", Type = typeof(FooterBlockSelection)),
+         XmlArrayItem(ElementName = "ReadOnly", Type = typeof(FooterBlockReadOnly))]
+        public List<FooterBlock> BlockGroup { get; set; } = new();
+    }
+
     static class Footer
     {
         public static int FooterHeight { get; private set; }= 1;
@@ -11,106 +109,12 @@ namespace maple
 
         public static string CommandPromptText { get; } = "maple $ ";
 
-        public static string Separator { get; set; } = " ";
-        static string formatString { get; set; }
-        static List<Token> tokens = new();
+        static FooterLayout layout;
 
-        public static void SetFormatString(string formatString)
+        public static void LoadFooterLayout()
         {
-            Footer.formatString = formatString;
-            tokens = TokenizeFooter();
-        }
-
-        static string GetFooterTokenText(Token token)
-        {
-            switch (token.TType)
-            {
-                case TokenType.None:
-                    return token.Text;
-                case TokenType.FooterFilepath:
-                    switch (token.Annotation)
-                    {
-                        case "{filepath}":
-                            return Editor.CurrentDoc.Filepath.TrimEnd();
-                        case "{filename}":
-                            string[] split;
-                            if (Editor.CurrentDoc.Filepath.IndexOf("\\") > Editor.CurrentDoc.Filepath.IndexOf("/"))
-                            {
-                                split = Editor.CurrentDoc.Filepath.Split("\\");
-                            }
-                            else
-                            {
-                                split = Editor.CurrentDoc.Filepath.Split("/");
-                            }
-
-                            return split[split.Length - 1].Trim();
-                        default:
-                            return "";
-                    }
-                case TokenType.FooterLnCol:
-                    return String.Format("ln {0} col {1}", Editor.DocCursor.DY + 1, Editor.DocCursor.DX + 1);
-                case TokenType.FooterSelection:
-                    if (Editor.CurrentDoc.HasSelection()) //write selection bounds (if has selection)
-                    {
-                        return String.Format("{0},{1} - {2},{3}", (Editor.CurrentDoc.SelectInY + 1), (Editor.CurrentDoc.SelectInX + 1),
-                            (Editor.CurrentDoc.SelectOutY + 1), (Editor.CurrentDoc.SelectOutX + 1));
-                    }
-                    else if (Editor.CurrentDoc.HasSelectionStart()) //write selection in as reminder
-                    {
-                        return String.Format("{0},{1} …", (Editor.CurrentDoc.SelectInY + 1), (Editor.CurrentDoc.SelectInX + 1));
-                    }
-                    return "";
-                case TokenType.FooterIndicator: //TODO: this only works for readonly indicator
-                    switch (token.Annotation)
-                    {
-                        case "{readonly}":
-                            return Input.ReadOnly ? "[readonly]" : "";
-                        default:
-                            return "";
-                    }
-                default:
-                    return "";
-            }
-        }
-
-        static bool GetFooterTokenHasOutput(Token t)
-        {
-            return GetFooterTokenText(t).Length != 0;
-        }
-
-        static List<Token> TokenizeFooter()
-        {
-            List<Token> tokens = new();
-            Regex pattern = new Regex("{[a-z-]+}", RegexOptions.IgnoreCase); // TODO: just stumbled upon this regex, it looks wrong
-
-            string text = formatString;
-            while (text.Length > 0)
-            {
-                Match nextMatch = pattern.Match(text);
-                // stop if there are no more matches
-                if (!nextMatch.Success)
-                {
-                    tokens.Add(new Token(text, TokenType.None));
-                    break;
-                }
-                
-                // next token matches, add
-                if (nextMatch.Index == 0)
-                {
-                    Token newToken = new Token("", Settings.StringToTokenTypeTable[nextMatch.Value]);
-                    newToken.Annotation = nextMatch.Value;
-                    
-                    text = text.Remove(nextMatch.Index, nextMatch.Value.Length);
-                    tokens.Add(newToken);
-                }
-                else
-                {
-                    tokens.Add(new Token(text, TokenType.None));
-                    text = text.Remove(nextMatch.Index, nextMatch.Value.Length);
-                }
-            }
-
-            return tokens;
+            FooterLayout loaded = Settings.ReadSettingsFile<FooterLayout>(Settings.Properties.FooterLayoutFile);
+            if (loaded != null) layout = loaded;
         }
 
         /// <summary>
@@ -119,63 +123,50 @@ namespace maple
         public static void PrintFooter()
         {
             Printer.ClearLine(Printer.MaxScreenY);
+            // DRAW DOCUMENT FOOTER
             if (Input.CurrentTarget == Input.InputTarget.Document)
             {
                 // Get content from footer tokens
-                Printer.MoveCursor(0, Printer.MaxScreenY); //to manually set initial X
-                for (int i = 0; i < tokens.Count; i++)
+                Printer.MoveCursor(0, Printer.MaxScreenY); // to manually set initial X
+                
+                for (int i = 0; i < layout.BlockGroup.Count; i++)
                 {
-                    Token t = tokens[i];
-                    if (t.TType == TokenType.FooterSeparator)
-                    {
-                        bool contentPrevious = false;
-                        bool contentNext = false;
-                        if (i > 0)
-                        {
-                            for (int k = i - 1; k >= 0; k--)
-                            {
-                                if (GetFooterTokenHasOutput(tokens[k]))
-                                {
-                                    contentPrevious = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (i < tokens.Count - 1)
-                        {
-                            for (int k = i + 1; k < tokens.Count; k++)
-                            {
-                                if (tokens[k].TType == TokenType.FooterSeparator)
-                                {
-                                    break;
-                                }
-                                if (GetFooterTokenHasOutput(tokens[k]))
-                                {
-                                    contentNext = true;
-                                    break;
-                                }
-                            }
-                        }
+                    FooterBlock b = layout.BlockGroup[i];
+                    string text = b.GetText();
 
-                        if (contentPrevious && contentNext)
+                    // separators are special, check if they should display
+                    if (b.GetType() == typeof(FooterBlockSeparator))
+                    {
+                        // never render a separator if it is first or last
+                        if (i == 0 || i == layout.BlockGroup.Count - 1)
                         {
-                            t.Text = Separator;
-                            Printer.WriteToFooter(Separator, attribute: t.ColorAttribute);
+                            text = "";
                         }
                         else
                         {
-                            t.Text = "";
+                            // search backwards and only render if there is a non-empty block
+                            // stop searching if a separator is seen
+                            int lookI = i - 1;
+                            text = "";
+                            while (lookI >= 0)
+                            {
+                                if (layout.BlockGroup[lookI].GetType() == typeof(FooterBlockSeparator))
+                                    break;
+                                if (layout.BlockGroup[lookI].GetText().Length != 0)
+                                {
+                                    text = b.GetText();
+                                    break;
+                                }
+                                lookI--;
+                            }
                         }
                     }
-                    else
-                    {
-                        Printer.WriteToFooter(GetFooterTokenText(t), attribute: t.ColorAttribute);
-                    }
-                }
 
+                    Printer.WriteToFooter(text, attribute: b.ColorAttribute);
+                }
                 Printer.ClearRight();
-                // Printer.ApplyBuffer();
             }
+            // DRAW COMMAND FOOTER
             else if (Input.CurrentTarget == Input.InputTarget.Command)
             {
                 Printer.WriteToFooter(CommandPromptText, x: 0, foregroundColor: Settings.Theme.AccentColor);

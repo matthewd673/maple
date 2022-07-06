@@ -1,26 +1,24 @@
-<xml>
-    <block>
-        <blocktype>text</blocktype>
-        <content>maple</content>
-        <color>Yellow</color>
-    </block>
-    <block>
-        <blocktype>separator</blocktype>
-    </block>
-    <block>
-        <blocktype>filename</blocktype>
-        <color>Yellow</color>
-    </block>
-    <block>
-        <blocktype>lncol</blocktype>
-        <color>Yellow</color>
-    </block>
-    <block>
-        <blocktype>selection</blocktype>
-        <color>Blue</color>
-    </block>
-    <block>
-        <blocktype>readonly</blocktype>
-        <color>DarkGray</color>
-    </block>
-</xml>
+<FooterLayout>
+    <BlockGroup>
+        <Text>
+            <Content>maple</Content>
+            <Color>Yellow</Color>
+        </Text>
+        <Separator></Separator>
+        <Filepath>
+            <Color>Gray</Color>
+        </Filepath>
+        <Separator></Separator>
+        <LnCol>
+            <Color>Yellow</Color>
+        </LnCol>
+        <Separator></Separator>
+        <Selection>
+            <Color>Blue</Color>
+        </Selection>
+        <Separator></Separator>
+        <ReadOnly>
+            <Color>DarkGray</Color>
+        </ReadOnly>
+    </BlockGroup>
+</FooterLayout>
