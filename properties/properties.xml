@@ -16,7 +16,7 @@
     <ArrowsDeselect>true</ArrowsDeselect>
     <ClearOutputOnToggle>false</ClearOutputOnToggle>
     <ColorOutputBackground>true</ColorOutputBackground>
-    <HighlightTrailingWhitespace>false</HighlightTrailingWhitespace>
+    <HighlightTrailingWhitespace>true</HighlightTrailingWhitespace>
     <Autocomplete>true</Autocomplete>
     <AutoResize>true</AutoResize>
     
@@ -57,6 +57,7 @@
 
     <Shortcuts>
         <Shortcut key="s" execute="true">save</Shortcut>
+        <Shortcut key="l" execute="false">load </Shortcut>
         <Shortcut key="f" execute="false">find </Shortcut>
         <Shortcut key="c" execute="true">copy</Shortcut>
         <Shortcut key="p" execute="true">paste</Shortcut>

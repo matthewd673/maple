@@ -1,34 +1,35 @@
-<xml>
-    <!--Maple Colors-->
-    <color category="text">Gray</color>
-    <color category="accent">Cyan</color>
-    <color category="error">Red</color>
-    <color category="gutter">DarkGray</color>
-    <color category="selection">Blue</color>
-    <!--Syntax Colors-->
-    <color category="numberLiteral">Red</color>
-    <color category="stringLiteral">Green</color>
-    <color category="characterLiteral">Green</color>
-    <color category="booleanLiteral">Yellow</color>
-    <color category="hexLiteral">Red</color>
-    <color category="variable">Gray</color>
-    <color category="keyword">Cyan</color>
-    <color category="comment">DarkGray</color>
-    <color category="grouping">Gray</color>
-    <color category="operator">Magenta</color>
-    <color category="function">Blue</color>
-    <!--CLI Colors-->
-    <color category="cliInputDefault">Cyan</color>
-    <color category="cliOutputInfo">Yellow</color>
-    <color category="cliOutputError">Red</color>
-    <color category="cliOutputSuccess">Green</color>
-    <color category="cliPrompt">Cyan</color>
-    <color category="cliCommandValid">Cyan</color>
-    <color category="cliCommandInvalid">Red</color>
-    <color category="cliSwitch">DarkGray</color>
-    <color category="cliString">Green</color>
-    <!--Editor Customizations-->
-    <string category="gutterLeftPad">0</string>
-    <string category="gutterBarrier"></string>
-    <string category="overflowIndicator">…</string>
-</xml>
+<Theme>
+    <Text>Gray</Text>
+    <Accent>Cyan</Accent>
+    <Error>Red</Error>
+    <Gutter>DarkGray</Gutter>
+    <Selection>Blue</Selection>
+    
+    <CliInputDefault>Cyan</CliInputDefault>
+    <CliOutputInfo>Yellow</CliOutputInfo>
+    <CliOutputError>Red</CliOutputError>
+    <CliOutputSuccess>Green</CliOutputSuccess>
+    <CliPrompt>Cyan</CliPrompt>
+
+    <TokenColors>
+        <Token type="NumberLiteral">Red</Token>
+        <Token type="StringLiteral">Green</Token>
+        <Token type="CharacterLiteral">Green</Token>
+        <Token type="BooleanLiteral">Yellow</Token>
+        <Token type="HexLiteral">Red</Token>
+        <Token type="Variable">Gray</Token>
+        <Token type="Keyword">Cyan</Token>
+        <Token type="Comment">DarkGray</Token>
+        <Token type="Grouping">Gray</Token>
+        <Token type="Operator">Magenta</Token>
+        <Token type="Function">Blue</Token>
+        <Token type="Url">Yellow</Token>
+        <Token type="SpecialChar">Magenta</Token>
+        <Token type="TrailingWhitespace">DarkGray</Token>
+
+        <Token type="CliCommandValid">Cyan</Token>
+        <Token type="CliCommandInvalid">Red</Token>
+        <Token type="CliSwitch">DarkGray</Token>
+        <Token type="CliString">Green</Token>
+    </TokenColors>
+</Theme>

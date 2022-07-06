@@ -28,6 +28,11 @@ namespace maple
                 combineArgs: true
                 );
 
+            Log.Write("Loading settings", "program");
+
+            // load settings
+            Settings.LoadSettings();
+
             Log.Write("Loading settings from switches", "program");
             // load settings from switches
             foreach(string sw in runInfo.Switches)
@@ -47,11 +52,11 @@ namespace maple
                         Settings.Properties.CliNoHighlight = true;
                         break;
                     case "-ro":
+                    case "--readonly":
+                        Settings.Properties.ReadOnly = true;
+                        break;
                     case "--relative-path":
                         Settings.Properties.RelativePath = true;
-                        break;
-                    case "--readonly":
-                        Input.ReadOnly = true;
                         break;
                     case "-log":
                     case "--enable-logging":
@@ -65,11 +70,6 @@ namespace maple
                         break;
                 }
             }
-
-            Log.Write("Loading settings", "program");
-
-            // load settings
-            Settings.LoadSettings();
 
             // delete log file and pretend nothing happened if logging is actually disabled
             if (!Settings.Properties.EnableLogging)
@@ -141,7 +141,7 @@ namespace maple
                 Console.ResetColor();
                 Console.WriteLine("Log file is available at: {0}", Log.LogPath);
             }
-            
+
             Console.ResetColor();
             Environment.Exit(0);
         }

@@ -1,71 +1,72 @@
-<xml>
-    <!--Highlighting RegEx-->
-    <syntax type="numberLiteral">(\d+\.?\d*f?)</syntax>
-    <syntax type="alphabetical" insensitive="true">[a-z_]+[a-z0-9_]*</syntax>
-    <syntax type="booleanLiteral">(true|false)</syntax>
-    <syntax type="hexLiteral" insensitive="true">0x[0-9a-f]+</syntax>
-    <syntax type="break">( |;|,)</syntax>
-    <syntax type="whitespace"> +</syntax>
-    <syntax type="grouping">(\(|\)|\{|\}|\[|\])</syntax>
-    <syntax type="stringLiteral">((?&lt;![\\])\")((?:.(?!(?&lt;![\\])\1))*.?)\1</syntax>
-    <syntax type="characterLiteral">((?&lt;![\\])')((?:.(?!(?&lt;![\\])\1))*.?)\1</syntax>
-    <syntax type="comment">(\/\/.*)</syntax>
-    <syntax type="operator">(\+|\-|\*|((?&lt;!\/)\/(?!\/))|\=|\%|\&gt;|\&lt;|\||\&amp;|\!)</syntax>
-    <syntax type="url" insensitive="true">http(s{0,1}):\/\/[0-9a-z\.\-_~\/\?=&amp;%]+</syntax>
-    <syntax type="function" insensitive="true">[a-z_]+[a-z0-9_]* {0,1}(?=\()</syntax>
-    <!--Keywords-->
-    <keywords>
-        <keyword>abstract</keyword>
-        <keyword>assert</keyword>
-        <keyword>boolean</keyword>
-        <keyword>break</keyword>
-        <keyword>byte</keyword>
-        <keyword>case</keyword>
-        <keyword>catch</keyword>
-        <keyword>char</keyword>
-        <keyword>class</keyword>
-        <keyword>const</keyword>
-        <keyword>continue</keyword>
-        <keyword>default</keyword>
-        <keyword>do</keyword>
-        <keyword>double</keyword>
-        <keyword>else</keyword>
-        <keyword>enum</keyword>
-        <keyword>extends</keyword>
-        <keyword>final</keyword>
-        <keyword>finally</keyword>
-        <keyword>float</keyword>
-        <keyword>for</keyword>
-        <keyword>goto</keyword>
-        <keyword>if</keyword>
-        <keyword>implements</keyword>
-        <keyword>import</keyword>
-        <keyword>instanceof</keyword>
-        <keyword>int</keyword>
-        <keyword>interface</keyword>
-        <keyword>lpng</keyword>
-        <keyword>native</keyword>
-        <keyword>new</keyword>
-        <keyword>package</keyword>
-        <keyword>private</keyword>
-        <keyword>protected</keyword>
-        <keyword>public</keyword>
-        <keyword>return</keyword>
-        <keyword>short</keyword>
-        <keyword>static</keyword>
-        <keyword>strictfp</keyword>
-        <keyword>super</keyword>
-        <keyword>switch</keyword>
-        <keyword>synchronized</keyword>
-        <keyword>this</keyword>
-        <keyword>throw</keyword>
-        <keyword>throws</keyword>
-        <keyword>transient</keyword>
-        <keyword>try</keyword>
-        <keyword>void</keyword>
-        <keyword>volatile</keyword>
-        <keyword>while</keyword>
-        <keyword>true</keyword>
-        <keyword>false</keyword>
-    </keywords>
-</xml>
+<FileProperties>
+    <SyntaxRules>
+        <Syntax type="Url" insensitive="true">http(s{0,1}):\/\/[0-9a-z\.\-_~\/\?=&amp;%]+</Syntax>
+        <Syntax type="Function" insensitive="true">[a-z_]+[a-z0-9_]* {0,1}(?=\()</Syntax>
+        <Syntax type="BooleanLiteral">(true|false)</Syntax>
+        <Syntax type="NumberLiteral">(\d+\.?\d*f?)</Syntax>
+        <Syntax type="Alphabetical" insensitive="true">[a-z_]+[a-z0-9_]*</Syntax>
+        <Syntax type="HexLiteral" insensitive="true">0x[0-9a-f]+</Syntax>
+        <Syntax type="Break">(;|,)</Syntax>
+        <Syntax type="Whitespace"> +</Syntax>
+        <Syntax type="Grouping">(\(|\)|\{|\}|\[|\])</Syntax>
+        <Syntax type="StringLiteral">((?&lt;![\\])\")((?:.(?!(?&lt;![\\])\1))*.?)\1</Syntax>
+        <Syntax type="CharacterLiteral">((?&lt;![\\])')((?:.(?!(?&lt;![\\])\1))*.?)\1</Syntax>
+        <Syntax type="Comment">(\/\/.*)</Syntax>
+        <Syntax type="Operator">(\+|\-|\*|((?&lt;!\/)\/(?!\/))|\=|\%|\&gt;|\&lt;|\||\&amp;|\!)</Syntax>
+    </SyntaxRules>
+    <!-- Sourced from https://docs.oracle.com/javase/tutorial/java/nutsandbolts/_keywords.html -->
+    <Keywords>
+        <Keyword>abstract</Keyword>
+        <Keyword>assert</Keyword>
+        <Keyword>boolean</Keyword>
+        <Keyword>break</Keyword>
+        <Keyword>byte</Keyword>
+        <Keyword>case</Keyword>
+        <Keyword>catch</Keyword>
+        <Keyword>char</Keyword>
+        <Keyword>class</Keyword>
+        <Keyword>const</Keyword>
+        <Keyword>continue</Keyword>
+        <Keyword>default</Keyword>
+        <Keyword>do</Keyword>
+        <Keyword>double</Keyword>
+        <Keyword>else</Keyword>
+        <Keyword>enum</Keyword>
+        <Keyword>extends</Keyword>
+        <Keyword>final</Keyword>
+        <Keyword>finally</Keyword>
+        <Keyword>float</Keyword>
+        <Keyword>for</Keyword>
+        <Keyword>goto</Keyword>
+        <Keyword>if</Keyword>
+        <Keyword>implements</Keyword>
+        <Keyword>import</Keyword>
+        <Keyword>instanceof</Keyword>
+        <Keyword>int</Keyword>
+        <Keyword>interface</Keyword>
+        <Keyword>lpng</Keyword>
+        <Keyword>native</Keyword>
+        <Keyword>new</Keyword>
+        <Keyword>package</Keyword>
+        <Keyword>private</Keyword>
+        <Keyword>protected</Keyword>
+        <Keyword>public</Keyword>
+        <Keyword>return</Keyword>
+        <Keyword>short</Keyword>
+        <Keyword>static</Keyword>
+        <Keyword>strictfp</Keyword>
+        <Keyword>super</Keyword>
+        <Keyword>switch</Keyword>
+        <Keyword>synchronized</Keyword>
+        <Keyword>this</Keyword>
+        <Keyword>throw</Keyword>
+        <Keyword>throws</Keyword>
+        <Keyword>transient</Keyword>
+        <Keyword>try</Keyword>
+        <Keyword>void</Keyword>
+        <Keyword>volatile</Keyword>
+        <Keyword>while</Keyword>
+        <Keyword>true</Keyword>
+        <Keyword>false</Keyword>
+    </Keywords>
+</FileProperties>

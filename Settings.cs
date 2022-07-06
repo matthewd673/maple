@@ -4,7 +4,6 @@ using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Reflection;
-using System.Text;
 
 namespace maple
 {
@@ -328,23 +327,25 @@ namespace maple
 
         private static void serializer_UnknownNode(object sender, XmlNodeEventArgs e)
         {
-            Log.Write(String.Format("Encountered an unknwon node while deserializing (line {0})", e.LineNumber), "settings", important: true);
+            Log.Write(String.Format("Encountered an unknown node while deserializing (line {0})", e.LineNumber), "settings", important: true);
             CommandLine.SetOutput("Encountered an unknown node while deserializing", "settings", oType: CommandLine.OutputType.Error);
         }
 
         private static void serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e)
         {
-            Log.Write(String.Format("Encountered an unknwon attribute while deserializing (line {0})", e.LineNumber), "settings", important: true);
-            CommandLine.SetOutput("Encountered an unknwon attribute while deserializing", "settings", oType: CommandLine.OutputType.Error);
+            Log.Write(String.Format("Encountered an unknown attribute while deserializing (line {0})", e.LineNumber), "settings", important: true);
+            CommandLine.SetOutput("Encountered an unknown attribute while deserializing", "settings", oType: CommandLine.OutputType.Error);
         }
 
         public static void LoadSettings()
         {
-            Properties = ReadSettingsFile<Properties>(PropertiesFile);
+            Properties loadedProperties = ReadSettingsFile<Properties>(PropertiesFile);
+            if (loadedProperties != null) Properties = loadedProperties;
             PopulateAliasesTable(Properties);
             PopulateShortcutsTable(Properties);
             
-            Theme = ReadSettingsFile<Theme>(ThemeFile);
+            Theme loadedTheme = ReadSettingsFile<Theme>(ThemeFile);
+            if (loadedTheme != null) Theme = loadedTheme;
             PopulateTokenColorsTable(Theme);
         }
 
@@ -361,7 +362,7 @@ namespace maple
             }
         }
 
-        public static void PopulateTokenColorsTable(Theme theme)
+        private static void PopulateTokenColorsTable(Theme theme)
         {
             foreach (TokenColor t in theme.Tokens)
             {
@@ -369,7 +370,7 @@ namespace maple
             }
         }
 
-        public static void PopulateAliasesTable(Properties properties)
+        private static void PopulateAliasesTable(Properties properties)
         {
             foreach (Alias a in properties.Aliases)
             {
@@ -377,18 +378,12 @@ namespace maple
             }
         }
 
-        public static void PopulateShortcutsTable(Properties properties)
+        private static void PopulateShortcutsTable(Properties properties)
         {
             foreach (Shortcut s in properties.Shortcuts)
             {
                 properties.ShortcutsTable.Add(StringToConsoleKeyTable[s.Key], s);
             }
         }
-
-        public static bool IsTrue(string value)
-        {
-            return value.Equals("true") | value.Equals("t") | value.Equals("1");
-        }
-
     }
 }

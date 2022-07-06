@@ -1,10 +1,11 @@
-<xml>
-    <!--Highlighting RegEx-->
-    <syntax type="numberLiteral">(\d+\.?\d*f?)</syntax>
-    <syntax type="alphabetical" insensitive="true">[a-z]+[a-z0-9\.]*</syntax>
-    <syntax type="hexLiteral" insensitive="true">0x[0-9a-f]+</syntax>
-    <syntax type="whitespace"> +</syntax>
-    <syntax type="stringLiteral">((?&lt;![\\])(\"|'))((?:.(?!(?&lt;![\\])\1))*.?)\1</syntax>
-    <syntax type="operator">(\+|\-|\*|((?&lt;!\/)\/(?!\/))|\=|\%|\&gt;|\&lt;|\||\&amp;|\!)</syntax>
-    <syntax type="url" insensitive="true">http(s{0,1}):\/\/[0-9a-z\.\-_~\/\?=&amp;%]+</syntax>
-</xml>
+<FileProperties>
+    <SyntaxRules>
+        <Syntax type="Url" insensitive="true">http(s{0,1}):\/\/[0-9a-z\.\-_~\/\?=&amp;%]+</Syntax>
+        <Syntax type="NumberLiteral">(\d+\.?\d*f?)</Syntax>
+        <Syntax type="Alphabetical" insensitive="true">[a-z]+[a-z0-9\.]*</Syntax>
+        <Syntax type="HexLiteral" insensitive="true">0x[0-9a-f]+</Syntax>
+        <Syntax type="Whitespace"> +</Syntax>
+        <Syntax type="StringLiteral">((?&lt;![\\])(\"|'))((?:.(?!(?&lt;![\\])\1))*.?)\1</Syntax>
+        <Syntax type="Operator">(\+|\-|\*|((?&lt;!\/)\/(?!\/))|\=|\%|\&gt;|\&lt;|\||\&amp;|\!)</Syntax>
+    </SyntaxRules>
+</FileProperties>

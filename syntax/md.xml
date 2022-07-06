@@ -1,10 +1,8 @@
-<xml>
-    <!--Highlighting RegEx-->
-    <syntax type="whitespace"> +</syntax>
-    <syntax type="stringLiteral">((?&lt;![\\])`)((?:.(?!(?&lt;![\\])\1))*.?)\1</syntax>
-    <syntax type="operator">((^#+)|(\*)|(_)|(-{3,})|(~))</syntax>
-    <syntax type="url">http(s{0,1}):\/\/[0-9a-zA-Z\.\-_~\/\?=&amp;%]+</syntax>
-    <!--Keywords-->
-    <keywords>
-    </keywords>
-</xml>
+<FileProperties>
+    <SyntaxRules>
+        <Syntax type="Url">http(s{0,1}):\/\/[0-9a-zA-Z\.\-_~\/\?=&amp;%]+</Syntax>
+        <Syntax type="Whitespace"> +</Syntax>
+        <Syntax type="StringLiteral">((?&lt;![\\])`)((?:.(?!(?&lt;![\\])\1))*.?)\1</Syntax>
+        <Syntax type="Operator">((^#+)|(\*)|(_)|(-{3,})|(~))</Syntax>
+    </SyntaxRules>
+</FileProperties>

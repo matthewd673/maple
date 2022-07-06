@@ -1,11 +1,11 @@
-<xml>
-    <!--Highlighting RegEx-->
-    <syntax type="break"> </syntax>
-    <syntax type="keyword" insensitive="true">((?&lt;=&lt;)|(?&lt;=&lt;\/))[a-z]+</syntax>
-    <syntax type="whitespace"> +</syntax>
-    <syntax type="stringLiteral">((?&lt;![\\])(\"|'))((?:.(?!(?&lt;![\\])\1))*.?)\1</syntax>
-    <syntax type="comment">&lt;\!\-\-.*\-\-&gt;</syntax>
-    <syntax type="url" insensitive="true">http(s{0,1}):\/\/[0-9a-z\.\-_~\/\?=&amp;%]+</syntax>
-    <syntax type="operator">=</syntax>
-    <syntax type="specialChar" insensitive="true">(&amp;[a-z0-9]+;)|(\\\.)</syntax>
-</xml>
+<FileProperties>
+    <SyntaxRules>
+        <Syntax type="Whitespace"> +</Syntax>
+        <Syntax type="Keyword" insensitive="true">((?&lt;=&lt;)|(?&lt;=&lt;\/))[a-z]+</Syntax>
+        <Syntax type="StringLiteral">((?&lt;![\\])(\"|'))((?:.(?!(?&lt;![\\])\1))*.?)\1</Syntax>
+        <Syntax type="Comment">&lt;\!\-\-.*\-\-&gt;</Syntax>
+        <Syntax type="Url" insensitive="true">http(s{0,1}):\/\/[0-9a-z\.\-_~\/\?=&amp;%]+</Syntax>
+        <Syntax type="Operator">=</Syntax>
+        <Syntax type="SpecialChar" insensitive="true">(&amp;[a-z0-9]+;)|(\\\.)</Syntax>
+    </SyntaxRules>
+</FileProperties>

@@ -56,10 +56,11 @@ namespace maple
                     Color = Settings.Theme.TokenColorTable[value];
                 else
                 {
-                    Log.Write("Theme missing TokenType: " + value, "token", important: true);
+                    // Log.Write("Theme missing TokenType: " + value, "token", important: true);
                     Color = ConsoleColor.Gray;
                 }
                 ColorAttribute = Printer.GetAttributeFromColor(Color);
+                
                 // TODO: this is a mess
                 if (_ttype == TokenType.TrailingWhitespace)
                 {

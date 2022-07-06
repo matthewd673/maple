@@ -23,7 +23,9 @@
         <Token type="Grouping">Gray</Token>
         <Token type="Operator">Cyan</Token>
         <Token type="Function">Red</Token>
-        <Token type="SpecialChar">Cyan</Token>
+        <Token type="Url">Blue</Token>
+        <Token type="SpecialChar">Magenta</Token>
+        <Token type="TrailingWhitespace">Red</Token>
 
         <Token type="CliCommandValid">Yellow</Token>
         <Token type="CliCommandInvalid">Red</Token>

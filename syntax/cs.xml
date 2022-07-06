@@ -1,94 +1,95 @@
-<xml>
-    <!--Highlighting RegEx-->
-    <syntax type="numberLiteral">(\d+\.?\d*f?)</syntax>
-    <syntax type="alphabetical" insensitive="true">[a-z_]+[a-z0-9_]*</syntax>
-    <syntax type="booleanLiteral">(true|false)</syntax>
-    <syntax type="hexLiteral" insensitive="true">0x[0-9a-f]+</syntax>
-    <syntax type="break">( |;|,)</syntax>
-    <syntax type="whitespace"> +</syntax>
-    <syntax type="grouping">(\(|\)|\{|\}|\[|\])</syntax>
-    <syntax type="stringLiteral">((?&lt;![\\])\")((?:.(?!(?&lt;![\\])\1))*.?)\1</syntax>
-    <syntax type="characterLiteral">((?&lt;![\\])')((?:.(?!(?&lt;![\\])\1))*.?)\1</syntax>
-    <syntax type="comment">(\/\/.*)</syntax>
-    <syntax type="operator">(\+|\-|\*|((?&lt;!\/)\/(?!\/))|\=|\%|\&gt;|\&lt;|\||\&amp;|\!)</syntax>
-    <syntax type="url" insensitive="true">http(s{0,1}):\/\/[0-9a-z\.\-_~\/\?=&amp;%]+</syntax>
-    <syntax type="function" insensitive="true">[a-z_]+[a-z0-9_]* {0,1}(?=\()</syntax>
-    <!--Keywords-->
-    <keywords>
-        <keyword>abstract</keyword>
-        <keyword>as</keyword>
-        <keyword>base</keyword>
-        <keyword>bool</keyword>
-        <keyword>break</keyword>
-        <keyword>byte</keyword>
-        <keyword>case</keyword>
-        <keyword>catch</keyword>
-        <keyword>char</keyword>
-        <keyword>checked</keyword>
-        <keyword>class</keyword>
-        <keyword>const</keyword>
-        <keyword>continue</keyword>
-        <keyword>decimal</keyword>
-        <keyword>default</keyword>
-        <keyword>delegate</keyword>
-        <keyword>do</keyword>
-        <keyword>double</keyword>
-        <keyword>else</keyword>
-        <keyword>enum</keyword>
-        <keyword>event</keyword>
-        <keyword>explicit</keyword>
-        <keyword>extern</keyword>
-        <keyword>finally</keyword>
-        <keyword>fixed</keyword>
-        <keyword>float</keyword>
-        <keyword>for</keyword>
-        <keyword>foreach</keyword>
-        <keyword>goto</keyword>
-        <keyword>if</keyword>
-        <keyword>implicit</keyword>
-        <keyword>in</keyword>
-        <keyword>int</keyword>
-        <keyword>interface</keyword>
-        <keyword>internal</keyword>
-        <keyword>is</keyword>
-        <keyword>lock</keyword>
-        <keyword>long</keyword>
-        <keyword>namespace</keyword>
-        <keyword>new</keyword>
-        <keyword>null</keyword>
-        <keyword>object</keyword>
-        <keyword>operator</keyword>
-        <keyword>out</keyword>
-        <keyword>override</keyword>
-        <keyword>params</keyword>
-        <keyword>private</keyword>
-        <keyword>protected</keyword>
-        <keyword>public</keyword>
-        <keyword>readonly</keyword>
-        <keyword>ref</keyword>
-        <keyword>return</keyword>
-        <keyword>sbyte</keyword>
-        <keyword>sealed</keyword>
-        <keyword>short</keyword>
-        <keyword>sizeof</keyword>
-        <keyword>stackalloc</keyword>
-        <keyword>static</keyword>
-        <keyword>string</keyword>
-        <keyword>struct</keyword>
-        <keyword>switch</keyword>
-        <keyword>this</keyword>
-        <keyword>throw</keyword>
-        <keyword>try</keyword>
-        <keyword>typeof</keyword>
-        <keyword>uint</keyword>
-        <keyword>ulong</keyword>
-        <keyword>unchecked</keyword>
-        <keyword>unsafe</keyword>
-        <keyword>ushort</keyword>
-        <keyword>using</keyword>
-        <keyword>virtual</keyword>
-        <keyword>void</keyword>
-        <keyword>volatile</keyword>
-        <keyword>while</keyword>
-    </keywords>
-</xml>
+<FileProperties>
+    <SyntaxRules>
+        <Syntax type="Url" insensitive="true">http(s{0,1}):\/\/[0-9a-z\.\-_~\/\?=&amp;%]+</Syntax>
+        <Syntax type="Function" insensitive="true">[a-z_]+[a-z0-9_]* {0,1}(?=\()</Syntax>
+        <Syntax type="BooleanLiteral">(true|false)</Syntax>
+        <Syntax type="NumberLiteral">(\d+\.?\d*f?)</Syntax>
+        <Syntax type="Alphabetical" insensitive="true">[a-z_]+[a-z0-9_]*</Syntax>
+        <Syntax type="HexLiteral" insensitive="true">0x[0-9a-f]+</Syntax>
+        <Syntax type="Break">(;|,)</Syntax>
+        <Syntax type="Whitespace"> +</Syntax>
+        <Syntax type="Grouping">(\(|\)|\{|\}|\[|\])</Syntax>
+        <Syntax type="StringLiteral">((?&lt;![\\])\")((?:.(?!(?&lt;![\\])\1))*.?)\1</Syntax>
+        <Syntax type="CharacterLiteral">((?&lt;![\\])')((?:.(?!(?&lt;![\\])\1))*.?)\1</Syntax>
+        <Syntax type="Comment">(\/\/.*)</Syntax>
+        <Syntax type="Operator">(\+|\-|\*|((?&lt;!\/)\/(?!\/))|\=|\%|\&gt;|\&lt;|\||\&amp;|\!)</Syntax>
+    </SyntaxRules>
+    <!-- Sourced from https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/ -->
+    <Keywords>
+        <Keyword>abstract</Keyword>
+        <Keyword>as</Keyword>
+        <Keyword>base</Keyword>
+        <Keyword>bool</Keyword>
+        <Keyword>break</Keyword>
+        <Keyword>byte</Keyword>
+        <Keyword>case</Keyword>
+        <Keyword>catch</Keyword>
+        <Keyword>char</Keyword>
+        <Keyword>checked</Keyword>
+        <Keyword>class</Keyword>
+        <Keyword>const</Keyword>
+        <Keyword>continue</Keyword>
+        <Keyword>decimal</Keyword>
+        <Keyword>default</Keyword>
+        <Keyword>delegate</Keyword>
+        <Keyword>do</Keyword>
+        <Keyword>double</Keyword>
+        <Keyword>else</Keyword>
+        <Keyword>enum</Keyword>
+        <Keyword>event</Keyword>
+        <Keyword>explicit</Keyword>
+        <Keyword>extern</Keyword>
+        <Keyword>finally</Keyword>
+        <Keyword>fixed</Keyword>
+        <Keyword>float</Keyword>
+        <Keyword>for</Keyword>
+        <Keyword>foreach</Keyword>
+        <Keyword>goto</Keyword>
+        <Keyword>if</Keyword>
+        <Keyword>implicit</Keyword>
+        <Keyword>in</Keyword>
+        <Keyword>int</Keyword>
+        <Keyword>interface</Keyword>
+        <Keyword>internal</Keyword>
+        <Keyword>is</Keyword>
+        <Keyword>lock</Keyword>
+        <Keyword>long</Keyword>
+        <Keyword>namespace</Keyword>
+        <Keyword>new</Keyword>
+        <Keyword>null</Keyword>
+        <Keyword>object</Keyword>
+        <Keyword>operator</Keyword>
+        <Keyword>out</Keyword>
+        <Keyword>override</Keyword>
+        <Keyword>params</Keyword>
+        <Keyword>private</Keyword>
+        <Keyword>protected</Keyword>
+        <Keyword>public</Keyword>
+        <Keyword>readonly</Keyword>
+        <Keyword>ref</Keyword>
+        <Keyword>return</Keyword>
+        <Keyword>sbyte</Keyword>
+        <Keyword>sealed</Keyword>
+        <Keyword>short</Keyword>
+        <Keyword>sizeof</Keyword>
+        <Keyword>stackalloc</Keyword>
+        <Keyword>static</Keyword>
+        <Keyword>string</Keyword>
+        <Keyword>struct</Keyword>
+        <Keyword>switch</Keyword>
+        <Keyword>this</Keyword>
+        <Keyword>throw</Keyword>
+        <Keyword>try</Keyword>
+        <Keyword>typeof</Keyword>
+        <Keyword>uint</Keyword>
+        <Keyword>ulong</Keyword>
+        <Keyword>unchecked</Keyword>
+        <Keyword>unsafe</Keyword>
+        <Keyword>ushort</Keyword>
+        <Keyword>using</Keyword>
+        <Keyword>virtual</Keyword>
+        <Keyword>void</Keyword>
+        <Keyword>volatile</Keyword>
+        <Keyword>while</Keyword>
+    </Keywords>
+</FileProperties>

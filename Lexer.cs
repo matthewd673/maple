@@ -3,13 +3,54 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Xml;
+using System.Xml.Serialization;
 
 namespace maple
 {
+
+    public class SyntaxRule
+    {
+        [XmlAttribute(AttributeName = "type")]
+        public string Type { get; set; }
+        [XmlAttribute(AttributeName = "insensitive")]
+        public bool Insensitive { get; set; }
+        [XmlText]
+        public string Pattern { get; set; }
+    }
+
+    public struct LexerRule
+    {
+        public TokenType TType { get; set; }
+        public Regex Pattern { get; set; }
+
+        /// <summary>
+        /// <c>LexerRule</c> represents a named pattern that the tokenizer will search for.
+        /// </summary>
+        /// <param name="name">The name of the pattern.</param>
+        /// <param name="pattern">The RegEx pattern to search.</param>
+        public LexerRule(TokenType tType, string pattern, RegexOptions options = RegexOptions.None)
+        {
+            TType = tType;
+            Pattern = new Regex(pattern, options | RegexOptions.Compiled);
+        }
+    }
+
+    public class FileProperties
+    {
+        [XmlArrayItem(ElementName = "Syntax")]
+        public List<SyntaxRule> SyntaxRules { get; set; } = new();
+        [XmlIgnore]
+        public List<LexerRule> LexerRules { get; set; } = new();
+        
+        [XmlArrayItem(ElementName = "Keyword")]
+        public List<string> Keywords { get; set; }= new();
+    }
+
     public static class Lexer
     {
-        static List<LexerRule> rules = new List<LexerRule>();
-        static List<string> keywords = new List<string>();
+        static FileProperties properties;
+        // static List<LexerRule> rules = new List<LexerRule>();
+        // static List<string> keywords = new List<string>();
 
         const string CliStringRule = "\".*\"";
         const string CliSwitchRule = "(-{1,2})([a-zA-Z0-9]|-)+";
@@ -25,12 +66,6 @@ namespace maple
         /// <param name="syntaxPath">The path to the syntax spec file.</param>
         public static void LoadSyntax(string syntaxPath)
         {
-            XmlDocument document = new XmlDocument();
-
-            //reset
-            rules.Clear();
-            keywords.Clear();
-
             if(!File.Exists(syntaxPath))
             {
                 Log.Write("Syntax path doesn't exist at '" + syntaxPath + "', falling back to default", "lexer", important: true);
@@ -46,49 +81,25 @@ namespace maple
             }
 
             Log.Write("Loading syntax from '" + syntaxPath + "'", "lexer");
-            CurrentSyntaxFile = syntaxPath;
-
-            try
-            {
-                document.Load(syntaxPath);
-            }
-            catch (Exception e)
-            {
-                CommandLine.SetOutput("Encountered an exception while loading syntax XML", "maple", oType: CommandLine.OutputType.Error);
-                Log.Write("Encountered exception while loading syntax XML: " + e.Message, "lexer", important: true);
-                return;
-            }
+            FileProperties loaded = Settings.ReadSettingsFile<FileProperties>(syntaxPath);            
+            if (loaded != null) properties = loaded;
             
-            //build syntax rules
-            XmlNodeList syntaxRules = document.GetElementsByTagName("syntax");
-            foreach (XmlNode node in syntaxRules)
+            BuildLexerRulesFromSyntaxRules(properties);
+
+            CurrentSyntaxFile = syntaxPath;
+        }
+
+        private static void BuildLexerRulesFromSyntaxRules(FileProperties properties)
+        {
+            foreach (SyntaxRule s in properties.SyntaxRules)
             {
-                string type = "";
-                string value = "";
-                bool insensitive = false;
-                foreach(XmlAttribute a in node.Attributes)
-                {
-                    if(a.Name.ToLower().Equals("type"))
-                        type = a.Value.ToLower();
-                    if(a.Name.ToLower().Equals("insensitive"))
-                        insensitive = Settings.IsTrue(a.Value);
-                }
-                value = node.InnerText.ToLower();
-
-                RegexOptions options = RegexOptions.None;
-                if (insensitive)
-                    options = options | RegexOptions.IgnoreCase;
-
-                rules.Insert(0, new LexerRule(Settings.StringToTokenTypeTable[type], value, options));
+                LexerRule l = new LexerRule(
+                    Settings.StringToTokenTypeTable[s.Type.ToLower()],
+                    s.Pattern,
+                    s.Insensitive ? RegexOptions.IgnoreCase : RegexOptions.None
+                );
+                properties.LexerRules.Add(l);
             }
-
-            Log.Write("Loaded " + rules.Count + " lexer rules", "lexer");
-
-            //build keyword list
-            XmlNodeList keywordNodes = document.GetElementsByTagName("keyword");
-            foreach (XmlNode node in keywordNodes)
-                keywords.Add(node.InnerText);
-            Log.Write("Loaded " + keywords.Count + " lexer keywords", "lexer");
         }
 
         public static void LoadCommandLineSyntax()
@@ -203,7 +214,7 @@ namespace maple
             if (Settings.Properties.NoTokenize)
                 return new List<Token> { new Token(text, TokenType.None) };
             else
-                return InternalTokenizer(text, rules, keywords);
+                return InternalTokenizer(text, properties.LexerRules, properties.Keywords);
         }
 
         public static List<Token> TokenizeCommandLine(string text)
@@ -222,23 +233,5 @@ namespace maple
             
             return tokens;
         }
-
-        struct LexerRule
-        {
-            public TokenType TType { get; set; }
-            public Regex Pattern { get; set; }
-
-            /// <summary>
-            /// <c>LexerRule</c> represents a named pattern that the tokenizer will search for.
-            /// </summary>
-            /// <param name="name">The name of the pattern.</param>
-            /// <param name="pattern">The RegEx pattern to search.</param>
-            public LexerRule(TokenType tType, string pattern, RegexOptions options = RegexOptions.None)
-            {
-                TType = tType;
-                Pattern = new Regex(pattern, options | RegexOptions.Compiled);
-            }
-        }
-
     }
 }
