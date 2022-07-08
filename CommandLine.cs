@@ -346,11 +346,11 @@ namespace maple
             savePath = savePath.Trim('\"');
 
             Encoding encoding = Encoding.UTF8;
-            if (Settings.Properties.DefaultEncoding.Equals("utf8"))
+            if (Lexer.Properties.DefaultEncoding.Equals("utf8"))
             {
                 encoding = Encoding.UTF8;
             }
-            else if (Settings.Properties.DefaultEncoding.Equals("ascii"))
+            else if (Lexer.Properties.DefaultEncoding.Equals("ascii"))
             {
                 encoding = Encoding.ASCII;
             }

@@ -162,7 +162,7 @@ namespace maple
             foreach(Line l in fileLines)
                 allLines.Add(l.LineContent);
             File.WriteAllLines(savePath, allLines, encoding);
-            Log.Write("Saved file to '" + savePath + "'", "document");
+            Log.Write("Saved file to \"" + savePath + "\" (encoding: " + encoding.ToString() + ")", "document");
             Dirty = false;
         }
 
@@ -325,6 +325,7 @@ namespace maple
                     }
                 }
 
+                // if an empty line is fully selected, denote selection anyway
                 if (l.Tokens.Count == 0 && fullySelected)
                 {
                     Printer.PrintWord(" ", selectColorAttribute);

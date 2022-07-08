@@ -77,11 +77,6 @@ namespace maple
                 Log.DisableLogging();
             }
 
-            // Log.Write("Loading theme", "program");
-            // prepare styler
-            // Styler.LoadMapleTheme();
-
-            // handle input
             // load file
             if (args.Length > 0)
             {
@@ -115,7 +110,7 @@ namespace maple
         public static void ThrowFatalError(string message)
         {
             Log.Write("Throw fatal error: " + message, "program", important: true);
-            
+
             Printer.RestorePreviousConsoleMode();
 
             Console.ForegroundColor = Settings.Theme.ErrorColor;

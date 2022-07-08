@@ -44,11 +44,13 @@ namespace maple
         
         [XmlArrayItem(ElementName = "Keyword")]
         public List<string> Keywords { get; set; }= new();
+
+        public string DefaultEncoding { get; set; } = Settings.Properties.DefaultEncoding;
     }
 
     public static class Lexer
     {
-        static FileProperties properties;
+        public static FileProperties Properties { get; private set; }
         // static List<LexerRule> rules = new List<LexerRule>();
         // static List<string> keywords = new List<string>();
 
@@ -82,9 +84,9 @@ namespace maple
 
             Log.Write("Loading syntax from '" + syntaxPath + "'", "lexer");
             FileProperties loaded = Settings.ReadSettingsFile<FileProperties>(syntaxPath);            
-            if (loaded != null) properties = loaded;
+            if (loaded != null) Properties = loaded;
             
-            BuildLexerRulesFromSyntaxRules(properties);
+            BuildLexerRulesFromSyntaxRules(Properties);
 
             CurrentSyntaxFile = syntaxPath;
         }
@@ -214,7 +216,7 @@ namespace maple
             if (Settings.Properties.NoTokenize)
                 return new List<Token> { new Token(text, TokenType.None) };
             else
-                return InternalTokenizer(text, properties.LexerRules, properties.Keywords);
+                return InternalTokenizer(text, Properties.LexerRules, Properties.Keywords);
         }
 
         public static List<Token> TokenizeCommandLine(string text)

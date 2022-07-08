@@ -22,6 +22,20 @@ namespace maple
                 );
             }
         }
+
+        private string _backgroundColor = "Black";
+        public string BackgroundColor
+        {
+            get { return _backgroundColor; }
+            set
+            {
+                _backgroundColor = value;
+                ColorAttribute = Printer.GetAttributeFromColor(
+                    Settings.StringToConsoleColor(_color),
+                    Settings.StringToConsoleColor(_backgroundColor)
+                );
+            }
+        }
         
         public abstract string GetText();
     }
@@ -231,8 +245,6 @@ namespace maple
                 PrintOutputLine();
                 refreshOutputNext = false;
             }
-
-            // Printer.ApplyBuffer();
         }
 
         public static void RefreshOutputLine()
