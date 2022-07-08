@@ -8,7 +8,7 @@ namespace maple
     public abstract class FooterBlock
     {
         [XmlIgnore]
-        public short ColorAttribute { get; private set; }
+        public short ColorAttribute { get; private set; } = Printer.GetAttributeFromColor(ConsoleColor.Gray);
 
         private string _color = "Gray";
         public string Color
@@ -28,7 +28,7 @@ namespace maple
 
     public class FooterBlockText : FooterBlock
     {
-        public string Content { get; set; }
+        public string Content { get; set; } = "";
 
         public override string GetText()
         {
@@ -40,7 +40,7 @@ namespace maple
     {
         public override string GetText()
         {
-            return "-";
+            return " ";
         }
     }
 
@@ -83,34 +83,41 @@ namespace maple
         }
     }
 
-    public class FooterBlockReadOnly : FooterBlock
+    public class FooterBlockReadOnlyIndicator : FooterBlock
     {
+        public string TrueValue { get; set; } = "[readonly]";
+        public string FalseValue { get; set; } = "";
+
         public override string GetText()
         {
-            return (Input.ReadOnly) ? "[readonly]" : "";
+            return (Input.ReadOnly) ? TrueValue : FalseValue;
+        }
+    }
+
+    public class FooterBlockDirtyIndicator : FooterBlock
+    {
+        public string TrueValue { get; set; } = "*";
+        public string FalseValue { get; set; } = "";
+
+        public override string GetText()
+        {
+            return Editor.CurrentDoc.Dirty ? TrueValue : FalseValue;
         }
     }
 
     public class FooterLayout
     {
+        public string SeparatorText { get; set; } = " ";
+
         [XmlArrayItem(ElementName = "Text", Type = typeof(FooterBlockText)),
          XmlArrayItem(ElementName = "Separator", Type = typeof(FooterBlockSeparator)),
          XmlArrayItem(ElementName = "Filepath", Type = typeof(FooterBlockFilepath)),
          XmlArrayItem(ElementName = "LnCol", Type = typeof(FooterBlockLnCol)),
          XmlArrayItem(ElementName = "Selection", Type = typeof(FooterBlockSelection)),
-         XmlArrayItem(ElementName = "ReadOnly", Type = typeof(FooterBlockReadOnly))]
-        public List<FooterBlock> BlockGroup { get; set; } = new()
-        {
-            new FooterBlockText() { Content = "maple", Color = "Yellow"},
-            new FooterBlockSeparator(),
-            new FooterBlockFilepath() { Color = "Gray" },
-            new FooterBlockSeparator(),
-            new FooterBlockLnCol() { Color = "Yellow" },
-            new FooterBlockSeparator(),
-            new FooterBlockSelection() { Color = "Blue" },
-            new FooterBlockSeparator(),
-            new FooterBlockReadOnly() { Color = "DarkGray" },
-        };
+         XmlArrayItem(ElementName = "ReadOnlyIndicator", Type = typeof(FooterBlockReadOnlyIndicator)),
+         XmlArrayItem(ElementName = "DirtyIndicator", Type = typeof(FooterBlockDirtyIndicator))
+         ]
+        public List<FooterBlock> BlockGroup { get; set; } = new();
     }
 
     static class Footer
@@ -125,7 +132,29 @@ namespace maple
         public static void LoadFooterLayout()
         {
             FooterLayout loaded = Settings.ReadSettingsFile<FooterLayout>(Settings.Properties.FooterLayoutFile);
-            if (loaded != null) layout = loaded;
+            if (loaded != null)
+            {
+                layout = loaded;
+                Log.Write("Loaded " + layout.BlockGroup.Count + " footer layout blocks", "footer");
+            }
+            else
+            {
+                // null layout, load default block group
+                layout.BlockGroup = new() {
+                    new FooterBlockText() { Content = "maple", Color = "Yellow"},
+                    new FooterBlockSeparator(),
+                    new FooterBlockFilepath() { Color = "Gray" },
+                    new FooterBlockSeparator(),
+                    new FooterBlockLnCol() { Color = "Yellow" },
+                    new FooterBlockSeparator(),
+                    new FooterBlockSelection() { Color = "Blue" },
+                    new FooterBlockSeparator(),
+                    new FooterBlockReadOnlyIndicator() { Color = "DarkGray" },
+                };
+
+                Log.Write("Failed to load footer layout", "footer", important: true);
+                Log.Write("Loaded " + layout.BlockGroup.Count + " default footer layout blocks", "footer");
+            }
         }
 
         /// <summary>

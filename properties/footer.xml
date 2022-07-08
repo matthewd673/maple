@@ -4,21 +4,28 @@
             <Content>maple</Content>
             <Color>Yellow</Color>
         </Text>
-        <Separator></Separator>
+        <Separator />
         <Filepath>
             <Color>Gray</Color>
         </Filepath>
-        <Separator></Separator>
+        <DirtyIndicator>
+            <TrueValue>*</TrueValue>
+            <FalseValue></FalseValue>
+            <Color>White</Color>
+        </DirtyIndicator>
+        <Separator />
         <LnCol>
             <Color>Yellow</Color>
         </LnCol>
-        <Separator></Separator>
+        <Separator />
         <Selection>
             <Color>Blue</Color>
         </Selection>
-        <Separator></Separator>
-        <ReadOnly>
+        <Separator />
+        <ReadOnlyIndicator>
+            <TrueValue>[readonly]</TrueValue>
+            <FalseValue></FalseValue>
             <Color>DarkGray</Color>
-        </ReadOnly>
+        </ReadOnlyIndicator>
     </BlockGroup>
 </FooterLayout>
