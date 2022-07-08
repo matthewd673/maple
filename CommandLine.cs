@@ -800,18 +800,82 @@ namespace maple
 
         static void CommentCommand(List<string> args, List<string> switches)
         {
+            string tabString = "";
+            for (int i = 0; i < Settings.Properties.TabSpacesCount; i++) tabString += " ";
+
             // comment entire selection
             if (Editor.CurrentDoc.HasSelection())
             {
-                // TODO
+                bool commenting = true;
+                string indentation = "";
+                for (int i = Editor.CurrentDoc.SelectInY; i <= Editor.CurrentDoc.SelectOutY; i++)
+                {
+                    string line = Editor.CurrentDoc.GetLine(i);
+
+                    if (i == Editor.CurrentDoc.SelectInY)
+                    {
+                        // first line is commented, so we'll be uncommenting
+                        if (line.StartsWith(Lexer.Properties.CommentPrefix))
+                            commenting = false;
+
+                        // get line indentation prefix, the first line sets the tone for the rest
+                        while (line.StartsWith(tabString))
+                        {
+                            indentation += tabString;
+                            line = line.Remove(0, Settings.Properties.TabSpacesCount);
+                        }
+                    }
+
+                    if (commenting)
+                    {
+                        Editor.CurrentDoc.SetLine(
+                        i,
+                        indentation + Lexer.Properties.CommentPrefix + line
+                        );
+                    }
+                    else
+                    {
+                        line = line.Remove(0, Lexer.Properties.CommentPrefix.Length);
+                        Editor.CurrentDoc.SetLine(
+                            i,
+                            indentation + line
+                        );
+                    }
+
+                    Editor.RefreshLine(i);
+                }
             }
             // comment one line
             else
             {
-                Editor.CurrentDoc.SetLine(
-                    Editor.DocCursor.DY,
-                    Lexer.Properties.CommentPrefix + Editor.CurrentDoc.GetLine(Editor.DocCursor.DY)
+                string line = Editor.CurrentDoc.GetLine(Editor.DocCursor.DY);
+
+                // get line indentation prefix
+                string indentation = "";
+                while (line.StartsWith(tabString))
+                {
+                    indentation += tabString;
+                    line = line.Remove(0, Settings.Properties.TabSpacesCount);
+                }
+
+                // is not commented - comment                
+                if (!line.StartsWith(Lexer.Properties.CommentPrefix))
+                {
+                    Editor.CurrentDoc.SetLine(
+                        Editor.DocCursor.DY,
+                        indentation + Lexer.Properties.CommentPrefix + line
+                        );
+                }
+                // is commented - uncomment
+                else
+                {
+                    line = line.Remove(0, Lexer.Properties.CommentPrefix.Length);
+                    Editor.CurrentDoc.SetLine(
+                        Editor.DocCursor.DY,
+                        indentation + line
                     );
+                }
+                
                 Editor.RefreshLine(Editor.DocCursor.DY);
             }
         }
