@@ -293,17 +293,13 @@ namespace maple
             { "url", TokenType.Url },
             { "function", TokenType.Function },
             { "specialchar", TokenType.SpecialChar },
+            { "multilinecommentopen", TokenType.MultilineCommentOpen },
+            { "multilinecommentclose", TokenType.MultilineCommentClose },
             
             { "clicommandvalid", TokenType.CliCommandValid },
             { "clicommandinvalid", TokenType.CliCommandInvalid },
             { "cliswitch", TokenType.CliSwitch },
             { "clistring", TokenType.CliString },
-
-            { "footerseparator", TokenType.FooterSeparator },
-            { "footerfilepath", TokenType.FooterFilepath },
-            { "footerlncol", TokenType.FooterLnCol },
-            { "footerselection", TokenType.FooterSelection },
-            { "footerindicator", TokenType.FooterIndicator },
 
             { "trailingwhitespace", TokenType.TrailingWhitespace },
         };
@@ -345,13 +341,13 @@ namespace maple
         private static void serializer_UnknownNode(object sender, XmlNodeEventArgs e)
         {
             Log.Write(String.Format("Encountered an unknown node while deserializing (\"{0}\" line {1})", e.Name, e.LineNumber), "settings", important: true);
-            CommandLine.SetOutput("Encountered an unknown node while deserializing", "settings", oType: CommandLine.OutputType.Error);
+            CommandLine.SetOutput("Encountered an unknown node while deserializing", "settings", oType: CommandLine.OutputType.Error, renderFooter: false);
         }
 
         private static void serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e)
         {
             Log.Write(String.Format("Encountered an unknown attribute while deserializing (\"{0}\" line {1})", e.Attr, e.LineNumber), "settings", important: true);
-            CommandLine.SetOutput("Encountered an unknown attribute while deserializing", "settings", oType: CommandLine.OutputType.Error);
+            CommandLine.SetOutput("Encountered an unknown attribute while deserializing", "settings", oType: CommandLine.OutputType.Error, renderFooter: false);
         }
 
         public static void LoadSettings()

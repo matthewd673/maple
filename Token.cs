@@ -25,19 +25,14 @@ namespace maple
         Url,
         Function,
         SpecialChar,
+        MultilineCommentOpen,
+        MultilineCommentClose,
 
         // CLI INPUT
         CliCommandValid,
         CliCommandInvalid,
         CliSwitch,
         CliString,
-
-        // FOOTER
-        FooterSeparator,
-        FooterFilepath,
-        FooterLnCol,
-        FooterSelection,
-        FooterIndicator,
 
         // SPECIAL
         TrailingWhitespace,

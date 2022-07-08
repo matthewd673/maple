@@ -9,6 +9,22 @@ namespace maple
     static class CommandLine
     {
 
+        public delegate void CommandDelegate(List<string> args, List<string> switches);
+
+        public struct Command
+        {
+            public string Name { get; set; }
+            public string HelpText { get; set; }
+            public CommandDelegate Function { get; set; }
+
+            public Command(string name, string helpText, CommandDelegate function)
+            {
+                Name = name;
+                HelpText = helpText;
+                Function = function;
+            }
+        }
+
         public enum OutputType
         {
             Info,
@@ -16,12 +32,37 @@ namespace maple
             Success,
         }
 
-        public static string[] CommandMasterList { get; } = new string[] {
-            "help", "save", "load", "new", "close", "cls", "top", "bot",
-            "redraw", "goto", "selectin", "selectout", "deselect", "readonly",
-            "syntax", "alias", "url", "find", "deindent", "count", "copy", "paste",
-            "cut", "selectline", "selectall", "shortcut", "undo", "redo"
-            };
+        public static Dictionary<string, Command> Commands { get; } = new() {
+            { "help", new Command("help", "\"help [command]\", \"help all\", or \"help wiki\"", HelpCommand) },
+            { "save", new Command("save", "save [filename]: save document, or save a copy to filename", SaveCommand) },
+            { "load", new Command("load", "load [filename]: reload document, or load document at filename", LoadCommand) },
+            { "new", new Command("new", "new [filename]: create a new document at filename", NewCommand) },
+            { "close", new Command("close", "close: close maple without saving", CloseCommand) },
+            { "cls", new Command("cls", "cls: clear the command output", ClearCommand) },
+            { "top", new Command("top", "top: jump to the top of the document", TopCommand) },
+            { "bot", new Command("bot", "bot: jump to the bottom of the document", BotCommand) },
+            { "redraw", new Command("redraw", "redraw: force a complete redraw of the window", RedrawCommand) },
+            { "goto", new Command("goto", "goto [line]: jump to the specified line", GotoCommand) },
+            { "selectin", new Command("selectin", "selectin: open selection", SelectInCommand) },
+            { "selectout", new Command("selectout", "selectout: close selection", SelectOutCommand) },
+            { "deselect", new Command("deselect", "deselect: deselect the current selection", DeselectCommand) },
+            { "readonly", new Command("readonly", "readonly: toggle readonly mode", ReadonlyCommand) },
+            { "syntax", new Command("syntax", "syntax [extension]: render the current file with the specified syntax rules", SyntaxCommand) },
+            { "alias", new Command("alias", "alias [command]: view all aliases for a given command", AliasCommand) },
+            { "url", new Command("url", "url: if the cursor is currently hovered on a url, open it in the browser", UrlCommand) },
+            { "find", new Command("find", "find [query] [switches]: find the next occurrence of the search phrase, starting from the top", FindCommand) },
+            { "deindent", new Command("deindent", "deindent: deindent the current line or selection", DeindentCommand) },
+            { "count", new Command("count", "count [stat]: count document '--lines' or '--chars'", CountCommand) },
+            { "copy", new Command("copy", "copy: copy the current selection or line to the internal clipboard", CopyCommand) },
+            { "paste", new Command("paste", "paste: paste the contents of the internal clipboard", PasteCommand) },
+            { "cut", new Command("cut", "cut: cut the current selection or line", CutCommand) },
+            { "selectline", new Command("selectline", "selectline: select the current line", SelectLineCommand) },
+            { "selectall", new Command("selectall", "selectall: select the entire document", SelectAllCommand) },
+            { "shortcut", new Command("shortcut", "shortcut [key]: display the shortcut command for the given key", ShortcutCommand) },
+            { "undo", new Command("undo", "undo: undo the last edit to the document", UndoCommand) },
+            { "redo", new Command("redo", "redo: redo the last edit in the undo history", RedoCommand) },
+            { "comment", new Command("comment", "comment: toggle the comment status of the current line or selection", CommentCommand) },
+        };
 
         public static string InputText { get; set; } = "";
 
@@ -94,17 +135,17 @@ namespace maple
 
         public static void ExecuteInput()
         {
-            if(HasOutput) //output is being displayed, reset for the future
+            if(HasOutput) // output is being displayed, reset for the future
                 ClearOutput();
 
-            if (InputText.Equals("")) //skip empty commands
+            if (InputText.Equals("")) // skip empty commands
             {
                 Input.ToggleInputTarget();
                 return;
             }
 
-            CommandHistoryIndex = -1; //reset command history index
-            if (CommandHistory.Count == 0 || !CommandHistory[CommandHistory.Count - 1].Equals(InputText))
+            CommandHistoryIndex = -1; // reset command history index
+            if (CommandHistory.Count == 0 || !CommandHistory[^1].Equals(InputText))
                 CommandHistory.Insert(0, InputText);
 
             CommandParser.CommandInfo commandInfo = CommandParser.Parse(InputText);
@@ -113,99 +154,17 @@ namespace maple
             List<string> commandArgs = commandInfo.Args;
             List<string> commandSwitches = commandInfo.Switches;
 
-            //swap out alias with actual primary command
-            if (Settings.Properties.AliasesTable.ContainsKey(primaryCommand) && !CommandMasterList.Contains(primaryCommand))
+            // swap out alias with actual primary command
+            if (Settings.Properties.AliasesTable.ContainsKey(primaryCommand) && !Commands.ContainsKey(primaryCommand))
                 primaryCommand = Settings.Properties.AliasesTable[primaryCommand];
 
-            switch(primaryCommand)
+            if (Commands.ContainsKey(primaryCommand))
             {
-                case "help":
-                    HelpCommand(commandArgs, commandSwitches);
-                    break;
-                case "save":
-                    SaveCommand(commandArgs, commandSwitches);
-                    break;
-                case "load":
-                    LoadCommand(commandArgs, commandSwitches);
-                    break;
-                case "new":
-                    NewCommand(commandArgs, commandSwitches);
-                    break;
-                case "close":
-                    CloseCommand();
-                    break;
-                case "cls":
-                    ClearCommand();
-                    break;
-                case "top":
-                    TopCommand();
-                    break;
-                case "bot":
-                    BotCommand();
-                    break;
-                case "redraw":
-                    RedrawCommand();
-                    break;
-                case "goto":
-                    GotoCommand(commandArgs, commandSwitches);
-                    break;
-                case "selectin":
-                    SelectInCommand();
-                    break;
-                case "selectout":
-                    SelectOutCommand();
-                    break;
-                case "deselect":
-                    DeselectCommand();
-                    break;
-                case "readonly":
-                    ReadonlyCommand();
-                    break;
-                case "syntax":
-                    SyntaxCommand(commandArgs, commandSwitches);
-                    break;
-                case "alias":
-                    AliasCommand(commandArgs, commandSwitches);
-                    break;
-                case "url":
-                    UrlCommand();
-                    break;
-                case "find":
-                    FindCommand(commandArgs, commandSwitches);
-                    break;
-                case "deindent":
-                    DeindentCommand();
-                    break;
-                case "count":
-                    CountCommand(commandArgs, commandSwitches);
-                    break;
-                case "copy":
-                    CopyCommand();
-                    break;
-                case "paste":
-                    PasteCommand();
-                    break;
-                case "cut":
-                    CutCommand();
-                    break;
-                case "selectline":
-                    SelectLineCommand();
-                    break;
-                case "selectall":
-                    SelectAllCommand();
-                    break;
-                case "shortcut":
-                    ShortcutCommand(commandArgs, commandSwitches);
-                    break;
-                case "undo":
-                    UndoCommand();
-                    break;
-                case "redo":
-                    RedoCommand();
-                    break;
-                default:
-                    UnknownCommand();
-                    break;
+                Commands[primaryCommand].Function(commandArgs, commandSwitches);
+            }
+            else
+            {
+                UnknownCommand();
             }
 
             //empty input field and toggle back to editor
@@ -224,117 +183,41 @@ namespace maple
                 return;
             }
 
-            switch (args[0])
+            // print command help text
+            if (Commands.ContainsKey(args[0]))
             {
-                case "help":
-                    SetOutput(defaultHelpString, "help");
-                    break;
-                case "all":
-                    string output = "";
-                    for (int i = 0; i < CommandMasterList.Length; i++)
-                    {
-                        output += CommandMasterList[i];
-                        if (i < CommandMasterList.Length - 1)
-                            output += ", ";
-                    }
-                    SetOutput(output, "help");
-                    break;
-                case "wiki":
-                    Process.Start("explorer", wikiUrl);
-                    Log.Write("Launching GitHub wiki: " + wikiUrl, "commandline/help");
-                    SetOutput(String.Format("Navigating to {0}", wikiUrl), "help", OutputType.Success);
-                    break;
-                case "save":
-                    SetOutput("save [optional filename]: save document to filename", "help");
-                    break;
-                case "load":
-                    SetOutput("load [filename]: load document at filename", "help");
-                    break;
-                case "new":
-                    SetOutput("new [filename]: create a new document at filename", "help");
-                    break;
-                case "close":
-                    SetOutput("close: close maple without saving", "help");
-                    break;
-                case "cls":
-                    SetOutput("cls: clear the last command output", "help");
-                    break;
-                case "top":
-                    SetOutput("top: jump to the top of the document", "help");
-                    break;
-                case "bot":
-                    SetOutput("bot: jump to the bottom of the document", "help");
-                    break;
-                case "redraw":
-                    SetOutput("redraw: redraw the editor, usually fixes any rendering errors", "help");
-                    break;
-                case "goto":
-                    SetOutput("goto [line]: jump to the specified line", "help");
-                    break;
-                case "selectin":
-                    SetOutput("selectin: start selection", "help");
-                    break;
-                case "selectout":
-                    SetOutput("selectout: end selection", "help");
-                    break;
-                case "deselect":
-                    SetOutput("deselect: clear selection region bounds", "help");
-                    break;
-                case "readonly":
-                    SetOutput("readonly: toggle readonly mode", "help");
-                    break;
-                case "syntax":
-                    SetOutput("syntax [extension]: render the current file with the syntax rules defined for [extension] files", "help");
-                    break;
-                case "alias":
-                    SetOutput("alias [command]: view all aliases for a given command", "help");
-                    break;
-                case "url":
-                    SetOutput("url: if the cursor is currently hovered on a url, open it in the browser", "help");
-                    break;
-                case "find":
-                    SetOutput("find [query] [switches]: find the next occurrence of the search phrase, starting from the top", "help");
-                    break;
-                case "deindent":
-                    SetOutput("deindent: deintent the current line or selection", "help");
-                    break;
-                case "count":
-                    SetOutput("count: get stats on the document", "count");
-                    break;
-                case "copy":
-                    SetOutput("copy: copy the current selection or line to the internal clipboard", "help");
-                    break;
-                case "paste":
-                    SetOutput("paste: paste the contents of the internal clipboard", "help");
-                    break;
-                case "cut":
-                    SetOutput("cut: cut the current selection or line", "help");
-                    break;
-                case "selectline":
-                    SetOutput("selectline: select the current line", "help");
-                    break;
-                case "selectall":
-                    SetOutput("selectall: select the entire document", "help");
-                    break;
-                case "shortcut":
-                    SetOutput("shortcut [key]: display the command that is executed when the given shortcut key is pressed", "help");
-                    break;
-                case "undo":
-                    SetOutput("Undo the last edit made to the document", "help");
-                    break;
-                case "redo":
-                    SetOutput("Redo the last edit in the undo history", "help");
-                    break;
-                default:
-                    if (Settings.Properties.AliasesTable.ContainsKey(args[0]))
-                    {
-                        SetOutput(String.Format("\"{0}\" is an alias for \"{1}\"", args[0], Settings.Properties.AliasesTable[args[0]]), "help");
-                    }
-                    else
-                    {
-                        UnknownCommand();
-                    }
-                    break;
+                SetOutput(Commands[args[0]].HelpText, "help");
+            }
+            // command wasn't found, it may be a special case
+            else
+            {
+                switch (args[0])
+                {
+                    case "all":
+                        string output = "";
+                        foreach (string k in Commands.Keys)
+                        {
+                            output += Commands[k].Name + ", ";
+                        }
+                        output = output.Remove(output.Length - 3);
+                        SetOutput(output, "help");
+                        break;
+                    case "wiki":
+                        Process.Start("explorer", wikiUrl);
+                        Log.Write("Launching GitHub wiki: " + wikiUrl, "commandline/help");
+                        SetOutput(String.Format("Navigating to {0}", wikiUrl), "help", OutputType.Success);
+                        break;
+                    default:
+                        if (Settings.Properties.AliasesTable.ContainsKey(args[0]))
+                        {
+                            SetOutput(String.Format("\"{0}\" is an alias for \"{1}\"", args[0], Settings.Properties.AliasesTable[args[0]]), "help");
+                        }
+                        else
+                        {
+                            UnknownCommand();
+                        }
+                        break;
+                }
             }
         }
 
@@ -434,48 +317,48 @@ namespace maple
         
         }
 
-        static void CloseCommand()
+        static void CloseCommand(List<string> args, List<string> switches)
         {
             if (Settings.Properties.SaveOnClose) //call save command first
                 SaveCommand(new List<string>(), new List<string>());
             Program.Close();
         }
 
-        static void ClearCommand()
+        static void ClearCommand(List<string> args, List<string> switches)
         {
             ClearOutput();
         }
 
-        static void TopCommand()
+        static void TopCommand(List<string> args, List<string> switches)
         {
             Editor.DocCursor.Move(Editor.DocCursor.DX, 0);
         }
 
-        static void BotCommand()
+        static void BotCommand(List<string> args, List<string> switches)
         {
             Editor.DocCursor.Move(Editor.DocCursor.DX, Editor.DocCursor.Doc.GetMaxLine());
         }
 
-        static void RedrawCommand()
+        static void RedrawCommand(List<string> args, List<string> switches)
         {
             Editor.RedrawWindow();
         }
 
-        static void SelectInCommand()
+        static void SelectInCommand(List<string> args, List<string> switches)
         {
             Editor.CurrentDoc.MarkSelectionIn(Editor.DocCursor.DX, Editor.DocCursor.DY);
             if (Editor.CurrentDoc.HasSelection()) //only refresh if there is a complete selection
                 Editor.RefreshAllLines();
         }
 
-        static void SelectOutCommand()
+        static void SelectOutCommand(List<string> args, List<string> switches)
         {
             Editor.CurrentDoc.MarkSelectionOut(Editor.DocCursor.DX, Editor.DocCursor.DY);
             if (Editor.CurrentDoc.HasSelection()) //only refresh if there is a complete selection
                 Editor.RefreshAllLines();
         }
 
-        static void DeselectCommand()
+        static void DeselectCommand(List<string> args, List<string> switches)
         {
             bool hadSelection = Editor.CurrentDoc.HasSelection();
             Editor.CurrentDoc.Deselect();
@@ -491,8 +374,7 @@ namespace maple
                 return;
             }
 
-            int l = 0;
-            if (int.TryParse(args[0], out l))
+            if (int.TryParse(args[0], out int l))
             {
                 if (l > Editor.DocCursor.Doc.GetMaxLine() + 1 || l < 0)
                     SetOutput(String.Format("Invalid line number, must be >= 1 and <= {0}", (Editor.DocCursor.Doc.GetMaxLine() + 1)), "goto", oType: OutputType.Error);
@@ -503,7 +385,7 @@ namespace maple
                 SetOutput("Invalid line number, must be an integer", "goto", oType: OutputType.Error);
         }
 
-        static void ReadonlyCommand()
+        static void ReadonlyCommand(List<string> args, List<string> switches)
         {
             Input.ReadOnly = !Input.ReadOnly;
         }
@@ -569,7 +451,7 @@ namespace maple
             SetOutput(output, "alias");
         }
 
-        static void UrlCommand()
+        static void UrlCommand(List<string> args, List<string> switches)
         {
             Token hoveredToken = Editor.CurrentDoc.GetTokenAtPosition(Editor.DocCursor.DX, Editor.DocCursor.DY);
             if (hoveredToken.TType != TokenType.Url)
@@ -579,7 +461,6 @@ namespace maple
                 return;
             }
 
-            string url = hoveredToken.Text;
             try
             {
                 Process.Start("explorer", hoveredToken.Text);
@@ -749,7 +630,7 @@ namespace maple
 
         }
 
-        static void DeindentCommand()
+        static void DeindentCommand(List<string> args, List<string> switches)
         {
             Editor.CurrentDoc.Deindent();
         }
@@ -781,7 +662,7 @@ namespace maple
                 SetOutput("Provide a statistic to count (--lines, --chars)", "count", OutputType.Error);
         }
 
-        static void CopyCommand()
+        static void CopyCommand(List<string> args, List<string> switches)
         {
             if (Editor.CurrentDoc.HasSelection())
                 Editor.ClipboardContents = Editor.CurrentDoc.GetSelectionText();
@@ -792,7 +673,7 @@ namespace maple
             }
         }
 
-        static void PasteCommand()
+        static void PasteCommand(List<string> args, List<string> switches)
         {
             bool deletedSelection = false;
             if (Editor.CurrentDoc.HasSelection())
@@ -827,9 +708,9 @@ namespace maple
             Editor.RefreshAllLines();
         }
 
-        static void CutCommand()
+        static void CutCommand(List<string> args, List<string> switches)
         {
-            CopyCommand();
+            CopyCommand(args, switches);
 
             if (Editor.CurrentDoc.HasSelection())
             {
@@ -861,7 +742,7 @@ namespace maple
             }
         }
 
-        static void SelectLineCommand()
+        static void SelectLineCommand(List<string> args, List<string> switches)
         {
             if (Editor.CurrentDoc.HasSelection())
                 Editor.RefreshAllLines();
@@ -872,7 +753,7 @@ namespace maple
             Editor.RefreshLine(Editor.DocCursor.DY);
         }
 
-        static void SelectAllCommand()
+        static void SelectAllCommand(List<string> args, List<string> switches)
         {
             Editor.CurrentDoc.MarkSelectionIn(0, 0);
             Editor.CurrentDoc.MarkSelectionOut(
@@ -907,14 +788,32 @@ namespace maple
                 "shortcut");
         }
 
-        static void UndoCommand()
+        static void UndoCommand(List<string> args, List<string> switches)
         {
             Editor.CurrentDoc.Undo();
         }
 
-        static void RedoCommand()
+        static void RedoCommand(List<string> args, List<string> switches)
         {
             Editor.CurrentDoc.Undo(redo: true);
+        }
+
+        static void CommentCommand(List<string> args, List<string> switches)
+        {
+            // comment entire selection
+            if (Editor.CurrentDoc.HasSelection())
+            {
+                // TODO
+            }
+            // comment one line
+            else
+            {
+                Editor.CurrentDoc.SetLine(
+                    Editor.DocCursor.DY,
+                    Lexer.Properties.CommentPrefix + Editor.CurrentDoc.GetLine(Editor.DocCursor.DY)
+                    );
+                Editor.RefreshLine(Editor.DocCursor.DY);
+            }
         }
 
         static void UnknownCommand()

@@ -46,13 +46,12 @@ namespace maple
         public List<string> Keywords { get; set; }= new();
 
         public string DefaultEncoding { get; set; } = Settings.Properties.DefaultEncoding;
+        public string CommentPrefix { get; set; } = "";
     }
 
     public static class Lexer
     {
         public static FileProperties Properties { get; private set; }
-        // static List<LexerRule> rules = new List<LexerRule>();
-        // static List<string> keywords = new List<string>();
 
         const string CliStringRule = "\".*\"";
         const string CliSwitchRule = "(-{1,2})([a-zA-Z0-9]|-)+";
@@ -115,7 +114,7 @@ namespace maple
             Log.Write("Loaded " + cliRules.Count + " command line lexer rules", "lexer");
 
             //build command list
-            foreach (string c in CommandLine.CommandMasterList)
+            foreach (string c in CommandLine.Commands.Keys)
                 cliKeywords.Add(c);
             foreach (string a in Settings.Properties.AliasesTable.Keys)
                 cliKeywords.Add(a);
