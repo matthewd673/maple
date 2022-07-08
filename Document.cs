@@ -10,6 +10,7 @@ namespace maple
     {
 
         public string Filepath { get; private set; }
+        public string ParentDirectory { get; private set; }
         List<Line> fileLines;
 
         public int ScrollYIncrement { get; private set; } = 0;
@@ -28,9 +29,10 @@ namespace maple
         public int GutterWidth { get; private set; } = 0;
         int gutterPadding = 2;
 
+        public bool InternalDocument { get; private set; } = false;
         public bool NewlyCreated { get; private set; } = false;
-
         public long LastModifiedTime { get; set; } = 0;
+        public bool Dirty { get; set; } = false;
 
         private History history;
 
@@ -39,34 +41,17 @@ namespace maple
         /// </summary>
         /// <param name="filepath">The path of the file to load.</param>
         /// <param name="internalDocument">Indicates if the document is internal, and can therefore operate with limited functionality.</param>
-        public Document(string filepath, bool internalDocument = false)
+        public Document(bool internalDocument = false)
         {
-            filepath = ProcessFilepath(filepath);
             fileLines = new List<Line>();
+            InternalDocument = internalDocument;
 
-            //calculate user-facing document properties (if not interal)
-            if (!internalDocument)
-            {
-                //load theme file if one exists (and if it has a filepath at all)
-                Log.Write("Loading syntax information", "document");
-                if (Path.GetExtension(filepath).Length > 0)
-                {
-                    string fileExtension = Path.GetExtension(filepath).Remove(0, 1);
-                    fileExtension = fileExtension.TrimEnd(); //remove trailing whitespace
-                    Lexer.LoadSyntax(Path.Combine(Settings.Properties.SyntaxDirectory, fileExtension + ".xml"));
-                }
-                else
-                    Log.Write("Loaded document is marked as internal", "document");
+            // apply scroll properties
+            CalculateScrollIncrement();
+            ScrollY = 0;
+            ScrollX = 0;
 
-                //apply scroll properties
-                CalculateScrollIncrement();
-                ScrollY = 0;
-                ScrollX = 0;
-
-                history = new History();
-            }
-
-            LoadDocument(filepath);
+            history = new History();
         }
 
         /// <summary>
@@ -75,12 +60,12 @@ namespace maple
         /// </summary>
         public static string ProcessFilepath(string filepath)
         {
-            //if it doesn't exist, attempt to adjust
+            // if it doesn't exist, attempt to adjust
             if (!File.Exists(filepath))
             {
                 Log.Write("Filepath '" + filepath + "' doesn't exist, attempting substitution", "document");
 
-                //check for reserved filename
+                // check for reserved filename
                 switch (filepath)
                 {
                     case "{themefile}":
@@ -91,7 +76,7 @@ namespace maple
                         return Lexer.CurrentSyntaxFile;
                 }
 
-                //check for path substitution
+                // check for path substitution
                 if (filepath.Contains("{mapledir}"))
                     return filepath.Replace("{mapledir}", Settings.MapleDirectory);
                 if (filepath.Contains("{themedir}"))
@@ -99,23 +84,43 @@ namespace maple
                 if (filepath.Contains("{syntaxdir}"))
                     return filepath.Replace("{syntaxdir}", Settings.Properties.SyntaxDirectory);
             }
-            return filepath; //nothing to change
+            return filepath; // nothing to change
         }
 
         /// <summary>
-        /// Load the contents of a file into the Document (skips filepath pre-processing and loading of any auxiliary files).
+        /// Load the contents of a file into the Document.
         /// <param name="filepath">The filepath to load from.</param>
         /// </summary>
-        private void LoadDocument(string filepath)
+        public void LoadDocument(string filepath)
         {
-            //clear any lines that may have existed from before
+            // pre-processing
+            filepath = ProcessFilepath(filepath);
+
+            // calculate user-facing document properties (if not interal)
+            if (!InternalDocument)
+            {
+                // load theme file if one exists (and if it has a filepath at all)
+                Log.Write("Loading syntax information", "document");
+                if (Path.GetExtension(filepath).Length > 0)
+                {
+                    string fileExtension = Path.GetExtension(filepath).Remove(0, 1);
+                    fileExtension = fileExtension.TrimEnd(); //remove trailing whitespace
+                    Lexer.LoadSyntax(Path.Combine(Settings.Properties.SyntaxDirectory, fileExtension + ".xml"));
+                }
+                else
+                    Log.Write("Loaded document is marked as internal", "document");
+            }
+
+            // clear any lines that may have existed from before
             fileLines.Clear();
             history.Clear();
 
-            //load new document
+            // load new document
             Filepath = filepath;
+            ParentDirectory = Path.GetDirectoryName(filepath);
+
             Log.Write("Filpath: " + Filepath, "document");
-            if(File.Exists(filepath))
+            if (File.Exists(filepath))
             {
                 Log.Write("Loading from '" + filepath + "'", "document");
                 List<string> fileLinesText = File.ReadAllLines(filepath, Encoding.UTF8).ToList<String>();
@@ -130,14 +135,19 @@ namespace maple
 
                 Log.Write("Initial file loaded from '" + filepath + "'", "document");
             }
-            else //file does not exist
+            else if (ParentDirectory.Equals("") || Directory.Exists(ParentDirectory)) // file does not exist, but directory does
             {
-                //create a file
+                // create a file
                 File.CreateText(filepath).Close();
                 fileLines = new List<Line>() { new Line("") };
                 CommandLine.SetOutput(String.Format("New file \"{0}\" was created", filepath.Trim()), "maple", renderFooter: false);
-                Log.Write("Initial file doesn't exist, created '" + filepath + "'", "document", important: true);
+                Log.Write("Initial file didn't exist, created '" + filepath + "'", "document", important: true);
                 NewlyCreated = true;
+            }
+            else // directory doesn't exist
+            {
+                Log.Write("Directory \"" + ParentDirectory + "\" does not exist, cannot load or create file.", "document", important: true);
+                throw new DirectoryNotFoundException("Directory \"" + ParentDirectory + "\" does not exist");
             }
 
         }
@@ -153,6 +163,7 @@ namespace maple
                 allLines.Add(l.LineContent);
             File.WriteAllLines(savePath, allLines, encoding);
             Log.Write("Saved file to '" + savePath + "'", "document");
+            Dirty = false;
         }
 
         /// <summary>
@@ -518,6 +529,7 @@ namespace maple
         {
             if(index >= 0 && index < fileLines.Count)
                 fileLines[index].LineContent = text;
+            Dirty = true;
         }
 
         /// <summary>
@@ -538,14 +550,12 @@ namespace maple
             
             currentLine = currentLine.Insert(x, text);
 
-            //no change made
+            // no change made
             if(GetLine(y) == currentLine)
                 return false;
 
             SetLine(y, currentLine);
-
             return true;
-
         }
 
         /// <summary>
@@ -566,10 +576,6 @@ namespace maple
             string removed = currentLine[x].ToString();
             currentLine = currentLine.Remove(x, 1);
 
-            // no change made
-            // if(GetLine(y) == currentLine)
-            //     return "";
-            
             SetLine(y, currentLine);
 
             return removed;
@@ -624,6 +630,8 @@ namespace maple
             
             fileLines.Insert(index, new Line(""));
             CalculateGutterWidth();
+
+            Dirty = true;
             return true;
         }
 
@@ -639,6 +647,8 @@ namespace maple
 
             fileLines.RemoveAt(index);
             CalculateGutterWidth();
+
+            Dirty = true;
             return true;
         }
 
@@ -714,7 +724,6 @@ namespace maple
         /// <returns>Returns true if the points were swapped, false otherwise.</returns>
         bool ArrangeSelectionPoints()
         {
-
             if (!HasSelection())
                 return false;
 
@@ -996,7 +1005,6 @@ namespace maple
                 Editor.DocCursor.Move(last.CursorPos.X, last.CursorPos.Y);
                 Editor.RefreshLine(last.DeltaPos.Y);
             }
-            // TODO: redo
             else if ((!redo && last.EventType == HistoryEventType.RemoveSelection) || // did remove selection, now add
                     (redo && last.EventType == HistoryEventType.AddSelection)) // undid add selection, now add
             {

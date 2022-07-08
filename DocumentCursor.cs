@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 
 namespace maple
 {
@@ -7,9 +8,9 @@ namespace maple
         
         public Document Doc { get; private set; }
 
-        public DocumentCursor(String filepath, int dX, int dY) : base(dX, dY)
+        public DocumentCursor(Document doc, int dX, int dY) : base(dX, dY)
         {
-            Doc = new Document(filepath, internalDocument: false);
+            Doc = doc;
         }
 
         /// <summary>

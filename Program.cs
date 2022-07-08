@@ -112,6 +112,19 @@ namespace maple
             Printer.Resize();
         }
 
+        public static void ThrowFatalError(string message)
+        {
+            Log.Write("Throw fatal error: " + message, "program", important: true);
+            
+            Printer.RestorePreviousConsoleMode();
+
+            Console.ForegroundColor = Settings.Theme.ErrorColor;
+            Console.WriteLine("A fatal error occurred: " + message);
+
+            Console.ResetColor();
+            Environment.Exit(1);
+        }
+
         public static void Close()
         {
             Log.Write("Session ended, cleaning up", "program");

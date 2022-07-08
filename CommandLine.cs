@@ -387,7 +387,9 @@ namespace maple
 
             //initialize new editor
             if (File.Exists(Document.ProcessFilepath(filepath)))
+            {
                 Editor.Initialize(filepath);
+            }
             else
                 SetOutput(String.Format("File \"{0}\" doesn't exist, use \"new\" to create a new file", filepath), "load", OutputType.Error);
         }
@@ -405,13 +407,23 @@ namespace maple
             if(filepath.StartsWith("\""))
                 filepath = filepath.Trim('\"');
 
-            //initialize new editor
+            // initialize new editor (TODO: this seems overkill)
+            // file exists, do nothing
             if (File.Exists(Document.ProcessFilepath(filepath)))
+            {
                 SetOutput(String.Format("File \"{0}\" already exists, use \"load\" to load an existing file", filepath), "new", OutputType.Error);
-            else
+            }
+            // file doesn't exist but directory does, create
+            else if (Path.GetDirectoryName(Document.ProcessFilepath(filepath)).Equals("") ||
+                     Directory.Exists(Path.GetDirectoryName(Document.ProcessFilepath(filepath))))
             {
                 Editor.Initialize(filepath);
                 SetOutput(String.Format("Created a new file at \"{0}\"", filepath), "new", OutputType.Success);
+            }
+            // directory doesn't exist, do nothing
+            else
+            {
+                SetOutput(String.Format("Directory \"{0}\" does not exist", Path.GetDirectoryName(Document.ProcessFilepath(filepath))), "new", OutputType.Error);
             }
         
         }

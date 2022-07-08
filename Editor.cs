@@ -9,10 +9,10 @@ namespace maple
     {
         public static Cursor CmdCursor { get; private set; }
         public static DocumentCursor DocCursor { get; private set; }
-        public static Document CurrentDoc { get { return DocCursor.Doc; }}
+        public static Document CurrentDoc { get; private set; }
         static List<int> refreshedLines = new List<int>();
         static bool fullClearNext = false;
-        
+
         public static string ClipboardContents { get; set; } = "";
 
         public static bool Busy { get; private set; }
@@ -20,8 +20,8 @@ namespace maple
         /// <summary>
         /// Load initial cursor properties and perform first draw.
         /// </summary>
-        /// <param name="filename"></param>
-        public static void Initialize(String filename)
+        /// <param name="filepath">The path of the file to open.</param>
+        public static void Initialize(String filepath)
         {
             Log.Write("Performing editor initialization", "editor");
 
@@ -31,8 +31,17 @@ namespace maple
             CmdCursor.ContentOffsetY = Int32.MaxValue;
 
             //create doc cursor with document
-            Log.Write("Creating document cursor", "editor");
-            DocCursor = new DocumentCursor(filename, 0, 0);
+            Log.Write("Loading document and creating document cursor", "editor");
+            CurrentDoc = new Document();
+            try
+            {
+                CurrentDoc.LoadDocument(filepath);
+            }
+            catch (DirectoryNotFoundException e)
+            {
+                Program.ThrowFatalError(e.Message);
+            }
+            DocCursor = new DocumentCursor(CurrentDoc, 0, 0);
             DocCursor.UpdateGutterOffset();
             DocCursor.Move(0, 0);
             DocCursor.ApplyPosition();
@@ -90,9 +99,10 @@ namespace maple
 
                 // check for changes to file
                 DateTime fileModifiedTime = File.GetLastWriteTime(CurrentDoc.Filepath);
-                if (fileModifiedTime.ToFileTime() != Editor.CurrentDoc.LastModifiedTime)
+                if (Settings.Properties.ExternalEditAlert &&
+                    fileModifiedTime.ToFileTime() != Editor.CurrentDoc.LastModifiedTime)
                 {
-                    // file changed, apply update
+                    // file changed, notify about update
                     if (Editor.CurrentDoc.LastModifiedTime != 0)
                     {
                         CommandLine.SetOutput("File has been modified externally, use \"load\" to reload", "document");

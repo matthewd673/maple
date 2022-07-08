@@ -51,6 +51,7 @@ namespace maple
         public bool HighlightTrailingWhitespace { get; set; } = false;
         public bool Autocomplete { get; set; } = true;
         public bool AutoResize { get; set; } = true;
+        public bool ExternalEditAlert { get; set; } = true;
 
         private string _themeDirectory = Path.Combine(Settings.MapleDirectory, "themes");
         public string ThemeDirectory
