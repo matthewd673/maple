@@ -67,5 +67,6 @@
         <Shortcut key="q" execute="false">close</Shortcut>
         <Shortcut key="z" execute="true">undo</Shortcut>
         <Shortcut key="y" execute="true">redo</Shortcut>
+        <Shortcut key="a" execute="true">selectall</Shortcut>
     </Shortcuts>
 </Properties>

@@ -325,6 +325,11 @@ namespace maple
                     }
                 }
 
+                if (l.Tokens.Count == 0 && fullySelected)
+                {
+                    Printer.PrintWord(" ", selectColorAttribute);
+                }
+
                 Printer.ClearRight();
 
                 //print overflow indicator

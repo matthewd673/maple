@@ -20,7 +20,7 @@ namespace maple
             "help", "save", "load", "new", "close", "cls", "top", "bot",
             "redraw", "goto", "selectin", "selectout", "deselect", "readonly",
             "syntax", "alias", "url", "find", "deindent", "count", "copy", "paste",
-            "cut", "selectline", "shortcut", "undo", "redo"
+            "cut", "selectline", "selectall", "shortcut", "undo", "redo"
             };
 
         public static string InputText { get; set; } = "";
@@ -191,6 +191,9 @@ namespace maple
                 case "selectline":
                     SelectLineCommand();
                     break;
+                case "selectall":
+                    SelectAllCommand();
+                    break;
                 case "shortcut":
                     ShortcutCommand(commandArgs, commandSwitches);
                     break;
@@ -309,6 +312,9 @@ namespace maple
                     break;
                 case "selectline":
                     SetOutput("selectline: select the current line", "help");
+                    break;
+                case "selectall":
+                    SetOutput("selectall: select the entire document", "help");
                     break;
                 case "shortcut":
                     SetOutput("shortcut [key]: display the command that is executed when the given shortcut key is pressed", "help");
@@ -864,6 +870,17 @@ namespace maple
             Editor.CurrentDoc.MarkSelectionOut(Editor.CurrentDoc.GetLine(Editor.DocCursor.DY).Length, Editor.DocCursor.DY);
 
             Editor.RefreshLine(Editor.DocCursor.DY);
+        }
+
+        static void SelectAllCommand()
+        {
+            Editor.CurrentDoc.MarkSelectionIn(0, 0);
+            Editor.CurrentDoc.MarkSelectionOut(
+                Editor.CurrentDoc.GetLine(Editor.CurrentDoc.GetMaxLine()).Length,
+                Editor.CurrentDoc.GetMaxLine()
+                );
+            
+            Editor.RefreshAllLines();
         }
 
         static void ShortcutCommand(List<string> args, List<string> switches)
