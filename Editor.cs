@@ -94,6 +94,7 @@ namespace maple
                 if (Printer.WindowBuffserSizeEventCount > 0 && Settings.Properties.AutoResize)
                 {
                     RedrawWindow();
+                    Thread.Sleep(250);
                     break;
                 }
 

@@ -783,10 +783,9 @@ namespace maple
             // attempt autocomplete, if enabled
             if (Settings.Properties.Autocomplete)
             {
-                int autocompleteIndex = Settings.Properties.AutocompleteOpeningChars.IndexOf(keyInfo.KeyChar);
-                if (autocompleteIndex != -1)
+                if (Lexer.Properties.AutocompleteTable.ContainsKey(keyInfo.KeyChar))
                 {
-                    string autocompleteText = Settings.Properties.AutocompleteEndingChars[autocompleteIndex].ToString();
+                    string autocompleteText = Lexer.Properties.AutocompleteTable[keyInfo.KeyChar].ToString();
                     c.Doc.AddTextAtPosition(c.DX, c.DY, autocompleteText);
                     // autocomplete events are logged in history separately
                     c.Doc.LogHistoryEvent(new HistoryEvent(

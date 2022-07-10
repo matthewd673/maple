@@ -47,6 +47,27 @@ namespace maple
 
         public string DefaultEncoding { get; set; } = Settings.Properties.DefaultEncoding;
         public string CommentPrefix { get; set; } = "";
+
+        [XmlIgnore]
+        public Dictionary<char, char> AutocompleteTable = new();
+
+        private string _autocompletePairings { get; set; } = "";
+        public string AutocompletePairings
+        {
+            get { return _autocompletePairings; }
+            set
+            {
+                if (value.Length % 2 != 0)
+                {
+                    Log.Write("Autocomplete pairings should have an even length", "lexer", important: true);
+                    return;
+                }
+                for(int i = 0; i < value.Length; i += 2)
+                {
+                    AutocompleteTable.Add(value[i], value[i + 1]);
+                }
+            }
+        }
     }
 
     public static class Lexer
