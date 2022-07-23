@@ -1,4 +1,5 @@
 <FileProperties>
+    <AutocompletePairings>&lt;&gt;""</AutocompletePairings>
     <SyntaxRules>
         <Syntax type="Whitespace"> +</Syntax>
         <Syntax type="Keyword" insensitive="true">((?&lt;=&lt;)|(?&lt;=&lt;\/))[a-z]+</Syntax>

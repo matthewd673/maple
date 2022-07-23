@@ -18,9 +18,10 @@
     <ColorOutputBackground>true</ColorOutputBackground>
     <HighlightTrailingWhitespace>true</HighlightTrailingWhitespace>
     <Autocomplete>true</Autocomplete>
+    <AutocompleteOnlyAtEOL>false</AutocompleteOnlyAtEOL>
     <AutoResize>true</AutoResize>
     <ExternalEditAlert>true</ExternalEditAlert>
-    
+
     <ThemeDirectory>{mapledir}\themes\</ThemeDirectory>
     <ThemeFile>maple.xml</ThemeFile>
     <SyntaxDirectory>{mapledir}\syntax\</SyntaxDirectory>

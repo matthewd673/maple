@@ -50,6 +50,8 @@ namespace maple
         public bool ColorOutputBackground { get; set; } = true;
         public bool HighlightTrailingWhitespace { get; set; } = false;
         public bool Autocomplete { get; set; } = true;
+        public bool AutocompleteOnlyAtEOL { get; set; } = false;
+
         public bool AutoResize { get; set; } = true;
         public bool ExternalEditAlert { get; set; } = true;
 
@@ -96,8 +98,6 @@ namespace maple
         public string OverflowIndicator { get; set; } = "…";
         public char OverflowIndicatorChar { get { return OverflowIndicator[0]; }}
         public string DefaultEncoding { get; set; } = "utf8";
-        public List<char> AutocompleteOpeningChars { get; set; } = new List<char>();
-        public List<char> AutocompleteEndingChars { get; set; } = new List<char>();
 
         [XmlIgnore]
         public Dictionary<string, string> AliasesTable { get; set; }= new();

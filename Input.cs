@@ -781,7 +781,8 @@ namespace maple
                 Editor.RefreshLine(c.DY);
             }
             // attempt autocomplete, if enabled
-            if (Settings.Properties.Autocomplete)
+            if ((Settings.Properties.Autocomplete && Settings.Properties.AutocompleteOnlyAtEOL && c.DX == c.Doc.GetLine(c.DY).Length) ||
+                (Settings.Properties.Autocomplete && !Settings.Properties.AutocompleteOnlyAtEOL))
             {
                 if (Lexer.Properties.AutocompleteTable.ContainsKey(keyInfo.KeyChar))
                 {
@@ -792,7 +793,8 @@ namespace maple
                         HistoryEventType.Add,
                         autocompleteText,
                         new Point(c.DX, c.DY),
-                        initialCursorPos
+                        initialCursorPos,
+                        combined: true
                     ));
                 }
             }
