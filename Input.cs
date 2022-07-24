@@ -788,7 +788,7 @@ namespace maple
                 {
                     string autocompleteText = Lexer.Properties.AutocompleteTable[keyInfo.KeyChar].ToString();
                     c.Doc.AddTextAtPosition(c.DX, c.DY, autocompleteText);
-                    // autocomplete events are logged in history separately
+                    // autocomplete events are logged in history together
                     c.Doc.LogHistoryEvent(new HistoryEvent(
                         HistoryEventType.Add,
                         autocompleteText,

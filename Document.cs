@@ -1016,10 +1016,10 @@ namespace maple
             {
                 Point addOutPoint = AddBlockText(last.DeltaPos.X, last.DeltaPos.Y, last.TextDelta);
                 
-                if (!redo)
+                if (!redo && last.SelectionPoints != null)
                 {
-                selectIn = last.SelectionPoints[0];
-                selectOut = last.SelectionPoints[1];
+                    selectIn = last.SelectionPoints[0];
+                    selectOut = last.SelectionPoints[1];
                 }
 
                 Editor.DocCursor.Move(last.CursorPos.X, last.CursorPos.Y);

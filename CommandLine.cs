@@ -800,6 +800,12 @@ namespace maple
 
         static void CommentCommand(List<string> args, List<string> switches)
         {
+            if (Lexer.Properties.CommentPrefix.Equals(""))
+            {
+                SetOutput("No comment prefix is defined for this filetype.", "comment", oType: OutputType.Error);
+                return;
+            }
+
             string tabString = "";
             for (int i = 0; i < Settings.Properties.TabSpacesCount; i++) tabString += " ";
 
@@ -807,31 +813,38 @@ namespace maple
             if (Editor.CurrentDoc.HasSelection())
             {
                 bool commenting = true;
-                string indentation = "";
+
                 for (int i = Editor.CurrentDoc.SelectInY; i <= Editor.CurrentDoc.SelectOutY; i++)
                 {
                     string line = Editor.CurrentDoc.GetLine(i);
+                    string indentation = "";
+
+                    while (line.StartsWith(tabString))
+                    {
+                        indentation += tabString;
+                        line = line.Remove(0, Settings.Properties.TabSpacesCount);
+                    }
 
                     if (i == Editor.CurrentDoc.SelectInY)
                     {
                         // first line is commented, so we'll be uncommenting
                         if (line.StartsWith(Lexer.Properties.CommentPrefix))
                             commenting = false;
-
-                        // get line indentation prefix, the first line sets the tone for the rest
-                        while (line.StartsWith(tabString))
-                        {
-                            indentation += tabString;
-                            line = line.Remove(0, Settings.Properties.TabSpacesCount);
-                        }
                     }
 
                     if (commenting)
                     {
                         Editor.CurrentDoc.SetLine(
-                        i,
-                        indentation + Lexer.Properties.CommentPrefix + line
+                            i,
+                            indentation + Lexer.Properties.CommentPrefix + line
                         );
+                        Editor.CurrentDoc.LogHistoryEvent(new HistoryEvent(
+                            HistoryEventType.AddSelection,
+                            Lexer.Properties.CommentPrefix,
+                            new Point(indentation.Length, i),
+                            new Point(Editor.DocCursor.DX, Editor.DocCursor.DY),
+                            combined: i != Editor.CurrentDoc.SelectInY
+                        ));
                     }
                     else
                     {
@@ -840,6 +853,13 @@ namespace maple
                             i,
                             indentation + line
                         );
+                        Editor.CurrentDoc.LogHistoryEvent(new HistoryEvent(
+                            HistoryEventType.RemoveSelection,
+                            Lexer.Properties.CommentPrefix,
+                            new Point(indentation.Length, i),
+                            new Point(Editor.DocCursor.DX, Editor.DocCursor.DY),
+                            combined: i != Editor.CurrentDoc.SelectInY
+                        ));
                     }
 
                     Editor.RefreshLine(i);
@@ -864,7 +884,13 @@ namespace maple
                     Editor.CurrentDoc.SetLine(
                         Editor.DocCursor.DY,
                         indentation + Lexer.Properties.CommentPrefix + line
-                        );
+                    );
+                    Editor.CurrentDoc.LogHistoryEvent(new HistoryEvent(
+                        HistoryEventType.AddSelection,
+                        Lexer.Properties.CommentPrefix,
+                        new Point(indentation.Length, Editor.DocCursor.DY),
+                        new Point(Editor.DocCursor.DX, Editor.DocCursor.DY)
+                    ));
                 }
                 // is commented - uncomment
                 else
@@ -874,6 +900,12 @@ namespace maple
                         Editor.DocCursor.DY,
                         indentation + line
                     );
+                    Editor.CurrentDoc.LogHistoryEvent(new HistoryEvent(
+                        HistoryEventType.RemoveSelection,
+                        Lexer.Properties.CommentPrefix,
+                        new Point(indentation.Length, Editor.DocCursor.DY),
+                        new Point(Editor.DocCursor.DX, Editor.DocCursor.DY)
+                    ));
                 }
                 
                 Editor.RefreshLine(Editor.DocCursor.DY);
