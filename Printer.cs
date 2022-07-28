@@ -9,84 +9,11 @@ namespace maple
 {
     public static class Printer
     {
-
-        //source: https://stackoverflow.com/a/2754674/3785038
-        //this answer was remarkably helpful in improving performance
-        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        private static extern SafeFileHandle CreateFile(
-            string fileName,
-            [MarshalAs(UnmanagedType.U4)] uint fileAccess,
-            [MarshalAs(UnmanagedType.U4)] uint fileShare,
-            IntPtr securityAttributes,
-            [MarshalAs(UnmanagedType.U4)] FileMode creationDisposition,
-            [MarshalAs(UnmanagedType.U4)] int flags,
-            IntPtr template
-        );
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool WriteConsoleOutputW(
-            SafeFileHandle hConsoleOutput,
-            CharInfo[] lpBuffer,
-            Coord dwBufferSize,
-            Coord dwBufferCoord,
-            ref SmallRect lpWriteRegion
-        );
-
-        [DllImport("kernel32.dll")]
-        private static extern bool SetConsoleCtrlHandler(SetConsoleCtrlEventHandler handler, bool add);
-
-        private delegate bool SetConsoleCtrlEventHandler(CtrlType sig);
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct Coord
-        {
-            public short X;
-            public short Y;
-
-            public Coord(short x, short y)
-            {
-                this.X = x;
-                this.Y = y;
-            }
-        }
-        
-        [StructLayout(LayoutKind.Explicit)]
-        private struct CharUnion
-        {
-            [FieldOffset(0)] public ushort UnicodeChar;
-            [FieldOffset(0)] public byte AsciiChar;
-        }
-
-        [StructLayout(LayoutKind.Explicit)]
-        private struct CharInfo
-        {
-            [FieldOffset(0)] public CharUnion Char;
-            [FieldOffset(2)] public short Attributes;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct SmallRect
-        {
-            public short Left;
-            public short Top;
-            public short Right;
-            public short Bottom;
-        }
-
-        private enum CtrlType
-        {
-            CTRL_C_EVENT = 0,
-            CTRL_BREAK_EVENT = 1,
-            CTRL_CLOSE_EVENT = 2,
-            CTRL_LOGOFF_EVENT = 5,
-            CTRL_SHUTDOWN_EVENT = 6
-        }
-
         private static SafeFileHandle consoleHandle;
         private static short bufWidth;
         private static short bufHeight;
-        private static CharInfo[] buf;
-        private static SmallRect rect;
+        private static Win32Console.CharInfo[] buf;
+        private static Win32Console.SmallRect rect;
 
         // https://www.pinvoke.net/default.aspx/kernel32.getstdhandle
         [DllImport("kernel32.dll", SetLastError = true)]
@@ -105,7 +32,7 @@ namespace maple
             );
 
         // [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true, EntryPoint = "ReadConsoleInputW")]
-        [DllImport("Kernel32.DLL", EntryPoint = "ReadConsoleInputW", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("kernel32.dll", EntryPoint = "ReadConsoleInputW", CallingConvention = CallingConvention.StdCall)]
         static extern bool ReadConsoleInput(
             IntPtr hConsoleInput,
             [Out] INPUT_RECORD[] lpBuffer,
@@ -114,11 +41,11 @@ namespace maple
             );
 
         struct WINDOW_BUFFER_SIZE_RECORD {
-            public Coord dwSize;
+            public Win32Console.Coord dwSize;
 
             public WINDOW_BUFFER_SIZE_RECORD(short x, short y)
             {
-                dwSize = new Coord(x,y);
+                dwSize = new Win32Console.Coord(x,y);
             }
         }
 
@@ -130,13 +57,13 @@ namespace maple
             public ushort wRepeatCount;
             public ushort wVirtualKeyCode;
             public ushort wVirtualScanCode;
-            public CharUnion uchar;
+            public Win32Console.CharUnion uchar;
             public uint dwControlKeyState;
         }
 
         struct MOUSE_EVENT_RECORD
         {
-            Coord dwMousePosition;
+            Win32Console.Coord dwMousePosition;
             uint dwButtonState;
             uint dwControlKeyState;
             uint dwEventFlags;
@@ -216,66 +143,41 @@ namespace maple
         /// </summary>
         public static void Initialize()
         {
-            try
+            consoleHandle = Win32Console.CreateConsoleHandle();
+            if (consoleHandle == null) return; // it should Environment.Exit() first
+
+            bufWidth = (short) Console.WindowWidth;
+            bufHeight = (short) Console.WindowHeight;
+
+            buf = new Win32Console.CharInfo[bufWidth * bufHeight];
+            rect = new Win32Console.SmallRect() { Left = 0, Top = 0, Right = bufWidth, Bottom = bufHeight };
+
+            // create resize handler
+            // https://docs.microsoft.com/en-us/windows/console/reading-input-buffer-events
+            hStdin = GetStdHandle(STD_INPUT_HANDLE);
+            uint fdwMode;
+
+            Log.WriteDebug("Got hStdin (=" + hStdin + ")", "printer");
+
+            // if (hStdin == INVALID_HANDLE_VALUE)
+            // {
+            //     Log.Write("Failed to create input handle", "printer", important: true);
+            // }
+
+            if (!GetConsoleMode(hStdin, out fdwOldMode))
             {
-                // create handle to console buffer
-                consoleHandle = CreateFile("CONOUT$", 0x40000000, 2, IntPtr.Zero, FileMode.Open, 0, IntPtr.Zero);
-    
-                if (consoleHandle.IsInvalid)
-                {
-                    Log.Write("Failed to create console handle", "printer", important: true);
-                    PrintLineSimple("Printer failed to create console handle", Settings.Theme.ErrorColor);
-                    Console.ResetColor();
-                    Environment.Exit(1); // kinda temporary
-                    return;
-                }
-    
-                Log.Write("Successfully created console handle", "printer");
-    
-                bufWidth = (short)Console.WindowWidth;
-                bufHeight = (short)Console.WindowHeight;
-    
-                buf = new CharInfo[bufWidth * bufHeight];
-                rect = new SmallRect() { Left = 0, Top = 0, Right = bufWidth, Bottom = bufHeight };
-            
-                // set signal handler
-                SetConsoleCtrlHandler(SigHandler, true);
-
-                // create resize handler
-                // https://docs.microsoft.com/en-us/windows/console/reading-input-buffer-events
-                hStdin = GetStdHandle(STD_INPUT_HANDLE);
-                uint fdwMode;
-
-                Log.WriteDebug("Got hStdin (=" + hStdin + ")", "printer");
-
-                // if (hStdin == INVALID_HANDLE_VALUE)
-                // {
-                //     Log.Write("Failed to create input handle", "printer", important: true);
-                // }
-
-                if (!GetConsoleMode(hStdin, out fdwOldMode))
-                {
-                    Log.Write("Failed to GetConsoleMode", "printer", important: true);
-                }
-
-                fdwMode = ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
-                if (!SetConsoleMode(hStdin, fdwMode))
-                {
-                    Log.Write("Failed to SetConsoleMode", "printer", important: true);
-                }
-
-                // begin input listener thread
-                Log.Write("Creating Win32 console input listener", "printer");
-                inputThread = new Thread(new ThreadStart(ConsoleInputListener));
+                Log.Write("Failed to GetConsoleMode", "printer", important: true);
             }
-            catch (DllNotFoundException e)
+
+            fdwMode = ENABLE_WINDOW_INPUT | ENABLE_MOUSE_INPUT;
+            if (!SetConsoleMode(hStdin, fdwMode))
             {
-                PrintLineSimple("Printer failed to load kernel32.dll - is maple running on a non-Windows platform?", Settings.Theme.ErrorColor);
-                Log.Write("Encountered DLLNotFoundException when initializing printer: " + e.Message, "printer", important: true);
-                Log.Write("Platform: " + Environment.OSVersion, "printer");
-                Console.ResetColor();
-                Environment.Exit(1);
+                Log.Write("Failed to SetConsoleMode", "printer", important: true);
             }
+
+            // begin input listener thread
+            Log.Write("Creating Win32 console input listener", "printer");
+            inputThread = new Thread(new ThreadStart(ConsoleInputListener));
         }
 
         public static void StartInputThread()
@@ -497,10 +399,10 @@ namespace maple
         /// </summary>
         public static void ApplyBuffer()
         {
-            bool b = WriteConsoleOutputW(consoleHandle,
+            bool b = Win32Console.WriteConsoleOutputW(consoleHandle,
                 buf,
-                new Coord() { X = bufWidth, Y = bufHeight },
-                new Coord() { X = 0, Y = 0 },
+                new Win32Console.Coord() { X = bufWidth, Y = bufHeight },
+                new Win32Console.Coord() { X = 0, Y = 0 },
                 ref rect
                 );
         }
@@ -513,8 +415,8 @@ namespace maple
             bufWidth = (short)Console.WindowWidth;
             bufHeight = (short)Console.WindowHeight;
 
-            buf = new CharInfo[bufWidth * bufHeight];
-            rect = new SmallRect() { Left = 0, Top = 0, Right = bufWidth, Bottom = bufHeight };
+            buf = new Win32Console.CharInfo[bufWidth * bufHeight];
+            rect = new Win32Console.SmallRect() { Left = 0, Top = 0, Right = bufWidth, Bottom = bufHeight };
         }
 
         /// <summary>
@@ -692,22 +594,6 @@ namespace maple
             {
                 buf[i].Char.UnicodeChar = 0x0020;
                 buf[i].Attributes = 0x0000;
-            }
-        }
-        
-        private static bool SigHandler(CtrlType sig)
-        {
-            //TODO: this may be implemented further later
-            switch (sig)
-            {
-                case CtrlType.CTRL_C_EVENT:
-                case CtrlType.CTRL_BREAK_EVENT:
-                case CtrlType.CTRL_LOGOFF_EVENT:
-                case CtrlType.CTRL_SHUTDOWN_EVENT:
-                case CtrlType.CTRL_CLOSE_EVENT:
-                    return false;
-                default:
-                    return false;
             }
         }
     }
