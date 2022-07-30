@@ -66,6 +66,14 @@ namespace maple
         }
     }
 
+    public class FooterBlockFilename : FooterBlock
+    {
+        public override string GetText()
+        {
+            return System.IO.Path.GetFileName(Editor.CurrentDoc.Filepath.Trim());
+        }
+    }
+
     public class FooterBlockLnCol : FooterBlock
     {
         public override string GetText()
@@ -126,6 +134,7 @@ namespace maple
         [XmlArrayItem(ElementName = "Text", Type = typeof(FooterBlockText)),
          XmlArrayItem(ElementName = "Separator", Type = typeof(FooterBlockSeparator)),
          XmlArrayItem(ElementName = "Filepath", Type = typeof(FooterBlockFilepath)),
+         XmlArrayItem(ElementName = "Filename", Type = typeof(FooterBlockFilename)),
          XmlArrayItem(ElementName = "LnCol", Type = typeof(FooterBlockLnCol)),
          XmlArrayItem(ElementName = "Selection", Type = typeof(FooterBlockSelection)),
          XmlArrayItem(ElementName = "ReadOnlyIndicator", Type = typeof(FooterBlockReadOnlyIndicator)),

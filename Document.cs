@@ -74,6 +74,8 @@ namespace maple
                         return Settings.PropertiesFile;
                     case "{syntaxfile}":
                         return Lexer.CurrentSyntaxFile;
+                    case "{footerfile}":
+                        return Settings.Properties.FooterLayoutFile;
                 }
 
                 // check for path substitution
