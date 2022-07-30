@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace maple
 {
@@ -19,6 +21,144 @@ namespace maple
         static bool quickSelectOutPoint = true;
 
         public static bool ReadOnly { get; set; } = false;
+
+        private static IntPtr hStdin;
+        private static Thread inputThread;
+        public const int InputLoopDelay = 10;
+
+        // keep track of keyboard state
+        private static bool shiftKeyDown = false;
+        private static bool controlKeyDown = false;
+        private static bool altKeyDown = false;
+        private static int keyEvents = 0;
+
+        public static int KeyEventQueueLength { get; set; } = 0;
+        public static List<ConsoleKeyInfo> KeyEventQueue { get; private set; } = new();
+        private static int _windowBuffserSizeEventCount = 0;
+        public static int WindowBuffserSizeEventCount
+        {
+            get
+            {
+                int r = _windowBuffserSizeEventCount;
+                _windowBuffserSizeEventCount = 0;
+                return r;
+            }
+            set
+            {
+                _windowBuffserSizeEventCount = value;
+            }
+        }
+
+        public static void Initialize()
+        {
+            hStdin = Win32Console.GetInputHandle();
+
+            // begin input listener thread
+            Log.Write("Creating Win32 console input listener", "printer");
+            inputThread = new Thread(new ThreadStart(ConsoleInputListener));
+        }
+
+        public static void RestorePreviousConsoleMode()
+        {
+            Win32Console.SetConsoleMode(hStdin, Win32Console.InputOldMode);
+        }
+
+        public static void StartInputThread()
+        {
+            inputThread.Start();
+        }
+
+        private static void ConsoleInputListener()
+        {
+            Log.Write("Entered console input listener thread", "input");
+
+            while (true)
+            {
+                Win32Console.INPUT_RECORD[] irInBuf = new Win32Console.INPUT_RECORD[128];
+                uint cNumRead = 0;
+
+                if (!Win32Console.ReadConsoleInput(
+                    hStdin,
+                    irInBuf,
+                    128,
+                    out cNumRead
+                ))
+                {
+                    Log.Write("Input handler failed ReadConsoleInput", "win32console", important: true);
+                    break;
+                }
+
+                for (int i = 0; i < cNumRead; i++)
+                {
+                    if (irInBuf[i].EventType == Win32Console.KEY_EVENT)
+                    {
+                        KeyEventProc(irInBuf[i].KeyEvent);
+                    }
+                    if (irInBuf[i].EventType == Win32Console.WINDOW_BUFFER_SIZE_EVENT)
+                    {
+                        ResizeEventProc(irInBuf[i].WindowBufferSizeEvent);
+                    }
+                }
+
+                Thread.Sleep(InputLoopDelay);
+            }
+        }
+
+        private static void KeyEventProc(Win32Console.KEY_EVENT_RECORD record)
+        {
+            // ignore initial enter keypress
+            if (keyEvents == 0)
+            {
+                if ((ConsoleKey)record.wVirtualKeyCode == ConsoleKey.Enter)
+                {
+                    keyEvents++;
+                    return;
+                }
+            }
+
+            keyEvents++;
+
+            // update state of modifier keys
+            switch (record.wVirtualKeyCode)
+            {
+                case 16:
+                    shiftKeyDown = (record.bKeyDown != 0);
+                    break;
+                case 17:
+                    controlKeyDown = (record.bKeyDown != 0);
+                    break;
+                case 18:
+                    altKeyDown = (record.bKeyDown != 0);
+                    break;
+            }
+            ConsoleKey key = (ConsoleKey)record.wVirtualKeyCode;
+            char keyChar = (char)record.uchar.UnicodeChar;
+
+            // skip keyup events
+            if (record.bKeyDown == 0) return;
+
+            ConsoleKeyInfo keyInfo = new ConsoleKeyInfo(
+                keyChar: keyChar,
+                key: key,
+                shift: shiftKeyDown,
+                alt: altKeyDown,
+                control: controlKeyDown
+                );
+            
+            // Input.AcceptInput(keyInfo);
+            lock (KeyEventQueue)
+            {
+                Log.WriteDebug(String.Format("{0} ({1}) [s:{2}] [c:{3}] [a:{4}]", keyInfo.Key, keyInfo.KeyChar, shiftKeyDown, controlKeyDown, altKeyDown), "printer");
+                KeyEventQueue.Add(keyInfo);
+                KeyEventQueueLength++;
+            }
+        }
+
+        private static void ResizeEventProc(Win32Console.WINDOW_BUFFER_SIZE_RECORD record)
+        {
+            // don't need to lock this
+            WindowBuffserSizeEventCount++;
+        }
 
         public static void AcceptInput(ConsoleKeyInfo keyInfo)
         {
