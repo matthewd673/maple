@@ -21,6 +21,8 @@
     <AutocompleteOnlyAtEOL>false</AutocompleteOnlyAtEOL>
     <AutoResize>true</AutoResize>
     <ExternalEditAlert>true</ExternalEditAlert>
+    <HideGutter>false</HideGutter>
+    <ColorGutterBackground>false</ColorGutterBackground>
 
     <ThemeDirectory>{mapledir}\themes\</ThemeDirectory>
     <ThemeFile>maple.xml</ThemeFile>
@@ -34,6 +36,7 @@
 
     <GutterLeftPad>0</GutterLeftPad>
     <GutterBarrier> </GutterBarrier>
+    <GutterPadding>1</GutterPadding>
     <OverflowIndicator>…</OverflowIndicator>
 
     <Aliases>

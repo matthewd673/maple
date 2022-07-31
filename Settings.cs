@@ -51,9 +51,10 @@ namespace maple
         public bool HighlightTrailingWhitespace { get; set; } = false;
         public bool Autocomplete { get; set; } = true;
         public bool AutocompleteOnlyAtEOL { get; set; } = false;
-
         public bool AutoResize { get; set; } = true;
         public bool ExternalEditAlert { get; set; } = true;
+        public bool HideGutter { get; set; } = false;
+        public bool ColorGutterBackground { get; set; } = false;
 
         private string _themeDirectory = Path.Combine(Settings.MapleDirectory, "themes");
         public string ThemeDirectory
@@ -92,6 +93,7 @@ namespace maple
         public string FooterSeparator { get; set; } = " ";
         public string GutterLeftPad { get; set; } = "0";
         public char GutterLeftPadChar { get { return GutterLeftPad[0]; }}
+        public int GutterPadding { get; set; } = 2;
 
         public string GutterBarrier { get; set; } = " ";
         public char GutterBarrierChar { get { return GutterBarrier[0]; }}

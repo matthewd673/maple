@@ -27,7 +27,6 @@ namespace maple
         public int SelectOutY { get { return selectOut.Y; }}
 
         public int GutterWidth { get; private set; } = 0;
-        int gutterPadding = 2;
 
         public bool InternalDocument { get; private set; } = false;
         public bool NewlyCreated { get; private set; } = false;
@@ -190,7 +189,11 @@ namespace maple
 
             //build gutter content & print gutter
             String gutterContent = BuildGutter(lineIndex);
-            Printer.PrintWord(gutterContent, foregroundColor: Settings.Theme.GutterColor);
+
+            if (!Settings.Properties.ColorGutterBackground)
+                Printer.PrintWord(gutterContent, foregroundColor: Settings.Theme.GutterColor);
+            else
+                Printer.PrintWord(gutterContent, foregroundColor: ConsoleColor.Black, backgroundColor: Settings.Theme.GutterColor);
 
             bool lineContainsSelection = LineContainsSelection(lineIndex);
             //find start and end relative to line
@@ -376,8 +379,13 @@ namespace maple
         /// <returns>A String representing the gutter text to render.</returns>
         string BuildGutter(int lineIndex)
         {
+            if (Settings.Properties.HideGutter)
+            {
+                return "";
+            }
+
             string gutterContent = (lineIndex + 1).ToString();
-            while(gutterContent.Length < GutterWidth - gutterPadding)
+            while(gutterContent.Length < GutterWidth - Settings.Properties.GutterPadding)
             {
                 gutterContent = Settings.Properties.GutterLeftPadChar + gutterContent;
             }
@@ -396,8 +404,14 @@ namespace maple
         /// </summary>
         public int CalculateGutterWidth()
         {
+            if (Settings.Properties.HideGutter)
+            {
+                GutterWidth = 0;
+                return GutterWidth;
+            }
+
             int oldGutterWidth = GutterWidth;
-            GutterWidth = fileLines.Count.ToString().Length + gutterPadding;
+            GutterWidth = fileLines.Count.ToString().Length + Settings.Properties.GutterPadding;
 
             if (GutterWidth != oldGutterWidth)
                 Editor.RefreshAllLines();
