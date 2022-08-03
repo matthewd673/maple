@@ -27,6 +27,25 @@ namespace maple
         private static Thread inputThread;
         private const int InputLoopDelay = 10;
 
+        public static Dictionary<ConsoleColor, short> ConsoleColorToAttributeTable = new() {
+            { ConsoleColor.Black, 0x0000 },
+            { ConsoleColor.DarkBlue, 0x0001 },
+            { ConsoleColor.Blue, 0x0009 },
+            { ConsoleColor.DarkGreen, 0x0002 },
+            { ConsoleColor.Green, 0x000A },
+            { ConsoleColor.DarkCyan, 0x0003 },
+            { ConsoleColor.Cyan, 0x000B },
+            { ConsoleColor.DarkRed, 0x0004 },
+            { ConsoleColor.Red, 0x000C },
+            { ConsoleColor.DarkMagenta, 0x0005 },
+            { ConsoleColor.Magenta, 0x000D },
+            { ConsoleColor.DarkYellow, 0x0006 },
+            { ConsoleColor.Yellow, 0x000E },
+            { ConsoleColor.Gray, 0x0007 },
+            { ConsoleColor.DarkGray, 0x0008 },
+            { ConsoleColor.White, 0x000F },
+        };
+
         /// <summary>
         /// Create the Console handle and prepare the buffer for rendering.
         /// </summary>
@@ -93,52 +112,7 @@ namespace maple
         /// <returns>A buffer attribute representing the given colors.</returns>
         public static short GetAttributeFromColor(ConsoleColor foregroundColor, ConsoleColor backgroundColor)
         {
-            return (short)((short)(GetAttributeFromColor(backgroundColor) << 4) | GetAttributeFromColor(foregroundColor));
-        }
-
-        /// <summary>
-        /// Generate a buffer attribute value representing the given color. The attribute represents the color as the foreground color with a black background.
-        /// </summary>
-        /// <param name="color">The foreground color.</param>
-        /// <returns>A buffer attrivute representing the color.</returns>
-        public static short GetAttributeFromColor(ConsoleColor color)
-        {
-            switch (color)
-            {
-                case ConsoleColor.Black:
-                    return 0x0000;
-                case ConsoleColor.DarkBlue:
-                    return 0x0001;
-                case ConsoleColor.Blue:
-                    return 0x0009;
-                case ConsoleColor.DarkGreen:
-                    return 0x0002;
-                case ConsoleColor.Green:
-                    return 0x000A;
-                case ConsoleColor.DarkCyan:
-                    return 0x0003;
-                case ConsoleColor.Cyan:
-                    return 0x000B;
-                case ConsoleColor.DarkRed:
-                    return 0x0004;
-                case ConsoleColor.Red:
-                    return 0x000C;
-                case ConsoleColor.DarkMagenta:
-                    return 0x0005;
-                case ConsoleColor.Magenta:
-                    return 0x000D;
-                case ConsoleColor.DarkYellow:
-                    return 0x0006;
-                case ConsoleColor.Yellow:
-                    return 0x000E;
-                case ConsoleColor.Gray:
-                    return 0x0007;
-                case ConsoleColor.DarkGray:
-                    return 0x0008;
-                case ConsoleColor.White:
-                    return 0x000F;
-            }
-            return 0x0000;
+            return (short)((short)(ConsoleColorToAttributeTable[backgroundColor] << 4) | ConsoleColorToAttributeTable[foregroundColor]);
         }
 
         /// <summary>
