@@ -15,21 +15,12 @@ namespace maple
 
         static int maxCursorX = 0;
 
-        static string tabString = "";
         static bool quickSelectOutPoint = true;
 
         public static bool ReadOnly { get; set; } = false;
 
         public static void AcceptInput(ConsoleKeyInfo keyInfo)
         {
-            // build tab string if necessary
-            // TODO: move this somewhere else
-            if (tabString.Length == 0)
-            {
-                for (int i = 0; i < Settings.Properties.TabSpacesCount; i++)
-                    tabString += " ";
-            }
-
             if(CurrentTarget == InputTarget.Document)
                 AcceptDocumentInput(keyInfo);
             else if(CurrentTarget == InputTarget.Command)
@@ -415,9 +406,9 @@ namespace maple
 
         static void HandleRight(DocumentCursor c)
         {
-            if (Settings.Properties.NavigatePastTabs && c.Doc.GetTextAtPosition(c.DX, c.DY).StartsWith(tabString)) //can skip, do so
+            if (Settings.Properties.NavigatePastTabs && c.Doc.GetTextAtPosition(c.DX, c.DY).StartsWith(Settings.TabString)) //can skip, do so
             {
-                c.Move(c.DX + tabString.Length, c.DY, applyPosition: false);
+                c.Move(c.DX + Settings.TabString.Length, c.DY, applyPosition: false);
             }
             else //can't skip, move normally
             {
@@ -443,7 +434,7 @@ namespace maple
             {
                 if (Settings.Properties.DeleteEntireTabs // fancy tab delete
                     && c.DX >= Settings.Properties.TabSpacesCount
-                    && c.Doc.GetTextAtPosition(c.DX - Settings.Properties.TabSpacesCount, c.DY).StartsWith(tabString))
+                    && c.Doc.GetTextAtPosition(c.DX - Settings.Properties.TabSpacesCount, c.DY).StartsWith(Settings.TabString))
                     {
                         string deletedChars = "";
                         for(int i = 0; i < Settings.Properties.TabSpacesCount; i++)
@@ -558,7 +549,7 @@ namespace maple
             else // basic delete
             {
                 string deletedChars = "";
-                if (Settings.Properties.DeleteEntireTabs && c.Doc.GetTextAtPosition(c.DX, c.DY).StartsWith(tabString))
+                if (Settings.Properties.DeleteEntireTabs && c.Doc.GetTextAtPosition(c.DX, c.DY).StartsWith(Settings.TabString))
                 {
                     for (int i = 0; i < Settings.Properties.TabSpacesCount; i++)
                         deletedChars = deletedChars + c.Doc.RemoveTextAtPosition(c.DX, c.DY);
@@ -593,10 +584,10 @@ namespace maple
             if (Settings.Properties.PreserveIndentOnEnter)
             {
                 string lineTabSearchString = c.Doc.GetLine(c.DY);
-                while (lineTabSearchString.StartsWith(tabString))
+                while (lineTabSearchString.StartsWith(Settings.TabString))
                 {
-                    newLineTabString += tabString;
-                    lineTabSearchString = lineTabSearchString.Remove(0, tabString.Length);
+                    newLineTabString += Settings.TabString;
+                    lineTabSearchString = lineTabSearchString.Remove(0, Settings.TabString.Length);
                 }
             }
 
@@ -609,9 +600,9 @@ namespace maple
             // remove tab string from beginning of following line
             if (Settings.Properties.PreserveIndentOnEnter)
             {
-                while (followingText.StartsWith(tabString))
+                while (followingText.StartsWith(Settings.TabString))
                 {
-                    followingText = followingText.Remove(0, tabString.Length);
+                    followingText = followingText.Remove(0, Settings.TabString.Length);
                 }
             }
 
@@ -672,12 +663,12 @@ namespace maple
             {
                 for (int i = c.Doc.SelectInY; i <= c.Doc.SelectOutY; i++)
                 {
-                    c.Doc.AddTextAtPosition(0, i, tabString);
+                    c.Doc.AddTextAtPosition(0, i, Settings.TabString);
                 }
 
-                c.Doc.MarkSelectionIn(c.Doc.SelectInX + tabString.Length, c.Doc.SelectInY);
-                c.Doc.MarkSelectionOut(c.Doc.SelectOutX + tabString.Length, c.Doc.SelectOutY);
-                Editor.DocCursor.Move(Editor.DocCursor.DX + tabString.Length, Editor.DocCursor.DY);
+                c.Doc.MarkSelectionIn(c.Doc.SelectInX + Settings.TabString.Length, c.Doc.SelectInY);
+                c.Doc.MarkSelectionOut(c.Doc.SelectOutX + Settings.TabString.Length, c.Doc.SelectOutY);
+                Editor.DocCursor.Move(Editor.DocCursor.DX + Settings.TabString.Length, Editor.DocCursor.DY);
 
                 //rerender all
                 Editor.RefreshAllLines();
@@ -697,17 +688,17 @@ namespace maple
                 return;
             }
 
-            bool tabTextAdded = c.Doc.AddTextAtPosition(c.DX, c.DY, tabString); //attempt to add tab text
+            bool tabTextAdded = c.Doc.AddTextAtPosition(c.DX, c.DY, Settings.TabString); //attempt to add tab text
             
             if(tabTextAdded)
             {
                 c.Doc.LogHistoryEvent(new HistoryEvent(
                     HistoryEventType.Add,
-                    tabString,
+                    Settings.TabString,
                     new Point(c.DX, c.DY),
                     initialCursorPos
                 ));
-                c.Move(c.DX + tabString.Length, c.DY);
+                c.Move(c.DX + Settings.TabString.Length, c.DY);
                 Editor.RefreshLine(c.DY);
             }
 
@@ -718,10 +709,10 @@ namespace maple
         {
             string tabSearchString = c.Doc.GetLine(c.DY);
             int tabSpaceCount = 0;
-            while (tabSearchString.StartsWith(tabString))
+            while (tabSearchString.StartsWith(Settings.TabString))
             {
-                tabSpaceCount += tabString.Length;
-                tabSearchString = tabSearchString.Remove(0, tabString.Length);
+                tabSpaceCount += Settings.TabString.Length;
+                tabSearchString = tabSearchString.Remove(0, Settings.TabString.Length);
             }
             
             if (c.DX <= tabSpaceCount) //if document is already at tab string pos, go all the way to 0

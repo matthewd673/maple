@@ -84,7 +84,21 @@ namespace maple
                 _footerLayoutFile = value.Replace("{mapledir}", Settings.MapleDirectory);
             }
         }
-        public int TabSpacesCount { get; set; } = 4;
+        private int _tabSpacesCount = 4;
+        public int TabSpacesCount
+        {
+            get { return _tabSpacesCount; }
+            set
+            {
+                // build tab string
+                Settings.TabString = "";
+                for (int i = 0; i < value; i++)
+                {
+                    Settings.TabString += " ";
+                }
+                _tabSpacesCount = value;
+            }
+        }
         public string ScrollYIncrement { get; set; } = "half";
         public string ScrollXIncrement { get; set; } = "half";
         public int HistoryMaxSize { get; set; } = 5000; // arbitrary
@@ -329,6 +343,8 @@ namespace maple
 
         public static Properties Properties { get; private set; } = new Properties();
         public static Theme Theme { get; private set; } = new Theme();
+
+        public static String TabString { get; set; } = "    "; // default: 4
 
         public static TSettings ReadSettingsFile<TSettings>(string filename)
         {

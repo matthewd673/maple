@@ -806,9 +806,6 @@ namespace maple
                 return;
             }
 
-            string tabString = "";
-            for (int i = 0; i < Settings.Properties.TabSpacesCount; i++) tabString += " ";
-
             // comment entire selection
             if (Editor.CurrentDoc.HasSelection())
             {
@@ -819,9 +816,9 @@ namespace maple
                     string line = Editor.CurrentDoc.GetLine(i);
                     string indentation = "";
 
-                    while (line.StartsWith(tabString))
+                    while (line.StartsWith(Settings.TabString))
                     {
-                        indentation += tabString;
+                        indentation += Settings.TabString;
                         line = line.Remove(0, Settings.Properties.TabSpacesCount);
                     }
 
@@ -872,9 +869,9 @@ namespace maple
 
                 // get line indentation prefix
                 string indentation = "";
-                while (line.StartsWith(tabString))
+                while (line.StartsWith(Settings.TabString))
                 {
-                    indentation += tabString;
+                    indentation += Settings.TabString;
                     line = line.Remove(0, Settings.Properties.TabSpacesCount);
                 }
 

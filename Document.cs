@@ -941,26 +941,22 @@ namespace maple
         /// </summary>
         public void Deindent()
         {
-            string tabString = "";
-            for (int i = 0; i < Settings.Properties.TabSpacesCount; i++)
-                tabString += " ";
-            
             if (HasSelection())
             {
                 for (int i = SelectInY; i <= SelectOutY; i++)
                 {
-                    if (GetLine(i).StartsWith(tabString))
+                    if (GetLine(i).StartsWith(Settings.TabString))
                     {
                         SetLine(
                             i,
-                            GetLine(i).Remove(0, tabString.Length)
+                            GetLine(i).Remove(0, Settings.TabString.Length)
                         );
                         if (i == SelectInY)
-                            MarkSelectionIn(SelectInX - tabString.Length, i);
+                            MarkSelectionIn(SelectInX - Settings.TabString.Length, i);
                         if (i == SelectOutY)
                         {
-                            MarkSelectionOut(SelectOutX - tabString.Length, i);
-                            Editor.DocCursor.Move(Editor.DocCursor.DX - tabString.Length, Editor.DocCursor.DY);
+                            MarkSelectionOut(SelectOutX - Settings.TabString.Length, i);
+                            Editor.DocCursor.Move(Editor.DocCursor.DX - Settings.TabString.Length, Editor.DocCursor.DY);
                         }
                     }
                     Editor.RefreshLine(i);
@@ -968,14 +964,14 @@ namespace maple
             }
             else
             {
-                if (GetLine(Editor.DocCursor.DY).StartsWith(tabString))
+                if (GetLine(Editor.DocCursor.DY).StartsWith(Settings.TabString))
                 {
                     SetLine(
                             Editor.DocCursor.DY,
-                            GetLine(Editor.DocCursor.DY).Remove(0, tabString.Length)
+                            GetLine(Editor.DocCursor.DY).Remove(0, Settings.TabString.Length)
                         );
                     
-                    Editor.DocCursor.Move(Editor.DocCursor.DX - tabString.Length, Editor.DocCursor.DY);
+                    Editor.DocCursor.Move(Editor.DocCursor.DX - Settings.TabString.Length, Editor.DocCursor.DY);
                     
                     Editor.RefreshLine(Editor.DocCursor.DY);
                 }
@@ -1111,11 +1107,9 @@ namespace maple
             else if ((!redo && last.EventType == HistoryEventType.DeindentLine) || // did deindent line, now indent
                     (redo && last.EventType == HistoryEventType.IndentLine))
             {
-                string tabString = "";
-                for (int i = 0; i < Settings.Properties.TabSpacesCount; i++) tabString += " ";
                 for (int i = last.SelectionPoints[0].Y; i <= last.SelectionPoints[1].Y; i++)
                 {
-                    SetLine(i, tabString + GetLine(i));
+                    SetLine(i, Settings.TabString + GetLine(i));
                 }
 
                 Editor.DocCursor.Move(last.CursorPos.X, last.CursorPos.Y);

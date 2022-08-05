@@ -9,6 +9,9 @@ namespace maple
 
         public List<Token> Tokens { get; private set; } = new List<Token>();
 
+        public int IndentLevel { get; set; } = 0;
+        public bool BlockCommented { get; set; } = false;
+
         private String _lineContent = "";
         public String LineContent {
             get
@@ -17,9 +20,9 @@ namespace maple
             }
             set
             {
-                Tokens = GenerateTokensFromString(value);
-
                 _lineContent = value;
+                IndentLevel = FindIndentLevel();
+                ForceTokenize();
             }
         }
 
@@ -30,14 +33,21 @@ namespace maple
 
         public void ForceTokenize()
         {
-            Tokens = GenerateTokensFromString(_lineContent);
+            Tokens = Lexer.Tokenize(_lineContent);
         }
 
-        public static List<Token> GenerateTokensFromString(String text)
+        private int FindIndentLevel()
         {
-            return Lexer.Tokenize(text);
-        }
+            int indentLevel = 0;
+            string tabLineContent = LineContent;
+            while (tabLineContent.StartsWith(Settings.TabString))
+            {
+                indentLevel++;
+                tabLineContent = tabLineContent.Remove(0, Settings.TabString.Length);
+            }
 
+            return indentLevel;
+        }
     }
 
 }
