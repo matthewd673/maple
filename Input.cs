@@ -406,17 +406,20 @@ namespace maple
 
         static void HandleRight(DocumentCursor c)
         {
-            if (Settings.Properties.NavigatePastTabs && c.Doc.GetTextAtPosition(c.DX, c.DY).StartsWith(Settings.TabString)) //can skip, do so
+            int indentIndex = c.Doc.GetLineMetadata(c.DY).IndentIndex;
+            if (Settings.Properties.NavigatePastTabs && c.DX < indentIndex) // can skip, do so
             {
-                c.Move(c.DX + Settings.TabString.Length, c.DY, applyPosition: false);
+                int newX = c.DX + Settings.TabString.Length;
+                if (newX > indentIndex) newX = c.DX + 1; // don't fully jump if theres less than a tab to go
+                c.Move(newX, c.DY, applyPosition: false);
             }
-            else //can't skip, move normally
+            else // can't skip, move normally
             {
                 c.MoveRight(applyPosition: false);
             }
             
             c.ApplyPosition();
-            UpdateMaxCursorX(c); //update max x position
+            UpdateMaxCursorX(c); // update max x position
         }
 
         static void HandleBackspace(DocumentCursor c)
@@ -434,7 +437,7 @@ namespace maple
             {
                 if (Settings.Properties.DeleteEntireTabs // fancy tab delete
                     && c.DX >= Settings.Properties.TabSpacesCount
-                    && c.Doc.GetTextAtPosition(c.DX - Settings.Properties.TabSpacesCount, c.DY).StartsWith(Settings.TabString))
+                    && c.DX <= c.Doc.GetLineMetadata(c.DY).IndentIndex)
                     {
                         string deletedChars = "";
                         for(int i = 0; i < Settings.Properties.TabSpacesCount; i++)
@@ -568,7 +571,7 @@ namespace maple
 
         static void HandleEnter(DocumentCursor c)
         {
-            //don't break after clearing selection since we still want a newline
+            // don't break after clearing selection since we still want a newline
             bool deletedSelection = false;
             if (c.Doc.HasSelection())
             {
@@ -579,15 +582,13 @@ namespace maple
 
             Point initialCursorPos = new Point(c.DX, c.DY);
 
-            //insert tab string at beginning of new line
+            // insert tab string at beginning of new line
             string newLineTabString = "";
             if (Settings.Properties.PreserveIndentOnEnter)
             {
-                string lineTabSearchString = c.Doc.GetLine(c.DY);
-                while (lineTabSearchString.StartsWith(Settings.TabString))
+                for (int i = 0; i < c.Doc.GetLineMetadata(c.DY).IndentLevel; i++)
                 {
                     newLineTabString += Settings.TabString;
-                    lineTabSearchString = lineTabSearchString.Remove(0, Settings.TabString.Length);
                 }
             }
 
@@ -598,12 +599,10 @@ namespace maple
             string followingText = followingTextLine.Substring(c.DX); // get text following cursor (on current line)
 
             // remove tab string from beginning of following line
-            if (Settings.Properties.PreserveIndentOnEnter)
+            if (Settings.Properties.PreserveIndentOnEnter &&
+                c.DX < c.Doc.GetLineMetadata(c.DY).IndentIndex)
             {
-                while (followingText.StartsWith(Settings.TabString))
-                {
-                    followingText = followingText.Remove(0, Settings.TabString.Length);
-                }
+                followingText = followingText.Remove(0, c.Doc.GetLineMetadata(c.DY).IndentIndex - c.DX);
             }
 
             c.Doc.AddTextAtPosition(0, c.DY + 1, newLineTabString + followingText); // add following text to new line
@@ -624,7 +623,7 @@ namespace maple
 
             c.Doc.LogHistoryEvent(new HistoryEvent(
                 HistoryEventType.AddLine,
-                c.Doc.GetLine(c.DY),
+                c.Doc.GetLine(c.DY).Substring(c.DX),
                 initialCursorPos,
                 initialCursorPos,
                 combined: deletedSelection

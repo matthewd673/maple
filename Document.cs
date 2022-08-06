@@ -524,10 +524,14 @@ namespace maple
         /// <returns>A String containing the line text.</returns>
         public String GetLine(int index)
         {
-            if(index >= 0 && index < fileLines.Count)
-                return fileLines[index].LineContent;
-            else
-                return "";
+            if(index >= 0 && index < fileLines.Count) return fileLines[index].LineContent;
+            return "";
+        }
+
+        public Line GetLineMetadata(int index)
+        {
+            if (index >= 0 && index < fileLines.Count) return fileLines[index];
+            return new Line("");
         }
 
         /// <summary>
@@ -1088,7 +1092,16 @@ namespace maple
             else if (redo && last.EventType == HistoryEventType.AddLine)
             {
                 AddLine(last.DeltaPos.Y + 1);
-                SetLine(last.DeltaPos.Y + 1, GetLine(last.DeltaPos.Y).Substring(last.DeltaPos.X));
+
+                // recreate "preserveindentonenter", if enabled
+                string indentPrefix = "";
+                if (Settings.Properties.PreserveIndentOnEnter)
+                {
+                    for (int i = 0; i < GetLineMetadata(last.DeltaPos.Y).IndentLevel; i++)
+                        indentPrefix += Settings.TabString;
+                }
+
+                SetLine(last.DeltaPos.Y + 1, indentPrefix + GetLine(last.DeltaPos.Y).Substring(last.DeltaPos.X));
                 SetLine(last.DeltaPos.Y, GetLine(last.DeltaPos.Y).Remove(last.DeltaPos.X));
                 
                 Editor.DocCursor.Move(last.CursorPos.X, last.CursorPos.Y);
