@@ -357,7 +357,7 @@ namespace maple
             if (!File.Exists(filename))
             {
                 Log.Write(String.Format("Settings file \"{0}\" does not exist", filename), "settings", important: true);
-                CommandLine.SetOutput(String.Format("Settings file \"{0}\" does not exist", filename), "settings", oType: CommandLine.OutputType.Error);
+                CommandLine.SetOutput(String.Format("Settings file \"{0}\" does not exist", filename), "settings", oType: OutputType.Error);
                 return default(TSettings);
             }
 
@@ -371,7 +371,7 @@ namespace maple
             catch (Exception e)
             {
                 Log.Write(e.Message, "settings", important: true);
-                CommandLine.SetOutput("Encountered an error while deserializing", "settings", oType: CommandLine.OutputType.Error);
+                CommandLine.SetOutput("Encountered an error while deserializing", "settings", oType: OutputType.Error);
                 stream.Close();
                 return default(TSettings);
             }
@@ -380,13 +380,13 @@ namespace maple
         private static void serializer_UnknownNode(object sender, XmlNodeEventArgs e)
         {
             Log.Write(String.Format("Encountered an unknown node while deserializing (\"{0}\" line {1})", e.Name, e.LineNumber), "settings", important: true);
-            CommandLine.SetOutput("Encountered an unknown node while deserializing", "settings", oType: CommandLine.OutputType.Error, renderFooter: false);
+            CommandLine.SetOutput("Encountered an unknown node while deserializing", "settings", oType: OutputType.Error, renderFooter: false);
         }
 
         private static void serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e)
         {
             Log.Write(String.Format("Encountered an unknown attribute while deserializing (\"{0}\" line {1})", e.Attr, e.LineNumber), "settings", important: true);
-            CommandLine.SetOutput("Encountered an unknown attribute while deserializing", "settings", oType: CommandLine.OutputType.Error, renderFooter: false);
+            CommandLine.SetOutput("Encountered an unknown attribute while deserializing", "settings", oType: OutputType.Error, renderFooter: false);
         }
 
         public static void LoadSettings()

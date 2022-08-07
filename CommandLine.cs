@@ -6,6 +6,30 @@ using System.Text;
 
 namespace maple
 {
+
+    public enum OutputType
+    {
+        Info,
+        Error,
+        Success,
+        Prompt,
+    }
+
+    class OutputPrompt
+    {
+        public delegate void InstantActionDelegate();
+        public delegate void PromptResponseDelegate(string text);
+
+        public Dictionary<ConsoleKey, InstantActionDelegate> InstantActionTable { get; set; }
+        public PromptResponseDelegate ResponseDelegate { get; set; }
+
+        public OutputPrompt(Dictionary<ConsoleKey, InstantActionDelegate> instantActionTable, PromptResponseDelegate responseDelegate)
+        {
+            InstantActionTable = instantActionTable;
+            ResponseDelegate = responseDelegate;
+        }
+    }
+
     static class CommandLine
     {
 
@@ -23,13 +47,6 @@ namespace maple
                 HelpText = helpText;
                 Function = function;
             }
-        }
-
-        public enum OutputType
-        {
-            Info,
-            Error,
-            Success,
         }
 
         public static Dictionary<string, Command> Commands { get; } = new() {
@@ -68,7 +85,7 @@ namespace maple
 
         public static string OutputText { get; private set; }
         public static OutputType OType = OutputType.Info;
-
+        public static OutputPrompt OPrompt { get; private set; }
         public static bool HasOutput { get; private set; } = false;
 
         public static List<string> CommandHistory { get; private set; } = new List<string>();
@@ -104,11 +121,14 @@ namespace maple
             return (x >= 0 && x < InputText.Length);
         }
 
-        public static void SetOutput(string text, string speaker, OutputType oType = OutputType.Info, bool renderFooter = true)
+        public static void SetOutput(string text, string speaker, OutputPrompt oPrompt = null, OutputType oType = OutputType.Info, bool renderFooter = true)
         {
             OutputText = String.Format("[{0}]: {1}", speaker, text);
             OType = oType;
+            OPrompt = oPrompt;
+            if (oPrompt != null) OType = OutputType.Prompt;
             HasOutput = true;
+
             Footer.RefreshOutputLine();
             if (renderFooter)
             {
@@ -121,6 +141,7 @@ namespace maple
             OutputText = "";
             HasOutput = false;
             OType = OutputType.Info;
+            OPrompt = null;
 
             //reprint bottom editor line
             Footer.RefreshOutputLine();
@@ -167,9 +188,11 @@ namespace maple
                 UnknownCommand();
             }
 
-            //empty input field and toggle back to editor
-            InputText = "";
-            Input.ToggleInputTarget();
+            //empty input field, but only toggle back if not a prompt
+            ClearInput();
+
+            if (OType != OutputType.Prompt)
+                Input.ToggleInputTarget();
         }
 
         static void HelpCommand(List<string> args, List<string> switches)
@@ -205,7 +228,7 @@ namespace maple
                     case "wiki":
                         Process.Start("explorer", wikiUrl);
                         Log.Write("Launching GitHub wiki: " + wikiUrl, "commandline/help");
-                        SetOutput(String.Format("Navigating to {0}", wikiUrl), "help", OutputType.Success);
+                        SetOutput(String.Format("Navigating to {0}", wikiUrl), "help", oType: OutputType.Success);
                         break;
                     default:
                         if (Settings.Properties.AliasesTable.ContainsKey(args[0]))
@@ -280,7 +303,7 @@ namespace maple
                 Editor.Initialize(filepath);
             }
             else
-                SetOutput(String.Format("File \"{0}\" doesn't exist, use \"new\" to create a new file", filepath), "load", OutputType.Error);
+                SetOutput(String.Format("File \"{0}\" doesn't exist, use \"new\" to create a new file", filepath), "load", oType: OutputType.Error);
         }
 
         static void NewCommand(List<string> args, List<string> switches)
@@ -300,28 +323,52 @@ namespace maple
             // file exists, do nothing
             if (File.Exists(Document.ProcessFilepath(filepath)))
             {
-                SetOutput(String.Format("File \"{0}\" already exists, use \"load\" to load an existing file", filepath), "new", OutputType.Error);
+                SetOutput(String.Format("File \"{0}\" already exists, use \"load\" to load an existing file", filepath), "new", oType: OutputType.Error);
             }
             // file doesn't exist but directory does, create
             else if (Path.GetDirectoryName(Document.ProcessFilepath(filepath)).Equals("") ||
                      Directory.Exists(Path.GetDirectoryName(Document.ProcessFilepath(filepath))))
             {
                 Editor.Initialize(filepath);
-                SetOutput(String.Format("Created a new file at \"{0}\"", filepath), "new", OutputType.Success);
+                SetOutput(String.Format("Created a new file at \"{0}\"", filepath), "new", oType: OutputType.Success);
             }
             // directory doesn't exist, do nothing
             else
             {
-                SetOutput(String.Format("Directory \"{0}\" does not exist", Path.GetDirectoryName(Document.ProcessFilepath(filepath))), "new", OutputType.Error);
+                SetOutput(String.Format("Directory \"{0}\" does not exist", Path.GetDirectoryName(Document.ProcessFilepath(filepath))), "new", oType: OutputType.Error);
             }
         
         }
 
         static void CloseCommand(List<string> args, List<string> switches)
         {
-            if (Settings.Properties.SaveOnClose) //call save command first
+            SetOutput(
+                "Are you sure you want to close?",
+                "close",
+                new OutputPrompt(
+                    new Dictionary<ConsoleKey, OutputPrompt.InstantActionDelegate>()
+                    {
+                        { ConsoleKey.Y, CloseCommandActionYes },
+                        { ConsoleKey.N, CloseCommandActionNo },
+                    },
+                    null
+                    ),
+                oType: OutputType.Prompt
+                );
+            
+            if (Settings.Properties.SaveOnClose) // call save command first
                 SaveCommand(new List<string>(), new List<string>());
+        }
+
+        static void CloseCommandActionYes()
+        {
             Program.Close();
+        }
+
+        static void CloseCommandActionNo()
+        {
+            ClearOutput();
+            Input.ToggleInputTarget();
         }
 
         static void ClearCommand(List<string> args, List<string> switches)
@@ -456,7 +503,7 @@ namespace maple
             Token hoveredToken = Editor.CurrentDoc.GetTokenAtPosition(Editor.DocCursor.DX, Editor.DocCursor.DY);
             if (hoveredToken.TType != TokenType.Url)
             {
-                SetOutput("Selected token isn't a valid URL", "url", OutputType.Error);
+                SetOutput("Selected token isn't a valid URL", "url", oType: OutputType.Error);
                 Log.Write("Attempted to navigate to " + hoveredToken.Text, "commandline/url");
                 return;
             }
@@ -464,11 +511,11 @@ namespace maple
             try
             {
                 Process.Start("explorer", hoveredToken.Text);
-                SetOutput("Navigating to " + hoveredToken.Text, "url", OutputType.Success);
+                SetOutput("Navigating to " + hoveredToken.Text, "url", oType: OutputType.Success);
             }
             catch (Exception e)
             {
-                SetOutput("Failed to launch browser process", "url", OutputType.Error);
+                SetOutput("Failed to launch browser process", "url", oType: OutputType.Error);
                 Log.Write("URL command failed: " + e.Message, "commandline/url", important: true);
                 Log.Write("...was attempting to navigate to " + hoveredToken.Text, "commandline/url");
             }
@@ -499,7 +546,7 @@ namespace maple
             {
                 if (lastFindSearch.Equals("")) //there is no last search
                 {
-                    SetOutput("No query provided", "find", OutputType.Error);
+                    SetOutput("No query provided", "find", oType: OutputType.Error);
                     return;
                 }
                 else
@@ -659,7 +706,7 @@ namespace maple
             if (i > 0)
                 SetOutput(output, "count");
             else
-                SetOutput("Provide a statistic to count (--lines, --chars)", "count", OutputType.Error);
+                SetOutput("Provide a statistic to count (--lines, --chars)", "count", oType: OutputType.Error);
         }
 
         static void CopyCommand(List<string> args, List<string> switches)
@@ -669,7 +716,7 @@ namespace maple
             else
             {
                 Editor.ClipboardContents = Editor.CurrentDoc.GetLine(Editor.DocCursor.DY);
-                Editor.ClipboardContents += "\n"; //add newline at end, it feels more natural
+                Editor.ClipboardContents += "\n"; // add newline at end, it feels more natural
             }
         }
 

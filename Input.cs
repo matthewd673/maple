@@ -279,7 +279,6 @@ namespace maple
 
         static void AcceptCommandInput(ConsoleKeyInfo keyInfo)
         {
-
             Cursor cmdCursor = Editor.CmdCursor;
 
             // allow shortcuts to be triggered while alt-key is pressed
@@ -290,6 +289,12 @@ namespace maple
             {
                 HandleShortcut(keyInfo);
                 return;
+            }
+
+            // check for output prompt instant action key
+            if (CommandLine.HasOutput && CommandLine.OType == OutputType.Prompt)
+            {
+                HandleCommandInstantAction(keyInfo);
             }
 
             switch(keyInfo.Key)
@@ -810,6 +815,17 @@ namespace maple
             }
         }
 
+        static void HandleCommandInstantAction(ConsoleKeyInfo keyInfo)
+        {
+            if (CommandLine.OPrompt != null &&
+                CommandLine.OPrompt.InstantActionTable != null &&
+                CommandLine.OPrompt.InstantActionTable.ContainsKey(keyInfo.Key))
+            {
+                CommandLine.OPrompt.InstantActionTable[keyInfo.Key](); // invoke
+
+            }
+        }
+
         public static void ToggleInputTarget()
         {
             Footer.PrintFooter();
@@ -825,6 +841,20 @@ namespace maple
             else if(CurrentTarget == InputTarget.Command)
             {
                 CurrentTarget = InputTarget.Document;
+            }
+        }
+
+        public static void SetInputTarget(InputTarget inputTarget)
+        {
+            Footer.PrintFooter();
+            if (inputTarget == InputTarget.Document)
+            {
+                CurrentTarget = InputTarget.Document;
+            }
+            else if (inputTarget == InputTarget.Command)
+            {
+                CurrentTarget = InputTarget.Command;
+                Editor.CmdCursor.Move(0, 0);
             }
         }
 

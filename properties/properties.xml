@@ -68,7 +68,7 @@
         <Shortcut key="c" execute="true">copy</Shortcut>
         <Shortcut key="p" execute="true">paste</Shortcut>
         <Shortcut key="x" execute="true">cut</Shortcut>
-        <Shortcut key="q" execute="false">close</Shortcut>
+        <Shortcut key="q" execute="true">close</Shortcut>
         <Shortcut key="z" execute="true">undo</Shortcut>
         <Shortcut key="y" execute="true">redo</Shortcut>
         <Shortcut key="a" execute="true">selectall</Shortcut>

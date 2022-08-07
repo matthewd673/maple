@@ -271,21 +271,35 @@ namespace maple
                 ConsoleColor outputColor = Settings.Theme.CliOutputInfoColor;
                 switch (CommandLine.OType)
                 {
-                    case CommandLine.OutputType.Error:
+                    case OutputType.Error:
                         outputColor = Settings.Theme.CliOutputErrorColor;
                         break;
-                    case CommandLine.OutputType.Success:
+                    case OutputType.Success:
                         outputColor = Settings.Theme.CliOutputSuccessColor;
                         break;
+                    // TODO: prompt color is same as info
+                }
+
+                // build prompt string
+                string outputText = CommandLine.OutputText;
+                if (CommandLine.OType == OutputType.Prompt)
+                {
+                    outputText += " [";
+                    foreach (ConsoleKey k in CommandLine.OPrompt.InstantActionTable.Keys)
+                    {
+                        outputText += k.ToString() + " / ";
+                    }
+                    outputText = outputText.Remove(outputText.Length - 3);
+                    outputText += "]";
                 }
 
                 if (Settings.Properties.ColorOutputBackground)
                 {
-                    Printer.DrawFooter(CommandLine.OutputText, foregroundColor: ConsoleColor.Black, backgroundColor: outputColor, yOffset: 1);
+                    Printer.DrawFooter(outputText, foregroundColor: ConsoleColor.Black, backgroundColor: outputColor, yOffset: 1);
                 }
                 else
                 {
-                    Printer.DrawFooter(CommandLine.OutputText, foregroundColor: outputColor, backgroundColor: ConsoleColor.Black, yOffset: 1);
+                    Printer.DrawFooter(outputText, foregroundColor: outputColor, backgroundColor: ConsoleColor.Black, yOffset: 1);
                 }
             }
         }
