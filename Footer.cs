@@ -282,12 +282,16 @@ namespace maple
 
                 // build prompt string
                 string outputText = CommandLine.OutputText;
-                if (CommandLine.OType == OutputType.Prompt)
+                if (CommandLine.OType == OutputType.Prompt &&
+                    CommandLine.OPrompt.InstantActionTable != null &&
+                    CommandLine.OPrompt.InstantActionTable.Keys.Count > 0
+                    )
                 {
                     outputText += " [";
                     foreach (ConsoleKey k in CommandLine.OPrompt.InstantActionTable.Keys)
                     {
-                        outputText += k.ToString() + " / ";
+                        // capitalize default, lowercase otherwise
+                        outputText += ((k == CommandLine.OPrompt.DefaultInstantAction) ? k.ToString().ToUpper() : k.ToString().ToLower()) + " / ";
                     }
                     outputText = outputText.Remove(outputText.Length - 3);
                     outputText += "]";

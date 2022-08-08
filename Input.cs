@@ -692,21 +692,34 @@ namespace maple
                 return;
             }
 
-            bool tabTextAdded = c.Doc.AddTextAtPosition(c.DX, c.DY, Settings.TabString); //attempt to add tab text
+            // normal indent
+            string tabText = Settings.TabString;
+
+            if (Settings.Properties.PreserveIndentOnEnter &&
+                c.Doc.GetLine(c.DY).Length == 0 &&
+                c.DY > 0
+                )
+            {
+                tabText = "";
+                for (int i = 0; i < c.Doc.GetLineMetadata(c.DY - 1).IndentLevel; i++)
+                    tabText += Settings.TabString;
+            }
+
+            bool tabTextAdded = c.Doc.AddTextAtPosition(c.DX, c.DY, tabText); // attempt to add tab text
             
             if(tabTextAdded)
             {
                 c.Doc.LogHistoryEvent(new HistoryEvent(
                     HistoryEventType.Add,
-                    Settings.TabString,
+                    tabText,
                     new Point(c.DX, c.DY),
                     initialCursorPos
                 ));
-                c.Move(c.DX + Settings.TabString.Length, c.DY);
+                c.Move(c.DX + tabText.Length, c.DY);
                 Editor.RefreshLine(c.DY);
             }
 
-            maxCursorX = c.DX; //update max x position
+            maxCursorX = c.DX; // update max x position
         }
 
         static void HandleHome(DocumentCursor c)
@@ -818,11 +831,17 @@ namespace maple
         static void HandleCommandInstantAction(ConsoleKeyInfo keyInfo)
         {
             if (CommandLine.OPrompt != null &&
-                CommandLine.OPrompt.InstantActionTable != null &&
-                CommandLine.OPrompt.InstantActionTable.ContainsKey(keyInfo.Key))
+                CommandLine.OPrompt.InstantActionTable != null
+                )
             {
-                CommandLine.OPrompt.InstantActionTable[keyInfo.Key](); // invoke
-
+                // trigger instant action for key, or default if Enter is pressed
+                if (CommandLine.OPrompt.InstantActionTable.ContainsKey(keyInfo.Key))
+                    CommandLine.OPrompt.InstantActionTable[keyInfo.Key](); // invoke
+                else if (keyInfo.Key == ConsoleKey.Enter &&
+                        CommandLine.OPrompt.InstantActionTable.ContainsKey(CommandLine.OPrompt.DefaultInstantAction))
+                {
+                    CommandLine.OPrompt.InstantActionTable[CommandLine.OPrompt.DefaultInstantAction]();
+                }
             }
         }
 
@@ -840,6 +859,12 @@ namespace maple
             }
             else if(CurrentTarget == InputTarget.Command)
             {
+                // clear prompt when toggling
+                // normal output is not cleared
+                if (CommandLine.OType == OutputType.Prompt)
+                {
+                    CommandLine.ClearOutput();
+                }
                 CurrentTarget = InputTarget.Document;
             }
         }

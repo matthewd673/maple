@@ -23,10 +23,13 @@ namespace maple
         public Dictionary<ConsoleKey, InstantActionDelegate> InstantActionTable { get; set; }
         public PromptResponseDelegate ResponseDelegate { get; set; }
 
-        public OutputPrompt(Dictionary<ConsoleKey, InstantActionDelegate> instantActionTable, PromptResponseDelegate responseDelegate)
+        public ConsoleKey DefaultInstantAction { get; set; }
+
+        public OutputPrompt(Dictionary<ConsoleKey, InstantActionDelegate> instantActionTable, PromptResponseDelegate responseDelegate, ConsoleKey defaultInstantAction = ConsoleKey.NoName)
         {
             InstantActionTable = instantActionTable;
             ResponseDelegate = responseDelegate;
+            DefaultInstantAction = defaultInstantAction;
         }
     }
 
@@ -351,7 +354,8 @@ namespace maple
                         { ConsoleKey.Y, CloseCommandActionYes },
                         { ConsoleKey.N, CloseCommandActionNo },
                     },
-                    null
+                    null,
+                    defaultInstantAction: ConsoleKey.Y
                     ),
                 oType: OutputType.Prompt
                 );
