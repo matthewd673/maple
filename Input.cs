@@ -295,6 +295,9 @@ namespace maple
             if (CommandLine.HasOutput && CommandLine.OType == OutputType.Prompt)
             {
                 HandleCommandInstantAction(keyInfo);
+                if (CommandLine.OType != OutputType.Prompt) // prompt is now gone, back to document
+                    Input.SetInputTarget(InputTarget.Document);
+                return;
             }
 
             switch(keyInfo.Key)
@@ -830,6 +833,14 @@ namespace maple
 
         static void HandleCommandInstantAction(ConsoleKeyInfo keyInfo)
         {
+            // normal output toggle
+            if (keyInfo.Key == ConsoleKey.Escape)
+            {
+                CommandLine.ClearOutput();
+                Input.ToggleInputTarget();
+            }
+
+            // attempt to execute instant action
             if (CommandLine.OPrompt != null &&
                 CommandLine.OPrompt.InstantActionTable != null
                 )

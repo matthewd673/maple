@@ -366,7 +366,35 @@ namespace maple
 
         static void CloseCommandActionYes()
         {
+            if (Editor.CurrentDoc.Dirty)
+            {
+                SetOutput(
+                    "This file has unsaved changes, close without saving?",
+                    "close",
+                    new OutputPrompt(
+                        new Dictionary<ConsoleKey, OutputPrompt.InstantActionDelegate>()
+                        {
+                            { ConsoleKey.N, CloseCommandUnsavedActionNo },
+                            { ConsoleKey.Y, CloseCommandUnsavedActionYes },
+                        },
+                        null,
+                        defaultInstantAction: ConsoleKey.N
+                        ),
+                    oType: OutputType.Prompt
+                    );
+                return;
+            }
             Program.Close();
+        }
+
+        static void CloseCommandUnsavedActionYes()
+        {
+            Program.Close();
+        }
+
+        static void CloseCommandUnsavedActionNo()
+        {
+            ClearOutput();
         }
 
         static void CloseCommandActionNo()
