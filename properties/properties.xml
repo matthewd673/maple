@@ -64,6 +64,7 @@
     <Shortcuts>
         <Shortcut key="s" execute="true">save</Shortcut>
         <Shortcut key="l" execute="false">load </Shortcut>
+        <Shortcut key="n" execute="false">new </Shortcut>
         <Shortcut key="f" execute="false">find </Shortcut>
         <Shortcut key="c" execute="true">copy</Shortcut>
         <Shortcut key="p" execute="true">paste</Shortcut>

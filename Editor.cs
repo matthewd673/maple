@@ -99,17 +99,20 @@ namespace maple
                 }
 
                 // check for changes to file
-                DateTime fileModifiedTime = File.GetLastWriteTime(CurrentDoc.Filepath);
-                if (Settings.Properties.ExternalEditAlert &&
-                    fileModifiedTime.ToFileTime() != Editor.CurrentDoc.LastModifiedTime)
+                if (!CurrentDoc.Filepath.Equals("")) // skip if empty workspace
                 {
-                    // file changed, notify about update
-                    if (Editor.CurrentDoc.LastModifiedTime != 0)
+                    DateTime fileModifiedTime = File.GetLastWriteTime(CurrentDoc.Filepath);
+                    if (Settings.Properties.ExternalEditAlert &&
+                        fileModifiedTime.ToFileTime() != Editor.CurrentDoc.LastModifiedTime)
                     {
-                        CommandLine.SetOutput("File has been modified externally, use \"load\" to reload", "document");
-                        Printer.ApplyBuffer();
+                        // file changed, notify about update
+                        if (Editor.CurrentDoc.LastModifiedTime != 0)
+                        {
+                            CommandLine.SetOutput("File has been modified externally, use \"load\" to reload", "document");
+                            Printer.ApplyBuffer();
+                        }
+                        Editor.CurrentDoc.LastModifiedTime = fileModifiedTime.ToFileTime();
                     }
-                    Editor.CurrentDoc.LastModifiedTime = fileModifiedTime.ToFileTime();
                 }
 
                 Thread.Sleep(10); // TODO: there's a better way to write this threading

@@ -254,6 +254,17 @@ namespace maple
                 savePath = args[0];
             savePath = savePath.Trim('\"');
 
+            if (savePath.Equals(""))
+            {
+                SetOutput("Enter a filename to save at", "save",
+                    oPrompt: new OutputPrompt(
+                        null,
+                        SaveCommandResponse
+                    ),
+                    oType: OutputType.Prompt);
+                return;
+            }
+
             Encoding encoding = Encoding.UTF8;
             if (Lexer.Properties.DefaultEncoding.Equals("utf8"))
             {
@@ -282,6 +293,11 @@ namespace maple
                 SetOutput(String.Format("Copy of file saved to \"{0}\"", savePath.Trim()), "save");
             else
                 SetOutput(String.Format("File saved to \"{0}\"", savePath.Trim()), "save");
+        }
+
+        static void SaveCommandResponse(string filename)
+        {
+            SaveCommand(new List<string>() { filename }, new List<string>()); // just send it right back
         }
 
         static void LoadCommand(List<string> args, List<string> switches)

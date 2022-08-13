@@ -292,7 +292,10 @@ namespace maple
             }
 
             // check for output prompt instant action key
-            if (CommandLine.HasOutput && CommandLine.OType == OutputType.Prompt)
+            if (CommandLine.HasOutput &&
+                CommandLine.OType == OutputType.Prompt &&
+                CommandLine.OPrompt.InstantActionTable != null
+                )
             {
                 HandleCommandInstantAction(keyInfo);
                 if (CommandLine.OType != OutputType.Prompt) // prompt is now gone, back to document
@@ -300,6 +303,7 @@ namespace maple
                 return;
             }
 
+            // normal input / command prompt open-ended
             switch(keyInfo.Key)
             {
                 // MOVEMENT
@@ -351,7 +355,25 @@ namespace maple
 
                 // COMMANDS
                 case ConsoleKey.Enter:
-                    CommandLine.ExecuteInput();
+                    // command prompt response handling
+                    if (CommandLine.HasOutput &&
+                        CommandLine.OType == OutputType.Prompt &&
+                        CommandLine.OPrompt != null &&
+                        CommandLine.OPrompt.ResponseDelegate != null
+                        )
+                    {
+                        string text = CommandLine.InputText;
+                        OutputPrompt.PromptResponseDelegate responseDelegate = CommandLine.OPrompt.ResponseDelegate;
+                        
+                        CommandLine.ClearInput();
+                        ToggleInputTarget();
+                        
+                        responseDelegate(text);
+                    }
+                    else // basic mode
+                    {
+                        CommandLine.ExecuteInput();
+                    }
                     break;
                 case ConsoleKey.Escape:
                     CommandLine.ClearInput();

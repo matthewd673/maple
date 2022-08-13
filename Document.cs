@@ -105,11 +105,11 @@ namespace maple
                 if (Path.GetExtension(filepath).Length > 0)
                 {
                     string fileExtension = Path.GetExtension(filepath).Remove(0, 1);
-                    fileExtension = fileExtension.TrimEnd(); //remove trailing whitespace
+                    fileExtension = fileExtension.TrimEnd(); // remove trailing whitespace
                     Lexer.LoadSyntax(Path.Combine(Settings.Properties.SyntaxDirectory, fileExtension + ".xml"));
                 }
                 else
-                    Log.Write("Loaded document is marked as internal", "document");
+                    Log.Write("Skipped syntax information, loaded document is marked as internal", "document");
             }
 
             // clear any lines that may have existed from before
@@ -121,6 +121,15 @@ namespace maple
             ParentDirectory = Path.GetDirectoryName(filepath);
 
             Log.Write("Filpath: " + Filepath, "document");
+
+            if (Filepath.Equals("")) // empty filename
+            {
+                Log.Write("No filepath provided. Document will be blank and save will ask for a filename.", "document");
+                fileLines = new List<Line>() { new Line("") };
+                CommandLine.SetOutput("Created empty document", "document", renderFooter: false);
+                return;
+            }
+
             if (File.Exists(filepath))
             {
                 Log.Write("Loading from '" + filepath + "'", "document");
@@ -165,6 +174,8 @@ namespace maple
             File.WriteAllLines(savePath, allLines, encoding);
             Log.Write("Saved file to \"" + savePath + "\" (encoding: " + encoding.ToString() + ")", "document");
             Dirty = false;
+            Filepath = savePath; // update save path
+            Log.Write("File save path updated on save, " + Filepath, "document");
         }
 
         /// <summary>

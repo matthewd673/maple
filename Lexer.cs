@@ -72,7 +72,7 @@ namespace maple
 
     public static class Lexer
     {
-        public static FileProperties Properties { get; private set; }
+        public static FileProperties Properties { get; private set; } = new();
 
         const string CliStringRule = "\".*\"";
         const string CliSwitchRule = "(-{1,2})([a-zA-Z0-9]|-)+";

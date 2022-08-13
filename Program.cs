@@ -85,11 +85,8 @@ namespace maple
             }
             else // no argument provided
             {
-                Log.Write("No file provided in args, defaulting to about", "program", important: true);
-                Printer.PrintLineSimple("maple - terminal text editor | https://github.com/matthewd673/maple", Settings.Theme.AccentColor);
-                Printer.PrintLineSimple("No arguments provided: 'maple [filename]' to begin editing", Settings.Theme.ErrorColor);
-                Console.ResetColor();
-                return;
+                Log.Write("No file provided in args, creating Document with no filename", "program", important: true);
+                Editor.Initialize("");
             }
 
             // send control to editor
