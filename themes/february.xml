@@ -9,6 +9,7 @@
     <CliOutputInfo>Yellow</CliOutputInfo>
     <CliOutputError>Red</CliOutputError>
     <CliOutputSuccess>Green</CliOutputSuccess>
+    <CliOutputPrompt>Cyan</CliOutputPrompt>
     <CliPrompt>Cyan</CliPrompt>
 
     <TokenColors>

@@ -190,6 +190,12 @@ namespace maple
             get { return CliOutputSuccessColor.ToString(); }
             set { CliOutputSuccessColor = Settings.StringToConsoleColor(value); }
         }
+        public ConsoleColor CliOutputPromptColor { get; set; } = ConsoleColor.Yellow;
+        public string CliOutputPrompt
+        {
+            get { return CliOutputPromptColor.ToString(); }
+            set { CliOutputPromptColor = Settings.StringToConsoleColor(value); }
+        }
         public ConsoleColor CliPromptColor { get; set; } = ConsoleColor.Yellow;
         public string CliPrompt
         {

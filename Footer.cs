@@ -277,7 +277,9 @@ namespace maple
                     case OutputType.Success:
                         outputColor = Settings.Theme.CliOutputSuccessColor;
                         break;
-                    // TODO: prompt color is same as info
+                    case OutputType.Prompt:
+                        outputColor = Settings.Theme.CliOutputPromptColor;
+                        break;
                 }
 
                 // build prompt string

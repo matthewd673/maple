@@ -82,6 +82,7 @@ namespace maple
             { "undo", new Command("undo", "undo: undo the last edit to the document", UndoCommand) },
             { "redo", new Command("redo", "redo: redo the last edit in the undo history", RedoCommand) },
             { "comment", new Command("comment", "comment: toggle the comment status of the current line or selection", CommentCommand) },
+            { "pos", new Command("pos", "pos: get the line and column position of the cursor", PositionCommand)}
         };
 
         public static string InputText { get; set; } = "";
@@ -256,7 +257,7 @@ namespace maple
 
             if (savePath.Equals(""))
             {
-                SetOutput("Enter a filename to save at", "save",
+                SetOutput("Enter a name or path for the file", "save",
                     oPrompt: new OutputPrompt(
                         null,
                         SaveCommandResponse
@@ -1002,6 +1003,14 @@ namespace maple
                 
                 Editor.RefreshLine(Editor.DocCursor.DY);
             }
+        }
+
+        static void PositionCommand(List<string> args, List<string> switches)
+        {
+            SetOutput(
+                String.Format("Line {0} Column {1}", Editor.DocCursor.DY + 1, Editor.DocCursor.DX + 1),
+                "pos"
+            );
         }
 
         static void UnknownCommand()
