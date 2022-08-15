@@ -105,6 +105,25 @@ namespace maple
         }
     }
 
+    public class FooterBlockShortcut : FooterBlock
+    {
+        public string Key { get; set; }
+        public override string GetText()
+        {
+            string output = String.Format("[{0}] ", Key);
+            if (Settings.Properties.ShortcutsTable.ContainsKey(Settings.StringToConsoleKeyTable[Key]))
+            {
+                output += Settings.Properties.ShortcutsTable[Settings.StringToConsoleKeyTable[Key]].Command.Trim();
+            }
+            else
+            {
+                output += "None";
+            }
+
+            return output;
+        }
+    }
+
     public class FooterBlockReadOnlyIndicator : FooterBlock
     {
         public string TrueValue { get; set; } = "[readonly]";
@@ -137,6 +156,7 @@ namespace maple
          XmlArrayItem(ElementName = "Filename", Type = typeof(FooterBlockFilename)),
          XmlArrayItem(ElementName = "LnCol", Type = typeof(FooterBlockLnCol)),
          XmlArrayItem(ElementName = "Selection", Type = typeof(FooterBlockSelection)),
+         XmlArrayItem(ElementName = "Shortcut", Type = typeof(FooterBlockShortcut)),
          XmlArrayItem(ElementName = "ReadOnlyIndicator", Type = typeof(FooterBlockReadOnlyIndicator)),
          XmlArrayItem(ElementName = "DirtyIndicator", Type = typeof(FooterBlockDirtyIndicator))
          ]

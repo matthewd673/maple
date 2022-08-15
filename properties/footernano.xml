@@ -1,0 +1,45 @@
+<!-- Nano-style footer based on default keyboard shortcuts -->
+<FooterLayout>
+    <BlockGroup>
+        <Text>
+            <Content>maple</Content>
+            <Color>Yellow</Color>
+        </Text>
+        <Separator />
+        <Shortcut>
+            <Key>Q</Key>
+        </Shortcut>
+        <Separator />
+        <Shortcut>
+            <Key>S</Key>
+        </Shortcut>
+        <Separator />
+        <Shortcut>
+            <Key>L</Key>
+        </Shortcut>
+        <Separator />
+        <Shortcut>
+            <Key>F</Key>
+        </Shortcut>
+        <Separator />
+        <Shortcut>
+            <Key>C</Key>
+        </Shortcut>
+        <Separator />
+        <Shortcut>
+            <Key>P</Key>
+        </Shortcut>
+        <Separator />
+        <Shortcut>
+            <Key>X</Key>
+        </Shortcut>
+        <Separator />
+        <Shortcut>
+            <Key>Z</Key>
+        </Shortcut>
+        <Separator />
+        <Shortcut>
+            <Key>Y</Key>
+        </Shortcut>
+    </BlockGroup>
+</FooterLayout>
