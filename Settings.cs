@@ -49,8 +49,9 @@ namespace maple
         public bool ClearOutputOnToggle { get; set; } = true;
         public bool ColorOutputBackground { get; set; } = true;
         public bool HighlightTrailingWhitespace { get; set; } = false;
-        public bool Autocomplete { get; set; } = true;
-        public bool AutocompleteOnlyAtEOL { get; set; } = false;
+        public bool Autoclose { get; set; } = true;
+        public bool AutocloseOnlyAtEOL { get; set; } = false;
+        public bool AutocloseWithinStrings { get; set; } = true;
         public bool AutoResize { get; set; } = true;
         public bool ExternalEditAlert { get; set; } = true;
         public bool HideGutter { get; set; } = false;

@@ -813,18 +813,21 @@ namespace maple
                 c.MoveRight();
                 Editor.RefreshLine(c.DY);
             }
-            // attempt autocomplete, if enabled
-            if ((Settings.Properties.Autocomplete && Settings.Properties.AutocompleteOnlyAtEOL && c.DX == c.Doc.GetLine(c.DY).Length) ||
-                (Settings.Properties.Autocomplete && !Settings.Properties.AutocompleteOnlyAtEOL))
+            // attempt autoclose, if enabled
+            if ((Settings.Properties.Autoclose && Settings.Properties.AutocloseOnlyAtEOL && c.DX == c.Doc.GetLine(c.DY).Length) || // autoclose if at eol
+                (Settings.Properties.Autoclose && !Settings.Properties.AutocloseWithinStrings && 
+                    (c.Doc.GetTokenAtPosition(c.DX, c.DY).TType != TokenType.StringLiteral && c.Doc.GetTokenAtPosition(c.DX, c.DY).TType != TokenType.CharLiteral)) || // autoclose if not in string
+                (Settings.Properties.Autoclose && !Settings.Properties.AutocloseOnlyAtEOL && Settings.Properties.AutocloseWithinStrings) // autoclose anywhere
+                )
             {
-                if (Lexer.Properties.AutocompleteTable.ContainsKey(keyInfo.KeyChar))
+                if (Lexer.Properties.AutocloseTable.ContainsKey(keyInfo.KeyChar))
                 {
-                    string autocompleteText = Lexer.Properties.AutocompleteTable[keyInfo.KeyChar].ToString();
-                    c.Doc.AddTextAtPosition(c.DX, c.DY, autocompleteText);
-                    // autocomplete events are logged in history together
+                    string autocloseText = Lexer.Properties.AutocloseTable[keyInfo.KeyChar].ToString();
+                    c.Doc.AddTextAtPosition(c.DX, c.DY, autocloseText);
+                    // autoclose events are logged in history together
                     c.Doc.LogHistoryEvent(new HistoryEvent(
                         HistoryEventType.Add,
-                        autocompleteText,
+                        autocloseText,
                         new Point(c.DX, c.DY),
                         initialCursorPos,
                         combined: true

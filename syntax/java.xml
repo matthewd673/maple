@@ -1,6 +1,6 @@
 <FileProperties>
     <CommentPrefix>//</CommentPrefix>
-    <AutocompletePairings>()[]{}</AutocompletePairings>
+    <AutoclosePairings>()[]{}</AutoclosePairings>
     <SyntaxRules>
         <Syntax type="Url" insensitive="true">http(s{0,1}):\/\/[0-9a-z\.\-_~\/\?=&amp;%]+</Syntax>
         <Syntax type="Function" insensitive="true">[a-z_]+[a-z0-9_]* {0,1}(?=\()</Syntax>

@@ -49,22 +49,23 @@ namespace maple
         public string CommentPrefix { get; set; } = "";
 
         [XmlIgnore]
-        public Dictionary<char, char> AutocompleteTable = new();
+        public Dictionary<char, char> AutocloseTable = new();
 
-        private string _autocompletePairings { get; set; } = "";
-        public string AutocompletePairings
+        private string _autoclosePairings { get; set; } = "";
+        public string AutoclosePairings
         {
-            get { return _autocompletePairings; }
+            get { return _autoclosePairings; }
             set
             {
+                _autoclosePairings = value;
                 if (value.Length % 2 != 0)
                 {
-                    Log.Write("Autocomplete pairings should have an even length", "lexer", important: true);
+                    Log.Write("Autoclose pairings should have an even length", "lexer", important: true);
                     return;
                 }
                 for(int i = 0; i < value.Length; i += 2)
                 {
-                    AutocompleteTable.Add(value[i], value[i + 1]);
+                    AutocloseTable.Add(value[i], value[i + 1]);
                 }
             }
         }

@@ -253,7 +253,7 @@ namespace maple
             else if (Input.CurrentTarget == Input.InputTarget.Command)
             {
                 Printer.WriteToFooter(CommandPromptText, x: 0, foregroundColor: Settings.Theme.AccentColor);
-                if (Settings.Properties.CliNoHighlight)
+                if (Settings.Properties.CliNoHighlight || (CommandLine.HasOutput && CommandLine.OPrompt != null))
                 {
                     Printer.WriteToFooter(CommandLine.InputText, x: CommandPromptText.Length, Settings.Theme.CliInputDefaultColor);
                 }
