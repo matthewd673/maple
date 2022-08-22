@@ -443,20 +443,20 @@ namespace maple
         static void SelectInCommand(List<string> args, List<string> switches)
         {
             Editor.CurrentDoc.MarkSelectionIn(Editor.DocCursor.DX, Editor.DocCursor.DY);
-            if (Editor.CurrentDoc.HasSelection()) //only refresh if there is a complete selection
+            if (Editor.CurrentDoc.HasSelection) //only refresh if there is a complete selection
                 Editor.RefreshAllLines();
         }
 
         static void SelectOutCommand(List<string> args, List<string> switches)
         {
             Editor.CurrentDoc.MarkSelectionOut(Editor.DocCursor.DX, Editor.DocCursor.DY);
-            if (Editor.CurrentDoc.HasSelection()) //only refresh if there is a complete selection
+            if (Editor.CurrentDoc.HasSelection) //only refresh if there is a complete selection
                 Editor.RefreshAllLines();
         }
 
         static void DeselectCommand(List<string> args, List<string> switches)
         {
-            bool hadSelection = Editor.CurrentDoc.HasSelection();
+            bool hadSelection = Editor.CurrentDoc.HasSelection;
             Editor.CurrentDoc.Deselect();
             if (hadSelection)
                 Editor.RefreshAllLines();
@@ -595,8 +595,18 @@ namespace maple
             {
                 if (lastFindSearch.Equals("")) //there is no last search
                 {
-                    SetOutput("No query provided", "find", oType: OutputType.Error);
-                    return;
+                    if (Editor.CurrentDoc.HasSelection)
+                    {
+                        search = Editor.CurrentDoc.GetSelectionText().Split('\n')[0];
+                        // Editor.CurrentDoc.Deselect();
+                        Editor.RefreshAllLines();
+                        SetOutput(String.Format("Finding \"{0}\"", search), "find");
+                    }
+                    else
+                    {
+                        SetOutput("No query provided", "find", oType: OutputType.Error);
+                        return;
+                    }
                 }
                 else
                 {
@@ -760,7 +770,7 @@ namespace maple
 
         static void CopyCommand(List<string> args, List<string> switches)
         {
-            if (Editor.CurrentDoc.HasSelection())
+            if (Editor.CurrentDoc.HasSelection)
                 Editor.ClipboardContents = Editor.CurrentDoc.GetSelectionText();
             else
             {
@@ -772,7 +782,7 @@ namespace maple
         static void PasteCommand(List<string> args, List<string> switches)
         {
             bool deletedSelection = false;
-            if (Editor.CurrentDoc.HasSelection())
+            if (Editor.CurrentDoc.HasSelection)
             {
                 Input.DeleteSelectionText(Editor.DocCursor); // TODO: undo doesn't work correctly
                 deletedSelection = true;
@@ -808,7 +818,7 @@ namespace maple
         {
             CopyCommand(args, switches);
 
-            if (Editor.CurrentDoc.HasSelection())
+            if (Editor.CurrentDoc.HasSelection)
             {
                 Input.DeleteSelectionText(Editor.DocCursor);
             }
@@ -840,7 +850,7 @@ namespace maple
 
         static void SelectLineCommand(List<string> args, List<string> switches)
         {
-            if (Editor.CurrentDoc.HasSelection())
+            if (Editor.CurrentDoc.HasSelection)
                 Editor.RefreshAllLines();
             
             Editor.CurrentDoc.MarkSelectionIn(0, Editor.DocCursor.DY);
@@ -903,7 +913,7 @@ namespace maple
             }
 
             // comment entire selection
-            if (Editor.CurrentDoc.HasSelection())
+            if (Editor.CurrentDoc.HasSelection)
             {
                 bool commenting = true;
 

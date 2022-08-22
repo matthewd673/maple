@@ -49,7 +49,7 @@ namespace maple
                     // create / move selection area
                     if (Settings.Properties.ShiftSelect && keyInfo.Modifiers == ConsoleModifiers.Shift)
                     {
-                        if (!docCursor.Doc.HasSelectionStart())
+                        if (!docCursor.Doc.HasSelectionStart)
                         {
                             docCursor.Doc.MarkSelectionIn(docCursor.DX, docCursor.DY);
                             docCursor.Doc.MarkSelectionOut(docCursor.DX, docCursor.DY);
@@ -72,7 +72,7 @@ namespace maple
                             Editor.RefreshLine(oldDY);
                     }
 
-                    if (docCursor.Doc.HasSelection())
+                    if (docCursor.Doc.HasSelection)
                     {
                         if (Settings.Properties.ArrowsDeselect && keyInfo.Modifiers != ConsoleModifiers.Shift)
                         {
@@ -91,7 +91,7 @@ namespace maple
                     // create / move selection area
                     if (Settings.Properties.ShiftSelect && keyInfo.Modifiers == ConsoleModifiers.Shift)
                     {
-                        if (!docCursor.Doc.HasSelectionStart())
+                        if (!docCursor.Doc.HasSelectionStart)
                         {
                             docCursor.Doc.MarkSelectionIn(docCursor.DX, docCursor.DY);
                             docCursor.Doc.MarkSelectionOut(docCursor.DX, docCursor.DY);
@@ -114,7 +114,7 @@ namespace maple
                             Editor.RefreshLine(oldDY);
                     }
 
-                    if (docCursor.Doc.HasSelection())
+                    if (docCursor.Doc.HasSelection)
                     {
                         if (Settings.Properties.ArrowsDeselect && keyInfo.Modifiers != ConsoleModifiers.Shift)
                         {
@@ -133,7 +133,7 @@ namespace maple
                     // create / move selection area
                     if (Settings.Properties.ShiftSelect && keyInfo.Modifiers == ConsoleModifiers.Shift)
                     {
-                        if (!docCursor.Doc.HasSelectionStart())
+                        if (!docCursor.Doc.HasSelectionStart)
                         {
                             docCursor.Doc.MarkSelectionIn(docCursor.DX, docCursor.DY);
                             docCursor.Doc.MarkSelectionOut(docCursor.DX, docCursor.DY);
@@ -156,7 +156,7 @@ namespace maple
                             Editor.RefreshLine(oldDY);
                     }
 
-                    if (docCursor.Doc.HasSelection())
+                    if (docCursor.Doc.HasSelection)
                     {
                         if (Settings.Properties.ArrowsDeselect && keyInfo.Modifiers != ConsoleModifiers.Shift)
                         {
@@ -175,7 +175,7 @@ namespace maple
                     // create / move selection area
                     if (Settings.Properties.ShiftSelect && keyInfo.Modifiers == ConsoleModifiers.Shift)
                     {
-                        if (!docCursor.Doc.HasSelectionStart())
+                        if (!docCursor.Doc.HasSelectionStart)
                         {
                             docCursor.Doc.MarkSelectionIn(docCursor.DX, docCursor.DY);
                             docCursor.Doc.MarkSelectionOut(docCursor.DX, docCursor.DY);
@@ -198,7 +198,7 @@ namespace maple
                             Editor.RefreshLine(oldDY);
                     }
                     
-                    if (docCursor.Doc.HasSelection())
+                    if (docCursor.Doc.HasSelection)
                     {
                         if (Settings.Properties.ArrowsDeselect && keyInfo.Modifiers != ConsoleModifiers.Shift)
                         {
@@ -245,25 +245,25 @@ namespace maple
                     HandleEscape(docCursor);
                     break;
                 case ConsoleKey.Home:
-                    if (doc.HasSelection())
+                    if (doc.HasSelection)
                         break;
                     
                     HandleHome(docCursor);
                     break;
                 case ConsoleKey.End:
-                    if (doc.HasSelection())
+                    if (doc.HasSelection)
                         break;
                     
                     HandleEnd(docCursor);
                     break;
                 case ConsoleKey.PageDown:
-                    if (doc.HasSelection())
+                    if (doc.HasSelection)
                         break;
                     
                     HandlePageDown(docCursor);
                     break;
                 case ConsoleKey.PageUp:
-                    if (doc.HasSelection())
+                    if (doc.HasSelection)
                         break;
 
                     HandlePageUp(docCursor);
@@ -454,7 +454,7 @@ namespace maple
 
         static void HandleBackspace(DocumentCursor c)
         {
-            if (c.Doc.HasSelection())
+            if (c.Doc.HasSelection)
             {
                 DeleteSelectionText(c);
                 // undo event is logged in Document.RemoveSelectionText
@@ -551,7 +551,7 @@ namespace maple
 
         static void HandleDelete(DocumentCursor c)
         {
-            if (c.Doc.HasSelection())
+            if (c.Doc.HasSelection)
             {
                 DeleteSelectionText(c);
                 // undo event is logged in Document.RemoveSelectionText
@@ -603,7 +603,7 @@ namespace maple
         {
             // don't break after clearing selection since we still want a newline
             bool deletedSelection = false;
-            if (c.Doc.HasSelection())
+            if (c.Doc.HasSelection)
             {
                 DeleteSelectionText(c);
                 deletedSelection = true;
@@ -688,7 +688,7 @@ namespace maple
             }
 
             //if selected, indent all
-            if (c.Doc.HasSelection())
+            if (c.Doc.HasSelection)
             {
                 for (int i = c.Doc.SelectInY; i <= c.Doc.SelectOutY; i++)
                 {
@@ -792,7 +792,7 @@ namespace maple
 
             // clear selection before typing
             bool deletedSelection = false;
-            if (c.Doc.HasSelection())
+            if (c.Doc.HasSelection)
             {
                 DeleteSelectionText(c);
                 // undo event is logged in Document.RemoveSelectionText

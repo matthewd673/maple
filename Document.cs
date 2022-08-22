@@ -25,6 +25,18 @@ namespace maple
         public int SelectInY { get { return selectIn.Y; }}
         public int SelectOutX { get { return selectOut.X; }}
         public int SelectOutY { get { return selectOut.Y; }}
+        public bool HasSelection
+        {
+            get { return selectIn.X != -1 && selectIn.Y != -1 && selectOut.X != -1 && selectOut.Y != -1; }
+        }
+        public bool HasSelectionStart
+        {
+            get { return selectIn.X != -1 && selectIn.Y != -1; }
+        }
+        public bool HasSelectionEnd
+        {
+            get { return selectOut.X != -1 && selectIn.Y != -1; }
+        }
 
         public int GutterWidth { get; private set; } = 0;
 
@@ -761,7 +773,7 @@ namespace maple
         /// <returns>Returns true if the points were swapped, false otherwise.</returns>
         bool ArrangeSelectionPoints()
         {
-            if (!HasSelection())
+            if (!HasSelection)
                 return false;
 
             if (selectOut.Y < selectIn.Y) //flip start and end if end is on a previous line
@@ -780,33 +792,6 @@ namespace maple
             }
 
             return false;
-        }
-        
-        /// <summary>
-        /// Check if the document has a complete selection (beginning and end).
-        /// </summary>
-        /// <returns>Returns true if the document has a starting and ending selection bound.</returns>
-        public bool HasSelection()
-        {
-            return selectIn.X != -1 && selectIn.Y != -1 && selectOut.X != -1 && selectOut.Y != -1;
-        }
-
-        /// <summary>
-        /// Check if the Document has a starting selection bound.
-        /// </summary>
-        /// <returns>Returns true if the Document has a starting selection bound.</returns>
-        public bool HasSelectionStart()
-        {
-            return selectIn.X != -1 && selectIn.Y != -1;
-        }
-
-        /// <summary>
-        /// Check if the Document has an ending selection bound.
-        /// </summary>
-        /// <returns>Returns true if the Document has an ending selection bound.</returns>
-        public bool HasSelectionEnd()
-        {
-            return selectOut.X != -1 && selectIn.Y != -1;
         }
 
         /// <summary>
@@ -938,7 +923,7 @@ namespace maple
         /// </summary>
         public void RemoveSelectionText()
         {
-            if (HasSelection())
+            if (HasSelection)
             {
                 string removed = RemoveBlockText(SelectInX, SelectInY, SelectOutX, SelectOutY);
                 LogHistoryEvent(new HistoryEvent(
@@ -956,7 +941,7 @@ namespace maple
         /// </summary>
         public void Deindent()
         {
-            if (HasSelection())
+            if (HasSelection)
             {
                 for (int i = SelectInY; i <= SelectOutY; i++)
                 {

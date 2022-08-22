@@ -86,7 +86,7 @@ namespace maple
     {
         public override string GetText()
         {
-            if (Editor.CurrentDoc.HasSelection())
+            if (Editor.CurrentDoc.HasSelection)
             {
                 return String.Format("{0},{1} - {2},{3}",
                     Editor.CurrentDoc.SelectInY + 1,
@@ -94,7 +94,7 @@ namespace maple
                     Editor.CurrentDoc.SelectOutY + 1,
                     Editor.CurrentDoc.SelectOutX + 1);
             }
-            else if (Editor.CurrentDoc.HasSelectionStart())
+            else if (Editor.CurrentDoc.HasSelectionStart)
             {
                 return String.Format("{0},{1} …",
                     Editor.CurrentDoc.SelectInY + 1,
