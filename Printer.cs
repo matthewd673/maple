@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Threading;
 using Microsoft.Win32.SafeHandles;
 
 namespace maple
@@ -14,18 +11,6 @@ namespace maple
         private static short bufHeight;
         private static Win32Console.CharInfo[] buf;
         private static Win32Console.SmallRect rect;
-
-        private const int STD_INPUT_HANDLE = -10;
-        private const int INVALID_HANDLE_VALUE = -1;
-        private const int ENABLE_WINDOW_INPUT = 0x0008;
-        private const int ENABLE_MOUSE_INPUT = 0x0010;
-
-        // to keep track of input handler / mode
-        private static IntPtr hStdin;
-        private static uint fdwOldMode;
-
-        private static Thread inputThread;
-        private const int InputLoopDelay = 10;
 
         public static Dictionary<ConsoleColor, short> ConsoleColorToAttributeTable = new() {
             { ConsoleColor.Black, 0x0000 },
@@ -79,9 +64,7 @@ namespace maple
             }
         }
 
-        static Cursor printerCursor = new Cursor(0, 0);
-        public static int CursorSX { get { return printerCursor.SX; } }
-        public static int CursorSY { get { return printerCursor.SY; } }
+        private static Cursor printerCursor = new Cursor(0, 0);
 
         /// <summary>
         /// Get the 1 dimensional buffer index given 2 dimensional coordinates.
