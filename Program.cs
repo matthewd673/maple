@@ -99,6 +99,7 @@ namespace maple
         {
             Printer.Initialize();
             Printer.Clear();
+            Input.Initialize();
             Console.Title = "maple";
             Console.OutputEncoding = Encoding.UTF8;
             Printer.Resize();
@@ -108,7 +109,7 @@ namespace maple
         {
             Log.Write("Throw fatal error: " + message, "program", important: true);
 
-            Printer.RestorePreviousConsoleMode();
+            Input.RestorePreviousConsoleMode();
 
             Console.ForegroundColor = Settings.Theme.ErrorColor;
             Console.WriteLine("A fatal error occurred: " + message);
@@ -121,7 +122,7 @@ namespace maple
         {
             Log.Write("Session ended, cleaning up", "program");
 
-            Printer.RestorePreviousConsoleMode();
+            Input.RestorePreviousConsoleMode();
 
             Console.Clear();
             Console.ForegroundColor = Settings.Theme.AccentColor;

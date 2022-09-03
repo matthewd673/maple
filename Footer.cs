@@ -8,7 +8,7 @@ namespace maple
     public abstract class FooterBlock
     {
         [XmlIgnore]
-        public short ColorAttribute { get; private set; } = Printer.GetAttributeFromColor(ConsoleColor.Gray);
+        public short ColorAttribute { get; private set; } = Printer.ConsoleColorToAttributeTable[ConsoleColor.Gray];
 
         private string _color = "Gray";
         public string Color
@@ -17,9 +17,7 @@ namespace maple
             set
             {
                 _color = value;
-                ColorAttribute = Printer.GetAttributeFromColor(
-                    Settings.StringToConsoleColor(value)
-                );
+                ColorAttribute = Printer.ConsoleColorToAttributeTable[Settings.StringToConsoleColor(value)];
             }
         }
 
