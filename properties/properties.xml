@@ -20,6 +20,7 @@
     <Autoclose>true</Autoclose>
     <AutocloseOnlyAtEOL>false</AutocloseOnlyAtEOL>
     <AutocloseWithinStrings>false</AutocloseWithinStrings>
+    <WrapSelectionsWithAutoclosePairs>true</WrapSelectionsWithAutoclosePairs>
     <AutoResize>true</AutoResize>
     <ExternalEditAlert>true</ExternalEditAlert>
     <HideGutter>false</HideGutter>

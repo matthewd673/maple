@@ -930,12 +930,44 @@ namespace maple
 
             Point initialCursorPos = new Point(c.DX, c.DY);
 
-            // clear selection before typing
             bool deletedSelection = false;
-            if (c.Doc.HasSelection)
+            // wrap selection in autoclose
+            if (c.Doc.HasSelection &&
+                     Settings.Properties.WrapSelectionsWithAutoclosePairs &&
+                     Lexer.Properties.AutocloseTable.ContainsKey(keyInfo.KeyChar))
+            {
+                c.Doc.AddTextAtPosition(c.Doc.SelectInX, c.Doc.SelectInY, typed);
+                c.Doc.AddTextAtPosition(c.Doc.SelectOutX + 1, c.Doc.SelectOutY, Lexer.Properties.AutocloseTable[keyInfo.KeyChar].ToString());
+                c.Doc.LogHistoryEvent(new HistoryEvent(
+                    HistoryEventType.Add,
+                    typed,
+                    new Point(c.Doc.SelectInX, c.Doc.SelectInY),
+                    initialCursorPos,
+                    combined: false
+                ));
+                c.Doc.LogHistoryEvent(new HistoryEvent(
+                    HistoryEventType.Add,
+                    Lexer.Properties.AutocloseTable[keyInfo.KeyChar].ToString(),
+                    new Point(c.Doc.SelectOutX + 1, c.Doc.SelectOutY),
+                    initialCursorPos,
+                    selectionPoints: new Point[] {
+                        new Point(c.Doc.SelectInX, c.Doc.SelectInY),
+                        new Point(c.Doc.SelectOutX, c.Doc.SelectOutY),
+                    },
+                    combined: true
+                ));
+
+                c.Doc.MarkSelectionIn(c.Doc.SelectInX + 1, c.Doc.SelectInY);
+                c.Doc.MarkSelectionOut(c.Doc.SelectOutX + 1, c.Doc.SelectOutY);
+                
+                Editor.RefreshLine(c.Doc.SelectInY);
+                Editor.RefreshLine(c.Doc.SelectOutY);
+                return;
+            }
+            // normal, clear selection before typing
+            else if (c.Doc.HasSelection)
             {
                 DeleteSelectionText(c);
-                // undo event is logged in Document.RemoveSelectionText
                 deletedSelection = true;
             }
 

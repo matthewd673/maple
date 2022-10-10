@@ -1011,6 +1011,11 @@ namespace maple
                 SetLine(last.DeltaPos.Y, 
                     GetLine(last.DeltaPos.Y).Remove(last.DeltaPos.X, last.TextDelta.Length));
                 
+                if (!redo && last.SelectionPoints != null) {
+                    selectIn = last.SelectionPoints[0];
+                    selectOut = last.SelectionPoints[1];
+                }
+
                 Editor.DocCursor.Move(last.CursorPos.X, last.CursorPos.Y);
                 Editor.RefreshLine(last.DeltaPos.Y);
             }
