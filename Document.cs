@@ -196,7 +196,7 @@ namespace maple
         /// </summary>
         public void PrintLine(int lineIndex)
         {
-            //don't, if out of range
+            // don't, if out of range
             if(lineIndex < 0 ||
                 lineIndex > fileLines.Count - 1 ||
                 lineIndex - ScrollY < 0 ||
@@ -207,10 +207,10 @@ namespace maple
 
             Line l = fileLines[lineIndex];
             
-            //clear line on screen
+            // clear line on screen
             Printer.MoveCursor(0, lineIndex - ScrollY);
 
-            //build gutter content & print gutter
+            // build gutter content & print gutter
             String gutterContent = BuildGutter(lineIndex);
 
             if (!Settings.Properties.ColorGutterBackground)
@@ -219,36 +219,36 @@ namespace maple
                 Printer.PrintWord(gutterContent, foregroundColor: ConsoleColor.Black, backgroundColor: Settings.Theme.GutterColor);
 
             bool lineContainsSelection = LineContainsSelection(lineIndex);
-            //find start and end relative to line
+            // find start and end relative to line
             int lineSelectInX = selectIn.X;
-            if (selectIn.Y < lineIndex) //selection starts on previous line...
-                lineSelectInX = 0; //...so it starts at 0 on this line
+            if (selectIn.Y < lineIndex) // selection starts on previous line...
+                lineSelectInX = 0; // ...so it starts at 0 on this line
             int lineSelectOutX = selectOut.X;
-            if (selectOut.Y > lineIndex) //selection ends on following line...
-                lineSelectOutX = l.LineContent.Length; //...so it ends at the end of this line
+            if (selectOut.Y > lineIndex) // selection ends on following line...
+                lineSelectOutX = l.LineContent.Length; // ...so it ends at the end of this line
 
             bool fullySelected = false;
-            if (lineContainsSelection && lineSelectInX == 0 && lineSelectOutX >= l.LineContent.Length - 1)
+            if (lineContainsSelection && lineSelectInX == 0 && lineSelectOutX == l.LineContent.Length)
                 fullySelected = true;
 
-            //print all tokens in line
-            if(!Settings.Properties.DebugTokens) //ordinary printing:
+            // print all tokens in line
+            if(!Settings.Properties.DebugTokens) // ordinary printing:
             {
                 int lineLen = 0;
 
                 short selectColorAttribute = Printer.GetAttributeFromColor(ConsoleColor.Black, Settings.Theme.SelectionColor);
                 foreach(Token t in l.Tokens)
                 {
-                    //store difference between previous and current line lengths
+                    // store difference between previous and current line lengths
                     int oldLineLen = lineLen;
                     lineLen += t.Text.Length;
 
-                    //if token comes before scroll x (hidden to left), skip
+                    // if token comes before scroll x (hidden to left), skip
                     if (lineLen < ScrollX)
                     {
                         continue;
                     }
-                    //if token comes after scroll x (hidden to right), skip it and all subsequent tokens
+                    // if token comes after scroll x (hidden to right), skip it and all subsequent tokens
                     if (oldLineLen > ScrollX + Printer.MaxScreenX)
                     {
                         break;
@@ -257,8 +257,8 @@ namespace maple
                     int tSelectStart = -1;
                     int tSelectEnd = -1;
                     bool tokenHasSelect = false;
-                    //calculate start and end of highlight if:
-                    //line has highlight, highlight begins before end of word, and highlight ends before beginning of word
+                    // calculate start and end of highlight if:
+                    // line has highlight, highlight begins before end of word, and highlight ends before beginning of word
                     if (lineContainsSelection && !fullySelected && lineSelectInX < lineLen && lineSelectOutX > oldLineLen)
                     {
                         tSelectStart = lineSelectInX - oldLineLen;
@@ -275,30 +275,31 @@ namespace maple
 
                     string printText = t.Text;
 
-                    //trim the parts of the token that are hidden by horizontal scroll
-                    if (lineLen > ScrollX) //part of token is hidden to left, trim beginning
+                    // trim the parts of the token that are hidden by horizontal scroll
+                    if (lineLen > ScrollX) // part of token is hidden to left, trim beginning
                     {
                         int hiddenCharCt = ScrollX - oldLineLen;
                         if (hiddenCharCt > 0)
                         {
-                            printText = printText.Remove(0, hiddenCharCt); //trim off hidden
-                            //if token is selected, trim selection bounds as well
+                            printText = printText.Remove(0, hiddenCharCt); // trim off hidden
+                            // if token is selected, trim selection bounds as well
                             if (tokenHasSelect)
                             {
                                 tSelectStart -= hiddenCharCt;
                                 tSelectEnd -= hiddenCharCt;
-                                //clamp
+                                // clamp
                                 if (tSelectStart < 0)
                                     tSelectStart = 0;
                                 if (tSelectEnd < 0)
                                     tSelectEnd = 0;
                             }
                         }
-                        else //hiddenCharCt can't be negative, for highlighter's sake
+                        else // hiddenCharCt can't be negative, for highlighter's sake
                             hiddenCharCt = 0;
 
-                        if (tokenHasSelect) //print selected part with separate styles
+                        if (tokenHasSelect) // print selected part with separate styles
                         {
+                            // TODO: this is gross, just print the string and set the attributes after
                             int selectLength = tSelectEnd - tSelectStart;
                             string preSelectSubstring = printText.Substring(0, tSelectStart);
                             string inSelectSubstring = printText.Substring(tSelectStart, selectLength);
@@ -307,15 +308,15 @@ namespace maple
                             Printer.PrintWord(inSelectSubstring, selectColorAttribute);
                             Printer.PrintWord(postSelectSubstring, t.ColorAttribute);
                         }
-                        else //no precise selection to print
+                        else // no precise selection to print
                         {
-                            if (!fullySelected) //normal print
+                            if (!fullySelected) // normal print
                                 Printer.PrintWord(printText, t.ColorAttribute);
-                            else //print fully selected
+                            else // print fully selected
                                 Printer.PrintWord(printText, selectColorAttribute);
                         }
                     }
-                    else if (lineLen > ScrollX + Printer.MaxScreenX) //part of token is hidden to right, trim end
+                    else if (lineLen > ScrollX + Printer.MaxScreenX) // part of token is hidden to right, trim end
                     {
                         int hiddenCharCt = lineLen - (ScrollX + Printer.MaxScreenX);
                         if (hiddenCharCt > 0)
@@ -331,6 +332,7 @@ namespace maple
 
                             if (tokenHasSelect)
                             {
+                                // TODO: same as above, this is so gross
                                 int selectLength = tSelectEnd - tSelectStart;
                                 string preSelectSubstring = printText.Substring(0, tSelectStart);
                                 string inSelectSubstring = printText.Substring(tSelectStart, selectLength);
@@ -361,7 +363,7 @@ namespace maple
 
                 Printer.ClearRight();
 
-                //print overflow indicator
+                // print overflow indicator
                 if (lineLen - ScrollX + GutterWidth >= Printer.MaxScreenX)
                     Printer.PrintManually(
                         Settings.Properties.OverflowIndicatorChar,
@@ -370,7 +372,7 @@ namespace maple
                         (short)(Printer.GetAttributeAtPosition(Printer.MaxScreenX, lineIndex - ScrollY) << 4 & 0x00F0) //set background to old foreground, and foreground to black
                         );
             }
-            else //debug printing:
+            else // debug printing:
             {
                 int totalLength = 0;
                 Token hovered = null;
@@ -596,12 +598,14 @@ namespace maple
             String currentLine = GetLine(y);
             if (x > currentLine.Length)
                 return false;
-            
-            currentLine = currentLine.Insert(x, text);
+            else if (x == currentLine.Length)
+                currentLine = currentLine + text;
+            else
+                currentLine = currentLine.Insert(x, text);
 
-            // no change made
-            if(GetLine(y) == currentLine)
-                return false;
+            // // no change made
+            // if(GetLine(y).Equals(currentLine))
+            //     return false;
 
             SetLine(y, currentLine);
             return true;
@@ -741,6 +745,7 @@ namespace maple
         public bool MarkSelectionIn(int x, int y)
         {
             selectIn = new Point(x, y);
+            Log.WriteDebug("SelectIn: " + x + ", " + y, "document");
             return ArrangeSelectionPoints();
         }
 
@@ -755,6 +760,7 @@ namespace maple
             if (selectIn.X == -1 || selectIn.Y == -1) return false;
             
             selectOut = new Point(x, y);
+            Log.WriteDebug("SelectOut: " + x + ", " + y, "document");
             return ArrangeSelectionPoints();
         }
 

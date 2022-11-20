@@ -162,8 +162,6 @@ namespace maple
                 buf[i].Attributes = attribute;
                 printerCursor.SX++;
             }
-
-            // printerCursor.SX += word.Length;
         }
 
         /// <summary>

@@ -937,7 +937,13 @@ namespace maple
                      Lexer.Properties.AutocloseTable.ContainsKey(keyInfo.KeyChar))
             {
                 c.Doc.AddTextAtPosition(c.Doc.SelectInX, c.Doc.SelectInY, typed);
-                c.Doc.AddTextAtPosition(c.Doc.SelectOutX + 1, c.Doc.SelectOutY, Lexer.Properties.AutocloseTable[keyInfo.KeyChar].ToString());
+                // only shift closing insert position if the opening character is on the same line
+                c.Doc.AddTextAtPosition(
+                    c.Doc.SelectInY == c.Doc.SelectOutY ? c.Doc.SelectOutX + 1 : c.Doc.SelectOutX,
+                    c.Doc.SelectOutY,
+                    Lexer.Properties.AutocloseTable[keyInfo.KeyChar].ToString()
+                    );
+                
                 c.Doc.LogHistoryEvent(new HistoryEvent(
                     HistoryEventType.Add,
                     typed,
@@ -958,7 +964,8 @@ namespace maple
                 ));
 
                 c.Doc.MarkSelectionIn(c.Doc.SelectInX + 1, c.Doc.SelectInY);
-                c.Doc.MarkSelectionOut(c.Doc.SelectOutX + 1, c.Doc.SelectOutY);
+                if (c.Doc.SelectInY == c.Doc.SelectOutY)
+                    c.Doc.MarkSelectionOut(c.Doc.SelectOutX + 1, c.Doc.SelectOutY);
                 
                 Editor.RefreshLine(c.Doc.SelectInY);
                 Editor.RefreshLine(c.Doc.SelectOutY);
