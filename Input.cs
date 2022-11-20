@@ -789,6 +789,13 @@ namespace maple
                 c.Doc.ScrollDown();
             }
 
+            // if previous line is entirely whitespace, clean it
+            if (Settings.Properties.CleanWhitespaceLines &&
+                c.Doc.GetLine(c.DY).Trim().Equals(""))
+            {
+                c.Doc.SetLine(c.DY, "");
+            }
+
             // update
             c.Move(newLineTabString.Length, c.DY + 1);
             Editor.RefreshAllLines();

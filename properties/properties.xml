@@ -26,11 +26,12 @@
     <ExternalEditAlert>true</ExternalEditAlert>
     <HideGutter>false</HideGutter>
     <ColorGutterBackground>false</ColorGutterBackground>
+    <CleanWhitespaceLines>true</CleanWhitespaceLines>
 
     <ThemeDirectory>{mapledir}\themes\</ThemeDirectory>
     <ThemeFile>maple.xml</ThemeFile>
     <SyntaxDirectory>{mapledir}\syntax\</SyntaxDirectory>
-    <FooterLayoutFile>{mapledir}\properties\footernano.xml</FooterLayoutFile>
+    <FooterLayoutFile>{mapledir}\properties\footer.xml</FooterLayoutFile>
     <TabSpacesCount>4</TabSpacesCount>
     <ScrollYIncrement>half</ScrollYIncrement>
     <ScrollXIncrement>half</ScrollXIncrement>

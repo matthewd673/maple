@@ -58,6 +58,7 @@ namespace maple
         public bool ExternalEditAlert { get; set; } = true;
         public bool HideGutter { get; set; } = false;
         public bool ColorGutterBackground { get; set; } = false;
+        public bool CleanWhitespaceLines { get; set; } = true;
 
         private string _themeDirectory = Path.Combine(Settings.MapleDirectory, "themes");
         public string ThemeDirectory
