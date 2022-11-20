@@ -30,6 +30,7 @@ namespace maple
         private static bool controlKeyDown = false;
         private static bool altKeyDown = false;
         private static int keyEvents = 0;
+        private static ConsoleKeyInfo lastKey = new ConsoleKeyInfo((char)0x0, 0x0, false, false, false);
 
         public static int KeyEventQueueLength { get; set; } = 0;
         public static List<ConsoleKeyInfo> KeyEventQueue { get; private set; } = new();
@@ -415,6 +416,8 @@ namespace maple
                     HandleTyping(docCursor, keyInfo);
                     break;
             }
+
+            lastKey = keyInfo;
         }
 
         static void AcceptCommandInput(ConsoleKeyInfo keyInfo)
@@ -922,6 +925,15 @@ namespace maple
 
         static void HandleTyping(DocumentCursor c, ConsoleKeyInfo keyInfo)
         {
+            // if just autoclosed, cancel pairing
+            if (Settings.Properties.Autoclose &&
+                Settings.Properties.IgnoreAutocloseEndChar &&
+                Lexer.Properties.AutocloseTable.ContainsKey(lastKey.KeyChar) &&
+                Lexer.Properties.AutocloseTable[lastKey.KeyChar] == keyInfo.KeyChar) {
+                c.MoveRight(); // act as though it was typed
+                return;
+            }
+
             String typed = keyInfo.KeyChar.ToString();
             // continue only if the typed character can be displayed
             Regex r = new Regex("\\P{Cc}");

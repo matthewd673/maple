@@ -53,6 +53,7 @@ namespace maple
         public bool AutocloseOnlyAtEOL { get; set; } = false;
         public bool AutocloseWithinStrings { get; set; } = true;
         public bool WrapSelectionsWithAutoclosePairs { get; set; } = true;
+        public bool IgnoreAutocloseEndChar { get; set; } = true;
         public bool AutoResize { get; set; } = true;
         public bool ExternalEditAlert { get; set; } = true;
         public bool HideGutter { get; set; } = false;
