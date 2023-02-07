@@ -56,33 +56,34 @@ namespace maple
             { "help", new Command("help", "\"help [command]\", \"help all\", or \"help wiki\"", HelpCommand) },
             { "save", new Command("save", "save [filename]: save document, or save a copy to filename", SaveCommand) },
             { "load", new Command("load", "load [filename]: reload document, or load document at filename", LoadCommand) },
-            { "new", new Command("new", "new [filename]: create a new document at filename", NewCommand) },
+            { "new", new Command("new", "new <filename>: create a new document at filename", NewCommand) },
             { "close", new Command("close", "close: close maple without saving", CloseCommand) },
             { "cls", new Command("cls", "cls: clear the command output", ClearCommand) },
             { "top", new Command("top", "top: jump to the top of the document", TopCommand) },
             { "bot", new Command("bot", "bot: jump to the bottom of the document", BotCommand) },
             { "redraw", new Command("redraw", "redraw: force a complete redraw of the window", RedrawCommand) },
-            { "goto", new Command("goto", "goto [line]: jump to the specified line", GotoCommand) },
+            { "goto", new Command("goto", "goto <line>: jump to the specified line", GotoCommand) },
             { "selectin", new Command("selectin", "selectin: open selection", SelectInCommand) },
             { "selectout", new Command("selectout", "selectout: close selection", SelectOutCommand) },
             { "deselect", new Command("deselect", "deselect: deselect the current selection", DeselectCommand) },
             { "readonly", new Command("readonly", "readonly: toggle readonly mode", ReadonlyCommand) },
-            { "syntax", new Command("syntax", "syntax [extension]: render the current file with the specified syntax rules", SyntaxCommand) },
-            { "alias", new Command("alias", "alias [command]: view all aliases for a given command", AliasCommand) },
+            { "syntax", new Command("syntax", "syntax [extension]: render the current file with the specified syntax rules, or view the current syntax file", SyntaxCommand) },
+            { "alias", new Command("alias", "alias <command>: view all aliases for a given command", AliasCommand) },
             { "url", new Command("url", "url: if the cursor is currently hovered on a url, open it in the browser", UrlCommand) },
-            { "find", new Command("find", "find [query] [switches]: find the next occurrence of the search phrase, starting from the top", FindCommand) },
+            { "find", new Command("find", "find <query> [switches]: find the next occurrence of the search phrase, starting from the top", FindCommand) },
             { "deindent", new Command("deindent", "deindent: deindent the current line or selection", DeindentCommand) },
-            { "count", new Command("count", "count [stat]: count document '--lines' or '--chars'", CountCommand) },
+            { "count", new Command("count", "count <statistic>: count document '--lines' or '--chars'", CountCommand) },
             { "copy", new Command("copy", "copy: copy the current selection or line to the internal clipboard", CopyCommand) },
             { "paste", new Command("paste", "paste: paste the contents of the internal clipboard", PasteCommand) },
             { "cut", new Command("cut", "cut: cut the current selection or line", CutCommand) },
             { "selectline", new Command("selectline", "selectline: select the current line", SelectLineCommand) },
             { "selectall", new Command("selectall", "selectall: select the entire document", SelectAllCommand) },
-            { "shortcut", new Command("shortcut", "shortcut [key]: display the shortcut command for the given key", ShortcutCommand) },
+            { "shortcut", new Command("shortcut", "shortcut <key>: display the shortcut command for the given key", ShortcutCommand) },
             { "undo", new Command("undo", "undo: undo the last edit to the document", UndoCommand) },
             { "redo", new Command("redo", "redo: redo the last edit in the undo history", RedoCommand) },
             { "comment", new Command("comment", "comment: toggle the comment status of the current line or selection", CommentCommand) },
-            { "pos", new Command("pos", "pos: get the line and column position of the cursor", PositionCommand)}
+            { "pos", new Command("pos", "pos: get the line and column position of the cursor", PositionCommand)},
+            { "snippet", new Command("snippet", "snippet [name]: replace the current token with a snippet, or insert a snippet by name", SnippetCommand) },
         };
 
         public static string InputText { get; set; } = "";
@@ -106,7 +107,7 @@ namespace maple
         {
             if(pos < 0 || pos > InputText.Length)
                 return false;
-                
+
             InputText = InputText.Insert(pos, text);
             return true;
         }
@@ -115,7 +116,7 @@ namespace maple
         {
             if(pos < 0 || pos > InputText.Length - 1)
                 return false;
-            
+
             InputText = InputText.Remove(pos, 1);
             return true;
         }
@@ -357,7 +358,7 @@ namespace maple
             {
                 SetOutput(String.Format("Directory \"{0}\" does not exist", Path.GetDirectoryName(Document.ProcessFilepath(filepath))), "new", oType: OutputType.Error);
             }
-        
+
         }
 
         static void CloseCommand(List<string> args, List<string> switches)
@@ -376,7 +377,7 @@ namespace maple
                     ),
                 oType: OutputType.Prompt
                 );
-            
+
             if (Settings.Properties.SaveOnClose) // call save command first
                 SaveCommand(new List<string>(), new List<string>());
         }
@@ -536,7 +537,7 @@ namespace maple
                 output += "alias: ";
             else
                 output += "aliases: ";
-            
+
             for (int i = 0; i < commandAliases.Count; i++)
             {
                 output += "\"" + commandAliases[i] + "\"";
@@ -582,7 +583,7 @@ namespace maple
             bool findUpwards = (switches.Contains("--up") || switches.Contains("-u"));
             bool findCount = (switches.Contains("--count") || switches.Contains("-ct"));
             bool findCaseSensitive = (switches.Contains("--case") || switches.Contains("-c"));
-            
+
             bool forceFindHere = (switches.Contains("--here") || switches.Contains("-h"));
             if (forceFindHere) {
                 search = Editor.CurrentDoc.GetTokenAtPosition(Editor.DocCursor.DX, Editor.DocCursor.DY).Text;
@@ -655,7 +656,7 @@ namespace maple
 
                     indexes.Add(new Point(nextIndex, i - 1));
 
-                    if (firstAfterCursor == -1 && 
+                    if (firstAfterCursor == -1 &&
                         (i - 1 >= Editor.DocCursor.DY ||
                             (i - 1 == Editor.DocCursor.DY && nextIndex >= Editor.DocCursor.DX)
                         ))
@@ -704,7 +705,7 @@ namespace maple
             }
 
             int findIndex = lastFindIndex;
-            
+
             if (findUpwards)
             {
                 findIndex--;
@@ -852,7 +853,7 @@ namespace maple
         {
             if (Editor.CurrentDoc.HasSelection)
                 Editor.RefreshAllLines();
-            
+
             Editor.CurrentDoc.MarkSelectionIn(0, Editor.DocCursor.DY);
             Editor.CurrentDoc.MarkSelectionOut(Editor.CurrentDoc.GetLine(Editor.DocCursor.DY).Length, Editor.DocCursor.DY);
 
@@ -866,7 +867,7 @@ namespace maple
                 Editor.CurrentDoc.GetLine(Editor.CurrentDoc.GetMaxLine()).Length,
                 Editor.CurrentDoc.GetMaxLine()
                 );
-            
+
             Editor.RefreshAllLines();
         }
 
@@ -981,7 +982,7 @@ namespace maple
                     line = line.Remove(0, Settings.Properties.TabSpacesCount);
                 }
 
-                // is not commented - comment                
+                // is not commented - comment
                 if (!line.StartsWith(Lexer.Properties.CommentPrefix))
                 {
                     Editor.CurrentDoc.SetLine(
@@ -1010,7 +1011,7 @@ namespace maple
                         new Point(Editor.DocCursor.DX, Editor.DocCursor.DY)
                     ));
                 }
-                
+
                 Editor.RefreshLine(Editor.DocCursor.DY);
             }
         }
@@ -1023,23 +1024,67 @@ namespace maple
             );
         }
 
+        static void SnippetCommand(List<string> args, List<string> switches)
+        {
+            // check for switches
+            foreach (string s in switches)
+            {
+                if (s.Equals("-ct") || s.Equals("--count"))
+                {
+                    int count = Settings.Snippets.SnippetsList.Count;
+                    SetOutput(String.Format("{0} snippet{1} loaded", count, count == 1 ? "" : "s"), "snippet");
+                    return;
+                }
+            }
+
+            // grab snippet name from current token
+            // unless its specified as an argument
+            Token hoverToken = Editor.CurrentDoc.GetTokenAtPosition(Editor.DocCursor);
+            // try previous token also
+            if (hoverToken == null)
+            {
+                hoverToken = Editor.CurrentDoc.GetTokenAtPosition(Editor.DocCursor.DX - 1, Editor.DocCursor.DY);
+            }
+
+            string name = hoverToken.Text;
+            bool tokenSnip = true;
+            if (args.Count > 0)
+            {
+                name = args[0];
+                tokenSnip = false;
+            }
+
+            Log.Write(String.Format("Inserting snippet '{0}' (by {1})", name, tokenSnip ? "token" : "argument"), "commandline");
+
+            // not valid
+            if (!Settings.Snippets.SnippetsTable.ContainsKey(name))
+            {
+                SetOutput(String.Format("Snippet '{0}' is not defined", name), "snippet", oType: OutputType.Error);
+                return;
+            }
+
+            // snippet name derived from current token
+            // therefore, delete that token before adding
+            if (tokenSnip)
+            {
+                Point[] tokenBounds = Editor.CurrentDoc.GetBoundsOfTokenAtPosition(Editor.DocCursor);
+                Editor.CurrentDoc.RemoveBlockText(
+                    tokenBounds[0],
+                    tokenBounds[1]
+                );
+                Editor.DocCursor.Move(tokenBounds[0], applyPosition: false);
+            }
+
+            string text = Settings.Snippets.SnippetsTable[name].Text;
+            Point newPoint = Editor.CurrentDoc.AddBlockText(Editor.DocCursor.DX, Editor.DocCursor.DY, text);
+            Editor.RefreshAllLines();
+            Editor.DocCursor.UpdateGutterOffset();
+            Editor.DocCursor.Move(newPoint.X, newPoint.Y);
+        }
+
         static void UnknownCommand()
         {
             SetOutput("Unknown command, try \"help all\" or update the alias file", "error", oType: OutputType.Error);
         }
-
-        public static bool Contains<T>(this T[] array, T item)
-        {
-            foreach (T i in array)
-            {
-                if (i.Equals(item))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
     }
 }

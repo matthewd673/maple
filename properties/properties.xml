@@ -31,6 +31,7 @@
     <ThemeDirectory>{mapledir}\themes\</ThemeDirectory>
     <ThemeFile>maple.xml</ThemeFile>
     <SyntaxDirectory>{mapledir}\syntax\</SyntaxDirectory>
+    <SnippetsFile>{mapledir}\properties\snippets.xml</SnippetsFile>
     <FooterLayoutFile>{mapledir}\properties\footer.xml</FooterLayoutFile>
     <TabSpacesCount>4</TabSpacesCount>
     <ScrollYIncrement>half</ScrollYIncrement>
@@ -54,6 +55,8 @@
         <Alias command="bot">bottom</Alias>
         <Alias command="selectin">i</Alias>
         <Alias command="selectout">o</Alias>
+        <Alias command="selectline">sline</Alias>
+        <Alias command="selectall">sall</Alias>
         <Alias command="deselect">d</Alias>
         <Alias command="readonly">ro</Alias>
         <Alias command="goto">go</Alias>
@@ -63,6 +66,8 @@
         <Alias command="find">f</Alias>
         <Alias command="deindent">de</Alias>
         <Alias command="count">ct</Alias>
+        <Alias command="snippet">snippets</Alias>
+        <Alias command="snippet">snip</Alias>
     </Aliases>
 
     <Shortcuts>
@@ -78,5 +83,6 @@
         <Shortcut key="y" execute="true">redo</Shortcut>
         <Shortcut key="a" execute="true">selectall</Shortcut>
         <Shortcut key="/" execute="true">comment</Shortcut>
+        <Shortcut key="enter" execute="true">snippet</Shortcut>
     </Shortcuts>
 </Properties>

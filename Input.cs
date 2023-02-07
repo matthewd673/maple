@@ -144,11 +144,11 @@ namespace maple
                 alt: altKeyDown,
                 control: controlKeyDown
                 );
-            
+
             // Input.AcceptInput(keyInfo);
             lock (KeyEventQueue)
             {
-                Log.WriteDebug(String.Format("{0} ({1}) [s:{2}] [c:{3}] [a:{4}]", keyInfo.Key, keyInfo.KeyChar, shiftKeyDown, controlKeyDown, altKeyDown), "printer");
+                // Log.WriteDebug(String.Format("{0} ({1}) [s:{2}] [c:{3}] [a:{4}]", keyInfo.Key, keyInfo.KeyChar, shiftKeyDown, controlKeyDown, altKeyDown), "inter");
                 KeyEventQueue.Add(keyInfo);
                 KeyEventQueueLength++;
             }
@@ -225,7 +225,7 @@ namespace maple
                             break;
                         }
                     }
-                    
+
                     HandleUp(docCursor);
                     break;
                 case ConsoleKey.DownArrow:
@@ -240,7 +240,7 @@ namespace maple
                         }
                         int oldDY = docCursor.DY;
                         HandleDown(docCursor);
-                        
+
                         if (quickSelectOutPoint)
                         {
                             quickSelectOutPoint = !docCursor.Doc.MarkSelectionOut(docCursor.DX, docCursor.DY);
@@ -267,7 +267,7 @@ namespace maple
                             break;
                         }
                     }
-                    
+
                     HandleDown(docCursor);
                     break;
                 case ConsoleKey.LeftArrow:
@@ -309,7 +309,7 @@ namespace maple
                             break;
                         }
                     }
-                    
+
                     HandleLeft(docCursor);
                     break;
                 case ConsoleKey.RightArrow:
@@ -324,7 +324,7 @@ namespace maple
                         }
                         int oldDY = docCursor.DY;
                         HandleRight(docCursor);
-                        
+
                         if (quickSelectOutPoint)
                         {
                             quickSelectOutPoint = !docCursor.Doc.MarkSelectionOut(docCursor.DX, docCursor.DY);
@@ -338,7 +338,7 @@ namespace maple
                         if (oldDY != docCursor.DY)
                             Editor.RefreshLine(oldDY);
                     }
-                    
+
                     if (docCursor.Doc.HasSelection)
                     {
                         if (Settings.Properties.ArrowsDeselect && keyInfo.Modifiers != ConsoleModifiers.Shift)
@@ -354,12 +354,12 @@ namespace maple
 
                     HandleRight(docCursor);
                     break;
-                
+
                 // LINE MANIPULATION
                 case ConsoleKey.Backspace:
                     if (ReadOnly)
                         break;
-                    
+
                     HandleBackspace(docCursor);
                     break;
                 case ConsoleKey.Delete:
@@ -377,7 +377,7 @@ namespace maple
                 case ConsoleKey.Tab:
                     if (ReadOnly)
                         break;
-                    
+
                     HandleTab(docCursor, keyInfo);
                     break;
 
@@ -388,19 +388,19 @@ namespace maple
                 case ConsoleKey.Home:
                     if (doc.HasSelection)
                         break;
-                    
+
                     HandleHome(docCursor);
                     break;
                 case ConsoleKey.End:
                     if (doc.HasSelection)
                         break;
-                    
+
                     HandleEnd(docCursor);
                     break;
                 case ConsoleKey.PageDown:
                     if (doc.HasSelection)
                         break;
-                    
+
                     HandlePageDown(docCursor);
                     break;
                 case ConsoleKey.PageUp:
@@ -409,7 +409,7 @@ namespace maple
 
                     HandlePageUp(docCursor);
                     break;
-                
+
                 // TYPING
                 default:
                     if (ReadOnly) break;
@@ -486,7 +486,7 @@ namespace maple
                 // LINE MANIPULATION
                 case ConsoleKey.Backspace:
                     bool backspaceTriggered = CommandLine.RemoveText(cmdCursor.DX - 1);
-                    
+
                     if(backspaceTriggered)
                         cmdCursor.Move(cmdCursor.DX - 1, 0);
 
@@ -507,10 +507,10 @@ namespace maple
                     {
                         string text = CommandLine.InputText;
                         OutputPrompt.PromptResponseDelegate responseDelegate = CommandLine.OPrompt.ResponseDelegate;
-                        
+
                         CommandLine.ClearInput();
                         ToggleInputTarget();
-                        
+
                         responseDelegate(text);
                     }
                     else // basic mode
@@ -523,16 +523,16 @@ namespace maple
                     CommandLine.CommandHistoryIndex = -1;
                     ToggleInputTarget();
                     break;
-                
+
                 // TYPING
-                default:                    
+                default:
                     String typed = keyInfo.KeyChar.ToString();
 
                     // continue only if the typed character can be displayed
                     Regex r = new Regex("\\P{Cc}");
                     if(!r.Match(typed).Success)
                         break;
-                    
+
                     bool addedText = CommandLine.AddText(Editor.CmdCursor.DX, typed);
 
                     if(addedText)
@@ -590,7 +590,7 @@ namespace maple
             {
                 c.MoveRight(applyPosition: false);
             }
-            
+
             c.ApplyPosition();
             UpdateMaxCursorX(c); // update max x position
         }
@@ -709,7 +709,7 @@ namespace maple
                     string followingLineText = c.Doc.GetLine(c.DY + 1); // get following line content
                     c.Doc.SetLine(c.DY, c.Doc.GetLine(c.DY) + followingLineText); // append to current
                     c.Doc.RemoveLine(c.DY + 1); // remove next line
-                    
+
                     // update
                     c.UpdateGutterOffset();
                     Editor.RefreshAllLines();
@@ -782,7 +782,7 @@ namespace maple
 
             if(c.DX < followingTextLine.Length)
                 c.Doc.SetLine(c.DY, followingTextLine.Remove(c.DX)); // remove following text on current line
-            
+
             // scroll down if necessary
             if(c.SY >= Printer.MaxScreenY - Footer.FooterHeight)
             {
@@ -881,7 +881,7 @@ namespace maple
             }
 
             bool tabTextAdded = c.Doc.AddTextAtPosition(c.DX, c.DY, tabText); // attempt to add tab text
-            
+
             if(tabTextAdded)
             {
                 c.Doc.LogHistoryEvent(new HistoryEvent(
@@ -906,10 +906,10 @@ namespace maple
                 tabSpaceCount += Settings.TabString.Length;
                 tabSearchString = tabSearchString.Remove(0, Settings.TabString.Length);
             }
-            
+
             if (c.DX <= tabSpaceCount) //if document is already at tab string pos, go all the way to 0
                 tabSpaceCount = 0;
-            
+
             c.Move(tabSpaceCount, c.DY);
             maxCursorX = c.DX;
         }
@@ -962,7 +962,7 @@ namespace maple
                     c.Doc.SelectOutY,
                     Lexer.Properties.AutocloseTable[keyInfo.KeyChar].ToString()
                     );
-                
+
                 c.Doc.LogHistoryEvent(new HistoryEvent(
                     HistoryEventType.Add,
                     typed,
@@ -985,7 +985,7 @@ namespace maple
                 c.Doc.MarkSelectionIn(c.Doc.SelectInX + 1, c.Doc.SelectInY);
                 if (c.Doc.SelectInY == c.Doc.SelectOutY)
                     c.Doc.MarkSelectionOut(c.Doc.SelectOutX + 1, c.Doc.SelectOutY);
-                
+
                 Editor.RefreshLine(c.Doc.SelectInY);
                 Editor.RefreshLine(c.Doc.SelectOutY);
                 return;
@@ -1013,7 +1013,7 @@ namespace maple
             }
             // attempt autoclose, if enabled
             if ((Settings.Properties.Autoclose && Settings.Properties.AutocloseOnlyAtEOL && c.DX == c.Doc.GetLine(c.DY).Length) || // autoclose if at eol
-                (Settings.Properties.Autoclose && !Settings.Properties.AutocloseWithinStrings && 
+                (Settings.Properties.Autoclose && !Settings.Properties.AutocloseWithinStrings &&
                     (c.Doc.GetTokenAtPosition(c.DX, c.DY).TType != TokenType.StringLiteral && c.Doc.GetTokenAtPosition(c.DX, c.DY).TType != TokenType.CharLiteral)) || // autoclose if not in string
                 (Settings.Properties.Autoclose && !Settings.Properties.AutocloseOnlyAtEOL && Settings.Properties.AutocloseWithinStrings) // autoclose anywhere
                 )

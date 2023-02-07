@@ -77,6 +77,7 @@ namespace maple
                 Log.Write("Filepath '" + filepath + "' doesn't exist, attempting substitution", "document");
 
                 // check for reserved filename
+                // TODO: move to table
                 switch (filepath)
                 {
                     case "{themefile}":
@@ -87,6 +88,11 @@ namespace maple
                         return Lexer.CurrentSyntaxFile;
                     case "{footerfile}":
                         return Settings.Properties.FooterLayoutFile;
+                    case "{snippetsfile}":
+                        return Settings.Properties.SnippetsFile;
+                    default:
+                        Log.Write("Complete filepath substitution failed", "document");
+                        break;
                 }
 
                 // check for path substitution
@@ -96,6 +102,8 @@ namespace maple
                     return filepath.Replace("{themedir}", Settings.Properties.ThemeDirectory);
                 if (filepath.Contains("{syntaxdir}"))
                     return filepath.Replace("{syntaxdir}", Settings.Properties.SyntaxDirectory);
+
+                Log.Write("Partial (directory) filepath substitution failed", "document");
             }
             return filepath; // nothing to change
         }
@@ -132,7 +140,7 @@ namespace maple
             Filepath = filepath;
             ParentDirectory = Path.GetDirectoryName(filepath);
 
-            Log.Write("Filpath: " + Filepath, "document");
+            Log.Write("Filepath: " + Filepath, "document");
 
             if (Filepath.Equals("")) // empty filename
             {
@@ -146,7 +154,7 @@ namespace maple
             {
                 Log.Write("Loading from '" + filepath + "'", "document");
                 List<string> fileLinesText = File.ReadAllLines(filepath, Encoding.UTF8).ToList<String>();
-                
+
                 foreach(string s in fileLinesText)
                     fileLines.Add(new Line(s));
 
@@ -206,7 +214,7 @@ namespace maple
             }
 
             Line l = fileLines[lineIndex];
-            
+
             // clear line on screen
             Printer.MoveCursor(0, lineIndex - ScrollY);
 
@@ -594,7 +602,7 @@ namespace maple
         {
             if(x < 0 || y < 0 || y > fileLines.Count)
                 return false;
-            
+
             String currentLine = GetLine(y);
             if (x > currentLine.Length)
                 return false;
@@ -625,7 +633,7 @@ namespace maple
             String currentLine = GetLine(y);
             if (x >= currentLine.Length)
                 return "";
-            
+
             string removed = currentLine[x].ToString();
             currentLine = currentLine.Remove(x, 1);
 
@@ -649,6 +657,11 @@ namespace maple
             return currentLine.Remove(0, x);
         }
 
+        public string GetTextAtPosition(Cursor cursor)
+        {
+            return GetTextAtPosition(cursor.DX, cursor.DY);
+        }
+
         /// <summary>
         /// Get the Token nearest to the given position.
         /// </summary>
@@ -659,16 +672,47 @@ namespace maple
         {
             if (x < 0 || x > GetLine(y).Length || y < 0 || y > fileLines.Count)
                 return new Token(null, TokenType.None);
-            
+
             int totalLength = 0;
             foreach(Token t in fileLines[y].Tokens)
             {
                 totalLength += t.Text.Length;
-                if(totalLength > Editor.DocCursor.DX)
+                if(totalLength >= Editor.DocCursor.DX)
                     return t;
             }
 
             return new Token(null, TokenType.None);
+        }
+
+        public Token GetTokenAtPosition(Cursor cursor)
+        {
+            return GetTokenAtPosition(cursor.DX, cursor.DY);
+        }
+
+        public Point[] GetBoundsOfTokenAtPosition(int x, int y)
+        {
+            if (x < 0 || x > GetLine(y).Length || y < 0 || y > fileLines.Count)
+                return new Point[] { new Point(0, 0), new Point(0, 0) };
+
+            int oldTotal = 0;
+            int totalLength = 0;
+            foreach(Token t in fileLines[y].Tokens)
+            {
+                oldTotal = totalLength;
+                totalLength += t.Text.Length;
+                if(totalLength > Editor.DocCursor.DX)
+                    return new Point[] {
+                        new Point(oldTotal, y),
+                        new Point(totalLength, y)
+                    };
+            }
+
+            return new Point[] { new Point(0, 0), new Point(0, 0) };
+        }
+
+        public Point[] GetBoundsOfTokenAtPosition(Cursor cursor)
+        {
+            return GetBoundsOfTokenAtPosition(cursor.DX, cursor.DY);
         }
 
         /// <summary>
@@ -680,7 +724,7 @@ namespace maple
         {
             if(index < 0 || index > fileLines.Count)
                 return false;
-            
+
             fileLines.Insert(index, new Line(""));
             CalculateGutterWidth();
 
@@ -758,7 +802,7 @@ namespace maple
         public bool MarkSelectionOut(int x, int y)
         {
             if (selectIn.X == -1 || selectIn.Y == -1) return false;
-            
+
             selectOut = new Point(x, y);
             Log.WriteDebug("SelectOut: " + x + ", " + y, "document");
             return ArrangeSelectionPoints();
@@ -836,7 +880,7 @@ namespace maple
             return text;
         }
 
-        private string RemoveBlockText(int aX, int aY, int bX, int bY)
+        public string RemoveBlockText(int aX, int aY, int bX, int bY)
         {
             string text = "";
 
@@ -871,10 +915,22 @@ namespace maple
             return text;
         }
 
+        public string RemoveBlockText(Point start, Point end)
+        {
+            return RemoveBlockText(start.X, start.Y, end.X, end.Y);
+        }
+
+        /// <summary>
+        /// Add multiple lines of text at a point in the Document.
+        /// </summary>
+        /// <param name="x">The X coordinate.</param>
+        /// <param name="y">The Y coordinate.</param>
+        /// <param name="text">The text to add, which can be multiline.</param>
+        /// <returns>The Point at the end of the new text block</returns>
         public Point AddBlockText(int x, int y, string text)
         {
             string[] lines = text.Split('\n');
-            
+
             string followingText = GetLine(y).Substring(x);
             SetLine(y, GetLine(y).Remove(x));
 
@@ -976,9 +1032,9 @@ namespace maple
                             Editor.DocCursor.DY,
                             GetLine(Editor.DocCursor.DY).Remove(0, Settings.TabString.Length)
                         );
-                    
+
                     Editor.DocCursor.Move(Editor.DocCursor.DX - Settings.TabString.Length, Editor.DocCursor.DY);
-                    
+
                     Editor.RefreshLine(Editor.DocCursor.DY);
                 }
             }
@@ -1014,9 +1070,9 @@ namespace maple
             if ((!redo && last.EventType == HistoryEventType.Add) || // did add, now remove
                 (redo && last.EventType == HistoryEventType.Remove)) // undid remove, now remove
             {
-                SetLine(last.DeltaPos.Y, 
+                SetLine(last.DeltaPos.Y,
                     GetLine(last.DeltaPos.Y).Remove(last.DeltaPos.X, last.TextDelta.Length));
-                
+
                 if (!redo && last.SelectionPoints != null) {
                     selectIn = last.SelectionPoints[0];
                     selectOut = last.SelectionPoints[1];
@@ -1030,7 +1086,7 @@ namespace maple
             {
                 SetLine(last.DeltaPos.Y,
                     GetLine(last.DeltaPos.Y).Insert(last.DeltaPos.X, last.TextDelta));
-                
+
                 Editor.DocCursor.Move(last.CursorPos.X, last.CursorPos.Y);
                 Editor.RefreshLine(last.DeltaPos.Y);
             }
@@ -1038,7 +1094,7 @@ namespace maple
                     (redo && last.EventType == HistoryEventType.AddSelection)) // undid add selection, now add
             {
                 Point addOutPoint = AddBlockText(last.DeltaPos.X, last.DeltaPos.Y, last.TextDelta);
-                
+
                 if (!redo && last.SelectionPoints != null)
                 {
                     selectIn = last.SelectionPoints[0];
@@ -1067,7 +1123,7 @@ namespace maple
                                 );
 
                 if (redo) Deselect();
-                
+
                 Editor.DocCursor.Move(last.CursorPos.X, last.CursorPos.Y);
                 Editor.RefreshAllLines();
             }
@@ -1075,7 +1131,7 @@ namespace maple
             {
                 RemoveLine(last.DeltaPos.Y + 1);
                 SetLine(last.DeltaPos.Y, GetLine(last.DeltaPos.Y) + last.TextDelta);
-                
+
                 Editor.DocCursor.Move(last.CursorPos.X, last.CursorPos.Y);
                 Editor.RefreshAllLines();
             }
@@ -1092,7 +1148,7 @@ namespace maple
                 AddLine(last.DeltaPos.Y + 1);
                 SetLine(last.DeltaPos.Y + 1, GetLine(last.DeltaPos.Y).Substring(last.DeltaPos.X));
                 SetLine(last.DeltaPos.Y, GetLine(last.DeltaPos.Y).Remove(last.DeltaPos.X));
-                
+
                 Editor.DocCursor.Move(last.CursorPos.X, last.CursorPos.Y);
                 Editor.RefreshAllLines();
             }
@@ -1110,7 +1166,7 @@ namespace maple
 
                 SetLine(last.DeltaPos.Y + 1, indentPrefix + GetLine(last.DeltaPos.Y).Substring(last.DeltaPos.X));
                 SetLine(last.DeltaPos.Y, GetLine(last.DeltaPos.Y).Remove(last.DeltaPos.X));
-                
+
                 Editor.DocCursor.Move(last.CursorPos.X, last.CursorPos.Y);
                 Editor.RefreshAllLines();
             }

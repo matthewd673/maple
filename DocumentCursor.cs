@@ -5,7 +5,7 @@ namespace maple
 {
     class DocumentCursor : Cursor
     {
-        
+
         public Document Doc { get; private set; }
 
         public DocumentCursor(Document doc, int dX, int dY) : base(dX, dY)
@@ -166,6 +166,11 @@ namespace maple
             {
                 ApplyPosition();
             }
+        }
+
+        public void Move(Point target, bool constrainToDoc = true, bool constrainToScreen = true, bool applyPosition = true)
+        {
+            Move(target.X, target.Y, constrainToDoc, constrainToScreen, applyPosition);
         }
 
         /// <summary>

@@ -1,0 +1,14 @@
+<Snippets>
+    <SnippetList>
+        <Snippet name="program">using System;
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+
+    }
+}
+</Snippet>
+    </SnippetList>
+</Snippets>

@@ -79,6 +79,16 @@ namespace maple
                 _syntaxDirectory = value.Replace("{mapledir}", Settings.MapleDirectory);
             }
         }
+
+        private string _snippetFile = Path.Combine(Settings.MapleDirectory, "properties", "snippets.xml");
+        public string SnippetsFile
+        {
+            get { return _snippetFile; }
+            set
+            {
+                _snippetFile = value.Replace("{mapledir}", Settings.MapleDirectory);
+            }
+        }
         private string _footerLayoutFile = Path.Combine(Settings.MapleDirectory, "properties", "footer.xml");
         public string FooterLayoutFile
         {
@@ -216,12 +226,31 @@ namespace maple
         public List<TokenColor> Tokens { get; set; } = new List<TokenColor>();
     }
 
+    public class Snippet
+    {
+        [XmlAttribute(AttributeName = "name")]
+        public string Name { get; set; }
+        [XmlText]
+        public string Text { get; set; }
+    }
+
+    public class Snippets
+    {
+        [XmlIgnore]
+        public Dictionary<string, Snippet> SnippetsTable = new();
+
+        [XmlArray(ElementName = "SnippetList")]
+        [XmlArrayItem(ElementName = "Snippet")]
+        public List<Snippet> SnippetsList { get; set; } = new List<Snippet>();
+    }
+
     static class Settings
     {
         // directories, these aren't user-defined
         public static string MapleDirectory { get; private set; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static string PropertiesFile { get; } = Path.Combine(MapleDirectory, "properties", "properties.xml");
         public static string ThemeFile { get { return Path.Combine(Properties.ThemeDirectory, Properties.ThemeFile); } }
+        public static string SnippetsFile { get { return Properties.SnippetsFile; } }
 
         public static Dictionary<string, ConsoleKey> StringToConsoleKeyTable { get; } = new()
         {
@@ -298,6 +327,9 @@ namespace maple
             { "\\", ConsoleKey.Oem5 },
             { "]", ConsoleKey.Oem6 },
             { "'", ConsoleKey.Oem7 },
+            { "tab", ConsoleKey.Tab },
+            { "enter", ConsoleKey.Enter },
+            { "backspace", ConsoleKey.Backspace },
         };
         public static Dictionary<string, ConsoleColor> StringToConsoleColorTable { get; } = new()
         {
@@ -342,7 +374,7 @@ namespace maple
             { "specialchar", TokenType.SpecialChar },
             { "multilinecommentopen", TokenType.MultilineCommentOpen },
             { "multilinecommentclose", TokenType.MultilineCommentClose },
-            
+
             { "clicommandvalid", TokenType.CliCommandValid },
             { "clicommandinvalid", TokenType.CliCommandInvalid },
             { "cliswitch", TokenType.CliSwitch },
@@ -353,6 +385,7 @@ namespace maple
 
         public static Properties Properties { get; private set; } = new Properties();
         public static Theme Theme { get; private set; } = new Theme();
+        public static Snippets Snippets { get; private set; } = new Snippets();
 
         public static String TabString { get; set; } = "    "; // default: 4
 
@@ -405,10 +438,14 @@ namespace maple
             if (loadedProperties != null) Properties = loadedProperties;
             PopulateAliasesTable(Properties);
             PopulateShortcutsTable(Properties);
-            
+
             Theme loadedTheme = ReadSettingsFile<Theme>(ThemeFile);
             if (loadedTheme != null) Theme = loadedTheme;
             PopulateTokenColorsTable(Theme);
+
+            Snippets loadedSnippets = ReadSettingsFile<Snippets>(SnippetsFile);
+            if (loadedSnippets != null) Snippets = loadedSnippets;
+            PopulateSnippetsTable(Snippets);
         }
 
         // TODO: remove
@@ -445,6 +482,14 @@ namespace maple
             foreach (Shortcut s in properties.Shortcuts)
             {
                 properties.ShortcutsTable.Add(StringToConsoleKeyTable[s.Key], s);
+            }
+        }
+
+        private static void PopulateSnippetsTable(Snippets snippets)
+        {
+            foreach (Snippet s in snippets.SnippetsList)
+            {
+                snippets.SnippetsTable.Add(s.Name, s);
             }
         }
     }

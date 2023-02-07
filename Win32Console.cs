@@ -77,7 +77,7 @@ namespace maple
             IntPtr hConsoleHandle,
             out uint lpMode
             );
-        
+
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool SetConsoleMode(
             IntPtr hConsoleHandle,
@@ -103,7 +103,7 @@ namespace maple
         }
 
         // https://www.codeproject.com/script/Content/ViewAssociatedFile.aspx?rzp=%2FKB%2Fdotnet%2FConsolePasswordInput%2FConsolePasswordInput_src.ZIP&zep=ConsolePasswordInput%2FConsolePasswordInput.cs&obid=8110&obtid=2&ovid=1
-        [StructLayout(LayoutKind.Sequential, Pack=8)]        
+        [StructLayout(LayoutKind.Sequential, Pack=8)]
         public struct KEY_EVENT_RECORD
         {
             public int bKeyDown;
@@ -172,7 +172,7 @@ namespace maple
                 {
                     Log.Write("Failed to create console handle", "win32console", important: true);
                     Printer.PrintLineSimple("Failed to create console handle", Settings.Theme.ErrorColor);
-                    
+
                     // get me out
                     Console.ResetColor();
                     Environment.Exit(1);
@@ -201,7 +201,7 @@ namespace maple
             uint fdwMode;
 
             Log.WriteDebug("Got hStdin (=" + hStdin + ")", "printer");
-            
+
             if (!GetConsoleMode(hStdin, out fdwOldMode))
             {
                 Log.Write("GetInputHandle() failed to GetConsoleMode()", "win32console", important: true);

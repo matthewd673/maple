@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading;
 
 namespace maple
-{    
+{
     static class Log
     {
 
@@ -56,7 +56,7 @@ namespace maple
         public static void WriteDebug(string text, string speaker)
         {
             if (!Settings.Properties.EnableLogging) return;
-            
+
             #if DEBUG
                 try
                 {

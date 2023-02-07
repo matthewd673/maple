@@ -61,6 +61,11 @@ namespace maple
             }
         }
 
+        public void Move(Point target, bool constrainToScreen = true, bool applyPosition = true)
+        {
+            Move(target.X, target.Y, constrainToScreen, applyPosition);
+        }
+
         /// <summary>
         /// Force the Console's cursor to move to the Cursor's screen coordinates.
         /// </summary>
