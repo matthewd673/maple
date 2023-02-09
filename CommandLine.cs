@@ -1059,6 +1059,7 @@ namespace maple
             // not valid
             if (!Settings.Snippets.SnippetsTable.ContainsKey(name))
             {
+                Log.Write("Failed to insert snippet - not defined", "commandline");
                 SetOutput(String.Format("Snippet '{0}' is not defined", name), "snippet", oType: OutputType.Error);
                 return;
             }
@@ -1068,15 +1069,39 @@ namespace maple
             if (tokenSnip)
             {
                 Point[] tokenBounds = Editor.CurrentDoc.GetBoundsOfTokenAtPosition(Editor.DocCursor);
+                Log.WriteDebug(String.Format("Snip replace bounds: {0} - {1}", tokenBounds[0], tokenBounds[1]), "commandline");
                 Editor.CurrentDoc.RemoveBlockText(
                     tokenBounds[0],
                     tokenBounds[1]
                 );
+
+                Editor.CurrentDoc.LogHistoryEvent(new HistoryEvent(
+                    HistoryEventType.RemoveSelection,
+                    name,
+                    new Point(0, 0),
+                    new Point(Editor.DocCursor.DX, Editor.DocCursor.DY),
+                    selectionPoints: tokenBounds,
+                    combined: false
+                ));
+
                 Editor.DocCursor.Move(tokenBounds[0], applyPosition: false);
             }
 
             string text = Settings.Snippets.SnippetsTable[name].Text;
             Point newPoint = Editor.CurrentDoc.AddBlockText(Editor.DocCursor.DX, Editor.DocCursor.DY, text);
+
+            Editor.CurrentDoc.LogHistoryEvent(new HistoryEvent(
+                HistoryEventType.AddSelection,
+                text,
+                new Point(0, 0),
+                new Point(newPoint.X, newPoint.Y),
+                selectionPoints: new Point[] {
+                    new Point(Editor.DocCursor.DX, Editor.DocCursor.DY),
+                    newPoint,
+                },
+                combined: true
+            ));
+
             Editor.RefreshAllLines();
             Editor.DocCursor.UpdateGutterOffset();
             Editor.DocCursor.Move(newPoint.X, newPoint.Y);

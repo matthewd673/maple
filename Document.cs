@@ -700,7 +700,7 @@ namespace maple
             {
                 oldTotal = totalLength;
                 totalLength += t.Text.Length;
-                if(totalLength > Editor.DocCursor.DX)
+                if(totalLength >= Editor.DocCursor.DX)
                     return new Point[] {
                         new Point(oldTotal, y),
                         new Point(totalLength, y)

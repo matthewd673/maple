@@ -6,7 +6,6 @@ namespace maple
 {
     class Program
     {
-
         static void Main(string[] args)
         {
             // initialize logger
