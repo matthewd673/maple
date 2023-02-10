@@ -1067,6 +1067,8 @@ namespace maple
                 last = history.PopRedoEvent();
             }
 
+            Log.WriteDebug(String.Format("Undo event {0} (redo={1})", last.EventType, redo), "document");
+
             if ((!redo && last.EventType == HistoryEventType.Add) || // did add, now remove
                 (redo && last.EventType == HistoryEventType.Remove)) // undid remove, now remove
             {
@@ -1087,6 +1089,7 @@ namespace maple
                 SetLine(last.DeltaPos.Y,
                     GetLine(last.DeltaPos.Y).Insert(last.DeltaPos.X, last.TextDelta));
 
+                Deselect(); // just feels more correct
                 Editor.DocCursor.Move(last.CursorPos.X, last.CursorPos.Y);
                 Editor.RefreshLine(last.DeltaPos.Y);
             }
@@ -1094,6 +1097,7 @@ namespace maple
                     (redo && last.EventType == HistoryEventType.AddSelection)) // undid add selection, now add
             {
                 Point addOutPoint = AddBlockText(last.DeltaPos.X, last.DeltaPos.Y, last.TextDelta);
+                Log.WriteDebug("undo/redo added block: " + last.TextDelta, "document");
 
                 if (!redo && last.SelectionPoints != null)
                 {
@@ -1193,9 +1197,15 @@ namespace maple
             }
 
             // if combined event, trigger last event automatically
-            if (last.Combined)
+            if (!redo && last.Combined)
             {
                 Undo();
+            }
+
+            // if redoing, look deeper in stack to see if you should combine
+            if (redo && history.NextRedoCombined())
+            {
+                Undo(redo: true);
             }
         }
     }

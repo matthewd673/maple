@@ -78,6 +78,11 @@ namespace maple
             return redoEvents.Count > 0;
         }
 
+        public bool NextRedoCombined()
+        {
+            return redoEvents.Count > 0 && redoEvents[^1].Combined;
+        }
+
         public void Clear()
         {
             events.Clear();

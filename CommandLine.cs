@@ -1078,7 +1078,7 @@ namespace maple
                 Editor.CurrentDoc.LogHistoryEvent(new HistoryEvent(
                     HistoryEventType.RemoveSelection,
                     name,
-                    new Point(0, 0),
+                    tokenBounds[0],
                     new Point(Editor.DocCursor.DX, Editor.DocCursor.DY),
                     selectionPoints: tokenBounds,
                     combined: false
@@ -1093,11 +1093,11 @@ namespace maple
             Editor.CurrentDoc.LogHistoryEvent(new HistoryEvent(
                 HistoryEventType.AddSelection,
                 text,
-                new Point(0, 0),
+                new Point(Editor.DocCursor.DX, Editor.DocCursor.DY),
                 new Point(newPoint.X, newPoint.Y),
                 selectionPoints: new Point[] {
                     new Point(Editor.DocCursor.DX, Editor.DocCursor.DY),
-                    newPoint,
+                    new Point(Editor.DocCursor.DX, Editor.DocCursor.DY),
                 },
                 combined: true
             ));
